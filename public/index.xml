@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>R Doodles</title>
+    <link>/</link>
+    <description>Recent content on R Doodles</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 07 Mar 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>What is an R doodle?</title>
+      <link>/2018/03/what-is-an-r-doodle/</link>
+      <pubDate>Wed, 07 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/03/what-is-an-r-doodle/</guid>
+      <description>An R doodle is a short script to check intuition or understanding. Almost always, this involves generating fake data. I might create an R doodle when I’m reviewing a manuscript or reading a published paper and I want to check if their statistical analysis is doing what the authors think it is doing. Or maybe I create it to help me figure out what the authors are doing. Or I might be teaching some method and I create an R doodle to help me understand how the method behaves given different input (fake) data sets.</description>
+    </item>
+    
+  </channel>
+</rss>
