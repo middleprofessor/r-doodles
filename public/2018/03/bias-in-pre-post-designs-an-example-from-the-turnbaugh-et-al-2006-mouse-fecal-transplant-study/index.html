@@ -30,15 +30,15 @@
     
 
     
-    <meta name="description" content="Summary This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treamtment effect, given that the treatment was randomized among groups.">
-    <meta property="og:description" content="Summary This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treamtment effect, given that the treatment was randomized among groups.">
+    <meta name="description" content="This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.">
+    <meta property="og:description" content="This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study">
     <meta property="og:url" content="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="Summary This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treamtment effect, given that the treatment was randomized among groups.">
+    <meta name="twitter:description" content="This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.">
     
     
 
@@ -239,26 +239,33 @@
   
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2018-03-06T00:00:00Z">
+      <time itemprop="datePublished" datetime="2018-03-08T00:00:00Z">
         
-  March 6, 2018
+  March 8, 2018
 
       </time>
     
     
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/re-analysis">re-analysis</a>, 
+    
+      <a class="category-link" href="/categories/medicine">medicine</a>
+    
+  
+
   </div>
 
 </div>
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <div id="summary" class="section level1">
-<h1>Summary</h1>
-<p>This post is motivated by a twitter link to a <a href="https://honey-guide.com/2018/02/13/graphic-faecal-transplants-and-obesity/">recent blog post</a> critical of the old but influential study <a href="https://scholar.google.co.uk/scholar?hl=en&amp;as_sdt=0%2C5&amp;q=An+obesity-associated+gut+microbiome+with+increased+capacity+for+energy+harvest.&amp;btnG=">An obesity-associated gut microbiome with increased capacity for energy harvest</a> with <a href="https://www.nature.com/articles/nature05414/metrics">impressive citation metrics</a>. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treamtment effect, given that the treatment was randomized among groups.</p>
-<p>This is true, but doesn’t quite capture the essence of the major problem with the analysis: a simple t-test of differences in percent weight change fails to condition on initial weight. And, in pre-post designs, groups with smaller initial measures are expected to have more change due to <a href="https://en.wikipedia.org/wiki/Regression_toward_the_mean">regression to the mean</a>. This is exactly what was observed. In the fecal transplant study, the initial mean weight of the rats infected with <em>ob/ob</em> feces was smaller (by 1.2SD) than that of the rats infected with <em>+/+</em> feces and, consequently, the expected difference in the change in weight is not zero but positive (this is the expected difference <em>conditional on an inital difference</em>). That is, unless the treatment effect is estimated conditional on (or ``adjusted for’’) the initial weight, the estimate is biased, except under very limited conditions explained below.</p>
-<p>Regression to the mean also has consequences on the hypothesis testing approach taken by the authors. Somewhat perplexingly, a simple <span class="math inline">\(t\)</span>-test of the post-treatment weights or of pre-post difference in weight, or of percent change in weight does not have elevated Type I error. This is demonstrated using simulation below. The explaination is, in short, the Type I error rate is also a function of the initial difference in weight. If the initial difference is near zero, the Type I error is much less than the nominal alpha (say, 0.05). But as the intial difference moves away from zero, the Type I error is much greater than the nominal alpha. Over the space of the initial difference, these rates average to the nominal alpha.</p>
-<p><a href="\rmd_toc_posts\change_scores.html">Read the full post</a></p>
-</div>
+              <p>This post is motivated by a twitter link to a <a href="https://honey-guide.com/2018/02/13/graphic-faecal-transplants-and-obesity/">recent blog post</a> critical of the old but influential study <a href="https://scholar.google.co.uk/scholar?hl=en&amp;as_sdt=0%2C5&amp;q=An+obesity-associated+gut+microbiome+with+increased+capacity+for+energy+harvest.&amp;btnG=">An obesity-associated gut microbiome with increased capacity for energy harvest</a> with <a href="https://www.nature.com/articles/nature05414/metrics">impressive citation metrics</a>. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.</p>
+<p>This is true, but doesn’t quite capture the essence of the major problem with the analysis: a simple <em>t</em>-test of differences in percent weight change fails to condition on initial weight. And, in pre-post designs, groups with smaller initial measures are expected to have more change due to <a href="https://en.wikipedia.org/wiki/Regression_toward_the_mean">regression to the mean</a>. This is exactly what was observed. In the fecal transplant study, the initial mean weight of the rats infected with <em>ob/ob</em> feces was smaller (by 1.2SD) than that of the rats infected with <em>+/+</em> feces and, consequently, the expected difference in the change in weight is not zero but positive (this is the expected difference <em>conditional on an inital difference</em>). More generally, a difference in percent change <em>as an estimate of the parametric difference in percent change</em> is not biased, but it is also not an estimate of the treatment effect, except under very limited conditions explained below. If these conditions are not met, a difference in percent change <em>as an estimate of the treatment effect</em> is biased, unless estimated conditional on (or “adusted for”) the initial weight.</p>
+<p>Regression to the mean also has consequences on the hypothesis testing approach taken by the authors. Somewhat perplexingly, a simple <em>t</em>-test of the post-treatment weights or of pre-post difference in weight, or of percent change in weight does not have elevated Type I error. This is demonstrated using simulation below. The explaination is, in short, the Type I error rate is also a function of the initial difference in weight. If the initial difference is near zero, the Type I error is much less than the nominal alpha (say, 0.05). But as the intial difference moves away from zero, the Type I error is much greater than the nominal alpha. Over the space of the initial difference, these rates average to the nominal alpha.</p>
+<p><a href="/rmd_toc_posts/obese_mice_change_scores/change_scores.html">continue reading the whole post</a></p>
 
               
             </div>
@@ -271,6 +278,12 @@
                   <div class="post-footer-tags">
                     <span class="text-color-light text-small">TAGGED IN</span><br/>
                     
+  <a class="tag tag--primary tag--small" href="/tags/microbiome/">microbiome</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/pre-post/">pre-post</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/bias/">bias</a>
+
   <a class="tag tag--primary tag--small" href="/tags/ancova/">ancova</a>
 
                   </div>
@@ -292,7 +305,7 @@
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/03/what-is-an-r-doodle/" data-tooltip="What is an R doodle?">
               
                   <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                   <i class="fa fa-angle-right"></i>
@@ -382,7 +395,7 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/03/what-is-an-r-doodle/" data-tooltip="What is an R doodle?">
               
                   <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                   <i class="fa fa-angle-right"></i>
@@ -523,7 +536,24 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   Mar 3, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Summary This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treamtment effect, given that the treatment was randomized among groups.</div>
+              <div class="media-content hide-xs font-merryweather">This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/what-is-an-r-doodle/">
+                <h3 class="media-heading">What is an R doodle?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">An R doodle is a short script to check intuition or understanding. Almost always, this involves generating fake data. I might create an R doodle when I’m reviewing a manuscript or reading a published paper and I want to check if their statistical analysis is doing what the authors think it is doing. Or maybe I create it to help me figure out what the authors are doing. Or I might be teaching some method and I create an R doodle to help me understand how the method behaves given different input (fake) data sets.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -536,7 +566,7 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         1 posts found
+         2 posts found
       </p>
     </div>
   </div>
@@ -589,7 +619,7 @@ $(document).ready(function() {
             return;
           }
           var d = document, s = d.createElement('script');
-          var disqus_shortname = 'hugo-tranquilpeak-theme';
+          var disqus_shortname = 'r-doodles';
           s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
 
           s.setAttribute('data-timestamp', +new Date());
