@@ -5,13 +5,13 @@ author: Jeff Walker
 date: '2018-03-08'
 slug: bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study
 categories:
-  - reanalysis
   - medicine
 tags:
   - microbiome
   - pre-post
   - bias
   - ancova
+  - reanalysis
 ---
 This post is motivated by a twitter link to a [recent blog post](https://honey-guide.com/2018/02/13/graphic-faecal-transplants-and-obesity/) critical of the old but influential study [An obesity-associated gut microbiome with increased capacity for energy harvest](https://scholar.google.co.uk/scholar?hl=en&as_sdt=0%2C5&q=An+obesity-associated+gut+microbiome+with+increased+capacity+for+energy+harvest.&btnG=) with [impressive citation metrics](https://www.nature.com/articles/nature05414/metrics). In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.
 
