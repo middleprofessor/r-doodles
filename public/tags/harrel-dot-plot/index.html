@@ -1,9 +1,5 @@
 
 
-  
-    
-  
-
 
   
 
@@ -22,26 +18,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.37 with theme Tranquilpeak 0.4.3-BETA">
-    <title>When do we introduce best statistical practices to undergraduate biology majors? Part 1. Bar plot alternatives</title>
+    <title>Harrel Dot Plot</title>
     <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
     <meta name="keywords" content="">
 
     <link rel="icon" href="/favicon.png">
     
+      <link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/harrel-dot-plot/index.xml">
+    
 
     
-    <meta name="description" content="Within the cell biology/physiology literature, but not so much the ecology and evolution literature, there have been several editorials and short papers encouraging researchers to use alternatives to bar plots to communicate experimental results (here, here, here, here, and here).
-Bar plots aren’t wrong, there are simply much better plots for communicating features of our data or the models that we fit. All the links above advocate some version of box plots or dot plots.">
-    <meta property="og:description" content="Within the cell biology/physiology literature, but not so much the ecology and evolution literature, there have been several editorials and short papers encouraging researchers to use alternatives to bar plots to communicate experimental results (here, here, here, here, and here).
-Bar plots aren’t wrong, there are simply much better plots for communicating features of our data or the models that we fit. All the links above advocate some version of box plots or dot plots.">
+    <meta name="description" content="Some ecology. Some physiology. Much fake data">
+    <meta property="og:description" content="Some ecology. Some physiology. Much fake data">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="When do we introduce best statistical practices to undergraduate biology majors? Part 1. Bar plot alternatives">
-    <meta property="og:url" content="/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/">
+    <meta property="og:title" content="Harrel Dot Plot">
+    <meta property="og:url" content="/tags/harrel-dot-plot/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="Within the cell biology/physiology literature, but not so much the ecology and evolution literature, there have been several editorials and short papers encouraging researchers to use alternatives to bar plots to communicate experimental results (here, here, here, here, and here).
-Bar plots aren’t wrong, there are simply much better plots for communicating features of our data or the models that we fit. All the links above advocate some version of box plots or dot plots.">
+    <meta name="twitter:description" content="Some ecology. Some physiology. Much fake data">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -78,7 +73,7 @@ Bar plots aren’t wrong, there are simply much better plots for communicating f
 
   <body>
     <div id="blog">
-      <header id="header" data-behavior="4">
+      <header id="header" data-behavior="1">
   <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
   <div class="header-title">
     <a class="header-title-link" href="/">R Doodles</a>
@@ -98,7 +93,7 @@ Bar plots aren’t wrong, there are simply much better plots for communicating f
   
 </header>
 
-      <nav id="sidebar" data-behavior="4">
+      <nav id="sidebar" data-behavior="1">
   <div class="sidebar-container">
     
       <div class="sidebar-profile">
@@ -227,21 +222,39 @@ Bar plots aren’t wrong, there are simply much better plots for communicating f
 </nav>
 
       
+        
 
-      <div id="main" data-behavior="4"
+      
+      <div id="main" data-behavior="1"
         class="
                hasCoverMetaIn
                ">
-        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
-          
-          
-            <div class="post-header main-content-wrap text-left">
+        
+          <section class="postShorten-group main-content-wrap">
+            
+            
+              
   
-    <h1 class="post-title" itemprop="headline">
-      When do we introduce best statistical practices to undergraduate biology majors? Part 1. Bar plot alternatives
-    </h1>
+    
+      
+        
+      
+    
   
+
+
   
+
+<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
+  <div class="postShorten-wrap">
+    
+    <div class="postShorten-header">
+      <h1 class="postShorten-title" itemprop="headline">
+        <a class="link-unstyled" href="/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/">
+          When do we introduce best statistical practices to undergraduate biology majors? Part 1. Bar plot alternatives
+        </a>
+      </h1>
+      
   <div class="postShorten-meta post-meta">
     
       <time itemprop="datePublished" datetime="2018-03-11T00:00:00Z">
@@ -261,126 +274,24 @@ Bar plots aren’t wrong, there are simply much better plots for communicating f
 
   </div>
 
-</div>
-          
-          <div class="post-content markdown" itemprop="articleBody">
-            <div class="main-content-wrap">
-              <p>Within the cell biology/physiology literature, but not so much the ecology and evolution literature, there have been several editorials and short papers encouraging researchers to use alternatives to bar plots to communicate experimental results (<a href="https://www.nature.com/articles/nmeth.2813">here</a>, <a href="http://onlinelibrary.wiley.com/doi/10.1113/jphysiol.2011.205062/full">here</a>, <a href="http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128&amp;fullSite">here</a>, <a href="https://www.nature.com/articles/nmeth.2811">here</a>, and <a href="http://thenode.biologists.com/leaving-bar-five-steps/research/">here</a>).</p>
-<p>Bar plots aren’t wrong, there are simply much better plots for communicating features of our data or the models that we fit. All the links above advocate some version of box plots or dot plots. I suggest a third, a forest plot, or even better a <a href="https://middleprofessor.shinyapps.io/Hdotplot/">Harrel dot plot</a>, which combines a forest plot with a dot/box plot (see below).</p>
-<p>I do think there is one major impediment to any largescale implementation of bar plot alternatives in biology – how we train undergraduate biology majors. Specifically, I suspect that most undergraduate programs teach biology majors that “the way” to plot experimental data is with bar plots using Microsoft Excel/Google Sheets, a practice that often begins in the first year Introductory Biology labs. And, humans, being humans, mostly continue using what they were first taught. A major reason we continue using what we were first taught is because there is no “corrective” teaching in upper level classes, or during graduate training. And a major reason there is no corrective teaching is because most researchers are unaware that there is something to correct, or that there are alternative best practices – after all, bar plots are ubiquitous. And a major reason bar plots are ubiquitous is because Excel, which is on every machine in every university and easy to teach to undergraduates. It is a positive feedback cycle of mediocrity.</p>
-<p>I don’t think there should be correctives. If we are to break the cycle, I think we should start undergraduate training with best practices from the beginning – in the Introductory Biology labs. But we can’t use Excel/Sheets for this. And we aren’t (realistically) going to teach intro bio students R scripting. This is the root of the impediment – <em>there are few tools to nudge professors to implement best practices in applied statistical graphing in undergraduate biology labs</em>.</p>
-<p>These issues have oozed through my brain for several years but only really started to crystalize over the last few months. So, Thanksgiving day morning, I decided to do something about it, and teach myself how to make a Shiny App, so that I could create a web-based tool for undergraduate teaching or for researchers who were resistant to scripting in R (or Python or whatever). By the end of the morning, I had created a shiny appy to read in a data file exported from Excel/Sheets and generate a simple dot plot with mean and 95% confidence interval.</p>
-<p>But what bothered me most about bar plots was not the issues listed in the critical editorials/papers but the fact that bar plots only indirectly communicated what we often want to communicate in our results – the effect sizes and their error. And box plots or dot plots with means and CI bars aren’t any better than bar plots in this regard.</p>
-<p>My <a href="http://www.ucl.ac.uk/sts/staff/cain/projects/huxley">“how extremely stupid not to have thought of that”</a> moment came when I saw this figure from Frank Harrell’s <a href="http://biostat.mc.vanderbilt.edu/wiki/pub/Main/StatGraphCourse/graphscourse.pdf">Principals of Graph Construction</a></p>
-<p><img src="/images/harrell_fig_1_1.png" width="400px" /> <strong>Figure 1</strong> from <a href="http://biostat.mc.vanderbilt.edu/wiki/pub/Main/StatGraphCourse/graphscourse.pdf">Harrell</a></p>
-<p>This is a pretty awesome plot, combining a plot of the treatment means and confidence intervals in the bottom part <strong>and</strong> a plot of the point estimate of the difference in means with its confidence interval in the top part. This is what we should all be publishing.</p>
-<p>With Harrel’s plot as my target, I developed a <a href="https://middleprofessor.shinyapps.io/Hdotplot/">shiny app to generate a “Harrel dot plot” (or Hdotplot)</a>. Here is an example</p>
-<p><img src="/images/zfish_ancova.png" width="400px" /> <strong>Figure 2</strong> A Harrel dot plot (Hdotplot) showing effects of sprint, endurance, and no training on sprint swimming performance in zebrafish. The effects illustrated in the upper panel are <em>not</em> the simple difference in treatment means but adjusted means conditioned on pre-treatment sprint performance speeds (see <a href="/rmd_toc_posts/change_scores.html">Walker 2018</a>).</p>
-<p>An Hdotplot combines 1) a dot plot to show individual values, 2) a box plot to show the distribution of the response within treatment groups, and 3) a forest plot of effect estimates and confidence intervals to show effect sizes and uncertainty. This plot addresses all of the concerns raised in the above links over bar plots but is <em>much</em> more. The plot communicates what we often really want to communicate and focus on, effect sizes and their error.</p>
-
-              
-            </div>
-          </div>
-          <div id="post-footer" class="post-footer main-content-wrap">
-            
-              
-                
-                
-                  <div class="post-footer-tags">
-                    <span class="text-color-light text-small">TAGGED IN</span><br/>
-                    
-  <a class="tag tag--primary tag--small" href="/tags/plots/">plots</a>
-
-  <a class="tag tag--primary tag--small" href="/tags/excel/">excel</a>
-
-  <a class="tag tag--primary tag--small" href="/tags/bar-plot/">bar plot</a>
-
-  <a class="tag tag--primary tag--small" href="/tags/forest-plot/">forest plot</a>
-
-  <a class="tag tag--primary tag--small" href="/tags/harrel-dot-plot/">Harrel dot plot</a>
-
-                  </div>
-                
-              
-            
-            
-  <div class="post-actions-wrap">
-      <nav >
-        <ul class="post-actions post-action-nav">
-          
-            <li class="post-action">
-              
-                <a class="post-action-btn btn btn--disabled">
-              
-                  <i class="fa fa-angle-left"></i>
-                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
-                </a>
-            </li>
-            <li class="post-action">
-              
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/" data-tooltip="Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study">
-              
-                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
-                  <i class="fa fa-angle-right"></i>
-                </a>
-            </li>
-          
-        </ul>
-      </nav>
-    <ul class="post-actions post-action-share" >
-      
-        <li class="post-action hide-lg hide-md hide-sm">
-          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
-            <i class="fa fa-share-alt"></i>
-          </a>
-        </li>
+    </div>
+    <div class="postShorten-excerpt" itemprop="articleBody">
+      Within the cell biology/physiology literature, but not so much the ecology and evolution literature, there have been several editorials and short papers encouraging researchers to use alternatives to bar plots to communicate experimental results (here, here, here, here, and here).
+Bar plots aren’t wrong, there are simply much better plots for communicating features of our data or the models that we fit. All the links above advocate some version of box plots or dot plots.
+      <p>
+        <a href="/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/" class="postShorten-excerpt_link link">Continue reading</a>
         
-          <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/">
-              <i class="fa fa-facebook-official"></i>
-            </a>
-          </li>
-        
-          <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/">
-              <i class="fa fa-twitter"></i>
-            </a>
-          </li>
-        
-          <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/">
-              <i class="fa fa-google-plus"></i>
-            </a>
-          </li>
-        
-      
-      
-        <li class="post-action">
-          <a class="post-action-btn btn btn--default" href="#disqus_thread">
-            <i class="fa fa-comment-o"></i>
-          </a>
-        </li>
-      
-      <li class="post-action">
-        
-          <a class="post-action-btn btn btn--default" href="#">
-        
-          <i class="fa fa-list"></i>
-        </a>
-      </li>
-    </ul>
+      </p>
+    </div>
   </div>
-
+  
+</article>
 
             
-              
-                <div id="disqus_thread">
-  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</div>
-              
             
-          </div>
-        </article>
+
+          </section>
+        
         <footer id="footer" class="main-content-wrap">
   <span class="copyrights">
     &copy; 2018 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
@@ -475,102 +386,6 @@ Bar plots aren’t wrong, there are simply much better plots for communicating f
 </footer>
 
       </div>
-      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
-        
-  <div class="post-actions-wrap">
-      <nav >
-        <ul class="post-actions post-action-nav">
-          
-            <li class="post-action">
-              
-                <a class="post-action-btn btn btn--disabled">
-              
-                  <i class="fa fa-angle-left"></i>
-                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
-                </a>
-            </li>
-            <li class="post-action">
-              
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/" data-tooltip="Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study">
-              
-                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
-                  <i class="fa fa-angle-right"></i>
-                </a>
-            </li>
-          
-        </ul>
-      </nav>
-    <ul class="post-actions post-action-share" >
-      
-        <li class="post-action hide-lg hide-md hide-sm">
-          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
-            <i class="fa fa-share-alt"></i>
-          </a>
-        </li>
-        
-          <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/">
-              <i class="fa fa-facebook-official"></i>
-            </a>
-          </li>
-        
-          <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/">
-              <i class="fa fa-twitter"></i>
-            </a>
-          </li>
-        
-          <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/">
-              <i class="fa fa-google-plus"></i>
-            </a>
-          </li>
-        
-      
-      
-        <li class="post-action">
-          <a class="post-action-btn btn btn--default" href="#disqus_thread">
-            <i class="fa fa-comment-o"></i>
-          </a>
-        </li>
-      
-      <li class="post-action">
-        
-          <a class="post-action-btn btn btn--default" href="#">
-        
-          <i class="fa fa-list"></i>
-        </a>
-      </li>
-    </ul>
-  </div>
-
-
-      </div>
-      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
-  <i id="btn-close-shareoptions" class="fa fa-close"></i>
-  <ul class="share-options">
-    
-      <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2018%2F03%2Fwhen-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives%2F">
-          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
-        </a>
-      </li>
-    
-      <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2018%2F03%2Fwhen-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives%2F">
-          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
-        </a>
-      </li>
-    
-      <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2018%2F03%2Fwhen-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives%2F">
-          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
-        </a>
-      </li>
-    
-  </ul>
-</div>
-<div id="share-options-mask" class="share-options-mask"></div>
     </div>
     
     <div id="about">
@@ -716,32 +531,6 @@ $(document).ready(function() {
 });
 </script>
 
-
-  
-    
-      <script>
-        var disqus_config = function () {
-          this.page.url = '\/2018\/03\/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives\/';
-          
-            this.page.identifier = '\/2018\/03\/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives\/'
-          
-        };
-        (function() {
-          
-          
-          if (window.location.hostname == "localhost") {
-            return;
-          }
-          var d = document, s = d.createElement('script');
-          var disqus_shortname = 'r-doodles';
-          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-
-          s.setAttribute('data-timestamp', +new Date());
-          (d.head || d.body).appendChild(s);
-        })();
-      </script>
-    
-  
 
 
 
