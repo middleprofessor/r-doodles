@@ -1,0 +1,49 @@
+---
+title: When do we introduce best statistical practices to undergraduate biology majors?
+  Part 1. Bar plot alternatives
+author: Jeff Walker
+date: '2018-03-11'
+slug: when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives
+categories:
+  - teaching
+tags:
+  - plots
+  - excel
+  - bar plot
+  - forest plot
+---
+
+Within the cell biology/physiology literature, but not so much the ecology and evolution literature, there have been several editorials and short papers encouraging researchers to use alternatives to bar plots to commuicate experimental results ([here](https://www.nature.com/articles/nmeth.2813), [here](http://onlinelibrary.wiley.com/doi/10.1113/jphysiol.2011.205062/full), [here](http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128&fullSite), [here](https://www.nature.com/articles/nmeth.2811), and [here](http://thenode.biologists.com/leaving-bar-five-steps/research/)).
+
+Bar plots aren't wrong, there are simply much better plots for communicating features of our data or the models that we fit. All the links above advocate some version of box plots or dot plots. I suggest a third, a forest plot, or even better a [Harrel plot](https://middleprofessor.shinyapps.io/Hdotplot/), which combines a forest plot with a dot/box plot (see below).
+
+I do think there is one major impediment to any largescale implementation of bar plot alternatives in biology -- how we train undergraduate biology majors. Specifically, I suspect that most undergraduate programs teach biology majors that "the way" to plot experimental data is with bar plots in Microsoft Excel/Google Sheets, a practice that often begins in the first year Introductory Biology labs. And, humans, being humans, mostly continue using what they were first taught. The major reason we continue using what we were first taught is because there is no "corrective" teaching in upper level classes, or during graduate training. And the major reason there is no corrective teaching is because most researchers are unaware that there is something to correct, or that there are alternative best practices -- after all, bar plots are ubiquitous. And the major reason bar plots are ubiquitous is because Excel, which is easy to teach undergraduates. There are few resources that easily allow students and researchers to generate the alternative dot plots or box plots or forest plots or Hplots.
+
+I don't think there should be correctives. If we are to break the positive feedback cycle of mediocrity, I think we should start undergraduate training with best practices from the beginning -- in the Introductory Biology labs. But we can't use Excel/Sheets for this. And we aren't (realistically) going to teach intro bio student R scripting.
+
+These issues have oozed through my thoughts for several years but only really started to crystalize over the last few months. So, Thanksgiving day morning, I decided to teach myself how to make a Shiny App, so that I could create a web-based tool for undergraduate teaching or for researchers who were resistant to scripting in R (or Python or whatever). By the end of the morning, I had created a shiny appy to read in a data file exported from Excel/Sheets and generate a simple dot plot with mean and 95% confidence interval.
+
+But what bothered me most about bar plots was not the issues listed in the critical editorials/papers but the fact that bar plots only indirectly communicated what we often want to communicate in our results -- the effect sizes and their error. And box plots or dot plots with means and CI bars aren't any better than bar plots in this regard. 
+
+My ["how extremely stupid not to have thought of that"](http://www.ucl.ac.uk/sts/staff/cain/projects/huxley) moment came when I saw this figure from Frank Harrell's [Principals of Graph Construction](http://biostat.mc.vanderbilt.edu/wiki/pub/Main/StatGraphCourse/graphscourse.pdf)
+
+
+```{r Harrell Fig 1, out.width = "400px", echo=FALSE}
+image_path <- "/images/harrell_fig_1_1.png"
+knitr::include_graphics(image_path)
+```
+**Figure 1** from [Harrell](http://biostat.mc.vanderbilt.edu/wiki/pub/Main/StatGraphCourse/graphscourse.pdf)
+
+This is a pretty awesome plot, combining a plot of the treatment means and confidence intervals in the bottome part **and** a plot of the point estimate of the difference in means with its confidence interval in the top part. This is what we should all be publishing.
+
+With Harrel's plot as my target, I developed a [shiny app to generate a "Harrel dot plot" (or Hdotplot)](https://middleprofessor.shinyapps.io/Hdotplot/). Here is an example
+
+```{r hdotplot, out.width = "400px", echo=FALSE}
+image_path <- "/images/zfish_ancova.png"
+knitr::include_graphics(image_path)
+```
+**Figure 2** A Harrel dot plot (Hdotplot) showing effects of sprint, endurance, and no training on sprint swimming performance in zebrafish. The effects illustrated in the upper panel are *not* the simple difference in treatment means but adjusted means conditioned on pre-treatment sprint performance speeds (see [Walker 2018](/rmd_toc_posts/change_scores.html)).
+
+An Hdotplot combines 1) a dot plot to show individual values, 2) a box plot to show the distribution of the response within treatment groups, and 3) a forest plot of effect estimates and confidence intervals to show effect sizes and uncertainty. This plot addresses all of the concerns raised in the above links over bar plots but is *much* more. The plot communicates what we often really want to communicate and focus on, effect sizes and their error.
+
+At present, Hdotplot is available as an online, web browser based, shiny app, which should make it easy to access and implement in undergraduate labs. Or research labs that aren't scripting in R.

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Plots on R Doodles</title>
+    <link>/tags/plots/</link>
+    <description>Recent content in Plots on R Doodles</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 11 Mar 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/plots/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>When do we introduce best statistical practices to undergraduate biology majors? Part 1. Bar plot alternatives</title>
+      <link>/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/</link>
+      <pubDate>Sun, 11 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/</guid>
+      <description>Within the cell biology/physiology literature, but not so much the ecology and evolution literature, there have been several editorials and short papers encouraging researchers to use alternatives to bar plots to commuicate experimental results (here, here, here, here, and here).
+Bar plots aren’t wrong, there are simply much better plots for communicating features of our data or the models that we fit. All the links above advocate some version of box plots or dot plots.</description>
+    </item>
+    
+  </channel>
+</rss>
