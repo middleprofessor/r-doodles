@@ -34,7 +34,7 @@ knitr::include_graphics(image_path)
 ```
 **Figure 1** from [Harrell](http://biostat.mc.vanderbilt.edu/wiki/pub/Main/StatGraphCourse/graphscourse.pdf)
 
-This is a pretty awesome plot, combining a plot of the treatment means and confidence intervals in the bottome part **and** a plot of the point estimate of the difference in means with its confidence interval in the top part. This is what we should all be publishing.
+This is a pretty awesome plot, combining a plot of the treatment means and confidence intervals in the bottom part **and** a plot of the point estimate of the difference in means with its confidence interval in the top part. This is what we should all be publishing.
 
 With Harrel's plot as my target, I developed a [shiny app to generate a "Harrel dot plot" (or Hdotplot)](https://middleprofessor.shinyapps.io/Hdotplot/). Here is an example
 
