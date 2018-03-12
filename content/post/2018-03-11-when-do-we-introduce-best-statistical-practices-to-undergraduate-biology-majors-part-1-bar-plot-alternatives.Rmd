@@ -45,5 +45,3 @@ knitr::include_graphics(image_path)
 **Figure 2** A Harrel dot plot (Hdotplot) showing effects of sprint, endurance, and no training on sprint swimming performance in zebrafish. The effects illustrated in the upper panel are *not* the simple difference in treatment means but adjusted means conditioned on pre-treatment sprint performance speeds (see [Walker 2018](/rmd_toc_posts/change_scores.html)).
 
 An Hdotplot combines 1) a dot plot to show individual values, 2) a box plot to show the distribution of the response within treatment groups, and 3) a forest plot of effect estimates and confidence intervals to show effect sizes and uncertainty. This plot addresses all of the concerns raised in the above links over bar plots but is *much* more. The plot communicates what we often really want to communicate and focus on, effect sizes and their error.
-
-At present, Hdotplot is available as an online, web browser based, shiny app, which should make it easy to access and implement in undergraduate labs. Or research labs that aren't scripting in R.
