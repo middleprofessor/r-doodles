@@ -13,8 +13,8 @@
 # use grunt task `build` to synchronize assets
 
 #baseURL = "https://rdoodles.netlify.com"
-#baseURL = "https://rdoodles.rbind.io"
-baseURL = "/"
+baseURL = "https://rdoodles.rbind.io"
+#baseURL = "/"
 languageCode = "en-us"
 defaultContentLanguage = "en-us"
 title = "R Doodles"
