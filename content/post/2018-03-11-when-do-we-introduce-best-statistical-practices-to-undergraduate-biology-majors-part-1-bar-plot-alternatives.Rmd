@@ -13,7 +13,7 @@ tags:
   - forest plot
 ---
 
-Within the cell biology/physiology literature, but not so much the ecology and evolution literature, there have been several editorials and short papers encouraging researchers to use alternatives to bar plots to commuicate experimental results ([here](https://www.nature.com/articles/nmeth.2813), [here](http://onlinelibrary.wiley.com/doi/10.1113/jphysiol.2011.205062/full), [here](http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128&fullSite), [here](https://www.nature.com/articles/nmeth.2811), and [here](http://thenode.biologists.com/leaving-bar-five-steps/research/)).
+Within the cell biology/physiology literature, but not so much the ecology and evolution literature, there have been several editorials and short papers encouraging researchers to use alternatives to bar plots to communicate experimental results ([here](https://www.nature.com/articles/nmeth.2813), [here](http://onlinelibrary.wiley.com/doi/10.1113/jphysiol.2011.205062/full), [here](http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128&fullSite), [here](https://www.nature.com/articles/nmeth.2811), and [here](http://thenode.biologists.com/leaving-bar-five-steps/research/)).
 
 Bar plots aren't wrong, there are simply much better plots for communicating features of our data or the models that we fit. All the links above advocate some version of box plots or dot plots. I suggest a third, a forest plot, or even better a [Harrel dot plot](https://middleprofessor.shinyapps.io/Hdotplot/), which combines a forest plot with a dot/box plot (see below).
 
