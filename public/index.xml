@@ -6,20 +6,10 @@
     <description>Recent content on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 11 Mar 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 08 Mar 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
-    
-    <item>
-      <title>When do we introduce best statistical practices to undergraduate biology majors? Part 1. Bar plot alternatives</title>
-      <link>/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/</link>
-      <pubDate>Sun, 11 Mar 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/2018/03/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors-part-1-bar-plot-alternatives/</guid>
-      <description>Within the cell biology/physiology literature, but not so much the ecology and evolution literature, there have been several editorials and short papers encouraging researchers to use alternatives to bar plots to communicate experimental results (here, here, here, here, and here).
-Bar plots aren’t wrong, there are simply much better plots for communicating features of our data or the models that we fit. All the links above advocate some version of box plots or dot plots.</description>
-    </item>
     
     <item>
       <title>Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study</title>
