@@ -1,0 +1,550 @@
+
+
+
+  
+
+
+
+
+  
+
+
+  
+
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Hugo 0.37 with theme Tranquilpeak 0.4.3-BETA">
+    <title>Stats 101</title>
+    <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
+    <meta name="keywords" content="">
+
+    <link rel="icon" href="/favicon.png">
+    
+      <link rel="alternate" type="application/rss+xml" title="RSS" href="/categories/stats-101/index.xml">
+    
+
+    
+    <meta name="description" content="Some ecology. Some physiology. Much fake data">
+    <meta property="og:description" content="Some ecology. Some physiology. Much fake data">
+    <meta property="og:type" content="blog">
+    <meta property="og:title" content="Stats 101">
+    <meta property="og:url" content="/categories/stats-101/">
+    <meta property="og:site_name" content="R Doodles">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="R Doodles">
+    <meta name="twitter:description" content="Some ecology. Some physiology. Much fake data">
+    
+      <meta name="twitter:creator" content="@jwalkrunski">
+    
+    
+
+    
+    
+
+    
+      <meta property="og:image" content="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+    
+
+    
+    
+    
+
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-jsjn0006wyhpyzivf6yceb31gvpjatbcs3qzjvlumobfnugccvobqwxnnaj8.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="1">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">R Doodles</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="1">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+        
+          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="//github.com/middleprofessor">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://stats.stackexchange.com/users/119435/jwalker">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-stack-exchange"></i>
+      
+      <span class="sidebar-button-desc">CrossValidated</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://scholar.google.com/citations?user=W58TmakAAAAJ&amp;hl">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-google"></i>
+      
+      <span class="sidebar-button-desc">Google Scholar</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.researchgate.net/profile/Jeffrey_Walker4/contributions">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Research Gate</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.middleprofessor.com">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">My research/teaching site</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+        
+
+      
+      <div id="main" data-behavior="1"
+        class="
+               hasCoverMetaIn
+               ">
+        
+          <section class="postShorten-group main-content-wrap">
+            
+            
+              
+  
+    
+      
+        
+      
+    
+  
+
+
+  
+
+<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
+  <div class="postShorten-wrap">
+    
+    <div class="postShorten-header">
+      <h1 class="postShorten-title" itemprop="headline">
+        <a class="link-unstyled" href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+          What is the range of reasonable P-values given a two standard error difference in means?
+        </a>
+      </h1>
+      
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2018-03-18T00:00:00Z">
+        
+  March 18, 2018
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
+  </div>
+
+    </div>
+    <div class="postShorten-excerpt" itemprop="articleBody">
+      Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
+ I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.
+      <p>
+        <a href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/" class="postShorten-excerpt_link link">Continue reading</a>
+        
+      </p>
+    </div>
+  </div>
+  
+</article>
+
+            
+            
+
+          </section>
+        
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2018 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+  </span>
+    <script src="//yihui.name/js/math-code.js"></script>
+<script async
+src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+                <h3 class="media-heading">What is the range of reasonable P-values given a two standard error difference in means?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
+ I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/">
+                <h3 class="media-heading">Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/what-is-an-r-doodle/">
+                <h3 class="media-heading">What is an R doodle?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">An R doodle is a short script to check intuition or understanding. Almost always, this involves generating fake data. I might create an R doodle when I’m reviewing a manuscript or reading a published paper and I want to check if their statistical analysis is doing what the authors think it is doing. Or maybe I create it to help me figure out what the authors are doing. Or I might be teaching some method and I create an R doodle to help me understand how the method behaves given different input (fake) data sets.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         3 posts found
+      </p>
+    </div>
+  </div>
+</div>
+</footer>
+
+      </div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+    
+      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Jeff Walker, Professor of Biological Sciences
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        University of Southern Maine, Portland, Maine, United States
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+                <h3 class="media-heading">What is the range of reasonable P-values given a two standard error difference in means?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
+ I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/">
+                <h3 class="media-heading">Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/what-is-an-r-doodle/">
+                <h3 class="media-heading">What is an R doodle?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">An R doodle is a short script to check intuition or understanding. Almost always, this involves generating fake data. I might create an R doodle when I’m reviewing a manuscript or reading a published paper and I want to check if their statistical analysis is doing what the authors think it is doing. Or maybe I create it to help me figure out what the authors are doing. Or I might be teaching some method and I create an R doodle to help me understand how the method behaves given different input (fake) data sets.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         3 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('/images/Jackson%20copy%202.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+
+
+    
+  </body>
+</html>
+

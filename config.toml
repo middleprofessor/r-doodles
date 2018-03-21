@@ -108,6 +108,13 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
   pre = "<i class=\"sidebar-button-icon fa fa-lg fa-archive\"></i>"
   url = "https://www.researchgate.net/profile/Jeffrey_Walker4/contributions"
 
+[[menu.links]]
+  weight = 5
+  identifier = "middle-professor"
+  name = "My research/teaching site"
+  pre = "<i class=\"sidebar-button-icon fa fa-lg fa-archive\"></i>"
+  url = "https://www.middleprofessor.com"
+
 [[menu.misc]]
   weight = 1
   identifier = "rss"

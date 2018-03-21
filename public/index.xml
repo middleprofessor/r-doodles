@@ -6,10 +6,20 @@
     <description>Recent content on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 08 Mar 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 18 Mar 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>What is the range of reasonable P-values given a two standard error difference in means?</title>
+      <link>/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/</link>
+      <pubDate>Sun, 18 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/</guid>
+      <description>Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
+ I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.</description>
+    </item>
     
     <item>
       <title>Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study</title>
