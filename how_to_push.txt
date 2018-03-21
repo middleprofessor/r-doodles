@@ -5,5 +5,5 @@ git pull origin master # in case you have LICENSE and Readme.md files in the Git
 
 # to upload files in local repo to master at github
 git add . # indexes all files that wil be added to the local repo
-git commit -m "update obese mouse" # adds all files to the local repo, with a commit message
+git commit -m "new post" # adds all files to the local repo, with a commit message
 git push origin master # we push the changes from the local git repo to 
