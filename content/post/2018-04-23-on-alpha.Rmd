@@ -1,0 +1,22 @@
+---
+title: On alpha
+author: Jeff Walker
+date: '2018-04-23'
+slug: on-alpha
+categories:
+  - stats 101
+tags: []
+---
+
+This post is motivated by Terry McGlynn's thought provoking [How do we move beyond an arbitrary statistical threshold?](https://smallpondscience.com/2018/04/23/how-do-we-move-beyond-an-arbitrary-statistical-threshold/) I have been struggling with the ideas explored in Terry's post ever since starting my PhD 30 years ago, and its only been in the last couple of years that my own thoughts have begun to gel. This long marination period is largely because of my very classical biostatistical training. My PhD is from the Department of Anatomical Sciences at Stony Brook but the content was geometric morphometrics and Jim Rohlf was my mentor for morphometrics specifically, and multivariate statistics more generally. The last year of my PhD, I was Bob Sokal's RA (I was the programmer!) and got two co-authored papers with him. I invested a tremendous amount of time generating little statistical doodles (first in Excel, then in Pascal, and then in R) to better understand ANOVA and what is meant by "frequentist".
+
+My answer is partly answered by my two posts to the Rapid Ecology blog. The first -- [When do we introduce best statistical practices to undergraduate biology majors?](https://rapidecology.com/2018/04/09/when-do-we-introduce-best-statistical-practices-to-undergraduate-biology-majors/) was posted April 9. The second -- "Abandon ANOVA-type experiments" is a more radical answer, and is scheduled to appear in a couple of weeks.
+
+Here, I expand on the second post but make it more general. Terry finishes his post with the statement "To be clear, I’m not arguing (here) that we should be ditching the hypothesis falsification approach to answering questions". Maybe he's arguing this elsewhere. Regardless, I *am* arguing that here. I am *not* arguing against the use of p-values (here!) -- simply against the concept of comparing a p-value to a type I error rate ($\alpha$).
+
+1. The practice of comparing a p-value to $\alpha$ and classifying a result as "significant" or "non-significant" has led to the cargo-cult science practice of "discovery by p-value." Many scientists literally believe they have discovered something about the world because they found p < 0.05. Fat poop microbes cause obesity? Exists (p < 0.05). Many scientists literally believe that something doesn't exist because p > 0.05. An interaction between CO2 and Temperature on larval growth? Doesn't exist (p = 0.079). Or, if we want the interaction to exist, then we report  "the interaction trends toward significance (p = 0.079)". How come results never trend away from significance?
+
+2. Comparing a p-value to $\alpha$ is a reasonable decision theoretic strategy relevant to manufacturing (let's test a sample from this lot and throw out the whole batch if p < $\alpha$) but can it be used for decisions in biology? Statistical significance is routinely used to find the subset of $X$ that are thought to be causally related to $Y$. This might be a classic multiple regression with tens of environmental variables or a more modern genomic analysis with thousands of genes or hundreds of thousands of SNPs. There are a great many papers devoted to methods for "correcting for multiple testing" as if we can discover by statistical significance. Scientific discovery and knowlege requires replication and rigorous probing, not statistical significance. I frankly don't see the point of model simplification or adjusting p-values for multiple testing. Instead, we should use the results to rank the effect sizes and then do the hard work of experimentally isolating and rigorously probing these effects.
+
+Banning asterisks from tables and plots or the word "signficant" from the text isn't really enough. We should simply teach our students to stop hypothesis testing. We should teach our students that estimating effect sizes is critical for model development and testing (the focus of the not-yet-published post at Rapid Ecology), and of course, for decision making. We should teach our students that uncertaintly is a part of science and the different ways to measure uncertainty. We should teach our students that rigorous probing of a hypothesis is vital for discovery. We should teach our students (and editors) that replication is vital for discovery.
+
