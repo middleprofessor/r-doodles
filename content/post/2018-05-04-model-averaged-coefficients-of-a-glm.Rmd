@@ -1,13 +1,13 @@
 ---
-title: Model-averaged coefficients of a GLM
-author: Jeff Walker
+title: "Model-averaged coefficients of a GLM"
+author: "Jeff Walker"
 date: '2018-05-04'
 slug: model-averaged-coefficients-of-a-glm
-categories: []
 tags:
-  - glm
-  - model-averaged coefficients
-  - ecology
+- glm
+- model-averaged coefficients
+- ecology
+categories: []
 ---
 ```{r image, echo=FALSE, fig.cap="p1 of supplement of Dormann et al"}
 image_folder_path <- '../../images/2018-05-04-model-averaging-coeffcients-of-a-glm' # kniter
@@ -25,13 +25,29 @@ library(data.table)
 
 This is a very quick post as a comment to the statement
 
-"For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models...For non-linear models, such as GLMs with log or logit link functions g(x)^[understood but awkward and confusing. It is unconventional to call a GLM a non-linear model, especially given the name "General Linear Model"], such coefficient averaging is not equivalent to prediction averaging"
+"For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models...For non-linear models, such as GLMs with log or logit link functions g(x)^[understood but awkward and confusing. It is unconventional to call a GLM a non-linear model, especially given the name "General Linear Model"], such coefficient averaging is not equivalent to prediction averaging."
 
 from the supplement of Dormann et al. [Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309).
 
-I think the authors are arguing that for GLMs, we cannot use model-averaged predictions to justify interpreting model-averaged coefficients since modeled-averaged coefficients are not the same thing that produced the model-averaged predictions. I think this is wrong, but my response assumes that **the model-averaged coefficients were first averaged on the link-scale and then back-transformed to the response scale**. 
+I think the authors are arguing that for GLMs, we cannot use model-averaged predictions to justify interpreting model-averaged coefficients since modeled-averaged coefficients are not the same thing that produced the model-averaged predictions. I think this is wrong, model-averaged coefficients *are* the same thing that produced the model-averaged predictions, but only if  both are averaged in the link scale and then back-transformed to the response scale.
 
-Their equation S2 is true but irrelevant. Model-averaged coefficients should be averaged on the link scale and then backtransformed to the response scale. It would indeed be wrong to "interpret" coefficients that are model-averaged on the response scale. One can model average the coefficients on the link scale and then compute the predictions or one can compute the predictions on the link scale for all models and then average these. These are the same, that is, "predicting from a parameter-averaged model is mathematically identical to averaging predictions." For interpretation of either coefficients or the predictions, we backtransform the averaged values.
+Their equation S2 is true but irrelevant. Here is their equation S2
+
+\begin{equation}
+\frac{1}{m} \sum_{i=1}^m{g^{-1}(Xb_i)} \ne g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
+\end{equation}
+
+The RHS averages the coefficients on the link scale, then computes the model-averaged prediction on the link scale, and then backtransforms these to the response scale. This is a correct way to get model-averaged predictions on the response scale. The LHS backtransforms the predictions from each model and then averages over these to get the model-averaged prediction. This is a wrong way to get the model averaged prediction on the response scale. This equation is comparing apples and oranges
+
+Here is a correct version of their S2, with all averaging on the link scale
+
+\begin{equation}
+g^{-1}(\frac{1}{m} \sum_{i=1}^m{(Xb_i)}) = g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
+\end{equation}
+
+The RHS is the same as their S2. The LHS computes the prediction for each model on the link scale, then averages over these on the link scale, and then backtransforms to the response scale. This is another way to get the correct predictions. Both the LHS and RHS are equivalent and show that "predicting from a parameter-averaged model is mathematically identical to averaging predictions."
+
+**In short.** model-averaged coefficients should be averaged on the link scale and then backtransformed to the response scale for interpretation. It would indeed be wrong to "interpret" coefficients that are model-averaged on the response scale. One can model average the coefficients on the link scale and then compute the predictions or one can compute the predictions on the link scale for all models and then average these. These are the same, that is, "predicting from a parameter-averaged model is mathematically identical to averaging predictions." For interpretation of either coefficients or the predictions, we backtransform the averaged values.
 
 Here is a short R-doodle showing that "predicting from a parameter-averaged model is mathematically identical to averaging predictions" for a GLM, as long as one is doing all the averaging in the link space.
 
@@ -110,7 +126,7 @@ yhat3.each_model.response_scale <- expit(yhat2.each_model.link_scale)
 yhat3 <- yhat3.each_model.response_scale%*%w
 MSE3 <- sqrt(mean((yhat3-dt[, y])^2))
 
-data.table(yhat0=yhat0, yhat1=yhat1, yhat2=yhat2, yhat3=yhat3)
+head(data.table(yhat0=yhat0, yhat1=yhat1[,1], yhat2=yhat2[,1], yhat3=yhat3[,1]))
 #yhat0 = MuMIn model averaged predictions (correct method)
 #yhat1 = RHS of equation s2 in appendix (correct method)
 #yhat2 = Corrected LHS of s2 in appendix (correct method)
