@@ -31,15 +31,15 @@ from the supplement of Dormann et al. [Model averaging in ecology: a review of B
 
 I think the authors are arguing that for GLMs, we cannot use model-averaged predictions to justify interpreting model-averaged coefficients since modeled-averaged coefficients are not the same thing that produced the model-averaged predictions. I think this is wrong, model-averaged coefficients *are* the same thing that produced the model-averaged predictions, but only if  both are averaged in the link scale and then back-transformed to the response scale.
 
-Their equation S2 is true but irrelevant. Here is their equation S2
+Here is their equation S2
 
 \begin{equation}
 \frac{1}{m} \sum_{i=1}^m{g^{-1}(Xb_i)} \ne g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
 \end{equation}
 
-The RHS averages the coefficients on the link scale, then computes the model-averaged prediction on the link scale, and then backtransforms these to the response scale. This is a correct way to get model-averaged predictions on the response scale. The LHS backtransforms the predictions from each model and then averages over these to get the model-averaged prediction. This is a wrong way to get the model averaged prediction on the response scale. This equation is comparing apples and oranges
+This equation is true but irrelevant. The RHS averages the coefficients on the link scale, then computes the model-averaged prediction on the link scale, and then backtransforms these to the response scale. This is a correct way to get model-averaged predictions on the response scale. The LHS backtransforms the predictions from each model and then averages over these to get the model-averaged prediction. This is a wrong way to get the model averaged prediction on the response scale. This equation is comparing apples and oranges
 
-Here is a correct version of their S2, with all averaging on the link scale
+Here is a correct version of their equation S2, with all averaging on the link scale
 
 \begin{equation}
 g^{-1}(\frac{1}{m} \sum_{i=1}^m{(Xb_i)}) = g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
