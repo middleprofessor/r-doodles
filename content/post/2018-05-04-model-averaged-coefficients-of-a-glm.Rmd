@@ -37,7 +37,7 @@ Here is their equation S2
 \frac{1}{m} \sum_{i=1}^m{g^{-1}(Xb_i)} \ne g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
 \end{equation}
 
-This equation is true but irrelevant. The RHS averages the coefficients on the link scale, then computes the model-averaged prediction on the link scale, and then backtransforms these to the response scale. This is a correct way to get model-averaged predictions on the response scale. The LHS backtransforms the predictions from each model and then averages over these to get the model-averaged prediction. This is a wrong way to get the model averaged prediction on the response scale. This equation is comparing apples and oranges
+This equation is true but irrelevant. The RHS averages the coefficients on the link scale, then computes the model-averaged prediction on the link scale, and then backtransforms these to the response scale. This is a correct way to get model-averaged predictions on the response scale. The LHS backtransforms the predictions from each model and then *averages over these on the response scale* to get the model-averaged prediction. This is a wrong way to get the model averaged prediction on the response scale. This equation is comparing apples and oranges
 
 Here is a correct version of their equation S2, with all averaging on the link scale
 
