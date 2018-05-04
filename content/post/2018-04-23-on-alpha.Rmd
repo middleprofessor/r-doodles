@@ -5,7 +5,8 @@ date: '2018-04-23'
 slug: on-alpha
 categories:
   - stats 101
-tags: []
+tags:
+  - NHST
 ---
 
 This post is motivated by Terry McGlynn's thought provoking [How do we move beyond an arbitrary statistical threshold?](https://smallpondscience.com/2018/04/23/how-do-we-move-beyond-an-arbitrary-statistical-threshold/) I have been struggling with the ideas explored in Terry's post ever since starting my PhD 30 years ago, and its only been in the last couple of years that my own thoughts have begun to gel. This long marination period is largely because of my very classical biostatistical training. My PhD is from the Department of Anatomical Sciences at Stony Brook but the content was geometric morphometrics and James Rohlf was my mentor for morphometrics specifically, and multivariate statistics more generally. The last year of my PhD, I was Robert Sokal's RA (I was the programmer!) and got two co-authored papers with him. I invested a tremendous amount of time generating little statistical doodles (first in Excel, then in Pascal, and then in R) to better understand ANOVA, and permutation tests, and the bootstrap, and similar frequentist tools.
