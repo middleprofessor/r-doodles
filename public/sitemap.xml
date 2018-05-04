@@ -55,6 +55,12 @@
   </url>
   
   <url>
+    <loc>/tags/ecology/</loc>
+    <lastmod>2018-05-04T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/tags/effect-size/</loc>
     <lastmod>2018-03-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
@@ -87,6 +93,12 @@
   <url>
     <loc>/tags/model-averaged-coefficients/</loc>
     <lastmod>2018-05-04T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/nhst/</loc>
+    <lastmod>2018-04-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
