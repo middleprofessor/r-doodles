@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Glm on R Doodles</title>
+    <link>/tags/glm/</link>
+    <description>Recent content in Glm on R Doodles</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 04 May 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/glm/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Model-averaged coefficients of a GLM</title>
+      <link>/2018/05/model-averaged-coefficients-of-a-glm/</link>
+      <pubDate>Fri, 04 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/05/model-averaged-coefficients-of-a-glm/</guid>
+      <description>library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
+“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging.”
+from the supplement of Dormann et al. Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference.</description>
+    </item>
+    
+  </channel>
+</rss>

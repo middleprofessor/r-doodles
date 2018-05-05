@@ -1,0 +1,1088 @@
+
+
+  
+    
+  
+
+
+  
+
+
+
+
+  
+
+
+  
+
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Hugo 0.37 with theme Tranquilpeak 0.4.3-BETA">
+    <title>Model averaging coeffcients of a GLM</title>
+    <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
+    <meta name="keywords" content="">
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+    <meta name="description" content="Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
+“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
+from the supplement of Dormann et al.">
+    <meta property="og:description" content="Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
+“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
+from the supplement of Dormann et al.">
+    <meta property="og:type" content="blog">
+    <meta property="og:title" content="Model averaging coeffcients of a GLM">
+    <meta property="og:url" content="/2018/05/model-averaging-coeffcients-of-a-glm/">
+    <meta property="og:site_name" content="R Doodles">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="R Doodles">
+    <meta name="twitter:description" content="Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
+“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
+from the supplement of Dormann et al.">
+    
+      <meta name="twitter:creator" content="@jwalkrunski">
+    
+    
+
+    
+    
+
+    
+      <meta property="og:image" content="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+    
+
+    
+    
+    
+
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-jsjn0006wyhpyzivf6yceb31gvpjatbcs3qzjvlumobfnugccvobqwxnnaj8.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">R Doodles</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+        
+          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="//github.com/middleprofessor">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://stats.stackexchange.com/users/119435/jwalker">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-stack-exchange"></i>
+      
+      <span class="sidebar-button-desc">CrossValidated</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://scholar.google.com/citations?user=W58TmakAAAAJ&amp;hl">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-google"></i>
+      
+      <span class="sidebar-button-desc">Google Scholar</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.researchgate.net/profile/Jeffrey_Walker4/contributions">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Research Gate</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.middleprofessor.com">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-university"></i>
+      
+      <span class="sidebar-button-desc">Research/Teaching</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Model averaging coeffcients of a GLM
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2018-05-04T00:00:00Z">
+        
+  May 4, 2018
+
+      </time>
+    
+    
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <div class="figure"><span id="fig:image"></span>
+<img src="../../images/2018-05-04-model-averaging-coeffcients-of-a-glm/s2.png" alt="p1 of supplement of Dormann et al"  />
+<p class="caption">
+Figure 1: p1 of supplement of Dormann et al
+</p>
+</div>
+<pre class="r"><code>library(MuMIn)
+library(data.table)</code></pre>
+<p>This is a very quick post as a comment to the statement</p>
+<p>“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>, such coefficient averaging is not equivalent to prediction averaging”</p>
+<p>from the supplement of Dormann et al. <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309">Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference</a>.</p>
+<p>I think the authors are arguing that for GLMs, we cannot use model-averaged predictions to justify interpreting model-averaged coefficients since modeled-averaged coefficients are not the same thing that produced the model-averaged predictions. I think this is wrong, but my response assumes that <strong>the model-averaged coefficients were first averaged on the link-scale and then back-transformed to the response scale</strong>.</p>
+<p>Their equation S2 is true but irrelevant. Model-averaged coefficients should be averaged on the link scale and then backtransformed to the response scale. It would indeed be wrong to “interpret” coefficients that are model-averaged on the response scale. One can model average the coefficients on the link scale and then compute the predictions or one can compute the predictions on the link scale for all models and then average these. These are the same, that is, “predicting from a parameter-averaged model is mathematically identical to averaging predictions.” For interpretation of either coefficients or the predictions, we backtransform the averaged values.</p>
+<p>I show that “predicting from a parameter-averaged model is mathematically identical to averaging predictions” for a GLM, as long as one is doing all the averaging in the link space, with a short R-doodle.</p>
+<pre class="r"><code>expit &lt;- function(x) {exp(x)/(1+exp(x))} # the inverse logit function. This generates the probability of the event p
+logit &lt;- function(p) {log(p/(1-p))} # the log of the odds or &quot;logodds&quot; given the probability of an event p. This is NOT the odds ratio, which is the ratio of two odds.
+p2odd &lt;- function(p) {p/(1-p)} # the odds of the probability of an event
+odd2p &lt;- function(x) {x/(1+x)} # the probability associated with an odds</code></pre>
+<pre class="r"><code>n &lt;- 100
+z &lt;- rnorm(n)
+# create two correlated variables, x1 and x2, with E[cor] = zeta^2
+zeta &lt;- 0.7
+sigma &lt;- 0.3
+x1 &lt;- zeta*z + sqrt(1-zeta^2)*rnorm(n)
+x2 &lt;- zeta*z + sqrt(1-zeta^2)*rnorm(n)
+
+# create a performance measure as function of x1 and x2
+perf &lt;- x1 + x2 + rnorm(n)*sigma # coefficients both = 1
+
+# transform performance to probability of survival
+
+# create fake data
+p.survival &lt;- expit(perf)
+y &lt;- rbinom(n, 1, p.survival)
+dt &lt;- data.table(y=y,x1=x1,x2=x2)
+
+# fit
+fit &lt;- glm(y ~ x1 + x2, data=dt, family=binomial(link=&#39;logit&#39;), na.action=na.fail)
+
+# all subsets regression and model average using MuMIn
+fit.all &lt;- dredge(fit)</code></pre>
+<pre><code>## Fixed term is &quot;(Intercept)&quot;</code></pre>
+<pre class="r"><code>fit.avg &lt;- model.avg(fit.all, fit=TRUE)
+
+model_set &lt;- get.models(fit.all, subset=TRUE) # all models
+X &lt;- model.matrix(fit)
+
+# (0) MuMIn predict
+yhat0.response_scale &lt;- predict(fit.avg, backtransform=TRUE)
+
+# RHS eq. S2
+# verify &quot;by hand&quot; by predicting on link scale then back transforming to response scale
+yhat0.link_scale &lt;- predict(fit.avg, backtransform=FALSE)
+yhat0.response_scale2 &lt;- expit(yhat0.link_scale) 
+head(data.table(yhat0.response_scale, yhat0.response_scale2)) # these should be equal</code></pre>
+<pre><code>##    yhat0.response_scale yhat0.response_scale2
+## 1:            0.1671664             0.1671664
+## 2:            0.6864457             0.6864457
+## 3:            0.1813861             0.1813861
+## 4:            0.5906917             0.5906917
+## 5:            0.9126112             0.9126112
+## 6:            0.5934125             0.5934125</code></pre>
+<pre class="r"><code>yhat0 &lt;- yhat0.response_scale # predictions using MuMIn package
+
+
+# (1) use model averaged B to get prediction on link scale. Backtransform to response scale
+# this is RHS eq. S2 RHS of appendix
+# I use MuMIn model.avg function to model average coefficients on link scale
+# then I compute predictions on link scale
+# then I backtransform predictions to response scale 
+# This should equal yhat0 from above
+b &lt;- model.avg(model_set)$coefficients[&#39;full&#39;,][colnames(X)]
+yhat1.link_scale &lt;- X%*%b
+yhat1 &lt;- expit(yhat1.link_scale)
+MSE1 &lt;- sqrt(mean((yhat1 - dt[, y])^2))
+
+# (2) a variant of yhat1 and yhat0 - I am &quot;by hand&quot; computing the average prediction on the link scale
+# then backtransforming to response scale
+# this can be thought of as the corrected LHS of S2
+w &lt;- fit.all$weight
+yhat2.each_model.link_scale &lt;- sapply(model_set, predict)
+yhat2.link_scale &lt;- yhat2.each_model.link_scale%*%w
+yhat2 &lt;- expit(yhat2.link_scale)
+MSE2 &lt;- sqrt(mean((yhat2 - dt[, y])^2))
+
+# (3) Thisis the &quot;incorrect&quot; method of model averaging&quot;
+# LHS of S2
+# model average predictions on response scale (i.e. backtransform each prediction to response scale and then model average)
+# I need the first two calculations from #(2) above to get yhat2.each_model.link_scale
+yhat3.each_model.response_scale &lt;- expit(yhat2.each_model.link_scale)
+yhat3 &lt;- yhat3.each_model.response_scale%*%w
+MSE3 &lt;- sqrt(mean((yhat3-dt[, y])^2))
+
+data.table(yhat0=yhat0, yhat1=yhat1, yhat2=yhat2, yhat3=yhat3)</code></pre>
+<pre><code>##           yhat0   yhat1.V1   yhat2.V1   yhat3.V1
+##   1: 0.16716638 0.16716638 0.16716638 0.16733951
+##   2: 0.68644573 0.68644573 0.68644573 0.68570708
+##   3: 0.18138614 0.18138614 0.18138614 0.18141142
+##   4: 0.59069171 0.59069171 0.59069171 0.59029623
+##   5: 0.91261119 0.91261119 0.91261119 0.91241684
+##   6: 0.59341250 0.59341250 0.59341250 0.59334511
+##   7: 0.56875618 0.56875618 0.56875618 0.56872296
+##   8: 0.11980836 0.11980836 0.11980836 0.12009317
+##   9: 0.13127020 0.13127020 0.13127020 0.13157362
+##  10: 0.73800027 0.73800027 0.73800027 0.73719815
+##  11: 0.97435862 0.97435862 0.97435862 0.97386939
+##  12: 0.27410622 0.27410622 0.27410622 0.27698157
+##  13: 0.08768483 0.08768483 0.08768483 0.08780139
+##  14: 0.82832929 0.82832929 0.82832929 0.82778660
+##  15: 0.30294691 0.30294691 0.30294691 0.30495429
+##  16: 0.88741156 0.88741156 0.88741156 0.88709053
+##  17: 0.89995108 0.89995108 0.89995108 0.89848616
+##  18: 0.59977069 0.59977069 0.59977069 0.59972729
+##  19: 0.77610747 0.77610747 0.77610747 0.77607975
+##  20: 0.61231470 0.61231470 0.61231470 0.61140986
+##  21: 0.22578889 0.22578889 0.22578889 0.22601260
+##  22: 0.80927659 0.80927659 0.80927659 0.80900859
+##  23: 0.26470923 0.26470923 0.26470923 0.26472729
+##  24: 0.07852371 0.07852371 0.07852371 0.07860323
+##  25: 0.93674819 0.93674819 0.93674819 0.92341759
+##  26: 0.07925432 0.07925432 0.07925432 0.08185223
+##  27: 0.80359754 0.80359754 0.80359754 0.80342288
+##  28: 0.03986174 0.03986174 0.03986174 0.04141242
+##  29: 0.29854152 0.29854152 0.29854152 0.29855105
+##  30: 0.06985202 0.06985202 0.06985202 0.07107421
+##  31: 0.38577007 0.38577007 0.38577007 0.38577181
+##  32: 0.70274593 0.70274593 0.70274593 0.70251946
+##  33: 0.26517256 0.26517256 0.26517256 0.26544277
+##  34: 0.18076392 0.18076392 0.18076392 0.18594205
+##  35: 0.15623884 0.15623884 0.15623884 0.15716421
+##  36: 0.50300138 0.50300138 0.50300138 0.50300366
+##  37: 0.41174127 0.41174127 0.41174127 0.41214067
+##  38: 0.45290784 0.45290784 0.45290784 0.45288952
+##  39: 0.77204711 0.77204711 0.77204711 0.76879790
+##  40: 0.75876462 0.75876462 0.75876462 0.75865020
+##  41: 0.61367876 0.61367876 0.61367876 0.61362706
+##  42: 0.31990532 0.31990532 0.31990532 0.32031713
+##  43: 0.26393482 0.26393482 0.26393482 0.26409471
+##  44: 0.33403431 0.33403431 0.33403431 0.33643266
+##  45: 0.57331898 0.57331898 0.57331898 0.57301749
+##  46: 0.72741605 0.72741605 0.72741605 0.72465352
+##  47: 0.43132013 0.43132013 0.43132013 0.43132662
+##  48: 0.16417213 0.16417213 0.16417213 0.16419957
+##  49: 0.77607770 0.77607770 0.77607770 0.77465407
+##  50: 0.28812210 0.28812210 0.28812210 0.28838884
+##  51: 0.40633175 0.40633175 0.40633175 0.40666381
+##  52: 0.76832175 0.76832175 0.76832175 0.76740639
+##  53: 0.27488029 0.27488029 0.27488029 0.27791169
+##  54: 0.78916707 0.78916707 0.78916707 0.77610921
+##  55: 0.69011225 0.69011225 0.69011225 0.68930089
+##  56: 0.10021902 0.10021902 0.10021902 0.10046802
+##  57: 0.14242644 0.14242644 0.14242644 0.14567151
+##  58: 0.96352686 0.96352686 0.96352686 0.96022616
+##  59: 0.93435814 0.93435814 0.93435814 0.93166342
+##  60: 0.76275289 0.76275289 0.76275289 0.75920911
+##  61: 0.70069358 0.70069358 0.70069358 0.70053883
+##  62: 0.40897688 0.40897688 0.40897688 0.40914429
+##  63: 0.87981276 0.87981276 0.87981276 0.87976601
+##  64: 0.45932540 0.45932540 0.45932540 0.45932766
+##  65: 0.16781480 0.16781480 0.16781480 0.16853794
+##  66: 0.14384827 0.14384827 0.14384827 0.14487820
+##  67: 0.44355627 0.44355627 0.44355627 0.44370923
+##  68: 0.65994321 0.65994321 0.65994321 0.65869118
+##  69: 0.58128992 0.58128992 0.58128992 0.58090931
+##  70: 0.02535232 0.02535232 0.02535232 0.02566719
+##  71: 0.74158260 0.74158260 0.74158260 0.74156107
+##  72: 0.73452854 0.73452854 0.73452854 0.73339057
+##  73: 0.79146199 0.79146199 0.79146199 0.79127234
+##  74: 0.62479846 0.62479846 0.62479846 0.62427823
+##  75: 0.43970238 0.43970238 0.43970238 0.43970352
+##  76: 0.46312768 0.46312768 0.46312768 0.46380528
+##  77: 0.67052480 0.67052480 0.67052480 0.66792611
+##  78: 0.56810377 0.56810377 0.56810377 0.56806968
+##  79: 0.49760235 0.49760235 0.49760235 0.49760212
+##  80: 0.78410552 0.78410552 0.78410552 0.78408980
+##  81: 0.38678140 0.38678140 0.38678140 0.38725528
+##  82: 0.74541062 0.74541062 0.74541062 0.74477680
+##  83: 0.11041275 0.11041275 0.11041275 0.11100102
+##  84: 0.57090786 0.57090786 0.57090786 0.57089819
+##  85: 0.25022019 0.25022019 0.25022019 0.25458864
+##  86: 0.76174501 0.76174501 0.76174501 0.76056184
+##  87: 0.03180948 0.03180948 0.03180948 0.03241219
+##  88: 0.77624994 0.77624994 0.77624994 0.77524667
+##  89: 0.21593755 0.21593755 0.21593755 0.21675184
+##  90: 0.94630145 0.94630145 0.94630145 0.94326339
+##  91: 0.80131627 0.80131627 0.80131627 0.79891232
+##  92: 0.72880627 0.72880627 0.72880627 0.72867558
+##  93: 0.97546373 0.97546373 0.97546373 0.97443366
+##  94: 0.22295552 0.22295552 0.22295552 0.22898317
+##  95: 0.40930015 0.40930015 0.40930015 0.40932160
+##  96: 0.13196418 0.13196418 0.13196418 0.13488315
+##  97: 0.68646456 0.68646456 0.68646456 0.68280352
+##  98: 0.03869232 0.03869232 0.03869232 0.03898223
+##  99: 0.61940939 0.61940939 0.61940939 0.61899957
+## 100: 0.37610174 0.37610174 0.37610174 0.37634367
+##           yhat0   yhat1.V1   yhat2.V1   yhat3.V1</code></pre>
+<pre class="r"><code>#yhat0 = MuMIn model averaged predictions (correct method)
+#yhat1 = RHS of equation s2 in appendix (correct method)
+#yhat2 = Corrected LHS of s2 in appendix (correct method)
+#yhat3 = LHS of s2 in appendix (incorrect?)</code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>understood but awkward and confusing. It is unconventional to call a GLM a non-linear model, especially given the name “General Linear Model”<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/model-averaging/">model-averaging</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/glm/">glm</a>
+
+                  </div>
+                
+              
+            
+            
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/model-averaged-coefficients-of-a-glm/" data-tooltip="Model-averaged coefficients of a GLM">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/05/model-averaging-coeffcients-of-a-glm/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/05/model-averaging-coeffcients-of-a-glm/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/05/model-averaging-coeffcients-of-a-glm/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2018 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+  </span>
+    <script src="//yihui.name/js/math-code.js"></script>
+<script async
+src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/model-averaging-coeffcients-of-a-glm/">
+                <h3 class="media-heading">Model averaging coeffcients of a GLM</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
+“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
+from the supplement of Dormann et al.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/model-averaged-coefficients-of-a-glm/">
+                <h3 class="media-heading">Model-averaged coefficients of a GLM</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
+“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
+from the supplement of Dormann et al.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/04/on-alpha/">
+                <h3 class="media-heading">On alpha</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This post is motivated by Terry McGlynn’s thought provoking How do we move beyond an arbitrary statistical threshold? I have been struggling with the ideas explored in Terry’s post ever since starting my PhD 30 years ago, and its only been in the last couple of years that my own thoughts have begun to gel. This long marination period is largely because of my very classical biostatistical training. My PhD is from the Department of Anatomical Sciences at Stony Brook but the content was geometric morphometrics and James Rohlf was my mentor for morphometrics specifically, and multivariate statistics more generally.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/combining-data-distribution-summary-model-effects-and-uncertainty-in-a-single-plot/">
+                <h3 class="media-heading">Combining data, distribution summary, model effects, and uncertainty in a single plot</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">A Harrell plot combines a forest plot of estimated treatment effects and uncertainty, a dot plot of raw data, and a box plot of the distribution of the raw data into a single plot. A Harrell plot encourages best practices such as exploration of the distribution of the data and focus on effect size and uncertainty, while discouraging bad practices such as ignoring distributions and focusing on \(p\)-values. Consequently, a Harrell plot should replace the bar plots and Cleveland dot plots that are currently ubiquitous in the literature.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+                <h3 class="media-heading">What is the range of reasonable P-values given a two standard error difference in means?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
+ I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/">
+                <h3 class="media-heading">Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/what-is-an-r-doodle/">
+                <h3 class="media-heading">What is an R doodle?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">An R doodle is a short script to check intuition or understanding. Almost always, this involves generating fake data. I might create an R doodle when I’m reviewing a manuscript or reading a published paper and I want to check if their statistical analysis is doing what the authors think it is doing. Or maybe I create it to help me figure out what the authors are doing. Or I might be teaching some method and I create an R doodle to help me understand how the method behaves given different input (fake) data sets.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         7 posts found
+      </p>
+    </div>
+  </div>
+</div>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/model-averaged-coefficients-of-a-glm/" data-tooltip="Model-averaged coefficients of a GLM">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/05/model-averaging-coeffcients-of-a-glm/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/05/model-averaging-coeffcients-of-a-glm/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/05/model-averaging-coeffcients-of-a-glm/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2018%2F05%2Fmodel-averaging-coeffcients-of-a-glm%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2018%2F05%2Fmodel-averaging-coeffcients-of-a-glm%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2018%2F05%2Fmodel-averaging-coeffcients-of-a-glm%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+    
+      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Jeff Walker, Professor of Biological Sciences
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        University of Southern Maine, Portland, Maine, United States
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/model-averaging-coeffcients-of-a-glm/">
+                <h3 class="media-heading">Model averaging coeffcients of a GLM</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
+“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
+from the supplement of Dormann et al.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/model-averaged-coefficients-of-a-glm/">
+                <h3 class="media-heading">Model-averaged coefficients of a GLM</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
+“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
+from the supplement of Dormann et al.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/04/on-alpha/">
+                <h3 class="media-heading">On alpha</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This post is motivated by Terry McGlynn’s thought provoking How do we move beyond an arbitrary statistical threshold? I have been struggling with the ideas explored in Terry’s post ever since starting my PhD 30 years ago, and its only been in the last couple of years that my own thoughts have begun to gel. This long marination period is largely because of my very classical biostatistical training. My PhD is from the Department of Anatomical Sciences at Stony Brook but the content was geometric morphometrics and James Rohlf was my mentor for morphometrics specifically, and multivariate statistics more generally.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/combining-data-distribution-summary-model-effects-and-uncertainty-in-a-single-plot/">
+                <h3 class="media-heading">Combining data, distribution summary, model effects, and uncertainty in a single plot</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">A Harrell plot combines a forest plot of estimated treatment effects and uncertainty, a dot plot of raw data, and a box plot of the distribution of the raw data into a single plot. A Harrell plot encourages best practices such as exploration of the distribution of the data and focus on effect size and uncertainty, while discouraging bad practices such as ignoring distributions and focusing on \(p\)-values. Consequently, a Harrell plot should replace the bar plots and Cleveland dot plots that are currently ubiquitous in the literature.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+                <h3 class="media-heading">What is the range of reasonable P-values given a two standard error difference in means?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
+ I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/">
+                <h3 class="media-heading">Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/03/what-is-an-r-doodle/">
+                <h3 class="media-heading">What is an R doodle?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">An R doodle is a short script to check intuition or understanding. Almost always, this involves generating fake data. I might create an R doodle when I’m reviewing a manuscript or reading a published paper and I want to check if their statistical analysis is doing what the authors think it is doing. Or maybe I create it to help me figure out what the authors are doing. Or I might be teaching some method and I create an R doodle to help me understand how the method behaves given different input (fake) data sets.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         7 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('/images/Jackson%20copy%202.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2018\/05\/model-averaging-coeffcients-of-a-glm\/';
+          
+            this.page.identifier = '\/2018\/05\/model-averaging-coeffcients-of-a-glm\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+    
+  </body>
+</html>
+
