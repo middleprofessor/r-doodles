@@ -44,7 +44,7 @@ The RHS is the same as their S2. The LHS computes the prediction for each model 
 
 **In short.** Model-averaged coefficients should be averaged on the link scale and then back-transformed to the response scale for interpretation. It would indeed be wrong to "interpret" coefficients that are model-averaged on the response scale. One can model average the coefficients on the link scale and then compute the predictions or one can compute the predictions on the link scale for all models and then average these. These are the same, that is, "predicting from a parameter-averaged model is mathematically identical to averaging predictions." For interpretation of either coefficients or the predictions, we back-transform the averaged values.
 
-Here is a short R-doodle showing that "predicting from a parameter-averaged model is mathematically identical to averaging predictions" for a GLM, as long as one is doing all the averaging one the link scale
+Here is a short R-doodle showing that "predicting from a parameter-averaged model is mathematically identical to averaging predictions" for a GLM, as long as one is doing all the averaging on the link scale
 
 ```{r libraries, warning=FALSE}
 library(MuMIn)
