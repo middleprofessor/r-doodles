@@ -12,8 +12,6 @@ categories: []
 
 
 
-<pre class="r"><code>library(MuMIn)
-library(data.table)</code></pre>
 <p>This is a very quick post as a comment to the statement</p>
 <p>“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>, such coefficient averaging is not equivalent to prediction averaging.”</p>
 <p>from the supplement of Dormann et al. <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309">Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference</a>.</p>
@@ -28,8 +26,10 @@ library(data.table)</code></pre>
 g^{-1}(\frac{1}{m} \sum_{i=1}^m{(Xb_i)}) = g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
 \end{equation}\]</span>
 <p>The RHS is the same as their S2. The LHS computes the prediction for each model on the link scale, then averages over these on the link scale, and then back-transforms to the response scale. This is another way to get the correct predictions. Both the LHS and RHS are equivalent and show that “predicting from a parameter-averaged model [RHS] is mathematically identical to averaging predictions [LHS].”</p>
-<p><strong>In short.</strong> model-averaged coefficients should be averaged on the link scale and then back-transformed to the response scale for interpretation. It would indeed be wrong to “interpret” coefficients that are model-averaged on the response scale. One can model average the coefficients on the link scale and then compute the predictions or one can compute the predictions on the link scale for all models and then average these. These are the same, that is, “predicting from a parameter-averaged model is mathematically identical to averaging predictions.” For interpretation of either coefficients or the predictions, we back-transform the averaged values.</p>
-<p>Here is a short R-doodle showing that “predicting from a parameter-averaged model is mathematically identical to averaging predictions” for a GLM, as long as one is doing all the averaging in the link space.</p>
+<p><strong>In short.</strong> Model-averaged coefficients should be averaged on the link scale and then back-transformed to the response scale for interpretation. It would indeed be wrong to “interpret” coefficients that are model-averaged on the response scale. One can model average the coefficients on the link scale and then compute the predictions or one can compute the predictions on the link scale for all models and then average these. These are the same, that is, “predicting from a parameter-averaged model is mathematically identical to averaging predictions.” For interpretation of either coefficients or the predictions, we back-transform the averaged values.</p>
+<p>Here is a short R-doodle showing that “predicting from a parameter-averaged model is mathematically identical to averaging predictions” for a GLM, as long as one is doing all the averaging one the link scale</p>
+<pre class="r"><code>library(MuMIn)
+library(data.table)</code></pre>
 <pre class="r"><code>expit &lt;- function(x) {exp(x)/(1+exp(x))} # the inverse logit function. This generates the probability of the event p
 logit &lt;- function(p) {log(p/(1-p))} # the log of the odds or &quot;logodds&quot; given the probability of an event p. This is NOT the odds ratio, which is the ratio of two odds.
 p2odd &lt;- function(p) {p/(1-p)} # the odds of the probability of an event
@@ -72,12 +72,12 @@ yhat0.link_scale &lt;- predict(fit.avg, backtransform=FALSE)
 yhat0.response_scale2 &lt;- expit(yhat0.link_scale) 
 head(data.table(yhat0.response_scale, yhat0.response_scale2)) # these should be equal</code></pre>
 <pre><code>##    yhat0.response_scale yhat0.response_scale2
-## 1:           0.34867536            0.34867536
-## 2:           0.01354643            0.01354643
-## 3:           0.15867659            0.15867659
-## 4:           0.93334272            0.93334272
-## 5:           0.17351411            0.17351411
-## 6:           0.57493129            0.57493129</code></pre>
+## 1:            0.5652075             0.5652075
+## 2:            0.8281841             0.8281841
+## 3:            0.3935505             0.3935505
+## 4:            0.6502747             0.6502747
+## 5:            0.2994145             0.2994145
+## 6:            0.3914719             0.3914719</code></pre>
 <pre class="r"><code>yhat0 &lt;- yhat0.response_scale # predictions using MuMIn package
 
 
@@ -111,13 +111,13 @@ MSE3 &lt;- sqrt(mean((yhat3-dt[, y])^2))
 
 # Predicted values computed 4 different ways
 head(data.table(yhat0=yhat0, yhat1=yhat1[,1], yhat2=yhat2[,1], yhat3=yhat3[,1]))</code></pre>
-<pre><code>##         yhat0      yhat1      yhat2      yhat3
-## 1: 0.34867536 0.34867536 0.34867536 0.34868466
-## 2: 0.01354643 0.01354643 0.01354643 0.01372132
-## 3: 0.15867659 0.15867659 0.15867659 0.15895272
-## 4: 0.93334272 0.93334272 0.93334272 0.93311941
-## 5: 0.17351411 0.17351411 0.17351411 0.17361701
-## 6: 0.57493129 0.57493129 0.57493129 0.57490873</code></pre>
+<pre><code>##        yhat0     yhat1     yhat2     yhat3
+## 1: 0.5652075 0.5652075 0.5652075 0.5650231
+## 2: 0.8281841 0.8281841 0.8281841 0.8262603
+## 3: 0.3935505 0.3935505 0.3935505 0.3940784
+## 4: 0.6502747 0.6502747 0.6502747 0.6487851
+## 5: 0.2994145 0.2994145 0.2994145 0.2998603
+## 6: 0.3914719 0.3914719 0.3914719 0.3916618</code></pre>
 <pre class="r"><code>#yhat0 = MuMIn model averaged predictions (correct method)
 #yhat1 = RHS of equation s2 in appendix (correct method)
 #yhat2 = Corrected LHS of s2 in appendix (correct method)
