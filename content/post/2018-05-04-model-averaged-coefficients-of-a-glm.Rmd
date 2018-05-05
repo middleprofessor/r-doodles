@@ -24,7 +24,7 @@ This is a very quick post as a comment to the statement
 
 from the supplement of Dormann et al. [Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309).
 
-I think the authors are arguing that for GLMs, we cannot use model-averaged predictions to justify interpreting model-averaged coefficients since modeled-averaged coefficients are not the same thing that produced the model-averaged predictions. I think this is wrong, model-averaged coefficients *are* the same thing that produced the model-averaged predictions, but only if  both are averaged on the link scale and then back-transformed to the response scale.
+This is within the context of problems with model-averaged coefficients. I think the authors are arguing that for GLMs, we cannot use model-averaged predictions to justify interpreting model-averaged coefficients since modeled-averaged coefficients are not the same thing that produced the model-averaged predictions. I think this is wrong, model-averaged coefficients *are* the same thing that produced the model-averaged predictions *if*  both are averaged on the link scale and then back-transformed to the response scale.
 
 Here is their equation S2
 
@@ -32,15 +32,15 @@ Here is their equation S2
 \frac{1}{m} \sum_{i=1}^m{g^{-1}(Xb_i)} \ne g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
 \end{equation}
 
-This equation is true but irrelevant. The RHS averages the coefficients on the link scale, then computes the model-averaged prediction on the link scale, and then back-transforms these to the response scale. This is a correct way to get model-averaged predictions on the response scale. The LHS back-transforms the predictions from each model and then *averages over these on the response scale* to get the model-averaged prediction. This is a wrong way to get the model averaged prediction on the response scale. This equation is comparing apples and oranges
+This equation is true but, I think, irrelevant. The LHS averages predictions, but the average is on the response scale. The RHS averages the coefficients, but the average is on the link scale. I would agree with the statement *if* this is the way researchers are averaging.
 
-Here is a correct version of their equation S2, with all averaging on the link scale
+I would think the LHS is the incorrect method for computing predictions on the response scale. The correct version of their equation S2, with all averaging on the link scale is
 
 \begin{equation}
 g^{-1}(\frac{1}{m} \sum_{i=1}^m{(Xb_i)}) = g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
 \end{equation}
 
-The RHS is the same as their S2. The LHS computes the prediction for each model on the link scale, then averages over these on the link scale, and then back-transforms to the response scale. This is another way to get the correct predictions. Both the LHS and RHS are equivalent and show that "predicting from a parameter-averaged model [RHS] is mathematically identical to averaging predictions [LHS]."
+The RHS is the same as their S2. The LHS computes the prediction for each model on the link scale, then averages over these on the link scale, and then back-transforms to the response scale. Both LHS and RHS are correct ways to get the model-averaged predictions on the response scale. And, both the LHS and RHS are equivalent and show that "predicting from a parameter-averaged model [RHS] is mathematically identical to averaging predictions [LHS]."
 
 **In short.** Model-averaged coefficients should be averaged on the link scale and then back-transformed to the response scale for interpretation. It would indeed be wrong to "interpret" coefficients that are model-averaged on the response scale. One can model average the coefficients on the link scale and then compute the predictions or one can compute the predictions on the link scale for all models and then average these. These are the same, that is, "predicting from a parameter-averaged model is mathematically identical to averaging predictions." For interpretation of either coefficients or the predictions, we back-transform the averaged values.
 
