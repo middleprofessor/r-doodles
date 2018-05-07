@@ -1,5 +1,5 @@
 ---
-title: On model-averaging the coefficients of linear models
+title: On model averaging the coefficients of linear models
 author: Jeff Walker
 date: '2018-05-10'
 slug: on-model-averaging-regression-coefficients
