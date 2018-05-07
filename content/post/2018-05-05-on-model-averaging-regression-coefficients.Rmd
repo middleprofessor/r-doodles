@@ -17,13 +17,13 @@ McElreath doesn't give any hints what a "special case" looks like and I am not a
 
 Regardless, I think the "different meanings" criticism is wrong, and even obviously wrong, but the recognition of this has been masked by confused thinking about the parameters of a linear model. The confusion arises because of incorrectly equating the definition of the coefficients of a linear model and the definition of the parameters of a linear model.
 
-A coefficient of a linear model is the difference in the modeled value on the link scale, given a one unit difference in the predictor,
+A coefficient of a linear model is the difference in the modeled value given a one unit difference in the predictor,
 
 \begin{equation}
 b_j.k = (\hat{Y}|X_j=x+1, X_k=x_k) - (\hat{Y}|X_j=x, X_k=x_k)
 \end{equation}
 
-Because the modeled value of a linear model is a conditional mean, the coefficient is a difference in conditional means and therefore, is conditional on the additional covariates in the model ($X_k$).
+For generalized linear models, the modeled values are on the link scale. Because the modeled value of a linear model is a conditional mean, the coefficient is a difference in conditional means and therefore, is conditional on the additional covariates in the model ($X_k$).
 
 Here is where the confusion arises -- **A linear model coefficient estimates two different parameters**
 
