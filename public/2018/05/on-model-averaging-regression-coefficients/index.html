@@ -1,5 +1,9 @@
 
 
+  
+    
+  
+
 
   
 
@@ -18,25 +22,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.37 with theme Tranquilpeak 0.4.3-BETA">
-    <title>P Values</title>
+    <title>On model-averaging regression coefficients</title>
     <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
     <meta name="keywords" content="">
 
     <link rel="icon" href="/favicon.png">
     
-      <link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/p-values/index.xml">
-    
 
     
-    <meta name="description" content="Some ecology. Some physiology. Much fake data">
-    <meta property="og:description" content="Some ecology. Some physiology. Much fake data">
+    <meta name="description" content="A partial regression coefficient \(b_{j.k}\) is a difference in conditional means – it is the difference in the mean response between two groups that vary in \(x_j\) by one unit but have the same values for all other covariates (\(X_k\)). The partial regression coefficient \(b_{j.k}\) estimates two parameters. The first is the regression (conditional effect) parameter, a descriptive parameter describing the population difference in conditional means
+The second is the effect parameter, or Average Causal Effect, which is the direct, generating or causal effect of \(X_j\) on \(Y\), and variously defined as">
+    <meta property="og:description" content="A partial regression coefficient \(b_{j.k}\) is a difference in conditional means – it is the difference in the mean response between two groups that vary in \(x_j\) by one unit but have the same values for all other covariates (\(X_k\)). The partial regression coefficient \(b_{j.k}\) estimates two parameters. The first is the regression (conditional effect) parameter, a descriptive parameter describing the population difference in conditional means
+The second is the effect parameter, or Average Causal Effect, which is the direct, generating or causal effect of \(X_j\) on \(Y\), and variously defined as">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="P Values">
-    <meta property="og:url" content="/tags/p-values/">
+    <meta property="og:title" content="On model-averaging regression coefficients">
+    <meta property="og:url" content="/2018/05/on-model-averaging-regression-coefficients/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="Some ecology. Some physiology. Much fake data">
+    <meta name="twitter:description" content="A partial regression coefficient \(b_{j.k}\) is a difference in conditional means – it is the difference in the mean response between two groups that vary in \(x_j\) by one unit but have the same values for all other covariates (\(X_k\)). The partial regression coefficient \(b_{j.k}\) estimates two parameters. The first is the regression (conditional effect) parameter, a descriptive parameter describing the population difference in conditional means
+The second is the effect parameter, or Average Causal Effect, which is the direct, generating or causal effect of \(X_j\) on \(Y\), and variously defined as">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -73,7 +78,7 @@
 
   <body>
     <div id="blog">
-      <header id="header" data-behavior="1">
+      <header id="header" data-behavior="4">
   <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
   <div class="header-title">
     <a class="header-title-link" href="/">R Doodles</a>
@@ -93,7 +98,7 @@
   
 </header>
 
-      <nav id="sidebar" data-behavior="1">
+      <nav id="sidebar" data-behavior="4">
   <div class="sidebar-container">
     
       <div class="sidebar-profile">
@@ -232,76 +237,137 @@
 </nav>
 
       
-        
 
-      
-      <div id="main" data-behavior="1"
+      <div id="main" data-behavior="4"
         class="
                hasCoverMetaIn
                ">
-        
-          <section class="postShorten-group main-content-wrap">
-            
-            
-              
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
   
-    
-      
-        
-      
-    
+    <h1 class="post-title" itemprop="headline">
+      On model-averaging regression coefficients
+    </h1>
   
-
-
   
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
-          What is the range of reasonable P-values given a two standard error difference in means?
-        </a>
-      </h1>
-      
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2018-03-18T00:00:00Z">
+      <time itemprop="datePublished" datetime="2018-05-05T00:00:00Z">
         
-  March 18, 2018
+  May 5, 2018
 
       </time>
     
     
-  
-  
-    <span>in</span>
-    
-      <a class="category-link" href="/categories/stats-101">stats 101</a>
-    
-  
-
   </div>
 
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
- I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.
-      <p>
-        <a href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/" class="postShorten-excerpt_link link">Continue reading</a>
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>A partial regression coefficient <span class="math inline">\(b_{j.k}\)</span> is a difference in conditional means – it is the difference in the mean response between two groups that vary in <span class="math inline">\(x_j\)</span> by one unit but have the same values for all other covariates (<span class="math inline">\(X_k\)</span>). The partial regression coefficient <span class="math inline">\(b_{j.k}\)</span> estimates two parameters. The first is the regression (conditional effect) parameter, a descriptive parameter describing the population difference in conditional means</p>
+
+<p>The second is the effect parameter, or Average Causal Effect, which is the direct, generating or causal effect of <span class="math inline">\(X_j\)</span> on <span class="math inline">\(Y\)</span>, and variously defined as</p>
+
+<p>Equation~ is the counterfactual definition of the effect parameter, which is the average of individual causal effects. An individual causal effect is a  – what would happen if we could measure the response in individual <span class="math inline">\(i\)</span> under two conditions (<span class="math inline">\(x\)</span> and <span class="math inline">\(x + 1\)</span>) with only <span class="math inline">\(X_j\)</span> having changed . Equation~ is an interventional definition of the effect parameter . The <span class="math inline">\(do\)</span> operator represents what would happen in a hypothetical intervention that modifies <span class="math inline">\(X_j\)</span> but leaves all other variables unchanged . In both definitions of the effect parameter, the meaning of <span class="math inline">\(\beta_j\)</span> is not conditional on other <span class="math inline">\(X\)</span> . In the formal language of graphical causal models, an effect coefficient’s meaning is derived from a pre-specified causal hypothesis of a potential effect in the form of a directed path from <span class="math inline">\(X_j\)</span> to <span class="math inline">\(Y\)</span>. The absence of an arrow is a hypothesis of no causal effect. By contrast, the presence of an arrow allows for empirical estimates that are close to, or effectively, zero, and in this way an effect parameter is similar to the <code>null effect'' interpretation of the parameters of the full model described above \citep{hoeting_bayesian_1999, consonni_compatibility_2008}. Importantly, by defining the effect parameter using</code>causal conditioning’‘in place of ``probabilistic conditioning’’ , these definitions are very general and not dependent on model form and apply equally to generalized linear models or multi-level (or hierarchical) models in addition to simple linear models .</p>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/model-averaged-coefficients/">model-averaged coefficients</a>
+
+                  </div>
+                
+              
+            
+            
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/model-averaged-coefficients-of-a-glm/" data-tooltip="Model-averaged coefficients of a GLM">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
         
-      </p>
-    </div>
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/05/on-model-averaging-regression-coefficients/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/05/on-model-averaging-regression-coefficients/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/05/on-model-averaging-regression-coefficients/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
   </div>
-  
-</article>
+
 
             
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
             
-
-          </section>
-        
+          </div>
+        </article>
         <footer id="footer" class="main-content-wrap">
   <span class="copyrights">
     &copy; 2018 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
@@ -467,6 +533,102 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
 </footer>
 
       </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/model-averaged-coefficients-of-a-glm/" data-tooltip="Model-averaged coefficients of a GLM">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/05/on-model-averaging-regression-coefficients/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/05/on-model-averaging-regression-coefficients/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/05/on-model-averaging-regression-coefficients/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2018%2F05%2Fon-model-averaging-regression-coefficients%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2018%2F05%2Fon-model-averaging-regression-coefficients%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2018%2F05%2Fon-model-averaging-regression-coefficients%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
     </div>
     
     <div id="about">
@@ -683,6 +845,32 @@ $(document).ready(function() {
 });
 </script>
 
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2018\/05\/on-model-averaging-regression-coefficients\/';
+          
+            this.page.identifier = '\/2018\/05\/on-model-averaging-regression-coefficients\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
 
 
 

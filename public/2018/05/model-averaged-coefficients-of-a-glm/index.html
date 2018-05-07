@@ -284,7 +284,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
 g^{-1}(\frac{1}{m} \sum_{i=1}^m{(Xb_i)}) = g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
 \end{equation}\]</span>
 <p>The RHS is the same as their S2. The LHS computes the prediction for each model on the link scale, then averages over these on the link scale, and then back-transforms to the response scale. Both LHS and RHS are correct ways to get the model-averaged predictions on the response scale. And, both the LHS and RHS are equivalent and show that “predicting from a parameter-averaged model [RHS] is mathematically identical to averaging predictions [LHS].”</p>
-<p><strong>In short.</strong> Model-averaged coefficients should be averaged on the link scale. It would indeed be not “correct” to interpret coefficients that are model-averaged on the response scale, although as Dormann et al state, “In practice, however, both log and logit are sufficiently linear, making coefficient averaging an acceptable approximation.”</p>
+<p><strong>In short.</strong> Model-averaged coefficients should be averaged on the link scale. It would indeed be not “correct” to interpret coefficients that are model-averaged on the response scale, although as Dormann et al state, “In practice, however, both log and logit are sufficiently linear, making coefficient averaging an acceptable approximation.” If the issue is that researchers are model averaging coefficients on the response scale, this isn’t an issue with model averaging coefficients in general, but only of model-averaging coefficients on a response scale.</p>
 <p>Here is a short R-doodle showing that “predicting from a parameter-averaged model is mathematically identical to averaging predictions” for a GLM, as long as one is doing all the averaging on the link scale</p>
 <pre class="r"><code>library(MuMIn)
 library(data.table)</code></pre>
@@ -330,12 +330,12 @@ yhat0.link_scale &lt;- predict(fit.avg, backtransform=FALSE)
 yhat0.response_scale2 &lt;- expit(yhat0.link_scale) 
 head(data.table(yhat0.response_scale, yhat0.response_scale2)) # these should be equal</code></pre>
 <pre><code>##    yhat0.response_scale yhat0.response_scale2
-## 1:            0.9374256             0.9374256
-## 2:            0.1682279             0.1682279
-## 3:            0.3563846             0.3563846
-## 4:            0.3045759             0.3045759
-## 5:            0.1935083             0.1935083
-## 6:            0.7966255             0.7966255</code></pre>
+## 1:           0.04604845            0.04604845
+## 2:           0.13642346            0.13642346
+## 3:           0.39534851            0.39534851
+## 4:           0.07416149            0.07416149
+## 5:           0.37876590            0.37876590
+## 6:           0.67244143            0.67244143</code></pre>
 <pre class="r"><code>yhat0 &lt;- yhat0.response_scale # predictions using MuMIn package
 
 
@@ -369,13 +369,13 @@ MSE3 &lt;- sqrt(mean((yhat3-dt[, y])^2))
 
 # Predicted values computed 4 different ways
 head(data.table(yhat0=yhat0, yhat1=yhat1[,1], yhat2=yhat2[,1], yhat3=yhat3[,1]))</code></pre>
-<pre><code>##        yhat0     yhat1     yhat2     yhat3
-## 1: 0.9374256 0.9374256 0.9374256 0.9372182
-## 2: 0.1682279 0.1682279 0.1682279 0.1685310
-## 3: 0.3563846 0.3563846 0.3563846 0.3564319
-## 4: 0.3045759 0.3045759 0.3045759 0.3046275
-## 5: 0.1935083 0.1935083 0.1935083 0.1935496
-## 6: 0.7966255 0.7966255 0.7966255 0.7959107</code></pre>
+<pre><code>##         yhat0      yhat1      yhat2      yhat3
+## 1: 0.04604845 0.04604845 0.04604845 0.04927729
+## 2: 0.13642346 0.13642346 0.13642346 0.13982701
+## 3: 0.39534851 0.39534851 0.39534851 0.39615782
+## 4: 0.07416149 0.07416149 0.07416149 0.07490179
+## 5: 0.37876590 0.37876590 0.37876590 0.38063419
+## 6: 0.67244143 0.67244143 0.67244143 0.67242210</code></pre>
 <pre class="r"><code>#yhat0 = MuMIn model averaged predictions (correct method)
 #yhat1 = RHS of equation s2 in appendix (correct method)
 #yhat2 = Corrected LHS of s2 in appendix (correct method)
@@ -415,7 +415,7 @@ head(data.table(yhat0=yhat0, yhat1=yhat1[,1], yhat2=yhat2[,1], yhat3=yhat3[,1]))
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/on-model-averaging-regression-coefficients/" data-tooltip="On model-averaging regression coefficients">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -512,6 +512,24 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
       <div class="no-result text-color-light text-center">no post found</div>
       <div class="results">
         
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
+                <h3 class="media-heading">On model-averaging regression coefficients</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">A partial regression coefficient \(b_{j.k}\) is a difference in conditional means – it is the difference in the mean response between two groups that vary in \(x_j\) by one unit but have the same values for all other covariates (\(X_k\)). The partial regression coefficient \(b_{j.k}\) estimates two parameters. The first is the regression (conditional effect) parameter, a descriptive parameter describing the population difference in conditional means
+The second is the effect parameter, or Average Causal Effect, which is the direct, generating or causal effect of \(X_j\) on \(Y\), and variously defined as</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
         
           <div class="media">
             
@@ -625,7 +643,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         6 posts found
+         7 posts found
       </p>
     </div>
   </div>
@@ -641,7 +659,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/on-model-averaging-regression-coefficients/" data-tooltip="On model-averaging regression coefficients">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -782,6 +800,24 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
+                <h3 class="media-heading">On model-averaging regression coefficients</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">A partial regression coefficient \(b_{j.k}\) is a difference in conditional means – it is the difference in the mean response between two groups that vary in \(x_j\) by one unit but have the same values for all other covariates (\(X_k\)). The partial regression coefficient \(b_{j.k}\) estimates two parameters. The first is the regression (conditional effect) parameter, a descriptive parameter describing the population difference in conditional means
+The second is the effect parameter, or Average Causal Effect, which is the direct, generating or causal effect of \(X_j\) on \(Y\), and variously defined as</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/05/model-averaged-coefficients-of-a-glm/">
                 <h3 class="media-heading">Model-averaged coefficients of a GLM</h3>
               </a>
@@ -891,7 +927,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         6 posts found
+         7 posts found
       </p>
     </div>
   </div>

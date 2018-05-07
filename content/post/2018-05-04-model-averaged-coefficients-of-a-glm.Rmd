@@ -42,8 +42,7 @@ g^{-1}(\frac{1}{m} \sum_{i=1}^m{(Xb_i)}) = g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
 
 The RHS is the same as their S2. The LHS computes the prediction for each model on the link scale, then averages over these on the link scale, and then back-transforms to the response scale. Both LHS and RHS are correct ways to get the model-averaged predictions on the response scale. And, both the LHS and RHS are equivalent and show that "predicting from a parameter-averaged model [RHS] is mathematically identical to averaging predictions [LHS]."
 
-**In short.** Model-averaged coefficients should be averaged on the link scale. It would indeed be not "correct" to interpret coefficients that are model-averaged on the response scale, although as Dormann et al state, "In practice, however, both log and logit are sufficiently linear, making coefficient averaging an acceptable approximation."
-
+**In short.** Model-averaged coefficients should be averaged on the link scale. It would indeed be not "correct" to interpret coefficients that are model-averaged on the response scale, although as Dormann et al state, "In practice, however, both log and logit are sufficiently linear, making coefficient averaging an acceptable approximation." If the issue is that researchers are model averaging coefficients on the response scale, this isn't an issue with model averaging coefficients in general, but only of model-averaging coefficients on a response scale.
 
 Here is a short R-doodle showing that "predicting from a parameter-averaged model is mathematically identical to averaging predictions" for a GLM, as long as one is doing all the averaging on the link scale
 
