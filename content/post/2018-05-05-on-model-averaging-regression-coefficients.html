@@ -1,7 +1,7 @@
 ---
-title: On model-averaging regression coefficients
+title: On model-averaging the coefficients of linear models
 author: Jeff Walker
-date: '2018-05-05'
+date: '2018-05-10'
 slug: on-model-averaging-regression-coefficients
 categories: []
 tags:
@@ -10,8 +10,4 @@ tags:
 
 
 
-<p>A partial regression coefficient <span class="math inline">\(b_{j.k}\)</span> is a difference in conditional means – it is the difference in the mean response between two groups that vary in <span class="math inline">\(x_j\)</span> by one unit but have the same values for all other covariates (<span class="math inline">\(X_k\)</span>). The partial regression coefficient <span class="math inline">\(b_{j.k}\)</span> estimates two parameters. The first is the regression (conditional effect) parameter, a descriptive parameter describing the population difference in conditional means</p>
 
-<p>The second is the effect parameter, or Average Causal Effect, which is the direct, generating or causal effect of <span class="math inline">\(X_j\)</span> on <span class="math inline">\(Y\)</span>, and variously defined as</p>
-
-<p>Equation~ is the counterfactual definition of the effect parameter, which is the average of individual causal effects. An individual causal effect is a  – what would happen if we could measure the response in individual <span class="math inline">\(i\)</span> under two conditions (<span class="math inline">\(x\)</span> and <span class="math inline">\(x + 1\)</span>) with only <span class="math inline">\(X_j\)</span> having changed . Equation~ is an interventional definition of the effect parameter . The <span class="math inline">\(do\)</span> operator represents what would happen in a hypothetical intervention that modifies <span class="math inline">\(X_j\)</span> but leaves all other variables unchanged . In both definitions of the effect parameter, the meaning of <span class="math inline">\(\beta_j\)</span> is not conditional on other <span class="math inline">\(X\)</span> . In the formal language of graphical causal models, an effect coefficient’s meaning is derived from a pre-specified causal hypothesis of a potential effect in the form of a directed path from <span class="math inline">\(X_j\)</span> to <span class="math inline">\(Y\)</span>. The absence of an arrow is a hypothesis of no causal effect. By contrast, the presence of an arrow allows for empirical estimates that are close to, or effectively, zero, and in this way an effect parameter is similar to the <code>null effect'' interpretation of the parameters of the full model described above \citep{hoeting_bayesian_1999, consonni_compatibility_2008}. Importantly, by defining the effect parameter using</code>causal conditioning’‘in place of ``probabilistic conditioning’’ , these definitions are very general and not dependent on model form and apply equally to generalized linear models or multi-level (or hierarchical) models in addition to simple linear models .</p>
