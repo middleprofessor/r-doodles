@@ -1,40 +1,9 @@
 ---
 title: On model-averaging the coefficients of linear models
 author: Jeff Walker
-date: '2018-05-05'
+date: '2018-05-10'
 slug: on-model-averaging-regression-coefficients
 categories: []
 tags:
   - model-averaged coefficients
 ---
-Model averaging is an alternative to model selection or variable selection for either effect estimation or prediction. Model-averaging often follows an all-subsets regression, a practice that is criticized for mindless model building. Nevertheless, averaging across all or a best subset of models shrinks regression coefficients toward zero, which has the effect of contracting error variance. Consequently, model-averaging is an ad-hoc shrinkage estimator, and can outperform model selection and even the full model under some conditions, where performance is measured by a summary of the long run frequency of error.
-
-Many statisticians are critical of averaging coefficients from different models because coefficients from different models have different interpretations and cannot be meaningfully averaged.
-
-coefficients have received  criticized for many years, including recently in ecology 
-
-in the recent ecology literature because their computation requires averaging over a set of coefficients that are conditional on a specific set of covariates. \cite{banner_considerations_2017}, echoing earlier comments from the statistics literature (see below), noted that coefficients from different models have different interpretations and cannot be meaningfully averaged. \cite{cade_model_2015} advanced a novel criticism, specifically arguing that in the presence of any correlation among the predictors, averaging coefficients is invalid because an averaged coefficient has ``no defined units.'' Cade's criticism is not the typical caution against the estimation of partial regression coefficients in the presence of high collinearity because of a high variance inflation factor but an argument that model-averaged coefficients in the presence of \textit{any} correlation among the predictors is simply invalid. Cade's critique is receiving much attention, as evidenced by over 100 Google Scholar citations in about two years.
-
-These critiques are noteworthy given that model averaging regression coefficients has developed a rich literature in applied statistics over the last 20 years \citep{hoeting_bayesian_1999, burnham_model_2002, hjort_frequentist_2003, hansen_least_2007, liang_optimal_2011, zhang_model_2014, zigler_uncertainty_2014} with only limited attention to the interpretation of the parameter estimated by a model averaged coefficient \citep{Draper_Comment_1999, candolo_note_2003, Raftery_Discussion_2003}. \cite{berger_objective_2001} noted the issue not in the context of a meaningless average but in the context of modeling the prior distribution. \cite{consonni_compatibility_2008} also considered the meaning of the parameters in a submodel and showed four different interpretations. In two of these (their interpretations $M^*_A$ and $M^*_B$), the parameter for a regression coefficient in a submodel has the same meaning as that in the full model. Specifically, consider the full model $Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + \varepsilon_i$ and the submodel $Y_i = \beta_0 + \beta_1 X_{1i} + \varepsilon_i$. $\beta_1$ is the same parameter in both models if we consider the submodel to be the full model with $\beta_2=0$. This ``zero effect'' interpretation is effectively that given by \cite{hoeting_bayesian_1999} in their response to \cite{Draper_Comment_1999}.
-
-Here, I offer a defense of model averaging partial regression coefficients that is related to this zero-effect interpretation of the parameters. 
-
-A partial regression coefficient $b_{j.k}$ is a difference in conditional means -- it is the difference in the mean response between two groups that vary in $x_j$ by one unit but have the same values for all other covariates ($X_k$). The partial regression coefficient $b_{j.k}$ estimates two parameters. The first is the regression (conditional effect) parameter, a descriptive parameter describing the population difference in conditional means
-
-\begin{linenomath}
-\begin{align}
-\theta_{j.k} &= E(Y | X_j=x_j+1, X_k=x_k) - E(Y | X_j=x_j, X_k=x_k)
-\label{eq:theta}
-\end{align}
-\end{linenomath}
-
-The second is the effect parameter, or Average Causal Effect, which is the direct, generating or causal effect of $X_j$ on $Y$, and variously defined as
-
-\begin{linenomath}
-\begin{align}
-\beta_j &= E((Y_i | {X_j=x+1}) - (Y_i | {X_j=x})) \quad \textrm{\citep{rubin_estimating_1974}} \label{eq:rubin} \\
-\beta_j &= E(Y | do(X_j=x+1)) - E(Y | do(X_j=x)) \quad \textrm{\citep{pearl_causal_1995, pearl_causal_2009}} \label{eq:beta}
-\end{align}
-\end{linenomath}
-
-Equation~\ref{eq:rubin} is the counterfactual definition of the effect parameter, which is the average of individual causal effects. An individual causal effect is a \textit{potential outcome} -- what would happen if we could measure the response in individual $i$ under two conditions ($x$ and $x + 1$) with only $X_j$ having changed \citep{Morgan_Counterfactuals_2007}. Equation~\ref{eq:beta} is an interventional definition of the effect parameter \citep[][equates the two definitions]{Pearl_Linear_2017}. The $do$ operator represents what would happen in a hypothetical intervention that modifies $X_j$  but leaves all other variables unchanged \citep{pearl_causal_2009}. In both definitions of the effect parameter, the meaning of $\beta_j$ is not conditional on other $X$ \cite[Definition 2 and Equation 5 in][]{pearl_causal_1995}. In the formal language of graphical causal models, an effect coefficient's meaning is derived from a pre-specified causal hypothesis of a potential effect in the form of a directed path from $X_j$ to $Y$. The absence of an arrow is a hypothesis of no causal effect. By contrast, the presence of an arrow allows for empirical estimates that are close to, or effectively, zero, and in this way an effect parameter is similar to the ``null effect'' interpretation of the parameters of the full model described above \citep{hoeting_bayesian_1999, consonni_compatibility_2008}. Importantly, by defining the effect parameter using ``causal conditioning'' in place of ``probabilistic conditioning'' \citep{Shalizi_Advanced_2017}, these definitions are very general and not dependent on model form and apply equally to generalized linear models or multi-level (or hierarchical) models in addition to simple linear models \citep{pearl_causal_2009}.
