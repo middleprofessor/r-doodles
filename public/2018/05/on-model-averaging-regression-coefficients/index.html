@@ -30,15 +30,21 @@
     
 
     
-    <meta name="description" content="">
-    <meta property="og:description" content="">
+    <meta name="description" content="“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
+from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.">
+    <meta property="og:description" content="“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
+from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="On model-averaging the coefficients of linear models">
     <meta property="og:url" content="/2018/05/on-model-averaging-regression-coefficients/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="">
+    <meta name="twitter:description" content="“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
+from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -69,6 +75,16 @@
 
     
       
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118821125-2', 'auto');
+ga('send', 'pageview');
+</script>
+
     
     
   </head>
@@ -264,7 +280,38 @@
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              
+              <p>“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”</p>
+<p>from p. 196 of the textbook I wish I had learned from <a href="http://xcelab.net/rm/statistical-rethinking/" target="_blank">Statistical Rethinking</a> by Richard McElreath.</p>
+<p>This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging. I have heard from reviewers of a manuscript that it is infrequent only because it is <em>probably</em> common knowledge among statisticians – I’m not aware of actual data. In most sources, the criticism is like McElreath’s, one sentence without any further explanation. Three recent papers in the ecology literature have expanded explanations (<a href="https://scholar.google.com/scholar?q=Considerations+for+assessing+model+averaging+of+regression+coefficients&amp;hl=en&amp;as_sdt=0&amp;as_vis=1&amp;oi=scholart&amp;sa=X&amp;ved=0ahUKEwjEkdHjh_TaAhWhwVkKHV21DEwQgQMIJTAA" target="_blank">Banner and Higgs 2017</a>, <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C20&amp;q=Model+averaging+and+muddled+multimodel+inferences&amp;btnG=" target="_blank">Cade 2015</a>, <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C20&amp;q=Model+averaging+in+ecology%3A+a+review+of+Bayesian%2C+information‐theoretic+and+tactical+approaches+for+predictive+inference&amp;btnG=" target="_blank">Dormann et al. 2018</a>).</p>
+<p>McElreath doesn’t give any hints what a “special case” looks like and I am not aware of any defense of model-averaged coefficients more generally, other than the extremely brief response to Draper’s equally brief comment in <a href="https://scholar.google.com/scholar?cluster=4093301480813393179&amp;hl=en&amp;as_sdt=0,20" target="_blank">Hoeting et al. 1999</a>.</p>
+<p>Regardless, I think the “different meanings” criticism is wrong, and even obviously wrong, but the recognition of this has been masked by confused thinking about the parameters of a linear model. The confusion arises because of incorrectly equating the definition of the coefficients of a linear model and the definition of the parameters of a linear model.</p>
+<p>A coefficient of a linear model is the difference in the modeled value on the link scale, given a one unit difference in the predictor,</p>
+<span class="math display">\[\begin{equation}
+b_j.k = (\hat{Y}|X_j=x+1, X_k=x_k) - (\hat{Y}|X_j=x, X_k=x_k)
+\end{equation}\]</span>
+<p>Because the modeled value of a linear model is a conditional mean, the coefficient is a difference in conditional means and therefore, is conditional on the additional covariates in the model (<span class="math inline">\(X_k\)</span>).</p>
+<p>Here is where the confusion arises – <strong>A linear model coefficient estimates two different parameters</strong></p>
+<ol style="list-style-type: decimal">
+<li>Regression parameter, which is a function of probablistic conditioning
+<span class="math display">\[\begin{equation}
+\theta_{j.k} = E[Y|X_j=x+1, X_k=x_k] - E[Y|X_j=x, X_k=x_k]
+\end{equation}\]</span></li>
+<li>Effect parameter, which is a function of causal conditioning
+<span class="math display">\[\begin{equation}
+\beta_j = E((Y_i | {X_j=x+1}) - (Y_i | {X_j=x}))
+\end {equation}\]</span></li>
+</ol>
+<span class="math display">\[\begin{equation}
+\beta_j = E(Y | do(X_j=x+1)) - E(Y | do(X_j=x))
+\end{equation}\]</span>
+<p>Confusion arises when the definition of the linear model coefficient is thought to be the defintion of the parameter that is estimated. This is only true for the regression parameter.</p>
+<p>The regression parameter <span class="math inline">\(\theta_{j.k}\)</span> is conditional on the covariates <span class="math inline">\(X_k\)</span>. The “true” model is the model specified by the researcher – there is no “generating” model. The model, and the model parameters, change as the researcher adds or deletes independent variables. Shalizi refers to this as “probabalistic conditioning” (<a href="http://www.stat.cmu.edu/~cshalizi/ADAfaEPoV/" target="_blank">p. 505 of 01/30/2017 edition</a>).</p>
+<p>I give two, equivalent definitions of the effect parameter. The first is the counterfactual definition, developed by Rubin. It is the average of individual causal effects, where an individual causal effect is a <em>potential outcome</em> – what would happen if we could measure the response in individual <span class="math inline">\(i\)</span> under two conditions (<span class="math inline">\(x\)</span> and <span class="math inline">\(x + 1\)</span>) with only <span class="math inline">\(X_j\)</span> having changed. The second is an interventional definition based on the <span class="math inline">\(do\)</span> operator, developed by Pearl. The <span class="math inline">\(do\)</span> operator represents what would happen in a hypothetical intervention that modifies <span class="math inline">\(X_j\)</span> but leaves all other variables unchanged.</p>
+<p>The effect parameter <span class="math inline">\(\beta_j\)</span> is the “generating” effect and, consequently, it is not conditional on other variables that also generate (or causally effect) the response. Shalizi refers to this as “causal conditioning.” The true model includes all of the variables that causally effect <span class="math inline">\(Y\)</span>. Causal graphs identify different sources of bias in the estimation of effect parameters and can be used to reduce the true model down to the set of variables necessary to estimate an effect without bias.</p>
+<p>If our goal is mere description of the relationships among variables, the coefficients are estimating the regression parameter <span class="math inline">\(\theta_{j.k}\)</span>. Parameters from different models truly have different meanings because each specifically describes the relationship between <span class="math inline">\(Y\)</span> and <span class="math inline">\(X_j\)</span> conditional on a specific set of covariates. Averaging coefficients from different models would be averaging apples and oranges. Indeed, any sort of model selection would be comparing apples and oranges. Omitted variable bias and confounding are irrelevant or meaningless in the context of linear models as mere description, an important point that is missing from most statistics textbooks <a href="https://scholar.google.com/scholar?cluster=12625276465843289889&amp;hl=en&amp;as_sdt=0,20" target="_blank">although see Gelman and Hill</a>.</p>
+<p>If our goal is to understand a system at a level that allows intervention (manipulation of variables) to generate a specific outcome, the <span class="math inline">\(b^[m]_j\)</span> from each of the <span class="math inline">\(m\)</span> nested submodels estimates the same effect parameter <span class="math inline">\(\beta_j\)</span> and so have the same meaning. In any observational study, all of the models are wrong and each of the estimates <span class="math inline">\(b^[m]_j\)</span> is biased by some unknown amount because of ommitted confounders. Model averaging the coefficients is a reasonable method for combining information from these models, all of which we know are wrong.</p>
+<p>If our goal is prediction, the issue is moot, because in prediction we are generally not interested in the coefficients, unless we want to quantify something like variable importance. Parameters simply serve the purpose of mapping data to a prediction, they don’t have any meaning beyond this. If model-averaging the coefficients improves predictive performance, then model-average. And, for linear models, including generalized linear models, model-averaged predictions computed by averaging the predictions or averaging the coefficients <a href="/post/2018-05-04-model-averaged-coefficients-of-a-glm/">are equivalent as long as the averaging is on the link scale</a>.</p>
+
               
             </div>
           </div>
@@ -398,7 +445,9 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   May 5, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather"></div>
+              <div class="media-content hide-xs font-merryweather">“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
+from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -681,7 +730,9 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
                   May 5, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather"></div>
+              <div class="media-content hide-xs font-merryweather">“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
+from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

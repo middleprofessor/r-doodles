@@ -75,6 +75,16 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
 
     
       
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118821125-2', 'auto');
+ga('send', 'pageview');
+</script>
+
     
     
   </head>
@@ -272,7 +282,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
             <div class="main-content-wrap">
               <p>This is a very quick post as a comment to the statement</p>
 <p>“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>, such coefficient averaging is not equivalent to prediction averaging.”</p>
-<p>from the supplement of Dormann et al. <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309">Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference</a>.</p>
+<p>from the supplement of Dormann et al. <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309" target="_blank">Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference</a>.</p>
 <p>This is within the context of problems with model-averaged coefficients. I think the authors are arguing that for GLMs, we cannot use model-averaged predictions to justify interpreting model-averaged coefficients since modeled-averaged coefficients are not the same thing that produced the model-averaged predictions. I think this is wrong, model-averaged coefficients <em>are</em> the same thing that produced the model-averaged predictions <em>if</em> both are averaged on the link scale.</p>
 <p>Here is their equation S2</p>
 <span class="math display">\[\begin{equation}
@@ -330,12 +340,12 @@ yhat0.link_scale &lt;- predict(fit.avg, backtransform=FALSE)
 yhat0.response_scale2 &lt;- expit(yhat0.link_scale) 
 head(data.table(yhat0.response_scale, yhat0.response_scale2)) # these should be equal</code></pre>
 <pre><code>##    yhat0.response_scale yhat0.response_scale2
-## 1:           0.04604845            0.04604845
-## 2:           0.13642346            0.13642346
-## 3:           0.39534851            0.39534851
-## 4:           0.07416149            0.07416149
-## 5:           0.37876590            0.37876590
-## 6:           0.67244143            0.67244143</code></pre>
+## 1:           0.35774770            0.35774770
+## 2:           0.15257288            0.15257288
+## 3:           0.35763368            0.35763368
+## 4:           0.01444740            0.01444740
+## 5:           0.52454835            0.52454835
+## 6:           0.04758707            0.04758707</code></pre>
 <pre class="r"><code>yhat0 &lt;- yhat0.response_scale # predictions using MuMIn package
 
 
@@ -370,12 +380,12 @@ MSE3 &lt;- sqrt(mean((yhat3-dt[, y])^2))
 # Predicted values computed 4 different ways
 head(data.table(yhat0=yhat0, yhat1=yhat1[,1], yhat2=yhat2[,1], yhat3=yhat3[,1]))</code></pre>
 <pre><code>##         yhat0      yhat1      yhat2      yhat3
-## 1: 0.04604845 0.04604845 0.04604845 0.04927729
-## 2: 0.13642346 0.13642346 0.13642346 0.13982701
-## 3: 0.39534851 0.39534851 0.39534851 0.39615782
-## 4: 0.07416149 0.07416149 0.07416149 0.07490179
-## 5: 0.37876590 0.37876590 0.37876590 0.38063419
-## 6: 0.67244143 0.67244143 0.67244143 0.67242210</code></pre>
+## 1: 0.35774770 0.35774770 0.35774770 0.35859365
+## 2: 0.15257288 0.15257288 0.15257288 0.15409283
+## 3: 0.35763368 0.35763368 0.35763368 0.35852365
+## 4: 0.01444740 0.01444740 0.01444740 0.01447763
+## 5: 0.52454835 0.52454835 0.52454835 0.52442019
+## 6: 0.04758707 0.04758707 0.04758707 0.05093059</code></pre>
 <pre class="r"><code>#yhat0 = MuMIn model averaged predictions (correct method)
 #yhat1 = RHS of equation s2 in appendix (correct method)
 #yhat2 = Corrected LHS of s2 in appendix (correct method)
@@ -524,7 +534,9 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   May 5, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather"></div>
+              <div class="media-content hide-xs font-merryweather">“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
+from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -807,7 +819,9 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
                   May 5, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather"></div>
+              <div class="media-content hide-xs font-merryweather">“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
+from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

@@ -17,7 +17,9 @@
       <pubDate>Thu, 10 May 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/05/on-model-averaging-regression-coefficients/</guid>
-      <description></description>
+      <description>“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
+from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</description>
     </item>
     
     <item>
