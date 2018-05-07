@@ -59,7 +59,7 @@ This rebuttal to the claim that coefficients from linear models cannot be meanin
 
 I am looking for a strong argument to my rebuttal. That means...
 
-1. Arguing that the shrinkage property of model averaging is *ad hoc* and there are better methods (such as the family of methods including the lasso and ridge regression) that explicitly model the shrinkage parameter is not a argument against my rebuttal, only an argument for alternatives to model averaging.
+1. Arguing that the shrinkage property of model averaging is *ad hoc* and there are better methods (such as the family of penalized regression methods that include the lasso and ridge regression) that explicitly model the shrinkage parameter is not a argument against my rebuttal, only an argument for alternatives to model averaging.
 
 2. Arguing that model selection and model averaging is mindless and careful selection of covariates is superior is not an argument against my rebuttal, only an argument against model selection and averaging more generally.
 
