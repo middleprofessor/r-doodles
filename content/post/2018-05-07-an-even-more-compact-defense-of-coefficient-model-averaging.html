@@ -1,0 +1,25 @@
+---
+title: An even more compact defense of coefficient model averaging
+author: Jeff Walker
+date: '2018-05-07'
+slug: an-even-more-compact-defense-of-coefficient-model-averaging
+categories: []
+tags:
+  - model-averaged coefficients
+---
+
+
+
+<p><a href="/post/2018-05-05-on-model-averaging-regression-coefficients/">a longer, more detailed argument is here</a></p>
+<p>The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on <a href="https://scholar.google.com/scholar?cluster=4093301480813393179&amp;hl=en&amp;as_sdt=0,20" target="_blank">Hoeting et al. 1999</a>.</p>
+<p>David Draper suggested this example from the textbook by Freedman, Pisani and Purves. The treatment is not randomized so this is observational design.</p>
+<span class="math display">\[\begin{equation}
+BP_i = \beta_0 + \beta_1 Treatment_i  +  e_i
+\end{equation}\]</span>
+<span class="math display">\[\begin{equation}
+BP_i = \gamma_0 + \gamma_1 Treatment_i + \gamma_2 Age_i + \varepsilon_i
+\end{equation}\]</span>
+<p>the population of interest is adult women in the year 1960. BP is blood pressure. The treatment is a binary factor (1 = takes the contraceptive pill, 0 = doesn’t). Age is a confound: as age goes up, blood pressure goes up and pill use goes down.</p>
+<p>The “different parameters” argument of Draper and McElreath is that <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\gamma_1\)</span> estimate different parameters and are not meaningfully averaged. Specifically, <span class="math inline">\(\beta_1\)</span> is estimates an unconditional effect and <span class="math inline">\(\gamma_1\)</span> estimates an effect conditional on <span class="math inline">\(Age\)</span>.</p>
+<p>My argument (following Pearl and Shalizi) is that the pill researchers are not interested in description but in causal modeling. In this case, <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\gamma_1\)</span> both estimate the effect parameter (the true causal effect of the pill on BP), each with some unknown bias due to omitted confounders. <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\gamma_1\)</span> can therefore be meaningfully averaged.</p>
+<p><a href="https://scholar.google.com/scholar?cluster=12625276465843289889&amp;hl=en&amp;as_sdt=0,20">Gelman and Hill 2006</a> did not explicitly define both kinds of parameters but did recognize that regression does estimate two kinds of parameters when they state that the formula for ommitted variable bias “is commonly presented in regression texts as a way of describing the bias that can be incurred if a model is specified incorrectly. However, this term has little meaning outside of a context in which one is attempting to make causal inferences.”</p>

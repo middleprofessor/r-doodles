@@ -30,11 +30,11 @@
     
 
     
-    <meta name="description" content="“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
-from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+    <meta name="description" content="a shorter argument based on a specific example is here
+“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.">
-    <meta property="og:description" content="“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
-from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+    <meta property="og:description" content="a shorter argument based on a specific example is here
+“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="On model averaging the coefficients of linear models">
@@ -42,8 +42,8 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
-from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+    <meta name="twitter:description" content="a shorter argument based on a specific example is here
+“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
@@ -280,8 +280,8 @@ ga('send', 'pageview');
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <p>“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”</p>
-<p>from p. 196 of the textbook I wish I had learned from <a href="http://xcelab.net/rm/statistical-rethinking/" target="_blank">Statistical Rethinking</a> by Richard McElreath.</p>
+              <p><a href="/post/2018-05-07-an-even-more-compact-defense-of-coefficient-model-averaging/">a shorter argument based on a specific example is here</a></p>
+<p>“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from <a href="http://xcelab.net/rm/statistical-rethinking/" target="_blank">Statistical Rethinking</a></p>
 <p>This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging. I have heard from reviewers of a manuscript that it is infrequent only because it is <em>probably</em> common knowledge among statisticians – I’m not aware of actual data. In most sources, the criticism is like McElreath’s, one sentence without any further explanation. Three recent papers in the ecology literature have expanded explanations (<a href="https://scholar.google.com/scholar?q=Considerations+for+assessing+model+averaging+of+regression+coefficients&amp;hl=en&amp;as_sdt=0&amp;as_vis=1&amp;oi=scholart&amp;sa=X&amp;ved=0ahUKEwjEkdHjh_TaAhWhwVkKHV21DEwQgQMIJTAA" target="_blank">Banner and Higgs 2017</a>, <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C20&amp;q=Model+averaging+and+muddled+multimodel+inferences&amp;btnG=" target="_blank">Cade 2015</a>, <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C20&amp;q=Model+averaging+in+ecology%3A+a+review+of+Bayesian%2C+information‐theoretic+and+tactical+approaches+for+predictive+inference&amp;btnG=" target="_blank">Dormann et al. 2018</a>).</p>
 <p>McElreath doesn’t give any hints what a “special case” looks like and I am not aware of any defense of model-averaged coefficients more generally, other than the extremely brief response to Draper’s equally brief comment in <a href="https://scholar.google.com/scholar?cluster=4093301480813393179&amp;hl=en&amp;as_sdt=0,20" target="_blank">Hoeting et al. 1999</a>.</p>
 <p>Regardless, I think the “different meanings” criticism is wrong, and even obviously wrong, but the recognition of this has been masked by confused thinking about the parameters of a linear model. The confusion arises because of incorrectly equating the definition of the coefficients of a linear model and the definition of the parameters of a linear model.</p>
@@ -353,7 +353,7 @@ b_j.k = (\hat{Y}|X_j=x+1, X_k=x_k) - (\hat{Y}|X_j=x, X_k=x_k)
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/model-averaged-coefficients-of-a-glm/" data-tooltip="Model-averaged coefficients of a GLM">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/" data-tooltip="An even more compact defense of coefficient model averaging">
               
                   <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                   <i class="fa fa-angle-right"></i>
@@ -454,9 +454,28 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   May 5, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
-from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+              <div class="media-content hide-xs font-merryweather">a shorter argument based on a specific example is here
+“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/">
+                <h3 class="media-heading">An even more compact defense of coefficient model averaging</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">a longer, more detailed argument is here
+The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
+David Draper suggested this example from the textbook by Freedman, Pisani and Purves.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -574,7 +593,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         7 posts found
+         8 posts found
       </p>
     </div>
   </div>
@@ -598,7 +617,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/model-averaged-coefficients-of-a-glm/" data-tooltip="Model-averaged coefficients of a GLM">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/" data-tooltip="An even more compact defense of coefficient model averaging">
               
                   <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                   <i class="fa fa-angle-right"></i>
@@ -739,9 +758,28 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
                   May 5, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
-from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+              <div class="media-content hide-xs font-merryweather">a shorter argument based on a specific example is here
+“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/">
+                <h3 class="media-heading">An even more compact defense of coefficient model averaging</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">a longer, more detailed argument is here
+The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
+David Draper suggested this example from the textbook by Freedman, Pisani and Purves.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -859,7 +897,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         7 posts found
+         8 posts found
       </p>
     </div>
   </div>

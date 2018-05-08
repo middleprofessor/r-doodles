@@ -17,9 +17,20 @@
       <pubDate>Thu, 10 May 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/05/on-model-averaging-regression-coefficients/</guid>
-      <description>“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.”
-from p. 196 of the textbook I wish I had learned from Statistical Rethinking by Richard McElreath.
+      <description>a shorter argument based on a specific example is here
+“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</description>
+    </item>
+    
+    <item>
+      <title>An even more compact defense of coefficient model averaging</title>
+      <link>/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/</link>
+      <pubDate>Mon, 07 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/</guid>
+      <description>a longer, more detailed argument is here
+The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
+David Draper suggested this example from the textbook by Freedman, Pisani and Purves.</description>
     </item>
     
     <item>

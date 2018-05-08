@@ -7,13 +7,13 @@ categories: []
 tags:
   - model-averaged coefficients
 ---
-"What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so."
+[a shorter argument based on a specific example is here](/post/2018-05-07-an-even-more-compact-defense-of-coefficient-model-averaging/)
 
-from p. 196 of the textbook I wish I had learned from [Statistical Rethinking](http://xcelab.net/rm/statistical-rethinking/){target="_blank"} by Richard McElreath.
+"What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so." -- Richard McElreath, p. 196 of the textbook I wish I had learned from [Statistical Rethinking](http://xcelab.net/rm/statistical-rethinking/){target="_blank"}
 
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging. I have heard from reviewers of a manuscript that it is infrequent only because it is *probably* common knowledge among statisticians -- I'm not aware of actual data. In most sources, the criticism is like McElreath's, one sentence without any further explanation. Three recent papers in the ecology literature have expanded explanations ([Banner and Higgs 2017](https://scholar.google.com/scholar?q=Considerations+for+assessing+model+averaging+of+regression+coefficients&hl=en&as_sdt=0&as_vis=1&oi=scholart&sa=X&ved=0ahUKEwjEkdHjh_TaAhWhwVkKHV21DEwQgQMIJTAA){target="_blank"}, [Cade 2015](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C20&q=Model+averaging+and+muddled+multimodel+inferences&btnG=){target="_blank"}, [Dormann et al. 2018](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C20&q=Model+averaging+in+ecology%3A+a+review+of+Bayesian%2C+information‐theoretic+and+tactical+approaches+for+predictive+inference&btnG=){target="_blank"}).
 
-McElreath doesn't give any hints what a "special case" looks like and I am not aware of any defense of model-averaged coefficients more generally, other than the extremely brief response to Draper's equally brief comment in  [Hoeting et al. 1999](https://scholar.google.com/scholar?cluster=4093301480813393179&hl=en&as_sdt=0,20){target="_blank"}.
+McElreath doesn't give any hints what a "special case" looks like and I am not aware of any defense of model-averaged coefficients more generally, other than the extremely brief response to Draper's equally brief comment in [Hoeting et al. 1999](https://scholar.google.com/scholar?cluster=4093301480813393179&hl=en&as_sdt=0,20){target="_blank"}.
 
 Regardless, I think the "different meanings" criticism is wrong, and even obviously wrong, but the recognition of this has been masked by confused thinking about the parameters of a linear model. The confusion arises because of incorrectly equating the definition of the coefficients of a linear model and the definition of the parameters of a linear model.
 
