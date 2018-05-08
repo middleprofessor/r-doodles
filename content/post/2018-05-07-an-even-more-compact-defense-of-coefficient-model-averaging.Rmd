@@ -7,7 +7,7 @@ categories: []
 tags:
   - model-averaged coefficients
 ---
-[a longer, more detailed argument is here](/post/2018-05-05-on-model-averaging-regression-coefficients/)
+[a longer, more detailed argument is here](/2018/05/on-model-averaging-regression-coefficients/)
 
 The parameter that is averaged "needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2." -- David Draper in a comment on [Hoeting et al. 1999](https://scholar.google.com/scholar?cluster=4093301480813393179&hl=en&as_sdt=0,20){target="_blank"}.
 

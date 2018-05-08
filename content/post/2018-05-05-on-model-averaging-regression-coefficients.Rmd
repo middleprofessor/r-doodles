@@ -7,7 +7,7 @@ categories: []
 tags:
   - model-averaged coefficients
 ---
-[a shorter argument based on a specific example is here](/post/2018-05-07-an-even-more-compact-defense-of-coefficient-model-averaging/)
+[a shorter argument based on a specific example is here](/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/)
 
 "What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so." -- Richard McElreath, p. 196 of the textbook I wish I had learned from [Statistical Rethinking](http://xcelab.net/rm/statistical-rethinking/){target="_blank"}
 
