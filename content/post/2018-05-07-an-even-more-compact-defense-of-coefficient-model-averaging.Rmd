@@ -11,7 +11,7 @@ tags:
 
 The parameter that is averaged "needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2." -- David Draper in a comment on [Hoeting et al. 1999](https://scholar.google.com/scholar?cluster=4093301480813393179&hl=en&as_sdt=0,20){target="_blank"}.
 
-David Draper suggested this example from the textbook by Freedman, Pisani and Purves. The treatment is not randomized so this is observational design.
+David Draper suggested this example from the textbook by Freedman, Pisani and Purves. The treatment is not randomized so this is an observational design.
 
 \begin{equation}
 BP_i = \beta_0 + \beta_1 Treatment_i  +  e_i
@@ -24,9 +24,9 @@ BP_i = \gamma_0 + \gamma_1 Treatment_i + \gamma_2 Age_i + \varepsilon_i
 the population of interest is adult women in the year 1960. BP is blood pressure.
 The treatment is a binary factor (1 = takes the contraceptive pill, 0 = doesn't). Age is a confound: as age goes up, blood pressure goes up and pill use goes down.
 
-The "different parameters" argument of Draper and McElreath is that $\beta_1$ and $\gamma_1$ estimate different parameters and are not meaningfully averaged. Specifically, $\beta_1$ is estimates an unconditional effect and $\gamma_1$ estimates an effect conditional on $Age$.
+The "different parameters" argument of Draper and McElreath is that $\beta_1$ and $\gamma_1$ estimate different parameters and are not meaningfully averaged. Specifically, $\beta_1$ estimates an unconditional parameter and $\gamma_1$ estimates a parameter conditional on $Age$. Shalizi refers to this as probabilistic conditioning ([p. 505 of 01/30/2017 edition](http://www.stat.cmu.edu/~cshalizi/ADAfaEPoV/){target="_blank"}).
 
-My argument (following Pearl and Shalizi) is that the pill researchers are not interested in description but in causal modeling. In this case, $\beta_1$ and $\gamma_1$ both estimate the effect parameter (the true causal effect of the pill on BP), each with some unknown bias due to omitted confounders. $\beta_1$ and $\gamma_1$ can therefore be meaningfully averaged.
+My argument (following Pearl and Shalizi) is that the pill researchers are not interested in description but in causal modeling. In this case, $\beta_1$ and $\gamma_1$ both estimate the effect parameter (the true causal effect of the pill on BP), each with some unknown bias due to omitted confounders. $\beta_1$ and $\gamma_1$ can therefore be meaningfully averaged. A causal effect is not conditional on other factors that also causally effect the response. Shalizi refers to this as "causal conditioning"
 
 [Gelman and Hill 2006](https://scholar.google.com/scholar?cluster=12625276465843289889&hl=en&as_sdt=0,20) did not explicitly define both kinds of parameters but did recognize that regression does estimate two kinds of parameters when they state that the formula for ommitted variable bias "is commonly presented in regression texts as a way of describing the bias that can be incurred if a model is specified incorrectly. However, this term has little meaning outside of a context in which one is attempting to make causal inferences."
 
