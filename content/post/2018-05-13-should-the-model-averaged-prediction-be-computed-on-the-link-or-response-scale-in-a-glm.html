@@ -15,7 +15,7 @@ tags:
 
 
 <p>(TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)</p>
-<p>This post is a follow up <a href="/04/04/model-averaged-coefficients-of-a-glm">to my inital post</a>, which was written as as a way for me to pen my mental thoughts on the recent review of <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309" target="_blank">“Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“</a>. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</p>
+<p>This post is a follow up <a href="/04/04/model-averaged-coefficients-of-a-glm">to my inital post</a>, which was written as as a way for me to pen my mental thoughts on the recent review of <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309" target="_blank">“Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”</a>. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</p>
 <p>The Dormann et al. paper focuses on model-averaged predictions, but has a short discussion on problems with model-averaged coefficients in the supplement. It is in the supplement, that the authors state that for generalized linear models (GLMs) “coefficient averaging is not equivalent to prediction averaging”. Brian Cade<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> also makes this argument.</p>
 <p>In my previous post, I argued that this statement is wrong – predictions from a parameter-averaged model is mathematically identical to averaging predictions. It was hard for me to understand how this was not immediately obvious until my e-mail exchange with Carsten and Florian. In short, I assume that all averaging is done on the link scale and then the predictions are back-transformed to the response scale. Carsten and Florian (and Brian Cade?) argue that this is the “wrong” way to compute averaged predictions. So..</p>
 <p>The summary of our differences is</p>
@@ -82,12 +82,12 @@ library(data.table)</code></pre>
 ## model.avg(object = model_set)
 ## 
 ## Component models: 
-## &#39;2&#39;      &#39;12&#39;     &#39;(Null)&#39; &#39;1&#39;     
+## &#39;1&#39;      &#39;12&#39;     &#39;2&#39;      &#39;(Null)&#39;
 ## 
 ## Coefficients: 
-##        (Intercept)          x2          x1
-## full      5.166514 -0.01253403 0.005153134
-## subset    5.166514 -0.01721548 0.011911622</code></pre>
+##        (Intercept)          x1           x2
+## full      5.151309 -0.02318660 -0.005917254
+## subset    5.151309 -0.02500045 -0.012549601</code></pre>
 <pre class="r"><code>  # (0) MuMIn predict
   yhat0.MuMIn &lt;- predict(fit.avg, backtransform=TRUE)
   
@@ -122,12 +122,12 @@ library(data.table)</code></pre>
 <h1>Results</h1>
 <p>The first few rows of the results matrix of the predictions using five different methods for their computation.</p>
 <pre><code>##       MuMIn    yhat1    yhat2    yhat3    yhat4    yhat5
-## 1: 169.6369 169.6369 169.6369 169.6713 177.8550 179.1954
-## 2: 172.9479 172.9479 172.9479 172.9536 176.2062 176.6215
-## 3: 177.9754 177.9754 177.9754 177.9841 173.9062 173.0838
-## 4: 171.0780 171.0780 171.0780 171.0967 177.6369 179.0395
-## 5: 177.0258 177.0258 177.0258 177.0304 174.7738 174.5890
-## 6: 174.3020 174.3020 174.3020 174.3050 174.9464 174.4369</code></pre>
+## 1: 173.9498 173.9498 173.9498 173.9504 172.3891 172.4148
+## 2: 164.2731 164.2731 164.2731 164.2749 175.0038 176.0379
+## 3: 168.3944 168.3944 168.3944 168.4153 173.4299 173.0677
+## 4: 178.8003 178.8003 178.8003 178.8016 171.0937 170.5504
+## 5: 163.9056 163.9056 163.9056 163.9076 175.1467 176.3084
+## 6: 171.9273 171.9273 171.9273 171.9298 173.0122 173.4370</code></pre>
 <p><strong>Column Keys</strong></p>
 <p>MuMIn = MuMIn’s default prediction</p>
 <p>yhat1 = Coefficients averaged on link scale. Predictions computed on link scale from averaged coefficients and then backtransformed to response scale. My preferred method. RHS of eq. S2.</p>
