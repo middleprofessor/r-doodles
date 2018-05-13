@@ -297,6 +297,7 @@ g^{-1}(\frac{1}{m} \sum_{i=1}^m{(Xb_i)}) = g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
 <p><strong>In short.</strong> Model-averaged coefficients should be averaged on the link scale. It would indeed be not “correct” to interpret coefficients that are model-averaged on the response scale, although as Dormann et al state, “In practice, however, both log and logit are sufficiently linear, making coefficient averaging an acceptable approximation.” If the issue is that researchers are model averaging coefficients on the response scale, this isn’t an issue with model averaging coefficients in general, but only of model-averaging coefficients on a response scale.</p>
 <p>Here is a short R-doodle showing that “predicting from a parameter-averaged model is mathematically identical to averaging predictions” for a GLM, as long as one is doing all the averaging on the link scale</p>
 <pre class="r"><code>library(MuMIn)
+library(ggplot2)
 library(data.table)</code></pre>
 <pre class="r"><code>expit &lt;- function(x) {exp(x)/(1+exp(x))} # the inverse logit function. This generates the probability of the event p
 logit &lt;- function(p) {log(p/(1-p))} # the log of the odds or &quot;logodds&quot; given the probability of an event p. This is NOT the odds ratio, which is the ratio of two odds.
@@ -340,12 +341,12 @@ yhat0.link_scale &lt;- predict(fit.avg, backtransform=FALSE)
 yhat0.response_scale2 &lt;- expit(yhat0.link_scale) 
 head(data.table(yhat0.response_scale, yhat0.response_scale2)) # these should be equal</code></pre>
 <pre><code>##    yhat0.response_scale yhat0.response_scale2
-## 1:           0.35774770            0.35774770
-## 2:           0.15257288            0.15257288
-## 3:           0.35763368            0.35763368
-## 4:           0.01444740            0.01444740
-## 5:           0.52454835            0.52454835
-## 6:           0.04758707            0.04758707</code></pre>
+## 1:            0.1958144             0.1958144
+## 2:            0.6747000             0.6747000
+## 3:            0.2327797             0.2327797
+## 4:            0.2047924             0.2047924
+## 5:            0.5043722             0.5043722
+## 6:            0.8114121             0.8114121</code></pre>
 <pre class="r"><code>yhat0 &lt;- yhat0.response_scale # predictions using MuMIn package
 
 
@@ -379,13 +380,13 @@ MSE3 &lt;- sqrt(mean((yhat3-dt[, y])^2))
 
 # Predicted values computed 4 different ways
 head(data.table(yhat0=yhat0, yhat1=yhat1[,1], yhat2=yhat2[,1], yhat3=yhat3[,1]))</code></pre>
-<pre><code>##         yhat0      yhat1      yhat2      yhat3
-## 1: 0.35774770 0.35774770 0.35774770 0.35859365
-## 2: 0.15257288 0.15257288 0.15257288 0.15409283
-## 3: 0.35763368 0.35763368 0.35763368 0.35852365
-## 4: 0.01444740 0.01444740 0.01444740 0.01447763
-## 5: 0.52454835 0.52454835 0.52454835 0.52442019
-## 6: 0.04758707 0.04758707 0.04758707 0.05093059</code></pre>
+<pre><code>##        yhat0     yhat1     yhat2     yhat3
+## 1: 0.1958144 0.1958144 0.1958144 0.1966351
+## 2: 0.6747000 0.6747000 0.6747000 0.6729130
+## 3: 0.2327797 0.2327797 0.2327797 0.2334907
+## 4: 0.2047924 0.2047924 0.2047924 0.2088204
+## 5: 0.5043722 0.5043722 0.5043722 0.5043093
+## 6: 0.8114121 0.8114121 0.8114121 0.8105789</code></pre>
 <pre class="r"><code>#yhat0 = MuMIn model averaged predictions (correct method)
 #yhat1 = RHS of equation s2 in appendix (correct method)
 #yhat2 = Corrected LHS of s2 in appendix (correct method)
@@ -522,6 +523,24 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
       <div class="no-result text-color-light text-center">no post found</div>
       <div class="results">
         
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/on-model-averaging-glm-with-poisson-link/">
+                <h3 class="media-heading">On Model Averaging GLM with Poisson link</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
         
           <div class="media">
             
@@ -673,7 +692,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         8 posts found
+         9 posts found
       </p>
     </div>
   </div>
@@ -830,6 +849,24 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/on-model-averaging-glm-with-poisson-link/">
+                <h3 class="media-heading">On Model Averaging GLM with Poisson link</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
                 <h3 class="media-heading">On model averaging the coefficients of linear models</h3>
               </a>
@@ -977,7 +1014,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         8 posts found
+         9 posts found
       </p>
     </div>
   </div>

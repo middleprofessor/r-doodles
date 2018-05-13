@@ -12,6 +12,16 @@
     
     
     <item>
+      <title>On Model Averaging GLM with Poisson link</title>
+      <link>/2018/05/on-model-averaging-glm-with-poisson-link/</link>
+      <pubDate>Thu, 10 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/05/on-model-averaging-glm-with-poisson-link/</guid>
+      <description>TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.</description>
+    </item>
+    
+    <item>
       <title>On model averaging the coefficients of linear models</title>
       <link>/2018/05/on-model-averaging-regression-coefficients/</link>
       <pubDate>Thu, 10 May 2018 00:00:00 +0000</pubDate>

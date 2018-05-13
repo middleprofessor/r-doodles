@@ -1,5 +1,9 @@
 
 
+  
+    
+  
+
 
   
 
@@ -18,25 +22,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.37 with theme Tranquilpeak 0.4.3-BETA">
-    <title>Reanalysis</title>
+    <title>On Model Averaging GLM with Poisson link</title>
     <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
     <meta name="keywords" content="">
 
     <link rel="icon" href="/favicon.png">
     
-      <link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/reanalysis/index.xml">
-    
 
     
-    <meta name="description" content="Some ecology. Some physiology. Much fake data">
-    <meta property="og:description" content="Some ecology. Some physiology. Much fake data">
+    <meta name="description" content="TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.">
+    <meta property="og:description" content="TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="Reanalysis">
-    <meta property="og:url" content="/tags/reanalysis/">
+    <meta property="og:title" content="On Model Averaging GLM with Poisson link">
+    <meta property="og:url" content="/2018/05/on-model-averaging-glm-with-poisson-link/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="Some ecology. Some physiology. Much fake data">
+    <meta name="twitter:description" content="TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -83,7 +88,7 @@ ga('send', 'pageview');
 
   <body>
     <div id="blog">
-      <header id="header" data-behavior="1">
+      <header id="header" data-behavior="4">
   <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
   <div class="header-title">
     <a class="header-title-link" href="/">R Doodles</a>
@@ -103,7 +108,7 @@ ga('send', 'pageview');
   
 </header>
 
-      <nav id="sidebar" data-behavior="1">
+      <nav id="sidebar" data-behavior="4">
   <div class="sidebar-container">
     
       <div class="sidebar-profile">
@@ -242,75 +247,300 @@ ga('send', 'pageview');
 </nav>
 
       
-        
 
-      
-      <div id="main" data-behavior="1"
+      <div id="main" data-behavior="4"
         class="
                hasCoverMetaIn
                ">
-        
-          <section class="postShorten-group main-content-wrap">
-            
-            
-              
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
   
-    
-      
-        
-      
-    
+    <h1 class="post-title" itemprop="headline">
+      On Model Averaging GLM with Poisson link
+    </h1>
   
-
-
   
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/">
-          Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study
-        </a>
-      </h1>
-      
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2018-03-08T00:00:00Z">
+      <time itemprop="datePublished" datetime="2018-05-10T00:00:00Z">
         
-  March 8, 2018
+  May 10, 2018
 
       </time>
     
     
-  
-  
-    <span>in</span>
-    
-      <a class="category-link" href="/categories/medicine">medicine</a>
-    
-  
-
   </div>
 
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.
-      <p>
-        <a href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below</p>
+<p>This post is a follow up <a href="/04/04/model-averaged-coefficients-of-a-glm">to my inital post</a>, which was written as as a way for me to pen my mental thoughts on the recent review of <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309" target="_blank">“Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“</a>. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</p>
+<p>The Dormann et al. paper focuses on model-averaged predictions, but has a short discussion on problems with model-averaged coefficients in the supplement. It is in the supplement, that the authors state that for generalized linear models (GLMs) “coefficient averaging is not equivalent to prediction averaging”. In my previous post, I argued that this statement is wrong – predictions from a parameter-averaged model is mathematically identical to averaging predictions if all averaging is done on the link scale and then the predictions are back-transformed to the response scale.</p>
+<p>The summary of our differences is</p>
+<ol style="list-style-type: decimal">
+<li><p>Carsten and Florian argue that predictions should computed on the link scale, back-transformed to the response scale, and then averaged on the response scale. I understand their reason to be that first, this is how everyone outside of ecology does it, and second, predictions have to be averaged on the response scale for non-linear models because there is no link scale, and, since, GLMs are non-linear models, they should be averaged on the response scale.</p></li>
+<li><p>I argue that because the model is fit on a linear scale, any subsequent averaging should be on the linear scale. My reason is that because a GLM <em>is a linear model</em>, additive math should be additive (on the link scale) and not multiplicative (on the response scale) to be consistent with the meaning of the fit parameters. For example, a prediction is a weighted sum of the data, with weights that are a function of a linear fit, and everyone agrees that predictions should be computed on the link scale and then back-transformed (if desired). And, a model-averaged prediction is a weighted sum, with both weights and variables that are functions of linear fits, and so the predictions should be averaged on the link scale, and then back-transformed to the response scale (if desired).</p></li>
+</ol>
+<p>Some final thoughts using their equation S2</p>
+<span class="math display">\[\begin{equation}
+\frac{1}{m} \sum_{i=1}^m{g^{-1}(Xb_i)} \ne g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
+\end{equation}\]</span>
+<ol start="3" style="list-style-type: decimal">
+<li><p>Dormann et al. advocate averaging using the LHS of eq. S2, I advocate using the RHS.</p></li>
+<li><p>If using the RHS of S2 to average predictors, then averaging the predictors or computing the predictor from averaged coefficients are mathematically equivalent.</p></li>
+<li><p>GLMs are unlike non-linear models in that non-linear models do not have link functions. There is no linear model that is fit. Consquently, averging the predictors of non-linear models on the “response scale” is consistent with the fit model. So in my opinion, this isn’t good justification for averaging GLMs on the response scale.</p></li>
+<li><p>Because Carsten and Florian (and presumably the other co-authors of Dormann et al.) argue that predictions should be model averaged on the response scale, they argue that the default predictions on the response scale of MuMIn is the wrong way to compute these, since these are computed on the link scale and then back-transformed to the response scale. I argue that this is the “consistent” way to compute these (that is, it maintains the meaning of the parameters).</p></li>
+</ol>
+<p>Here I show point 6 with a simple count (poisson) example using fake data.</p>
+<pre class="r"><code>library(ggplot2)
+library(MuMIn)
+library(BAS)
+library(data.table)</code></pre>
+<p>A simple model of counts</p>
+<pre class="r"><code>  n &lt;- 100
+  exp_beta_0 &lt;- 175 # mean Y on response scale
+  exp_beta_1 &lt;- 0.99 # effect on response scale
+  exp_beta_2 &lt;- 0.99 # effect on response sacle
   
-</article>
+  # create correlated x1 and x2 due to common factor z
+  z &lt;- rnorm(n) # common factor to correlate X1 and X2
+  r &lt;- 0.6 # correlation between x1 and x2
+  alpha &lt;- sqrt(r) # &quot;effect&quot; of Z on X1 and X2
+  x1 &lt;- alpha*z + sqrt(1-r)*rnorm(n)
+  x2 &lt;- alpha*z + sqrt(1-r)*rnorm(n)
 
+  # expected count in link space
+  E_log_count &lt;- log(exp_beta_0) + log(exp_beta_1)*x1 + log(exp_beta_2)*x2 # expected log count
+  # observed counts
+  count &lt;- rpois(n=n, lambda=exp(E_log_count))
+
+  # create data.table and fit 
+  dt &lt;- data.table(count=count, x1=x1, x2=x2)
+  fit &lt;- glm(count ~ x1 + x2, family=poisson(link = &quot;log&quot;), data=dt,na.action=na.fail )
+  X &lt;- model.matrix(fit)
+  
+  # all model regression using MuMIn
+  fit.mm &lt;- dredge(fit)</code></pre>
+<pre><code>## Fixed term is &quot;(Intercept)&quot;</code></pre>
+<pre class="r"><code>  model_set &lt;- get.models(fit.mm, subset=TRUE) # all models
+  fit.avg &lt;- model.avg(model_set) # coeffcients are on link scale
+  fit.avg</code></pre>
+<pre><code>## 
+## Call:
+## model.avg(object = model_set)
+## 
+## Component models: 
+## &#39;2&#39;      &#39;12&#39;     &#39;1&#39;      &#39;(Null)&#39;
+## 
+## Coefficients: 
+##        (Intercept)          x2           x1
+## full      5.154742 -0.02252746 -0.002498395
+## subset    5.154742 -0.02435105 -0.007527806</code></pre>
+<pre class="r"><code>  # (0) MuMIn predict
+  yhat0.MuMIn &lt;- predict(fit.avg, backtransform=TRUE)
+  
+  #is this averaged on link or response scale? And is it the coefficients or the prediction that is averaged?
+  
+  # (1) average coefficients on link scale. compute prediction on link scale. transform predictions to response scale
+  b &lt;- fit.avg$coefficients[&#39;full&#39;,][colnames(X)]
+  yhat1 &lt;- exp((X%*%b)[,1]) #
+  b_ma_link &lt;- b
+
+  # (2) compute predictions for each model on link scale. Average on link scale. Backtransform to response scale
+  yhat2a &lt;- exp(predict(fit.avg, backtransform=FALSE))
+  w &lt;- fit.mm$weight
+  yhat2b.each_model.link_scale &lt;- sapply(model_set, predict)
+  yhat2b.link_scale &lt;- (yhat2b.each_model.link_scale%*%w)[,1]
+  yhat2b &lt;- exp(yhat2b.link_scale)
+  
+  # (3) compute predictions for each model on link scale. Backtransform to response scale. Average on response scale. This is method of Dormann et al.
+  yhat3.each_model.response_scale &lt;- exp(yhat2b.each_model.link_scale)
+  yhat3 &lt;- (yhat3.each_model.response_scale%*%w)[,1]
+  
+  # (4) backtransform coefficients to response scale. Average coefficients on response scale. Compute prediction on response scale.
+  B &lt;- exp(fit.mm[,colnames(X)])
+  B[is.na(B)] &lt;- 0.0
+  b_ma &lt;- t(B)%*%w
+  yhat4 &lt;- (X%*%b_ma)[,1] #
+
+  # (5) average coefficients on link scale. backtransform to response scale. compute prediction on response scale
+  b &lt;- exp(fit.avg$coefficients[&#39;full&#39;,][colnames(X)])
+  yhat5 &lt;- (X%*%b)[,1] #
+  
+  
+  # fit using BMA
+  packageVersion(&quot;BAS&quot;)</code></pre>
+<pre><code>## [1] &#39;1.4.9&#39;</code></pre>
+<pre class="r"><code>  # fit &lt;- glm(count ~ x1 + x2, family=poisson(link = &quot;log&quot;), data=dt,na.action=na.fail )
+  fit.bma &lt;- bas.glm(count ~ x1 + x2, family=poisson(link = &quot;log&quot;), data=dt)
+ 
+  res.bma.rs &lt;- predict(fit.bma, type=&#39;response&#39;)
+  res.bma0.rs &lt;- res.bma.rs$fit[,1]
+  res.bma1.rs.ls &lt;- res.bma.rs$Ybma[,1]
+  res.bma1.rs.exp.ls &lt;- exp(res.bma1.rs.ls)
+  
+  res.bma.ls &lt;- predict(fit.bma)
+  res.bma0.ls &lt;- res.bma.ls$fit[,1]
+  res.bma1.ls.ls &lt;- res.bma.ls$Ybma[,1]
+  res.bma1.ls.exp.ls &lt;- exp(res.bma1.ls.ls)
+  
+  head(data.table(
+    res.bma0.rs, res.bma1.rs.ls, res.bma1.rs.exp.ls,
+    res.bma0.ls, res.bma1.ls.ls, res.bma1.ls.exp.ls
+  ))</code></pre>
+<pre><code>##    res.bma0.rs res.bma1.rs.ls res.bma1.rs.exp.ls res.bma0.ls
+## 1:    170.5138       5.138813           170.5132    170.5138
+## 2:    170.7629       5.140260           170.7601    170.7629
+## 3:    171.5607       5.144937           171.5606    171.5607
+## 4:    182.1812       5.204985           182.1782    182.1812
+## 5:    182.0604       5.204282           182.0501    182.0604
+## 6:    178.5171       5.184666           178.5138    178.5171
+##    res.bma1.ls.ls res.bma1.ls.exp.ls
+## 1:       5.138813           170.5132
+## 2:       5.140260           170.7601
+## 3:       5.144937           171.5606
+## 4:       5.204985           182.1782
+## 5:       5.204282           182.0501
+## 6:       5.184666           178.5138</code></pre>
+<pre class="r"><code>  res.bma &lt;- predict(fit.bma)
+  yhat.bma.response &lt;- res.bma$fit[,1]
+  yhat.bma.link &lt;- res.bma$Ybma[,1]
+  YHAT &lt;- t(res.bma$Ypred)
+  w &lt;- res.bma$postprobs
+  # averaged on response scale
+  yhat1.bma.response &lt;- (exp(YHAT)%*%w)[,1]
+  # averaged on link scale and then backtransformed
+  yhat2.bma.link &lt;- (YHAT%*%w)[,1]
+  yhat2.bma.response &lt;- exp(yhat2.bma.link)
+
+head(  data.table(yhat0=yhat.bma.response, 
+             yhat1=yhat1.bma.response, 
+             yhat2=yhat2.bma.response))</code></pre>
+<pre><code>##       yhat0    yhat1    yhat2
+## 1: 170.5138 170.5138 170.5132
+## 2: 170.7629 170.7629 170.7601
+## 3: 171.5607 171.5607 171.5606
+## 4: 182.1812 182.1812 182.1782
+## 5: 182.0604 182.0604 182.0501
+## 6: 178.5171 178.5171 178.5138</code></pre>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<p>The first few values of the predictions using five different methods for their computation. Each metho is a different column.</p>
+<p><strong>Column Keys</strong></p>
+<p>MuMIn = MuMIn’s default prediction</p>
+<p>yhat1 = Coefficients averaged on link scale. Predictions computed on link scale from averaged coefficients and then backtransformed to response scale.</p>
+<p>yhat2 = Predictions computed on link scale for each model and then averaged on link scale and then backtransformed to response scale.</p>
+<p>yhat3 = Predictions computed on link scale for each model and then backtransformed to response scale and then averaged on response scale. This is the method of Dormann et al.</p>
+<p>yhat4 = Coefficients backtransformed to response scale and then averaged on response scale. Predictions computed on response scale from averaged coefficients.</p>
+<p>yhat5 = Coefficients averaged on link scale and then backtransformed to response scale, which are used to compute averaged predictions.</p>
+<pre><code>##       MuMIn    yhat1    yhat2    yhat3    yhat4    yhat5
+## 1: 171.0185 171.0185 171.0185 171.0195 174.0865 175.0373
+## 2: 170.3126 170.3126 170.3126 170.3146 173.9740 174.1378
+## 3: 171.7201 171.7201 171.7201 171.7202 173.7708 174.2719
+## 4: 181.9416 181.9416 181.9416 181.9462 170.8074 169.2569
+## 5: 182.5009 182.5009 182.5009 182.5094 170.8699 169.8432
+## 6: 178.7180 178.7180 178.7180 178.7208 171.8227 171.1917</code></pre>
+</div>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/model-averaged-coefficients/">model-averaged coefficients</a>
+
+                  </div>
+                
+              
             
             
-
-          </section>
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/on-model-averaging-regression-coefficients/" data-tooltip="On model averaging the coefficients of linear models">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
         
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/05/on-model-averaging-glm-with-poisson-link/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/05/on-model-averaging-glm-with-poisson-link/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/05/on-model-averaging-glm-with-poisson-link/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
         <footer id="footer" class="main-content-wrap">
   <span class="copyrights">
     &copy; 2018 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
@@ -514,6 +744,102 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
 </footer>
 
       </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/on-model-averaging-regression-coefficients/" data-tooltip="On model averaging the coefficients of linear models">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/05/on-model-averaging-glm-with-poisson-link/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/05/on-model-averaging-glm-with-poisson-link/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/05/on-model-averaging-glm-with-poisson-link/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2018%2F05%2Fon-model-averaging-glm-with-poisson-link%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2018%2F05%2Fon-model-averaging-glm-with-poisson-link%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2018%2F05%2Fon-model-averaging-glm-with-poisson-link%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
     </div>
     
     <div id="about">
@@ -768,6 +1094,32 @@ $(document).ready(function() {
 });
 </script>
 
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2018\/05\/on-model-averaging-glm-with-poisson-link\/';
+          
+            this.page.identifier = '\/2018\/05\/on-model-averaging-glm-with-poisson-link\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
 
 
 

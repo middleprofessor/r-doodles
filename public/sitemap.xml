@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2018/05/on-model-averaging-glm-with-poisson-link/</loc>
+    <lastmod>2018-05-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2018/05/on-model-averaging-regression-coefficients/</loc>
     <lastmod>2018-05-10T00:00:00+00:00</lastmod>
   </url>

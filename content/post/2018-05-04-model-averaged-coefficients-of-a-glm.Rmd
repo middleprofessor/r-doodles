@@ -48,6 +48,7 @@ Here is a short R-doodle showing that "predicting from a parameter-averaged mode
 
 ```{r libraries, warning=FALSE}
 library(MuMIn)
+library(ggplot2)
 library(data.table)
 ```
 
