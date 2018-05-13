@@ -19,7 +19,7 @@ This post is a follow up [to my inital post](/04/04/model-averaged-coefficients-
 The Dormann et al. paper focuses on model-averaged predictions, but has a short discussion on problems with model-averaged coefficients in the supplement. It is in the supplement, that the authors state that for generalized linear models (GLMs) "coefficient averaging is not equivalent to prediction averaging". Brian Cade^[Cade, B.S. (2015). Model averaging and muddled multimodel inferences. Ecology 96, 2370–2382.
 ] also makes this argument.
 
-In my previous post, I argued that this statement is wrong -- predictions from a parameter-averaged model is mathematically identical to averaging predictions. It was hard for me to understand how this was not immediately obvious until my e-mail exchange with Carsten and Florian. In short, I assume that all averaging is done on the link scale and then the predictions are back-transformed to the response scale. Carsten and Florian (and Brian Cade?) argue that this is the "wrong" way to compute averaged predictions. So..
+In my previous post, I argued that this statement is wrong -- predictions from a parameter-averaged model is mathematically identical to averaging predictions. It was hard for me to understand how this was not immediately obvious until my e-mail exchange with Carsten and Florian. In short, I assume that all averaging is done on the link scale and then the predictions are back-transformed to the response scale. Carsten and Florian (and Brian Cade?) argue that this is the "wrong" way to compute averaged predictions.
 
 The summary of our differences is
 
