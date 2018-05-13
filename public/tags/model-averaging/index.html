@@ -67,6 +67,16 @@
 
     
       
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118821125-2', 'auto');
+ga('send', 'pageview');
+</script>
+
     
     
   </head>
@@ -260,16 +270,16 @@
     
     <div class="postShorten-header">
       <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/05/model-averaged-coefficients-of-a-glm/">
-          Model-averaged coefficients of a GLM
+        <a class="link-unstyled" href="/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/">
+          Should the model-averaged prediction be computed on the link or response scale in a GLM?
         </a>
       </h1>
       
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2018-05-04T00:00:00Z">
+      <time itemprop="datePublished" datetime="2018-05-13T00:00:00Z">
         
-  May 4, 2018
+  May 13, 2018
 
       </time>
     
@@ -278,11 +288,10 @@
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
-“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
-from the supplement of Dormann et al.
+      (TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.
       <p>
-        <a href="/2018/05/model-averaged-coefficients-of-a-glm/" class="postShorten-excerpt_link link">Continue reading</a>
+        <a href="/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/" class="postShorten-excerpt_link link">Continue reading</a>
         
       </p>
     </div>
@@ -325,6 +334,62 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/">
+                <h3 class="media-heading">Should the model-averaged prediction be computed on the link or response scale in a GLM?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">(TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
+                <h3 class="media-heading">On model averaging the coefficients of linear models</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">a shorter argument based on a specific example is here
+“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/">
+                <h3 class="media-heading">An even more compact defense of coefficient model averaging</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">a longer, more detailed argument is here
+The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
+David Draper suggested this example from the textbook by Freedman, Pisani and Purves.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/05/model-averaged-coefficients-of-a-glm/">
                 <h3 class="media-heading">Model-averaged coefficients of a GLM</h3>
               </a>
@@ -333,9 +398,9 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   May 5, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
-“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
-from the supplement of Dormann et al.</div>
+              <div class="media-content hide-xs font-merryweather">This is a very quick post as a comment to the statement
+“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging.”
+from the supplement of Dormann et al. Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -434,7 +499,7 @@ from the supplement of Dormann et al.</div>
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         6 posts found
+         9 posts found
       </p>
     </div>
   </div>
@@ -495,6 +560,62 @@ from the supplement of Dormann et al.</div>
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/">
+                <h3 class="media-heading">Should the model-averaged prediction be computed on the link or response scale in a GLM?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">(TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
+                <h3 class="media-heading">On model averaging the coefficients of linear models</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">a shorter argument based on a specific example is here
+“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/">
+                <h3 class="media-heading">An even more compact defense of coefficient model averaging</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">a longer, more detailed argument is here
+The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
+David Draper suggested this example from the textbook by Freedman, Pisani and Purves.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/05/model-averaged-coefficients-of-a-glm/">
                 <h3 class="media-heading">Model-averaged coefficients of a GLM</h3>
               </a>
@@ -503,9 +624,9 @@ from the supplement of Dormann et al.</div>
                   May 5, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
-“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
-from the supplement of Dormann et al.</div>
+              <div class="media-content hide-xs font-merryweather">This is a very quick post as a comment to the statement
+“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging.”
+from the supplement of Dormann et al. Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -604,7 +725,7 @@ from the supplement of Dormann et al.</div>
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         6 posts found
+         9 posts found
       </p>
     </div>
   </div>

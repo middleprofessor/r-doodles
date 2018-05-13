@@ -22,7 +22,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.37 with theme Tranquilpeak 0.4.3-BETA">
-    <title>On Model Averaging GLM with Poisson link</title>
+    <title>Should the model-averaged prediction be computed on the link or response scale in a GLM?</title>
     <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
     <meta name="keywords" content="">
 
@@ -35,7 +35,7 @@ This post is a follow up to my inital post, which was written as as a way for me
     <meta property="og:description" content="TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
 This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="On Model Averaging GLM with Poisson link">
+    <meta property="og:title" content="Should the model-averaged prediction be computed on the link or response scale in a GLM?">
     <meta property="og:url" content="/2018/05/on-model-averaging-glm-with-poisson-link/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
@@ -258,7 +258,7 @@ ga('send', 'pageview');
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      On Model Averaging GLM with Poisson link
+      Should the model-averaged prediction be computed on the link or response scale in a GLM?
     </h1>
   
   
@@ -279,7 +279,8 @@ ga('send', 'pageview');
             <div class="main-content-wrap">
               <p>TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below</p>
 <p>This post is a follow up <a href="/04/04/model-averaged-coefficients-of-a-glm">to my inital post</a>, which was written as as a way for me to pen my mental thoughts on the recent review of <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309" target="_blank">“Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“</a>. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</p>
-<p>The Dormann et al. paper focuses on model-averaged predictions, but has a short discussion on problems with model-averaged coefficients in the supplement. It is in the supplement, that the authors state that for generalized linear models (GLMs) “coefficient averaging is not equivalent to prediction averaging”. In my previous post, I argued that this statement is wrong – predictions from a parameter-averaged model is mathematically identical to averaging predictions if all averaging is done on the link scale and then the predictions are back-transformed to the response scale.</p>
+<p>The Dormann et al. paper focuses on model-averaged predictions, but has a short discussion on problems with model-averaged coefficients in the supplement. It is in the supplement, that the authors state that for generalized linear models (GLMs) “coefficient averaging is not equivalent to prediction averaging”. Brian Cade<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> also makes this argument.</p>
+<p>In my previous post, I argued that this statement is wrong – predictions from a parameter-averaged model is mathematically identical to averaging predictions. It was hard for me to understand how this was not immediately obvious until my e-mail exchange with Carsten and Florian. In short, I assume that all averaging is done on the link scale and then the predictions are back-transformed to the response scale. Carsten and Florian (and Brian Cade?) argue that this is the “wrong” way to compute averaged predictions. So..</p>
 <p>The summary of our differences is</p>
 <ol style="list-style-type: decimal">
 <li><p>Carsten and Florian argue that predictions should computed on the link scale, back-transformed to the response scale, and then averaged on the response scale. I understand their reason to be that first, this is how everyone outside of ecology does it, and second, predictions have to be averaged on the response scale for non-linear models because there is no link scale, and, since, GLMs are non-linear models, they should be averaged on the response scale.</p></li>
@@ -292,9 +293,16 @@ ga('send', 'pageview');
 <ol start="3" style="list-style-type: decimal">
 <li><p>Dormann et al. advocate averaging using the LHS of eq. S2, I advocate using the RHS.</p></li>
 <li><p>If using the RHS of S2 to average predictors, then averaging the predictors or computing the predictor from averaged coefficients are mathematically equivalent.</p></li>
-<li><p>GLMs are unlike non-linear models in that non-linear models do not have link functions. There is no linear model that is fit. Consquently, averging the predictors of non-linear models on the “response scale” is consistent with the fit model. So in my opinion, this isn’t good justification for averaging GLMs on the response scale.</p></li>
-<li><p>Because Carsten and Florian (and presumably the other co-authors of Dormann et al.) argue that predictions should be model averaged on the response scale, they argue that the default predictions on the response scale of MuMIn is the wrong way to compute these, since these are computed on the link scale and then back-transformed to the response scale. I argue that this is the “consistent” way to compute these (that is, it maintains the meaning of the parameters).</p></li>
+<li><p>GLMs are unlike non-linear models in that non-linear models do not have link functions although some can be linearized. There is no linear model that is fit. Consquently, for non-linear models, averging the predictors of non-linear models on the “response scale” is consistent with the fit model. So in my opinion, this isn’t good justification for averaging GLMs on the response scale.</p></li>
+<li><p>Because Carsten and Florian (and presumably the other co-authors of Dormann et al.) argue that predictions should be model averaged on the response scale, they argue that predict.averaging () from the MuMIn package is the wrong way to compute averaged predictors, since these are computed on the link scale and then back-transformed to the response scale. I argue that this is the “right” way to compute these, where “right” is in the sense that it maintains the meaning of the parameters.</p></li>
+<li><p>Russell Lenth, the author of the amazingly useful emmeans (formerly lsmeans) package comments on why <strong>the package computes marginal means on the link and not response scale for GLMs</strong>:</p></li>
 </ol>
+<blockquote>
+<p>The model is our best guide</p>
+</blockquote>
+<blockquote>
+<p>This choice of timing is based on the idea that the model is right. In particular, the fact that the response is transformed suggests that the transformed scale is the best scale to be working with. In addition, the model specifies that the effects of source and percent are linear on the transformed scale; inasmuch as marginal averaging to obtain EMMs is a linear operation, that averaging is best done on the transformed scale. For those two good reasons, back-transforming to the response scale is delayed until the very end by default.&quot;</p>
+</blockquote>
 <p>Here I show point 6 with a simple count (poisson) example using fake data.</p>
 <pre class="r"><code>library(ggplot2)
 library(MuMIn)
@@ -338,8 +346,8 @@ library(data.table)</code></pre>
 ## 
 ## Coefficients: 
 ##        (Intercept)          x2           x1
-## full      5.154742 -0.02252746 -0.002498395
-## subset    5.154742 -0.02435105 -0.007527806</code></pre>
+## full      5.176029 -0.01689600 -0.001249109
+## subset    5.176029 -0.01937214 -0.004199002</code></pre>
 <pre class="r"><code>  # (0) MuMIn predict
   yhat0.MuMIn &lt;- predict(fit.avg, backtransform=TRUE)
   
@@ -369,81 +377,45 @@ library(data.table)</code></pre>
 
   # (5) average coefficients on link scale. backtransform to response scale. compute prediction on response scale
   b &lt;- exp(fit.avg$coefficients[&#39;full&#39;,][colnames(X)])
-  yhat5 &lt;- (X%*%b)[,1] #
-  
-  
-  # fit using BMA
-  packageVersion(&quot;BAS&quot;)</code></pre>
-<pre><code>## [1] &#39;1.4.9&#39;</code></pre>
-<pre class="r"><code>  # fit &lt;- glm(count ~ x1 + x2, family=poisson(link = &quot;log&quot;), data=dt,na.action=na.fail )
-  fit.bma &lt;- bas.glm(count ~ x1 + x2, family=poisson(link = &quot;log&quot;), data=dt)
- 
-  res.bma.rs &lt;- predict(fit.bma, type=&#39;response&#39;)
-  res.bma0.rs &lt;- res.bma.rs$fit[,1]
-  res.bma1.rs.ls &lt;- res.bma.rs$Ybma[,1]
-  res.bma1.rs.exp.ls &lt;- exp(res.bma1.rs.ls)
-  
-  res.bma.ls &lt;- predict(fit.bma)
-  res.bma0.ls &lt;- res.bma.ls$fit[,1]
-  res.bma1.ls.ls &lt;- res.bma.ls$Ybma[,1]
-  res.bma1.ls.exp.ls &lt;- exp(res.bma1.ls.ls)
-  
-  head(data.table(
-    res.bma0.rs, res.bma1.rs.ls, res.bma1.rs.exp.ls,
-    res.bma0.ls, res.bma1.ls.ls, res.bma1.ls.exp.ls
-  ))</code></pre>
-<pre><code>##    res.bma0.rs res.bma1.rs.ls res.bma1.rs.exp.ls res.bma0.ls
-## 1:    170.5138       5.138813           170.5132    170.5138
-## 2:    170.7629       5.140260           170.7601    170.7629
-## 3:    171.5607       5.144937           171.5606    171.5607
-## 4:    182.1812       5.204985           182.1782    182.1812
-## 5:    182.0604       5.204282           182.0501    182.0604
-## 6:    178.5171       5.184666           178.5138    178.5171
-##    res.bma1.ls.ls res.bma1.ls.exp.ls
-## 1:       5.138813           170.5132
-## 2:       5.140260           170.7601
-## 3:       5.144937           171.5606
-## 4:       5.204985           182.1782
-## 5:       5.204282           182.0501
-## 6:       5.184666           178.5138</code></pre>
-<pre class="r"><code>  res.bma &lt;- predict(fit.bma)
-  yhat.bma.response &lt;- res.bma$fit[,1]
-  yhat.bma.link &lt;- res.bma$Ybma[,1]
-  YHAT &lt;- t(res.bma$Ypred)
-  w &lt;- res.bma$postprobs
-  # averaged on response scale
-  yhat1.bma.response &lt;- (exp(YHAT)%*%w)[,1]
-  # averaged on link scale and then backtransformed
-  yhat2.bma.link &lt;- (YHAT%*%w)[,1]
-  yhat2.bma.response &lt;- exp(yhat2.bma.link)
-
-head(  data.table(yhat0=yhat.bma.response, 
-             yhat1=yhat1.bma.response, 
-             yhat2=yhat2.bma.response))</code></pre>
-<pre><code>##       yhat0    yhat1    yhat2
-## 1: 170.5138 170.5138 170.5132
-## 2: 170.7629 170.7629 170.7601
-## 3: 171.5607 171.5607 171.5606
-## 4: 182.1812 182.1812 182.1782
-## 5: 182.0604 182.0604 182.0501
-## 6: 178.5171 178.5171 178.5138</code></pre>
+  yhat5 &lt;- (X%*%b)[,1] #</code></pre>
 <div id="results" class="section level1">
 <h1>Results</h1>
-<p>The first few values of the predictions using five different methods for their computation. Each metho is a different column.</p>
+<p>The first few rows of the results matrix of the predictions using five different methods for their computation.</p>
+<pre><code>##       MuMIn    yhat1    yhat2    yhat3    yhat4    yhat5
+## 1: 176.6995 176.6995 176.6995 176.7000 177.2360 177.7758
+## 2: 177.8693 177.8693 177.8693 177.8698 176.7661 176.8520
+## 3: 177.6420 177.6420 177.6420 177.6426 176.5358 175.7537
+## 4: 175.7022 175.7022 175.7022 175.7026 177.4571 177.8449
+## 5: 173.4880 173.4880 173.4880 173.4918 178.0922 178.5551
+## 6: 172.5123 172.5123 172.5123 172.5160 178.8273 180.6701</code></pre>
 <p><strong>Column Keys</strong></p>
 <p>MuMIn = MuMIn’s default prediction</p>
-<p>yhat1 = Coefficients averaged on link scale. Predictions computed on link scale from averaged coefficients and then backtransformed to response scale.</p>
-<p>yhat2 = Predictions computed on link scale for each model and then averaged on link scale and then backtransformed to response scale.</p>
-<p>yhat3 = Predictions computed on link scale for each model and then backtransformed to response scale and then averaged on response scale. This is the method of Dormann et al.</p>
+<p>yhat1 = Coefficients averaged on link scale. Predictions computed on link scale from averaged coefficients and then backtransformed to response scale. My preferred method. RHS of eq. S2.</p>
+<p>yhat2 = Predictions computed on link scale for each model and then averaged on link scale and then backtransformed to response scale. Alternative to my preferred method.</p>
+<p>yhat3 = Predictions computed on link scale for each model and then backtransformed to response scale and then averaged on response scale. This is the method of Dormann et al. 2018 and Cade 2015</p>
 <p>yhat4 = Coefficients backtransformed to response scale and then averaged on response scale. Predictions computed on response scale from averaged coefficients.</p>
 <p>yhat5 = Coefficients averaged on link scale and then backtransformed to response scale, which are used to compute averaged predictions.</p>
-<pre><code>##       MuMIn    yhat1    yhat2    yhat3    yhat4    yhat5
-## 1: 171.0185 171.0185 171.0185 171.0195 174.0865 175.0373
-## 2: 170.3126 170.3126 170.3126 170.3146 173.9740 174.1378
-## 3: 171.7201 171.7201 171.7201 171.7202 173.7708 174.2719
-## 4: 181.9416 181.9416 181.9416 181.9462 170.8074 169.2569
-## 5: 182.5009 182.5009 182.5009 182.5094 170.8699 169.8432
-## 6: 178.7180 178.7180 178.7180 178.7208 171.8227 171.1917</code></pre>
+<pre><code>## [1] &#39;1.4.9&#39;</code></pre>
+<pre><code>##    res.bma0.rs res.bma1.rs.ls res.bma1.rs.exp.ls res.bma0.ls
+## 1:      177.05       5.176432             177.05      177.05
+## 2:      177.05       5.176432             177.05      177.05
+## 3:      177.05       5.176432             177.05      177.05
+## 4:      177.05       5.176432             177.05      177.05
+## 5:      177.05       5.176432             177.05      177.05
+## 6:      177.05       5.176432             177.05      177.05
+##    res.bma1.ls.ls res.bma1.ls.exp.ls
+## 1:       5.176432             177.05
+## 2:       5.176432             177.05
+## 3:       5.176432             177.05
+## 4:       5.176432             177.05
+## 5:       5.176432             177.05
+## 6:       5.176432             177.05</code></pre>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Cade, B.S. (2015). Model averaging and muddled multimodel inferences. Ecology 96, 2370–2382.<a href="#fnref1">↩</a></p></li>
+</ol>
 </div>
 
               
@@ -470,7 +442,7 @@ head(  data.table(yhat0=yhat.bma.response,
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/on-model-averaging-regression-coefficients/" data-tooltip="On model averaging the coefficients of linear models">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -478,7 +450,7 @@ head(  data.table(yhat0=yhat.bma.response,
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/on-model-averaging-regression-coefficients/" data-tooltip="On model averaging the coefficients of linear models">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/" data-tooltip="An even more compact defense of coefficient model averaging">
               
                   <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                   <i class="fa fa-angle-right"></i>
@@ -571,24 +543,6 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
           <div class="media">
             
             <div class="media-body">
-              <a class="link-unstyled" href="/2018/05/on-model-averaging-glm-with-poisson-link/">
-                <h3 class="media-heading">On Model Averaging GLM with Poisson link</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
-This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
               <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
                 <h3 class="media-heading">On model averaging the coefficients of linear models</h3>
               </a>
@@ -600,6 +554,24 @@ This post is a follow up to my inital post, which was written as as a way for me
               <div class="media-content hide-xs font-merryweather">a shorter argument based on a specific example is here
 “What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/on-model-averaging-glm-with-poisson-link/">
+                <h3 class="media-heading">Should the model-averaged prediction be computed on the link or response scale in a GLM?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -752,7 +724,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/on-model-averaging-regression-coefficients/" data-tooltip="On model averaging the coefficients of linear models">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -760,7 +732,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/on-model-averaging-regression-coefficients/" data-tooltip="On model averaging the coefficients of linear models">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/" data-tooltip="An even more compact defense of coefficient model averaging">
               
                   <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                   <i class="fa fa-angle-right"></i>
@@ -893,24 +865,6 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           <div class="media">
             
             <div class="media-body">
-              <a class="link-unstyled" href="/2018/05/on-model-averaging-glm-with-poisson-link/">
-                <h3 class="media-heading">On Model Averaging GLM with Poisson link</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
-This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
               <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
                 <h3 class="media-heading">On model averaging the coefficients of linear models</h3>
               </a>
@@ -922,6 +876,24 @@ This post is a follow up to my inital post, which was written as as a way for me
               <div class="media-content hide-xs font-merryweather">a shorter argument based on a specific example is here
 “What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2018/05/on-model-averaging-glm-with-poisson-link/">
+                <h3 class="media-heading">Should the model-averaged prediction be computed on the link or response scale in a GLM?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

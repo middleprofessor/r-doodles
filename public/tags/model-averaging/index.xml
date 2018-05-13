@@ -6,20 +6,19 @@
     <description>Recent content in Model Averaging on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 04 May 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 13 May 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/model-averaging/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Model-averaged coefficients of a GLM</title>
-      <link>/2018/05/model-averaged-coefficients-of-a-glm/</link>
-      <pubDate>Fri, 04 May 2018 00:00:00 +0000</pubDate>
+      <title>Should the model-averaged prediction be computed on the link or response scale in a GLM?</title>
+      <link>/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/</link>
+      <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/05/model-averaged-coefficients-of-a-glm/</guid>
-      <description>Figure 1: p1 of supplement of Dormann et al  library(MuMIn) library(data.table) This is a very quick post as a comment to the statement
-“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging”
-from the supplement of Dormann et al.</description>
+      <guid>/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/</guid>
+      <description>(TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”“.</description>
     </item>
     
   </channel>

@@ -32,7 +32,7 @@
     <item>
       <title>Ecology</title>
       <link>/tags/ecology/</link>
-      <pubDate>Fri, 04 May 2018 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/ecology/</guid>
       <description></description>
@@ -53,6 +53,15 @@
       <pubDate>Sun, 18 Mar 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/gelman/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Generalized Linear Models</title>
+      <link>/tags/generalized-linear-models/</link>
+      <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/generalized-linear-models/</guid>
       <description></description>
     </item>
     
@@ -80,6 +89,24 @@
       <pubDate>Thu, 10 May 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/model-averaged-coefficients/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Model Averaged Predictions</title>
+      <link>/tags/model-averaged-predictions/</link>
+      <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/model-averaged-predictions/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Model Averaging</title>
+      <link>/tags/model-averaging/</link>
+      <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/model-averaging/</guid>
       <description></description>
     </item>
     

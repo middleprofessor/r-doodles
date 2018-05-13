@@ -1,17 +1,25 @@
 ---
-title: On Model Averaging GLM with Poisson link
+title: Should the model-averaged prediction be computed on the link or response scale
+  in a GLM?
 author: Jeff Walker
-date: '2018-05-10'
-slug: on-model-averaging-glm-with-poisson-link
+date: '2018-05-13'
+slug: should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm
 categories: []
 tags:
-  - model-averaged coefficients
+  - ecology
+  - model-averaged predictions
+  - model averaging
+  - generalized linear models
 ---
-TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don't get to this until point 6 below
+
+(TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don't get to this until point 6 below.)
 
 This post is a follow up [to my inital post](/04/04/model-averaged-coefficients-of-a-glm), which was written as as a way for me to pen my mental thoughts on the recent review of ["Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference""](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309){target="_blank"}. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.
 
-The Dormann et al. paper focuses on model-averaged predictions, but has a short discussion on problems with model-averaged coefficients in the supplement. It is in the supplement, that the authors state that for generalized linear models (GLMs) "coefficient averaging is not equivalent to prediction averaging". In my previous post, I argued that this statement is wrong -- predictions from a parameter-averaged model is mathematically identical to averaging predictions if all averaging is done on the link scale and then the predictions are back-transformed to the response scale.
+The Dormann et al. paper focuses on model-averaged predictions, but has a short discussion on problems with model-averaged coefficients in the supplement. It is in the supplement, that the authors state that for generalized linear models (GLMs) "coefficient averaging is not equivalent to prediction averaging". Brian Cade^[Cade, B.S. (2015). Model averaging and muddled multimodel inferences. Ecology 96, 2370–2382.
+] also makes this argument.
+
+In my previous post, I argued that this statement is wrong -- predictions from a parameter-averaged model is mathematically identical to averaging predictions. It was hard for me to understand how this was not immediately obvious until my e-mail exchange with Carsten and Florian. In short, I assume that all averaging is done on the link scale and then the predictions are back-transformed to the response scale. Carsten and Florian (and Brian Cade?) argue that this is the "wrong" way to compute averaged predictions. So..
 
 The summary of our differences is
 
@@ -29,11 +37,19 @@ Some final thoughts using their equation S2
 
 4. If using the RHS of S2 to average predictors, then averaging the predictors or computing the predictor from averaged coefficients are mathematically equivalent.
 
-5. GLMs are unlike non-linear models in that non-linear models do not have link functions. There is no linear model that is fit. Consquently, averging the predictors of non-linear models on the "response scale" is consistent with the fit model. So in my opinion, this isn't good justification for averaging GLMs on the response scale.
+5. GLMs are unlike non-linear models in that non-linear models do not have link functions although some can be linearized. There is no linear model that is fit. Consquently, for non-linear models, averging the predictors of non-linear models on the "response scale" is consistent with the fit model. So in my opinion, this isn't good justification for averaging GLMs on the response scale.
 
-6. Because Carsten and Florian (and presumably the other co-authors of Dormann et al.) argue that predictions should be model averaged on the response scale, they argue that the default predictions on the response scale of MuMIn is the wrong way to compute these, since these are computed on the link scale and then back-transformed to the response scale. I argue that this is the "consistent" way to compute these (that is, it maintains the meaning of the parameters).
+6. Because Carsten and Florian (and presumably the other co-authors of Dormann et al.) argue that predictions should be model averaged on the response scale, they argue that predict.averaging () from the MuMIn package is the wrong way to compute averaged predictors, since these are computed on the link scale and then back-transformed to the response scale. I argue that this is the "right" way to compute these, where "right" is in the sense that it maintains the meaning of the parameters.
 
-Here I show point 6 with a simple count (poisson) example using fake data.
+7. I think this argument from Russell Lenth, the author of the amazingly useful emmeans (formerly lsmeans) package, supports my argument for averaging on the link scale. Here, Lenth comments on why [the package computes marginal means on the link and not response scale for GLMs](https://cran.r-project.org/web/packages/emmeans/vignettes/transformations.html):
+
+> The model is our best guide
+
+> This choice of timing is based on the idea that the model is right. In particular, the fact that the response is transformed suggests that the transformed scale is the best scale to be working with. In addition, the model specifies that the effects of source and percent are linear on the transformed scale; inasmuch as marginal averaging to obtain EMMs is a linear operation, that averaging is best done on the transformed scale. For those two good reasons, back-transforming to the response scale is delayed until the very end by default."
+
+8. The difference in predicted values computed on the link vs. response scale is trivially small for the example below, and probably in most real examples so in a sense, our argument is doesn't really matter. There are much bigger sources of error in modeling than this.
+
+9. Finally, in response to an exchange with Florian, I wanted to make sure that my understanding of MuMIn is correct (it seems to be), so here are five ways to compute a simple count (poisson) example using fake data in addition to the computation from MuMIn.
 
 ```{r libraries}
 library(ggplot2)
@@ -44,7 +60,7 @@ library(data.table)
 
 A simple model of counts
 
-```{r}
+```{r fakedata}
   n <- 100
   exp_beta_0 <- 175 # mean Y on response scale
   exp_beta_1 <- 0.99 # effect on response scale
@@ -103,7 +119,41 @@ A simple model of counts
   # (5) average coefficients on link scale. backtransform to response scale. compute prediction on response scale
   b <- exp(fit.avg$coefficients['full',][colnames(X)])
   yhat5 <- (X%*%b)[,1] #
+
+```
+
+# Results
+The first few rows of the results matrix of the predictions using five different methods for their computation.
+
+```{r table, echo=FALSE}
   
+res <- data.table(MuMIn=yhat0.MuMIn,
+                  yhat1=yhat1, 
+                  yhat2=yhat2b, 
+                  yhat3=yhat3,
+                  yhat4=yhat4,
+                  yhat5=yhat5)
+  
+head(res)
+```
+
+**Column Keys**
+
+MuMIn = MuMIn's default prediction
+
+yhat1 = Coefficients averaged on link scale. Predictions computed on link scale from averaged coefficients and then backtransformed to response scale. My preferred method. RHS of eq. S2.
+
+yhat2 = Predictions computed on link scale for each model and then averaged on link scale and then backtransformed to response scale. Alternative to my preferred method.
+
+yhat3 = Predictions computed on link scale for each model and then  backtransformed to response scale and then averaged on response scale. This is the method of Dormann et al. 2018 and Cade 2015
+
+yhat4 = Coefficients backtransformed to response scale and then averaged on response scale. Predictions computed on response scale from averaged coefficients.
+
+yhat5 = Coefficients averaged on link scale and then backtransformed to response scale, which are used to compute averaged predictions.
+
+
+
+```{r bma, echo=FALSE, results='hide'}
   
   # fit using BMA
   packageVersion("BAS")
@@ -137,38 +187,9 @@ A simple model of counts
   yhat2.bma.link <- (YHAT%*%w)[,1]
   yhat2.bma.response <- exp(yhat2.bma.link)
 
-head(  data.table(yhat0=yhat.bma.response, 
-             yhat1=yhat1.bma.response, 
+  head(data.table(yhat0=yhat.bma.response,
+             yhat1=yhat1.bma.response,
              yhat2=yhat2.bma.response))
 
-```
-
-# Results
-The first few values of the predictions using five different methods for their computation. Each metho is a different column.
-
-**Column Keys**
-
-MuMIn = MuMIn's default prediction
-
-yhat1 = Coefficients averaged on link scale. Predictions computed on link scale from averaged coefficients and then backtransformed to response scale.
-
-yhat2 = Predictions computed on link scale for each model and then averaged on link scale and then backtransformed to response scale.
-
-yhat3 = Predictions computed on link scale for each model and then  backtransformed to response scale and then averaged on response scale. This is the method of Dormann et al.
-
-yhat4 = Coefficients backtransformed to response scale and then averaged on response scale. Predictions computed on response scale from averaged coefficients.
-
-yhat5 = Coefficients averaged on link scale and then backtransformed to response scale, which are used to compute averaged predictions.
-
-```{r table, echo=FALSE}
-  
-res <- data.table(MuMIn=yhat0.MuMIn,
-                  yhat1=yhat1, 
-                  yhat2=yhat2b, 
-                  yhat3=yhat3,
-                  yhat4=yhat4,
-                  yhat5=yhat5)
-  
-head(res)
 ```
 
