@@ -14,7 +14,7 @@ tags:
 
 
 
-<p>(TL;DR: This post-contains a disagreement on the default output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)</p>
+<p>(TL;DR: This post-includes a disagreement on the output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)</p>
 <p>This post is a follow up <a href="/04/04/model-averaged-coefficients-of-a-glm">to my inital post</a>, which was written as as a way for me to pen my mental thoughts on the recent review of <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309" target="_blank">“Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”</a>. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</p>
 <p>The Dormann et al. paper focuses on model-averaged predictions, but has a short discussion on problems with model-averaged coefficients in the supplement. It is in the supplement, that the authors state that for generalized linear models (GLMs) “coefficient averaging is not equivalent to prediction averaging”. Brian Cade<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> also makes this argument.</p>
 <p>In my previous post, I argued that this statement is wrong – predictions from a parameter-averaged model is mathematically identical to averaging predictions. It was hard for me to understand how this was not immediately obvious until my e-mail exchange with Carsten and Florian. In short, I assume that all averaging is done on the link scale and then the predictions are back-transformed to the response scale. Carsten and Florian (and Brian Cade?) argue that this is the “wrong” way to compute averaged predictions.</p>
@@ -41,7 +41,7 @@ tags:
 <p>This choice of timing is based on the idea that the model is right. In particular, the fact that the response is transformed suggests that the transformed scale is the best scale to be working with. In addition, the model specifies that the effects of source and percent are linear on the transformed scale; inasmuch as marginal averaging to obtain EMMs is a linear operation, that averaging is best done on the transformed scale. For those two good reasons, back-transforming to the response scale is delayed until the very end by default.&quot;</p>
 </blockquote>
 <ol start="8" style="list-style-type: decimal">
-<li><p>The difference in predicted values computed on the link vs. response scale is trivially small for the example below, and probably in most real examples so in a sense, our argument doesn’t really matter. There are much bigger sources of error in modeling than this.</p></li>
+<li><p>The difference in predicted values computed on the link vs. response scale is trivially small for the example below, and perhaps in most real examples, and if this is the case, our argument doesn’t really matter. There are much bigger sources of error in modeling than this.</p></li>
 <li><p>Finally, in response to an exchange with Florian, I wanted to make sure that my understanding of MuMIn is correct (it seems to be), so here are five ways to compute a simple count (poisson) example using fake data in addition to the computation from MuMIn.</p></li>
 </ol>
 <pre class="r"><code>library(ggplot2)
@@ -49,7 +49,8 @@ library(MuMIn)
 library(BAS)
 library(data.table)</code></pre>
 <p>A simple model of counts</p>
-<pre class="r"><code>  n &lt;- 100
+<pre class="r"><code>  set.seed(1)
+  n &lt;- 100
   exp_beta_0 &lt;- 175 # mean Y on response scale
   exp_beta_1 &lt;- 0.99 # effect on response scale
   exp_beta_2 &lt;- 0.99 # effect on response sacle
@@ -82,12 +83,12 @@ library(data.table)</code></pre>
 ## model.avg(object = model_set)
 ## 
 ## Component models: 
-## &#39;1&#39;      &#39;2&#39;      &#39;12&#39;     &#39;(Null)&#39;
+## &#39;2&#39;      &#39;12&#39;     &#39;1&#39;      &#39;(Null)&#39;
 ## 
 ## Coefficients: 
-##        (Intercept)          x1           x2
-## full      5.167258 -0.01091642 -0.006665308
-## subset    5.167258 -0.01705665 -0.013144182</code></pre>
+##        (Intercept)          x2           x1
+## full      5.168167 -0.02107276 -0.002326521
+## subset    5.168167 -0.02288317 -0.007265122</code></pre>
 <pre class="r"><code>  # (0) MuMIn predict
   yhat0.MuMIn &lt;- predict(fit.avg, backtransform=TRUE)
   
@@ -122,12 +123,12 @@ library(data.table)</code></pre>
 <h1>Results</h1>
 <p>The first few rows of the results matrix of the predictions using five different methods for their computation.</p>
 <pre><code>##       MuMIn    yhat1    yhat2    yhat3    yhat4    yhat5
-## 1: 174.1906 174.1906 174.1906 174.2046 176.0243 176.6846
-## 2: 181.6019 181.6019 181.6019 181.6156 173.1299 171.2589
-## 3: 173.9991 173.9991 173.9991 174.0028 176.0316 176.5966
-## 4: 174.6401 174.6401 174.6401 174.6403 175.7228 175.9390
-## 5: 176.4473 176.4473 176.4473 176.4488 175.1023 174.9153
-## 6: 174.7905 174.7905 174.7905 174.7918 175.7141 175.9978</code></pre>
+## 1: 176.7927 176.7927 176.7927 176.7934 175.1100 174.4955
+## 2: 171.1034 171.1034 171.1034 171.1072 176.7358 176.9463
+## 3: 174.7764 174.7764 174.7764 174.7805 175.5243 174.7209
+## 4: 171.3024 171.3024 171.3024 171.3036 176.9411 177.9302
+## 5: 180.1184 180.1184 180.1184 180.1233 174.4711 174.2690
+## 6: 171.9407 171.9407 171.9407 171.9422 176.5958 176.9982</code></pre>
 <p><strong>Column Keys</strong></p>
 <p>MuMIn = MuMIn’s default prediction</p>
 <p>yhat1 = Coefficients averaged on link scale. Predictions computed on link scale from averaged coefficients and then backtransformed to response scale. My preferred method. RHS of eq. S2.</p>
