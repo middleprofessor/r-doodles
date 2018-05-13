@@ -35,7 +35,7 @@ Some final thoughts using their equation S2
 
 3. Dormann et al. advocate averaging using the LHS of eq. S2, I advocate using the RHS.
 
-4. If using the RHS of S2 to average predictors, then averaging the predictors or computing the predictor from averaged coefficients are mathematically equivalent.
+4. If using the RHS of S2 to average predictors, [then averaging the predictors or computing the predictor from averaged coefficients are mathematically equivalent](/04/04/model-averaged-coefficients-of-a-glm).
 
 5. GLMs are unlike non-linear models in that non-linear models do not have link functions although some can be linearized. There is no linear model that is fit. Consquently, for non-linear models, averging the predictors of non-linear models on the "response scale" is consistent with the fit model. So in my opinion, this isn't good justification for averaging GLMs on the response scale.
 
