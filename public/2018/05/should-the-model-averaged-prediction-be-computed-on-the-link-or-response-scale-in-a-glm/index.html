@@ -306,7 +306,10 @@ ga('send', 'pageview');
 <ol start="8" style="list-style-type: decimal">
 <li><p>The difference in predicted values computed on the link vs. response scale is trivially small for the example below, and perhaps in most real examples, and if this is the case, our argument doesn’t really matter. There are much bigger sources of error in modeling than this.</p></li>
 <li><p>Finally, in response to an exchange with Florian, I wanted to make sure that my understanding of MuMIn is correct (it seems to be), so here are five ways to compute a simple count (poisson) example using fake data in addition to the computation from MuMIn.</p></li>
+<li><p>Like MuMIn, The BAS package defaults to averaging on the link scale without back-transformation to the response scale – see the code at the bottom. Unlike MuMIn, BAS outputs the predictions on the response scale averaged on the response scale – these are not equal to the back-transformation of the default predictions on the link scale. I couldn’t find this documented.</p></li>
 </ol>
+<div id="how-does-mumin-model-average-predictions" class="section level2">
+<h2>How does MuMIn model average predictions?</h2>
 <pre class="r"><code>library(ggplot2)
 library(MuMIn)
 library(BAS)
@@ -382,8 +385,8 @@ library(data.table)</code></pre>
   # (5) average coefficients on link scale. backtransform to response scale. compute prediction on response scale
   b &lt;- exp(fit.avg$coefficients[&#39;full&#39;,][colnames(X)])
   yhat5 &lt;- (X%*%b)[,1] #</code></pre>
-<div id="results" class="section level1">
-<h1>Results</h1>
+<div id="results" class="section level3">
+<h3>Results</h3>
 <p>The first few rows of the results matrix of the predictions using five different methods for their computation.</p>
 <pre><code>##       MuMIn    yhat1    yhat2    yhat3    yhat4    yhat5
 ## 1: 176.7927 176.7927 176.7927 176.7934 175.1100 174.4955
@@ -399,6 +402,46 @@ library(data.table)</code></pre>
 <p>yhat3 = Predictions computed on link scale for each model and then backtransformed to response scale and then averaged on response scale. This is the method of Dormann et al. 2018 and Cade 2015</p>
 <p>yhat4 = Coefficients backtransformed to response scale and then averaged on response scale. Predictions computed on response scale from averaged coefficients.</p>
 <p>yhat5 = Coefficients averaged on link scale and then backtransformed to response scale, which are used to compute averaged predictions.</p>
+</div>
+</div>
+<div id="how-does-the-bas-package-model-average-predictions" class="section level2">
+<h2>How does the BAS package model-average predictions?</h2>
+<p>Use the same fake data as generated above. I’m using package version 1.4.9 and the help page is for 1.5.0, which looks like it has important updates on the output from predict.basglm (I’m using 1.4.9 because I couldn’t get 1.5.0 to compile)</p>
+<div id="result-1" class="section level3">
+<h3>Result 1</h3>
+<p>predict.basglm seems to have the same output regardless of the type=‘response’ specification. The prediction on the link scale is in “Ybma” and the prediction on the response scale is in “fit”. Note that <span class="math inline">\(exp(Ybma) \ne fit\)</span>. s</p>
+<pre class="r"><code>head(bas.res1)</code></pre>
+<pre><code>##    default.fit default.Ybma default.exp.Ybma response.fit response.Ybma
+## 1:    176.5610     5.173649         176.5580     176.5610      5.173649
+## 2:    173.0640     5.153591         173.0518     173.0640      5.153591
+## 3:    175.7336     5.168932         175.7271     175.7336      5.168932
+## 4:    172.5097     5.150390         172.4988     172.5097      5.150390
+## 5:    177.8421     5.180803         177.8256     177.8421      5.180803
+## 6:    173.3129     5.155058         173.3059     173.3129      5.155058
+##    response.exp.Ybma
+## 1:          176.5580
+## 2:          173.0518
+## 3:          175.7271
+## 4:          172.4988
+## 5:          177.8256
+## 6:          173.3059</code></pre>
+</div>
+<div id="result-2" class="section level3">
+<h3>Result 2</h3>
+<p><span class="math inline">\(fit\)</span> is indeed the predictions averaged on the response scale and not <span class="math inline">\(exp(Ybma)\)</span></p>
+<pre class="r"><code>head(bas.res2)</code></pre>
+<pre><code>##       yhat0    yhat1    yhat2
+## 1: 176.5610 176.5610 176.5580
+## 2: 173.0640 173.0640 173.0518
+## 3: 175.7336 175.7336 175.7271
+## 4: 172.5097 172.5097 172.4988
+## 5: 177.8421 177.8421 177.8256
+## 6: 173.3129 173.3129 173.3059</code></pre>
+<p>Key:</p>
+<p>yhat0 - “fit”, which is the prediction on the response scale</p>
+<p>yhat1 - my manual computation of the average on the response scale</p>
+<p>yhat2 - my manual computation of the average on the link scale and then back-transformed to the response scale.</p>
+</div>
 </div>
 <div class="footnotes">
 <hr />

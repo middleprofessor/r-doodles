@@ -51,6 +51,10 @@ Some final thoughts using their equation S2
 
 9. Finally, in response to an exchange with Florian, I wanted to make sure that my understanding of MuMIn is correct (it seems to be), so here are five ways to compute a simple count (poisson) example using fake data in addition to the computation from MuMIn.
 
+10. Like MuMIn, The BAS package defaults to averaging on the link scale without back-transformation to the response scale -- see the code at the bottom. Unlike MuMIn, BAS outputs the predictions on the response scale averaged on the response scale -- these are not equal to the back-transformation of the default predictions on the link scale. I couldn't find this documented.
+
+## How does MuMIn model average predictions?
+
 ```{r libraries}
 library(ggplot2)
 library(MuMIn)
@@ -123,7 +127,7 @@ A simple model of counts
 
 ```
 
-# Results
+### Results
 The first few rows of the results matrix of the predictions using five different methods for their computation.
 
 ```{r table, echo=FALSE}
@@ -152,7 +156,9 @@ yhat4 = Coefficients backtransformed to response scale and then averaged on resp
 
 yhat5 = Coefficients averaged on link scale and then backtransformed to response scale, which are used to compute averaged predictions.
 
+## How does the BAS package model-average predictions?
 
+Use the same fake data as generated above. I'm using package version 1.4.9 and the help page is for 1.5.0, which looks like it has important updates on the output from predict.basglm (I'm using 1.4.9 because I couldn't get 1.5.0 to compile)
 
 ```{r bma, echo=FALSE, results='hide'}
   
@@ -171,12 +177,16 @@ yhat5 = Coefficients averaged on link scale and then backtransformed to response
   res.bma1.ls.ls <- res.bma.ls$Ybma[,1]
   res.bma1.ls.exp.ls <- exp(res.bma1.ls.ls)
   
-  head(data.table(
-    res.bma0.rs, res.bma1.rs.ls, res.bma1.rs.exp.ls,
-    res.bma0.ls, res.bma1.ls.ls, res.bma1.ls.exp.ls
-  ))
   
-
+  bas.res1 <- data.table(
+    default.fit=res.bma0.ls,
+    default.Ybma=res.bma1.ls.ls,
+    default.exp.Ybma=res.bma1.ls.exp.ls,
+    response.fit=res.bma0.rs,
+    response.Ybma=res.bma1.rs.ls,
+    response.exp.Ybma=res.bma1.rs.exp.ls
+  )
+  
   res.bma <- predict(fit.bma)
   yhat.bma.response <- res.bma$fit[,1]
   yhat.bma.link <- res.bma$Ybma[,1]
@@ -188,9 +198,30 @@ yhat5 = Coefficients averaged on link scale and then backtransformed to response
   yhat2.bma.link <- (YHAT%*%w)[,1]
   yhat2.bma.response <- exp(yhat2.bma.link)
 
-  head(data.table(yhat0=yhat.bma.response,
+  bas.res2 <- data.table(yhat0=yhat.bma.response,
              yhat1=yhat1.bma.response,
-             yhat2=yhat2.bma.response))
-
+             yhat2=yhat2.bma.response)
 ```
 
+### Result 1
+
+predict.basglm seems to have the same output regardless of the type='response' specification. The prediction on the link scale is in "Ybma" and the prediction on the response scale is in "fit". Note that $exp(Ybma) \ne fit$.
+s
+```{r}
+head(bas.res1)
+```
+
+### Result 2
+
+$fit$ is indeed the predictions averaged on the response scale and not $exp(Ybma)$
+```{r}
+head(bas.res2)
+```
+
+Key:
+
+yhat0 - "fit", which is the prediction on the response scale
+
+yhat1 - my manual computation of the average on the response scale
+
+yhat2 - my manual computation of the average on the link scale and then back-transformed to the response scale.
