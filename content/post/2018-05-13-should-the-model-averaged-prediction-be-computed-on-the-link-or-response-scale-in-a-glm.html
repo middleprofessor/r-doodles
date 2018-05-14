@@ -143,7 +143,7 @@ library(data.table)</code></pre>
 </div>
 <div id="how-does-the-bas-package-model-average-predictions" class="section level2">
 <h2>How does the BAS package model-average predictions?</h2>
-<p>Use the same fake data as generated above. I’m using package version 1.4.9 and the help page is for 1.5.0, which looks like it has important updates on the output from predict.basglm (I’m using 1.4.9 because I couldn’t get 1.5.0 to compile)</p>
+<p>This simulation uses the fake data generated above. I’m using package version 1.4.9 and the help page is for 1.5.0, which looks like it has important updates on the output from predict.basglm (I’m using 1.4.9 because I couldn’t get 1.5.0 to compile)</p>
 <div id="result-1" class="section level3">
 <h3>Result 1</h3>
 <p>predict.basglm seems to have the same output regardless of the type=‘response’ specification. The prediction on the link scale is in “Ybma” and the prediction on the response scale is in “fit”. Note that <span class="math inline">\(exp(Ybma) \ne fit\)</span>. s</p>

@@ -158,7 +158,7 @@ yhat5 = Coefficients averaged on link scale and then backtransformed to response
 
 ## How does the BAS package model-average predictions?
 
-Use the same fake data as generated above. I'm using package version 1.4.9 and the help page is for 1.5.0, which looks like it has important updates on the output from predict.basglm (I'm using 1.4.9 because I couldn't get 1.5.0 to compile)
+This simulation uses the fake data generated above. I'm using package version 1.4.9 and the help page is for 1.5.0, which looks like it has important updates on the output from predict.basglm (I'm using 1.4.9 because I couldn't get 1.5.0 to compile)
 
 ```{r bma, echo=FALSE, results='hide'}
   
