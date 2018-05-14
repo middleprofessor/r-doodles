@@ -160,7 +160,7 @@ yhat5 = Coefficients averaged on link scale and then backtransformed to response
 
 This simulation uses the fake data generated above. I'm using package version 1.4.9 and the help page is for 1.5.0, which looks like it has important updates on the output from predict.basglm (I'm using 1.4.9 because I couldn't get 1.5.0 to compile)
 
-```{r bma, echo=FALSE, results='hide'}
+```{r bma}
   
   # fit using BMA
   packageVersion("BAS")
@@ -207,14 +207,14 @@ This simulation uses the fake data generated above. I'm using package version 1.
 
 predict.basglm seems to have the same output regardless of the type='response' specification. The prediction on the link scale is in "Ybma" and the prediction on the response scale is in "fit". Note that $exp(Ybma) \ne fit$.
 s
-```{r}
+```{r bma_res1}
 head(bas.res1)
 ```
 
 ### Result 2
 
 $fit$ is indeed the predictions averaged on the response scale and not $exp(Ybma)$
-```{r}
+```{r bma_res2}
 head(bas.res2)
 ```
 

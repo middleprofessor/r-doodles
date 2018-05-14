@@ -407,6 +407,46 @@ library(data.table)</code></pre>
 <div id="how-does-the-bas-package-model-average-predictions" class="section level2">
 <h2>How does the BAS package model-average predictions?</h2>
 <p>This simulation uses the fake data generated above. I’m using package version 1.4.9 and the help page is for 1.5.0, which looks like it has important updates on the output from predict.basglm (I’m using 1.4.9 because I couldn’t get 1.5.0 to compile)</p>
+<pre class="r"><code>  # fit using BMA
+  packageVersion(&quot;BAS&quot;)</code></pre>
+<pre><code>## [1] &#39;1.4.9&#39;</code></pre>
+<pre class="r"><code>  # fit &lt;- glm(count ~ x1 + x2, family=poisson(link = &quot;log&quot;), data=dt,na.action=na.fail )
+  fit.bma &lt;- bas.glm(count ~ x1 + x2, family=poisson(link = &quot;log&quot;), data=dt)
+ 
+  res.bma.rs &lt;- predict(fit.bma, type=&#39;response&#39;)
+  res.bma0.rs &lt;- res.bma.rs$fit[,1]
+  res.bma1.rs.ls &lt;- res.bma.rs$Ybma[,1]
+  res.bma1.rs.exp.ls &lt;- exp(res.bma1.rs.ls)
+  
+  res.bma.ls &lt;- predict(fit.bma)
+  res.bma0.ls &lt;- res.bma.ls$fit[,1]
+  res.bma1.ls.ls &lt;- res.bma.ls$Ybma[,1]
+  res.bma1.ls.exp.ls &lt;- exp(res.bma1.ls.ls)
+  
+  
+  bas.res1 &lt;- data.table(
+    default.fit=res.bma0.ls,
+    default.Ybma=res.bma1.ls.ls,
+    default.exp.Ybma=res.bma1.ls.exp.ls,
+    response.fit=res.bma0.rs,
+    response.Ybma=res.bma1.rs.ls,
+    response.exp.Ybma=res.bma1.rs.exp.ls
+  )
+  
+  res.bma &lt;- predict(fit.bma)
+  yhat.bma.response &lt;- res.bma$fit[,1]
+  yhat.bma.link &lt;- res.bma$Ybma[,1]
+  YHAT &lt;- t(res.bma$Ypred)
+  w &lt;- res.bma$postprobs
+  # averaged on response scale
+  yhat1.bma.response &lt;- (exp(YHAT)%*%w)[,1]
+  # averaged on link scale and then backtransformed
+  yhat2.bma.link &lt;- (YHAT%*%w)[,1]
+  yhat2.bma.response &lt;- exp(yhat2.bma.link)
+
+  bas.res2 &lt;- data.table(yhat0=yhat.bma.response,
+             yhat1=yhat1.bma.response,
+             yhat2=yhat2.bma.response)</code></pre>
 <div id="result-1" class="section level3">
 <h3>Result 1</h3>
 <p>predict.basglm seems to have the same output regardless of the type=‘response’ specification. The prediction on the link scale is in “Ybma” and the prediction on the response scale is in “fit”. Note that <span class="math inline">\(exp(Ybma) \ne fit\)</span>. s</p>
