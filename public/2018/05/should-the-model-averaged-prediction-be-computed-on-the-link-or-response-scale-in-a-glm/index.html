@@ -30,18 +30,18 @@
     
 
     
-    <meta name="description" content="(TL;DR: This post-includes a disagreement on the output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)
-This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”.">
-    <meta property="og:description" content="(TL;DR: This post-includes a disagreement on the output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)
-This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”.">
+    <meta name="description" content="[updated to include additional output from MuMIn, BMA, and BAS]
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.">
+    <meta property="og:description" content="[updated to include additional output from MuMIn, BMA, and BAS]
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="Should the model-averaged prediction be computed on the link or response scale in a GLM?">
     <meta property="og:url" content="/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="(TL;DR: This post-includes a disagreement on the output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)
-This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”.">
+    <meta name="twitter:description" content="[updated to include additional output from MuMIn, BMA, and BAS]
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -277,14 +277,14 @@ ga('send', 'pageview');
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <p>(TL;DR: This post-includes a disagreement on the output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)</p>
+              <p>[updated to include additional output from MuMIn, BMA, and BAS]</p>
 <p>This post is a follow up <a href="/2018/05/model-averaged-coefficients-of-a-glm">to my inital post</a>, which was written as as a way for me to pen my mental thoughts on the recent review of <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309" target="_blank">“Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”</a>. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</p>
 <p>The Dormann et al. paper focuses on model-averaged predictions, but has a short discussion on problems with model-averaged coefficients in the supplement. It is in the supplement, that the authors state that for generalized linear models (GLMs) “coefficient averaging is not equivalent to prediction averaging”. Brian Cade<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> also makes this argument.</p>
 <p>In my previous post, I argued that this statement is wrong – predictions from a parameter-averaged model is mathematically identical to averaging predictions. It was hard for me to understand how this was not immediately obvious until my e-mail exchange with Carsten and Florian. In short, I assume that all averaging is done on the link scale and then the predictions are back-transformed to the response scale. Carsten and Florian (and Brian Cade?) argue that this is the “wrong” way to compute averaged predictions.</p>
 <p>The summary of our differences is</p>
 <ol style="list-style-type: decimal">
 <li><p>Carsten and Florian argue that predictions should be computed on the link scale, back-transformed to the response scale, and then averaged on the response scale. I understand their reason to be that first, this is how everyone outside of ecology does it, and second, predictions have to be averaged on the response scale for non-linear models because there is no link scale, and, since, GLMs are non-linear models, they should be averaged on the response scale.</p></li>
-<li><p>I argue that because a GLM model is fit on a linear scale, any subsequent averaging should be on the linear scale. My reason is that because a GLM <em>is a linear model</em>, additive math should be additive (on the link scale) and not multiplicative (on the response scale) to be consistent with the meaning of the fit parameters. For example, a prediction is a weighted sum of the data, with weights that are a function of a linear fit, and everyone agrees that predictions should be computed on the link scale and then back-transformed (if desired). And, a model-averaged prediction is a weighted sum, with both weights and variables that are functions of linear fits, and so the predictions should be averaged on the link scale, and then back-transformed to the response scale (if desired).</p></li>
+<li><p>I argue that because a GLM model is fit on a linear scale, any subsequent averaging should be on the linear scale, so that additive relationships remain additive and not multiplicative. Averaging on the link (linear) scale maintains consistency with the meaning of the fit parameters. For example, a prediction is a weighted sum of the data, with weights that are a function of a linear fit, and everyone agrees that predictions should be computed on the link scale and then back-transformed (if desired). And, a model-averaged prediction is a weighted sum, with both weights and variables that are functions of linear fits, and so the predictions should be averaged on the link scale, and then back-transformed to the response scale (if desired).</p></li>
 </ol>
 <p>Some final thoughts using their equation S2</p>
 <span class="math display">\[\begin{equation}
@@ -294,8 +294,11 @@ ga('send', 'pageview');
 <li><p>Dormann et al. advocate averaging using the LHS of eq. S2, I advocate using the RHS.</p></li>
 <li><p>If using the RHS of S2 to average predictors, <a href="/2018/05/model-averaged-coefficients-of-a-glm">then averaging the predictors or computing the predictor from averaged coefficients are mathematically equivalent</a>.</p></li>
 <li><p>GLMs are unlike non-linear models in that non-linear models do not have link functions although some can be linearized. There is no linear model that is fit. Consquently, for non-linear models, averging the predictors of non-linear models on the “response scale” is consistent with the fit model. So in my opinion, this isn’t good justification for averaging GLMs on the response scale.</p></li>
-<li><p>Because Carsten and Florian (and presumably the other co-authors of Dormann et al.) argue that predictions should be model averaged on the response scale, they argue that predict.averaging () from the MuMIn package is the wrong way to compute averaged predictors, since these are computed on the link scale and then back-transformed to the response scale. I argue that this is the “right” way to compute these, where “right” is in the sense that it maintains the meaning of the parameters.</p></li>
-<li><p>I think this argument from Russell Lenth, the author of the amazingly useful emmeans (formerly lsmeans) package, supports my argument for averaging on the link scale. Here, Lenth comments on why <a href="https://cran.r-project.org/web/packages/emmeans/vignettes/transformations.html">the package computes marginal means on the link and not response scale for GLMs</a>:</p></li>
+<li><p>Because Carsten and Florian (and presumably the other co-authors of Dormann et al.) argue that predictions should be model averaged on the response scale, this raises questions about the default output for MuMIn and BAS which default to predictions on the link scale that were averaged on the link scale (both does produce predictions averaged on the response scale with type=‘response’). This raises one question and one concern. What “good” is a prediction averaged on the link scale – the default output of MuMIn and BAS? If we want a ma-prediction on the link scale, we can get this two ways: log transform the ma-predictions that were averaged on the response scale or simply average on the link scale. The second way does not produce predictions that are direct transformations with those on the response scale, so which is the correct way?</p></li>
+</ol>
+<p>6b. The concern raised above. The default prediction (if “type=” is not specified) for the MuMIn or BAS package is the prediction averaged on the link scale. Probably most researchers would want to interpret predictions on the response scale and the team that publishes this may achieve this by, perhaps naively, simply back-transforming the default predictions. This is the RHS of eq. S2. Someone comes along to reproduce the results, takes the same data, and specifies type=’response’. They get slightly different results, because they’ve used the LHS of eq. S1.</p>
+<ol start="7" style="list-style-type: decimal">
+<li>I think this argument from Russell Lenth, the author of the amazingly useful emmeans (formerly lsmeans) package, supports my argument for averaging on the link scale. Here, Lenth comments on why <a href="https://cran.r-project.org/web/packages/emmeans/vignettes/transformations.html">the package computes marginal means on the link and not response scale for GLMs</a>:</li>
 </ol>
 <blockquote>
 <p>The model is our best guide</p>
@@ -312,8 +315,26 @@ ga('send', 'pageview');
 <h2>How does MuMIn model average predictions?</h2>
 <pre class="r"><code>library(ggplot2)
 library(MuMIn)
-library(BAS)
-library(data.table)</code></pre>
+library(BMA)</code></pre>
+<pre><code>## Loading required package: survival</code></pre>
+<pre><code>## Loading required package: leaps</code></pre>
+<pre><code>## Loading required package: robustbase</code></pre>
+<pre><code>## 
+## Attaching package: &#39;robustbase&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:survival&#39;:
+## 
+##     heart</code></pre>
+<pre><code>## Loading required package: inline</code></pre>
+<pre><code>## Loading required package: rrcov</code></pre>
+<pre><code>## Scalable Robust Estimators with High Breakdown Point (version 1.4-3)</code></pre>
+<pre class="r"><code>library(BAS)
+library(AICcmodavg)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;AICcmodavg&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:MuMIn&#39;:
+## 
+##     AICc, DIC, importance</code></pre>
+<pre class="r"><code>library(data.table)</code></pre>
 <p>A simple model of counts</p>
 <pre class="r"><code>  set.seed(1)
   n &lt;- 100
@@ -356,9 +377,25 @@ library(data.table)</code></pre>
 ## full      5.168167 -0.02107276 -0.002326521
 ## subset    5.168167 -0.02288317 -0.007265122</code></pre>
 <pre class="r"><code>  # (0) MuMIn predict
-  yhat0.MuMIn &lt;- predict(fit.avg, backtransform=TRUE)
-  
-  #is this averaged on link or response scale? And is it the coefficients or the prediction that is averaged?
+  yhat.default &lt;- predict(fit.avg)
+  yhat.MuMIn1 &lt;- predict(fit.avg, type=&#39;response&#39;)
+  yhat.MuMIn2 &lt;- exp(predict(fit.avg, type=&#39;link&#39;))
+  yhat.MuMIn3 &lt;- predict(fit.avg, backtransform=TRUE)
+  yhat.MuMIn4 &lt;- exp(predict(fit.avg, backtransform=FALSE))
+  head(data.table(default=exp(yhat.default),
+                  MuMIn1=yhat.MuMIn1, 
+                  MuMIn2=yhat.MuMIn2,
+                  MuMIn3=yhat.MuMIn3,
+                  MuMIn4=yhat.MuMIn4
+                  ))</code></pre>
+<pre><code>##     default   MuMIn1   MuMIn2   MuMIn3   MuMIn4
+## 1: 176.7927 176.7934 176.7927 176.7927 176.7927
+## 2: 171.1034 171.1072 171.1034 171.1034 171.1034
+## 3: 174.7764 174.7805 174.7764 174.7764 174.7764
+## 4: 171.3024 171.3036 171.3024 171.3024 171.3024
+## 5: 180.1184 180.1233 180.1184 180.1184 180.1184
+## 6: 171.9407 171.9422 171.9407 171.9407 171.9407</code></pre>
+<pre class="r"><code>  #is this averaged on link or response scale? And is it the coefficients or the prediction that is averaged?
   
   # (1) average coefficients on link scale. compute prediction on link scale. transform predictions to response scale
   b &lt;- fit.avg$coefficients[&#39;full&#39;,][colnames(X)]
@@ -388,15 +425,16 @@ library(data.table)</code></pre>
 <div id="results" class="section level3">
 <h3>Results</h3>
 <p>The first few rows of the results matrix of the predictions using five different methods for their computation.</p>
-<pre><code>##       MuMIn    yhat1    yhat2    yhat3    yhat4    yhat5
-## 1: 176.7927 176.7927 176.7927 176.7934 175.1100 174.4955
-## 2: 171.1034 171.1034 171.1034 171.1072 176.7358 176.9463
-## 3: 174.7764 174.7764 174.7764 174.7805 175.5243 174.7209
-## 4: 171.3024 171.3024 171.3024 171.3036 176.9411 177.9302
-## 5: 180.1184 180.1184 180.1184 180.1233 174.4711 174.2690
-## 6: 171.9407 171.9407 171.9407 171.9422 176.5958 176.9982</code></pre>
+<pre><code>##       MuMIn MuMIn.rs    yhat1    yhat2    yhat3    yhat4    yhat5
+## 1: 176.7927 176.7934 176.7927 176.7927 176.7934 175.1100 174.4955
+## 2: 171.1034 171.1072 171.1034 171.1034 171.1072 176.7358 176.9463
+## 3: 174.7764 174.7805 174.7764 174.7764 174.7805 175.5243 174.7209
+## 4: 171.3024 171.3036 171.3024 171.3024 171.3036 176.9411 177.9302
+## 5: 180.1184 180.1233 180.1184 180.1184 180.1233 174.4711 174.2690
+## 6: 171.9407 171.9422 171.9407 171.9407 171.9422 176.5958 176.9982</code></pre>
 <p><strong>Column Keys</strong></p>
-<p>MuMIn = MuMIn’s default prediction</p>
+<p>MuMIn = MuMIn’s default prediction backtransformed to response scale</p>
+<p>MuMIn.rs = MuMIn with type = ‘response’</p>
 <p>yhat1 = Coefficients averaged on link scale. Predictions computed on link scale from averaged coefficients and then backtransformed to response scale. My preferred method. RHS of eq. S2.</p>
 <p>yhat2 = Predictions computed on link scale for each model and then averaged on link scale and then backtransformed to response scale. Alternative to my preferred method.</p>
 <p>yhat3 = Predictions computed on link scale for each model and then backtransformed to response scale and then averaged on response scale. This is the method of Dormann et al. 2018 and Cade 2015</p>
@@ -404,12 +442,26 @@ library(data.table)</code></pre>
 <p>yhat5 = Coefficients averaged on link scale and then backtransformed to response scale, which are used to compute averaged predictions.</p>
 </div>
 </div>
+<div id="how-does-bic.glm-model-average-predictions" class="section level2">
+<h2>How does bic.glm model average predictions?</h2>
+<p>This simulation uses the fake data generated above.</p>
+<pre class="r"><code>fit.bma &lt;- bic.glm(count ~ x1 + x2, glm.family=poisson(link = &quot;log&quot;), data=dt)
+# (0) BMA predict
+yhat.default &lt;- predict(fit.bma, newdata=dt) # these are on the response scale
+
+# (1) use model averaged B to get prediction on link scale. Backtransform to response scale (eq. s2 RHS of appendix)
+b = fit.bma$postmean
+Xb &lt;- X%*%b
+yhat1 &lt;- exp(Xb) # averaged predictions backtransformed to response
+
+res &lt;- data.table(default=yhat.default, yhat1=yhat1)</code></pre>
+</div>
 <div id="how-does-the-bas-package-model-average-predictions" class="section level2">
 <h2>How does the BAS package model-average predictions?</h2>
-<p>This simulation uses the fake data generated above. I’m using package version 1.4.9 and the help page is for 1.5.0, which looks like it has important updates on the output from predict.basglm (I’m using 1.4.9 because I couldn’t get 1.5.0 to compile)</p>
+<p>This simulation uses the fake data generated above.</p>
 <pre class="r"><code>  # fit using BMA
   packageVersion(&quot;BAS&quot;)</code></pre>
-<pre><code>## [1] &#39;1.4.9&#39;</code></pre>
+<pre><code>## [1] &#39;1.5.0&#39;</code></pre>
 <pre class="r"><code>  # fit &lt;- glm(count ~ x1 + x2, family=poisson(link = &quot;log&quot;), data=dt,na.action=na.fail )
   fit.bma &lt;- bas.glm(count ~ x1 + x2, family=poisson(link = &quot;log&quot;), data=dt)
  
@@ -482,6 +534,71 @@ library(data.table)</code></pre>
 <p>yhat1 - my manual computation of the average on the response scale</p>
 <p>yhat2 - my manual computation of the average on the link scale and then back-transformed to the response scale.</p>
 </div>
+</div>
+<div id="how-does-the-aiccmodavg-package-model-average-predictions" class="section level2">
+<h2>How does the AICcmodavg package model-average predictions?</h2>
+<pre class="r"><code>data(min.trap)
+##assign &quot;UPLAND&quot; as the reference level as in Mazerolle (2006)
+min.trap$Type &lt;- relevel(min.trap$Type, ref = &quot;UPLAND&quot;)
+##set up candidate models
+Cand.mod &lt;- list()
+Cand.mod[[1]] &lt;- glm(Num_anura ~ Type + log.Perimeter + Num_ranatra,
+                     family = poisson, offset = log(Effort),
+                     data = min.trap)
+Cand.mod[[2]] &lt;- glm(Num_anura ~ Type + log.Perimeter, family = poisson,
+                     offset = log(Effort), data = min.trap)
+Cand.mod[[3]] &lt;- glm(Num_anura ~ Type + Num_ranatra, family = poisson,
+                     offset = log(Effort), data = min.trap)
+Cand.mod[[4]] &lt;- glm(Num_anura ~ Type, family = poisson,
+                     offset = log(Effort), data = min.trap)
+Cand.mod[[5]] &lt;- glm(Num_anura ~ log.Perimeter + Num_ranatra,
+                     family = poisson, offset = log(Effort),
+                     data = min.trap)
+
+Cand.mod[[6]] &lt;- glm(Num_anura ~ log.Perimeter, family = poisson,
+                     offset = log(Effort), data = min.trap)
+Cand.mod[[7]] &lt;- glm(Num_anura ~ Num_ranatra, family = poisson,
+                     offset = log(Effort), data = min.trap)
+Cand.mod[[8]] &lt;- glm(Num_anura ~ 1, family = poisson,
+                     offset = log(Effort), data = min.trap)
+##check c-hat for global model
+c_hat(Cand.mod[[1]], method = &quot;pearson&quot;) #uses Pearson&#39;s chi-square/df</code></pre>
+<pre><code>## &#39;c-hat&#39; 1.04 (method: pearson estimator)</code></pre>
+<pre class="r"><code>##note the very low overdispersion: in this case, the analysis could be
+##conducted without correcting for c-hat as its value is reasonably close
+##to 1
+##assign names to each model
+Modnames &lt;- c(&quot;type + logperim + invertpred&quot;, &quot;type + logperim&quot;,
+              &quot;type + invertpred&quot;, &quot;type&quot;, &quot;logperim + invertpred&quot;,
+              &quot;logperim&quot;, &quot;invertpred&quot;, &quot;intercept only&quot;)
+##model selection table based on AICc
+aictab(cand.set = Cand.mod, modnames = Modnames)</code></pre>
+<pre><code>## 
+## Model selection based on AICc:
+## 
+##                              K  AICc Delta_AICc AICcWt Cum.Wt     LL
+## type + invertpred            3 54.03       0.00   0.60   0.60 -23.42
+## type + logperim + invertpred 4 56.57       2.54   0.17   0.77 -23.23
+## logperim + invertpred        3 57.91       3.88   0.09   0.86 -25.35
+## invertpred                   2 58.63       4.60   0.06   0.92 -27.03
+## type + logperim              3 59.38       5.35   0.04   0.96 -26.09
+## type                         2 59.74       5.71   0.03   1.00 -27.58
+## intercept only               1 65.47      11.44   0.00   1.00 -31.65
+## logperim                     2 67.27      13.24   0.00   1.00 -31.35</code></pre>
+<pre class="r"><code>dat.pred &lt;- data.frame(Type = factor(c(&quot;BOG&quot;, &quot;UPLAND&quot;)),
+                       log.Perimeter = mean(min.trap$log.Perimeter),
+                       Num_ranatra = mean(min.trap$Num_ranatra),
+                       Effort = mean(min.trap$Effort))
+yhat.response &lt;- modavgPred(cand.set = Cand.mod, modnames = Modnames,
+           newdata = min.trap, type = &quot;response&quot;)
+yhat.link &lt;- modavgPred(cand.set = Cand.mod, modnames = Modnames,
+           newdata = min.trap, type = &quot;link&quot;)
+yhat.default &lt;- modavgPred(cand.set = Cand.mod, modnames = Modnames,
+           newdata = min.trap)
+
+res &lt;- data.table(response=yhat.response$mod.avg.pred, 
+                  link=exp(yhat.link$mod.avg.pred),
+                  default=yhat.default$mod.avg.pred)</code></pre>
 </div>
 <div class="footnotes">
 <hr />
@@ -629,8 +746,8 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   May 5, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">(TL;DR: This post-includes a disagreement on the output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)
-This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”.</div>
+              <div class="media-content hide-xs font-merryweather">[updated to include additional output from MuMIn, BMA, and BAS]
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -951,8 +1068,8 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
                   May 5, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">(TL;DR: This post-includes a disagreement on the output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)
-This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”.</div>
+              <div class="media-content hide-xs font-merryweather">[updated to include additional output from MuMIn, BMA, and BAS]
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

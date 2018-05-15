@@ -11,8 +11,7 @@ tags:
   - model averaging
   - generalized linear models
 ---
-
-(TL;DR: This post-includes a disagreement on the output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don't get to this until point 6 below.)
+[updated to include additional output from MuMIn, BMA, and BAS]
 
 This post is a follow up [to my inital post](/2018/05/model-averaged-coefficients-of-a-glm), which was written as as a way for me to pen my mental thoughts on the recent review of ["Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference"](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309){target="_blank"}. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.
 
@@ -39,7 +38,9 @@ Some final thoughts using their equation S2
 
 5. GLMs are unlike non-linear models in that non-linear models do not have link functions although some can be linearized. There is no linear model that is fit. Consquently, for non-linear models, averging the predictors of non-linear models on the "response scale" is consistent with the fit model. So in my opinion, this isn't good justification for averaging GLMs on the response scale.
 
-6. Because Carsten and Florian (and presumably the other co-authors of Dormann et al.) argue that predictions should be model averaged on the response scale, they argue that predict.averaging () from the MuMIn package is the wrong way to compute averaged predictors, since these are computed on the link scale and then back-transformed to the response scale. I argue that this is the "right" way to compute these, where "right" is in the sense that it maintains the meaning of the parameters.
+6. Because Carsten and Florian (and presumably the other co-authors of Dormann et al.) argue that predictions should be model averaged on the response scale, this raises questions about the default output for MuMIn and BAS which default to predictions on the link scale that were averaged on the link scale (both does produce predictions averaged on the response scale with type='response'). This raises one question and one concern. What “good” is a prediction averaged on the link scale – the default output of MuMIn and BAS? If we want a ma-prediction on the link scale, we can get this two ways: log transform the ma-predictions that were averaged on the response scale or simply average on the link scale. The second way does not produce predictions that are direct transformations with those on the response scale, so which is the correct way?
+
+6b. The concern raised above. The default prediction (if “type=” is not specified) for the MuMIn or BAS package is the prediction averaged on the link scale. Probably most researchers would want to interpret predictions on the response scale and the team that publishes this may achieve this by, perhaps naively, simply back-transforming the default predictions. This is the RHS of eq. S2. Someone comes along to reproduce the results, takes the same data, and specifies type=’response’. They get slightly different results, because they’ve used the LHS of eq. S1.
 
 7. I think this argument from Russell Lenth, the author of the amazingly useful emmeans (formerly lsmeans) package, supports my argument for averaging on the link scale. Here, Lenth comments on why [the package computes marginal means on the link and not response scale for GLMs](https://cran.r-project.org/web/packages/emmeans/vignettes/transformations.html):
 
@@ -58,7 +59,9 @@ Some final thoughts using their equation S2
 ```{r libraries}
 library(ggplot2)
 library(MuMIn)
+library(BMA)
 library(BAS)
+library(AICcmodavg)
 library(data.table)
 ```
 
@@ -95,7 +98,17 @@ A simple model of counts
   fit.avg
   
   # (0) MuMIn predict
-  yhat0.MuMIn <- predict(fit.avg, backtransform=TRUE)
+  yhat.default <- predict(fit.avg)
+  yhat.MuMIn1 <- predict(fit.avg, type='response')
+  yhat.MuMIn2 <- exp(predict(fit.avg, type='link'))
+  yhat.MuMIn3 <- predict(fit.avg, backtransform=TRUE)
+  yhat.MuMIn4 <- exp(predict(fit.avg, backtransform=FALSE))
+  head(data.table(default=exp(yhat.default),
+                  MuMIn1=yhat.MuMIn1, 
+                  MuMIn2=yhat.MuMIn2,
+                  MuMIn3=yhat.MuMIn3,
+                  MuMIn4=yhat.MuMIn4
+                  ))
   
   #is this averaged on link or response scale? And is it the coefficients or the prediction that is averaged?
   
@@ -132,7 +145,8 @@ The first few rows of the results matrix of the predictions using five different
 
 ```{r table, echo=FALSE}
   
-res <- data.table(MuMIn=yhat0.MuMIn,
+res <- data.table(MuMIn=exp(yhat.default),
+                  MuMIn.rs=yhat.MuMIn1,
                   yhat1=yhat1, 
                   yhat2=yhat2b, 
                   yhat3=yhat3,
@@ -144,7 +158,9 @@ head(res)
 
 **Column Keys**
 
-MuMIn = MuMIn's default prediction
+MuMIn = MuMIn's default prediction backtransformed to response scale
+
+MuMIn.rs = MuMIn with type = 'response'
 
 yhat1 = Coefficients averaged on link scale. Predictions computed on link scale from averaged coefficients and then backtransformed to response scale. My preferred method. RHS of eq. S2.
 
@@ -156,11 +172,28 @@ yhat4 = Coefficients backtransformed to response scale and then averaged on resp
 
 yhat5 = Coefficients averaged on link scale and then backtransformed to response scale, which are used to compute averaged predictions.
 
+## How does bic.glm model average predictions?
+This simulation uses the fake data generated above.
+
+```{r BMA}
+fit.bma <- bic.glm(count ~ x1 + x2, glm.family=poisson(link = "log"), data=dt)
+# (0) BMA predict
+yhat.default <- predict(fit.bma, newdata=dt) # these are on the response scale
+
+# (1) use model averaged B to get prediction on link scale. Backtransform to response scale (eq. s2 RHS of appendix)
+b = fit.bma$postmean
+Xb <- X%*%b
+yhat1 <- exp(Xb) # averaged predictions backtransformed to response
+
+res <- data.table(default=yhat.default, yhat1=yhat1)
+```
+
+
 ## How does the BAS package model-average predictions?
 
 This simulation uses the fake data generated above.
 
-```{r bma}
+```{r BAS}
   
   # fit using BMA
   packageVersion("BAS")
@@ -225,3 +258,59 @@ yhat0 - "fit", which is the prediction on the response scale
 yhat1 - my manual computation of the average on the response scale
 
 yhat2 - my manual computation of the average on the link scale and then back-transformed to the response scale.
+
+## How does the AICcmodavg package model-average predictions?
+
+```{r AIC-MA}
+
+data(min.trap)
+##assign "UPLAND" as the reference level as in Mazerolle (2006)
+min.trap$Type <- relevel(min.trap$Type, ref = "UPLAND")
+##set up candidate models
+Cand.mod <- list()
+Cand.mod[[1]] <- glm(Num_anura ~ Type + log.Perimeter + Num_ranatra,
+                     family = poisson, offset = log(Effort),
+                     data = min.trap)
+Cand.mod[[2]] <- glm(Num_anura ~ Type + log.Perimeter, family = poisson,
+                     offset = log(Effort), data = min.trap)
+Cand.mod[[3]] <- glm(Num_anura ~ Type + Num_ranatra, family = poisson,
+                     offset = log(Effort), data = min.trap)
+Cand.mod[[4]] <- glm(Num_anura ~ Type, family = poisson,
+                     offset = log(Effort), data = min.trap)
+Cand.mod[[5]] <- glm(Num_anura ~ log.Perimeter + Num_ranatra,
+                     family = poisson, offset = log(Effort),
+                     data = min.trap)
+
+Cand.mod[[6]] <- glm(Num_anura ~ log.Perimeter, family = poisson,
+                     offset = log(Effort), data = min.trap)
+Cand.mod[[7]] <- glm(Num_anura ~ Num_ranatra, family = poisson,
+                     offset = log(Effort), data = min.trap)
+Cand.mod[[8]] <- glm(Num_anura ~ 1, family = poisson,
+                     offset = log(Effort), data = min.trap)
+##check c-hat for global model
+c_hat(Cand.mod[[1]], method = "pearson") #uses Pearson's chi-square/df
+##note the very low overdispersion: in this case, the analysis could be
+##conducted without correcting for c-hat as its value is reasonably close
+##to 1
+##assign names to each model
+Modnames <- c("type + logperim + invertpred", "type + logperim",
+              "type + invertpred", "type", "logperim + invertpred",
+              "logperim", "invertpred", "intercept only")
+##model selection table based on AICc
+aictab(cand.set = Cand.mod, modnames = Modnames)
+
+dat.pred <- data.frame(Type = factor(c("BOG", "UPLAND")),
+                       log.Perimeter = mean(min.trap$log.Perimeter),
+                       Num_ranatra = mean(min.trap$Num_ranatra),
+                       Effort = mean(min.trap$Effort))
+yhat.response <- modavgPred(cand.set = Cand.mod, modnames = Modnames,
+           newdata = min.trap, type = "response")
+yhat.link <- modavgPred(cand.set = Cand.mod, modnames = Modnames,
+           newdata = min.trap, type = "link")
+yhat.default <- modavgPred(cand.set = Cand.mod, modnames = Modnames,
+           newdata = min.trap)
+
+res <- data.table(response=yhat.response$mod.avg.pred, 
+                  link=exp(yhat.link$mod.avg.pred),
+                  default=yhat.default$mod.avg.pred)
+```

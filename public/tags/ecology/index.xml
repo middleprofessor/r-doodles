@@ -17,8 +17,8 @@
       <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/</guid>
-      <description>(TL;DR: This post-includes a disagreement on the output of the R package MuMIn, which computes model-averaged predictions and coefficients. But I don’t get to this until point 6 below.)
-This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”.</description>
+      <description>[updated to include additional output from MuMIn, BMA, and BAS]
+This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</description>
     </item>
     
     <item>
