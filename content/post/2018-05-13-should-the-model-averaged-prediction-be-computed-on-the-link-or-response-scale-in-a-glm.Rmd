@@ -24,9 +24,17 @@ The summary of our differences is
 
 1. Carsten and Florian argue that predictions should be computed on the link scale, back-transformed to the response scale, and then averaged on the response scale. I understand their reason to be that first, this is how everyone outside of ecology does it, and second, predictions have to be averaged on the response scale for non-linear models because there is no link scale, and, since, GLMs are non-linear models, they should be averaged on the response scale.
 
-2. I argue that because a GLM model is fit on a linear scale, any subsequent averaging should be on the linear scale, so that additive relationships remain additive and not multiplicative. Averaging on the link (linear) scale maintains consistency with the meaning of the fit parameters. For example, a prediction is a weighted sum of the data, with weights that are a function of a linear fit, and everyone agrees that predictions should be computed on the link scale and then back-transformed (if desired). And, a model-averaged prediction is a weighted sum, with both weights and variables that are functions of linear fits, and so the predictions should be averaged on the link scale, and then back-transformed to the response scale (if desired).
+2. I argue that because a GLM model is a function of a linear predictor, any subsequent averaging should be on the linear scale, so that additive relationships remain additive and not multiplicative. Averaging on the link (linear) scale maintains consistency with the meaning of the fit parameters.
 
-Some final thoughts using their equation S2
+[update] Perhaps *the* reason for averaging on the response scale, at least in a Bayesian framework, is eq. 1 of Hoeting et al. 1999, which is
+
+\begin{equation}
+\textrm{pr}(\Delta | D) = \sum_{k=1}^K \textrm{pr}(\Delta | M_k, D) \textrm{pr}(M_k | D)
+\end{equation}
+
+where $\Delta$ is a prediction. For a GLM, these $\Delta$ are on the response scale because the models are $\textrm{E}(Y) = \mu = g^{-1}(X\beta)$.
+
+Some final thoughts using equation S2 from Dormann et al. 2018
 
 \begin{equation}
 \frac{1}{m} \sum_{i=1}^m{g^{-1}(Xb_i)} \ne g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
