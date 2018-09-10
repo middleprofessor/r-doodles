@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Fake Data on R Doodles</title>
+    <link>/tags/fake-data/</link>
+    <description>Recent content in Fake Data on R Doodles</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 10 Sep 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/fake-data/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>A simple ggplot of some measure against depth</title>
+      <link>/2018/09/a-simple-ggplot-of-some-measure-against-depth/</link>
+      <pubDate>Mon, 10 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/09/a-simple-ggplot-of-some-measure-against-depth/</guid>
+      <description>set up The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days
+library(ggplot2) library(data.table)  First – create fake data depths &amp;lt;- c(0, seq(10,100, by=10)) dates &amp;lt;- c(&amp;quot;Jan-18&amp;quot;, &amp;quot;Mar-18&amp;quot;, &amp;quot;May-18&amp;quot;, &amp;quot;Jul-18&amp;quot;) x &amp;lt;- expand.grid(date=dates, depth=depths) n &amp;lt;- nrow(x) head(x) ## date depth ## 1 Jan-18 0 ## 2 Mar-18 0 ## 3 May-18 0 ## 4 Jul-18 0 ## 5 Jan-18 10 ## 6 Mar-18 10 X &amp;lt;- model.</description>
+    </item>
+    
+  </channel>
+</rss>

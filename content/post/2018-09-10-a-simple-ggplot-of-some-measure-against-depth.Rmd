@@ -3,8 +3,10 @@ title: A simple ggplot of some measure against depth
 author: Jeff Walker
 date: '2018-09-10'
 slug: a-simple-ggplot-of-some-measure-against-depth
-categories: []
-tags: []
+categories:
+  - ggplot
+tags:
+  - fake data
 ---
 
 # set up
