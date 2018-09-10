@@ -1,0 +1,56 @@
+---
+title: A simple ggplot of some measure against depth
+author: Jeff Walker
+date: '2018-09-10'
+slug: a-simple-ggplot-of-some-measure-against-depth
+categories: []
+tags: []
+---
+
+# set up
+
+The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days
+
+```{r setup}
+library(ggplot2)
+library(data.table)
+```
+
+# First -- create fake data
+
+```{r fakedata}
+
+depths <- c(0, seq(10,100, by=10))
+dates <- c("Jan-18", "Mar-18", "May-18", "Jul-18")
+x <- expand.grid(date=dates, depth=depths)
+n <- nrow(x)
+head(x)
+X <- model.matrix(formula(~date + depth), data=x)
+head(X)
+beta <- c(0,1,2,3,0.5)
+y <- X%*%beta + rnorm(n, sd=5)
+fake_data <- data.frame(O2=y, x)
+head(fake_data)
+```
+
+# Second -- make ggplot
+
+```{r}
+gg <- ggplot(data=fake_data, aes(x=depth, y=O2, group=date, color=date)) +
+  geom_point() +
+  geom_line() +
+  coord_flip() +
+  # coord_flip does not make the y-axis the x-axis but the horizontal axis. 
+  # so still need to refer to "y" to modify O2
+  # specify position="right" to flip the y axis to the top after coord_flip
+  scale_y_continuous(position = "right") +
+  # reverse the depth axis, which makes it go down instead of up
+  scale_x_reverse() +
+  xlab("Depth") +
+  ylab(expression(O[2])) +
+  theme_minimal() +
+  NULL
+gg
+
+```
+

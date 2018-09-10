@@ -3,14 +3,14 @@
 library(mvtnorm)
 library(ggplot2)
 library(data.table)
+library(MuMIn)
 
-
-n <- 100
+n <- 20
 p <- 5
 n_cors <- p*(p-1)/2
-min_r <- 0.6
+min_r <- 0.2
 max_r <- 0.95
-niter <- 1000
+niter <- 500
 res_names <- c('mse.link', 'mse.response', 'mse.diff')
 res <- matrix(NA, nrow=niter, ncol=(length(res_names) + 1))
 colnames(res) <- c('seed', res_names)
@@ -66,9 +66,9 @@ for(iter in 1:niter){
   yhat3.each_model.response_scale <- exp(yhat2b.each_model.link_scale)
   response <- (yhat3.each_model.response_scale%*%w)[,1]
   
-  mse.link <- sum((link-count)^2)
-  mse.response <- sum((response-count)^2)
-  mse.diff <- sum((response-link)^2)
+  mse.link <- mean((link-count)^2)
+  mse.response <- mean((response-count)^2)
+  mse.diff <- mean((response-link)^2)
   res[iter, 'seed'] <- the_seed
   res[iter, res_names] <- c(mse.link, mse.response, mse.diff)
 }
