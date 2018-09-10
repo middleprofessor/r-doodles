@@ -1,0 +1,71 @@
+---
+title: A simple ggplot of some measure against depth
+author: Jeff Walker
+date: '2018-09-10'
+slug: a-simple-ggplot-of-some-measure-against-depth
+categories: []
+tags: []
+---
+
+
+
+<div id="set-up" class="section level1">
+<h1>set up</h1>
+<p>The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days</p>
+<pre class="r"><code>library(ggplot2)
+library(data.table)</code></pre>
+</div>
+<div id="first-create-fake-data" class="section level1">
+<h1>First – create fake data</h1>
+<pre class="r"><code>depths &lt;- c(0, seq(10,100, by=10))
+dates &lt;- c(&quot;Jan-18&quot;, &quot;Mar-18&quot;, &quot;May-18&quot;, &quot;Jul-18&quot;)
+x &lt;- expand.grid(date=dates, depth=depths)
+n &lt;- nrow(x)
+head(x)</code></pre>
+<pre><code>##     date depth
+## 1 Jan-18     0
+## 2 Mar-18     0
+## 3 May-18     0
+## 4 Jul-18     0
+## 5 Jan-18    10
+## 6 Mar-18    10</code></pre>
+<pre class="r"><code>X &lt;- model.matrix(formula(~date + depth), data=x)
+head(X)</code></pre>
+<pre><code>##   (Intercept) dateMar-18 dateMay-18 dateJul-18 depth
+## 1           1          0          0          0     0
+## 2           1          1          0          0     0
+## 3           1          0          1          0     0
+## 4           1          0          0          1     0
+## 5           1          0          0          0    10
+## 6           1          1          0          0    10</code></pre>
+<pre class="r"><code>beta &lt;- c(0,1,2,3,0.5)
+y &lt;- X%*%beta + rnorm(n, sd=5)
+fake_data &lt;- data.frame(O2=y, x)
+head(fake_data)</code></pre>
+<pre><code>##          O2   date depth
+## 1 -1.563991 Jan-18     0
+## 2  1.507492 Mar-18     0
+## 3 -2.851776 May-18     0
+## 4  5.566709 Jul-18     0
+## 5 10.729021 Jan-18    10
+## 6  7.143673 Mar-18    10</code></pre>
+</div>
+<div id="second-make-ggplot" class="section level1">
+<h1>Second – make ggplot</h1>
+<pre class="r"><code>gg &lt;- ggplot(data=fake_data, aes(x=depth, y=O2, group=date, color=date)) +
+  geom_point() +
+  geom_line() +
+  coord_flip() +
+  # coord_flip does not make the y-axis the x-axis but the horizontal axis. 
+  # so still need to refer to &quot;y&quot; to modify O2
+  # specify position=&quot;right&quot; to flip the y axis to the top after coord_flip
+  scale_y_continuous(position = &quot;right&quot;) +
+  # reverse the depth axis, which makes it go down instead of up
+  scale_x_reverse() +
+  xlab(&quot;Depth&quot;) +
+  ylab(expression(O[2])) +
+  theme_minimal() +
+  NULL
+gg</code></pre>
+<p><img src="/post/2018-09-10-a-simple-ggplot-of-some-measure-against-depth_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+</div>

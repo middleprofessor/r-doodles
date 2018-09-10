@@ -1,5 +1,9 @@
 
 
+  
+    
+  
+
 
   
 
@@ -18,25 +22,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.37 with theme Tranquilpeak 0.4.3-BETA">
-    <title>Pre Post</title>
+    <title>A simple ggplot of some measure against depth</title>
     <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
     <meta name="keywords" content="">
 
     <link rel="icon" href="/favicon.png">
     
-      <link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/pre-post/index.xml">
-    
 
     
-    <meta name="description" content="Some ecology. Some physiology. Much fake data">
-    <meta property="og:description" content="Some ecology. Some physiology. Much fake data">
+    <meta name="description" content="set up The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days
+library(ggplot2) library(data.table)  First – create fake data depths &lt;- c(0, seq(10,100, by=10)) dates &lt;- c(&quot;Jan-18&quot;, &quot;Mar-18&quot;, &quot;May-18&quot;, &quot;Jul-18&quot;) x &lt;- expand.grid(date=dates, depth=depths) n &lt;- nrow(x) head(x) ## date depth ## 1 Jan-18 0 ## 2 Mar-18 0 ## 3 May-18 0 ## 4 Jul-18 0 ## 5 Jan-18 10 ## 6 Mar-18 10 X &lt;- model.">
+    <meta property="og:description" content="set up The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days
+library(ggplot2) library(data.table)  First – create fake data depths &lt;- c(0, seq(10,100, by=10)) dates &lt;- c(&quot;Jan-18&quot;, &quot;Mar-18&quot;, &quot;May-18&quot;, &quot;Jul-18&quot;) x &lt;- expand.grid(date=dates, depth=depths) n &lt;- nrow(x) head(x) ## date depth ## 1 Jan-18 0 ## 2 Mar-18 0 ## 3 May-18 0 ## 4 Jul-18 0 ## 5 Jan-18 10 ## 6 Mar-18 10 X &lt;- model.">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="Pre Post">
-    <meta property="og:url" content="/tags/pre-post/">
+    <meta property="og:title" content="A simple ggplot of some measure against depth">
+    <meta property="og:url" content="/2018/09/a-simple-ggplot-of-some-measure-against-depth/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="Some ecology. Some physiology. Much fake data">
+    <meta name="twitter:description" content="set up The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days
+library(ggplot2) library(data.table)  First – create fake data depths &lt;- c(0, seq(10,100, by=10)) dates &lt;- c(&quot;Jan-18&quot;, &quot;Mar-18&quot;, &quot;May-18&quot;, &quot;Jul-18&quot;) x &lt;- expand.grid(date=dates, depth=depths) n &lt;- nrow(x) head(x) ## date depth ## 1 Jan-18 0 ## 2 Mar-18 0 ## 3 May-18 0 ## 4 Jul-18 0 ## 5 Jan-18 10 ## 6 Mar-18 10 X &lt;- model.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -83,7 +88,7 @@ ga('send', 'pageview');
 
   <body>
     <div id="blog">
-      <header id="header" data-behavior="1">
+      <header id="header" data-behavior="4">
   <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
   <div class="header-title">
     <a class="header-title-link" href="/">R Doodles</a>
@@ -103,7 +108,7 @@ ga('send', 'pageview');
   
 </header>
 
-      <nav id="sidebar" data-behavior="1">
+      <nav id="sidebar" data-behavior="4">
   <div class="sidebar-container">
     
       <div class="sidebar-profile">
@@ -242,75 +247,182 @@ ga('send', 'pageview');
 </nav>
 
       
-        
 
-      
-      <div id="main" data-behavior="1"
+      <div id="main" data-behavior="4"
         class="
                hasCoverMetaIn
                ">
-        
-          <section class="postShorten-group main-content-wrap">
-            
-            
-              
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
   
-    
-      
-        
-      
-    
+    <h1 class="post-title" itemprop="headline">
+      A simple ggplot of some measure against depth
+    </h1>
   
-
-
   
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/">
-          Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study
-        </a>
-      </h1>
-      
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2018-03-08T00:00:00Z">
+      <time itemprop="datePublished" datetime="2018-09-10T00:00:00Z">
         
-  March 8, 2018
+  September 10, 2018
 
       </time>
     
     
-  
-  
-    <span>in</span>
-    
-      <a class="category-link" href="/categories/medicine">medicine</a>
-    
-  
-
   </div>
 
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.
-      <p>
-        <a href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/" class="postShorten-excerpt_link link">Continue reading</a>
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <div id="set-up" class="section level1">
+<h1>set up</h1>
+<p>The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days</p>
+<pre class="r"><code>library(ggplot2)
+library(data.table)</code></pre>
+</div>
+<div id="first-create-fake-data" class="section level1">
+<h1>First – create fake data</h1>
+<pre class="r"><code>depths &lt;- c(0, seq(10,100, by=10))
+dates &lt;- c(&quot;Jan-18&quot;, &quot;Mar-18&quot;, &quot;May-18&quot;, &quot;Jul-18&quot;)
+x &lt;- expand.grid(date=dates, depth=depths)
+n &lt;- nrow(x)
+head(x)</code></pre>
+<pre><code>##     date depth
+## 1 Jan-18     0
+## 2 Mar-18     0
+## 3 May-18     0
+## 4 Jul-18     0
+## 5 Jan-18    10
+## 6 Mar-18    10</code></pre>
+<pre class="r"><code>X &lt;- model.matrix(formula(~date + depth), data=x)
+head(X)</code></pre>
+<pre><code>##   (Intercept) dateMar-18 dateMay-18 dateJul-18 depth
+## 1           1          0          0          0     0
+## 2           1          1          0          0     0
+## 3           1          0          1          0     0
+## 4           1          0          0          1     0
+## 5           1          0          0          0    10
+## 6           1          1          0          0    10</code></pre>
+<pre class="r"><code>beta &lt;- c(0,1,2,3,0.5)
+y &lt;- X%*%beta + rnorm(n, sd=5)
+fake_data &lt;- data.frame(O2=y, x)
+head(fake_data)</code></pre>
+<pre><code>##          O2   date depth
+## 1 -1.563991 Jan-18     0
+## 2  1.507492 Mar-18     0
+## 3 -2.851776 May-18     0
+## 4  5.566709 Jul-18     0
+## 5 10.729021 Jan-18    10
+## 6  7.143673 Mar-18    10</code></pre>
+</div>
+<div id="second-make-ggplot" class="section level1">
+<h1>Second – make ggplot</h1>
+<pre class="r"><code>gg &lt;- ggplot(data=fake_data, aes(x=depth, y=O2, group=date, color=date)) +
+  geom_point() +
+  geom_line() +
+  coord_flip() +
+  # coord_flip does not make the y-axis the x-axis but the horizontal axis. 
+  # so still need to refer to &quot;y&quot; to modify O2
+  # specify position=&quot;right&quot; to flip the y axis to the top after coord_flip
+  scale_y_continuous(position = &quot;right&quot;) +
+  # reverse the depth axis, which makes it go down instead of up
+  scale_x_reverse() +
+  xlab(&quot;Depth&quot;) +
+  ylab(expression(O[2])) +
+  theme_minimal() +
+  NULL
+gg</code></pre>
+<p><img src="/post/2018-09-10-a-simple-ggplot-of-some-measure-against-depth_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+</div>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+            
+            
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/" data-tooltip="Should the model-averaged prediction be computed on the link or response scale in a GLM?">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
         
-      </p>
-    </div>
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/09/a-simple-ggplot-of-some-measure-against-depth/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/09/a-simple-ggplot-of-some-measure-against-depth/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/09/a-simple-ggplot-of-some-measure-against-depth/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
   </div>
-  
-</article>
+
 
             
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
             
-
-          </section>
-        
+          </div>
+        </article>
         <footer id="footer" class="main-content-wrap">
   <span class="copyrights">
     &copy; 2018 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
@@ -532,6 +644,102 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
 </footer>
 
       </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/" data-tooltip="Should the model-averaged prediction be computed on the link or response scale in a GLM?">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/09/a-simple-ggplot-of-some-measure-against-depth/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/09/a-simple-ggplot-of-some-measure-against-depth/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/09/a-simple-ggplot-of-some-measure-against-depth/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2018%2F09%2Fa-simple-ggplot-of-some-measure-against-depth%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2018%2F09%2Fa-simple-ggplot-of-some-measure-against-depth%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2018%2F09%2Fa-simple-ggplot-of-some-measure-against-depth%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
     </div>
     
     <div id="about">
@@ -804,6 +1012,32 @@ $(document).ready(function() {
 });
 </script>
 
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2018\/09\/a-simple-ggplot-of-some-measure-against-depth\/';
+          
+            this.page.identifier = '\/2018\/09\/a-simple-ggplot-of-some-measure-against-depth\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
 
 
 
