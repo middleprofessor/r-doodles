@@ -1,0 +1,32 @@
+---
+title: Textbook error 101 -- A low p-value for the full model does not mean that the model is a good predictor
+  of the response
+author: Jeff Walker
+date: '2018-09-11'
+slug: a-low-p-value-for-the-full-model-does-not-mean-that-the-model-is-a-good-predictor-of-the-response
+categories:
+  - stats 101
+tags:
+  - regression
+  - model-averaged predictions
+  - p-values
+---
+
+On page 606, of Lock et al "Statistics: Unlocking the Power of Data", the authors state in item D "The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average." Ah no.
+ 
+```{r}
+library(data.table)
+library(mvtnorm)
+rho <- 0.5
+n <- 10^5
+Sigma <- diag(2)
+Sigma[1,2] <- Sigma[2,1] <- rho
+X <- rmvnorm(n, mean=c(0,0), sigma=Sigma)
+colnames(X) <- c("X1", "X2")
+beta <- c(0.01, -0.02)
+y <- X%*%beta + rnorm(n)
+fit <- lm(y ~ X)
+summary(fit)
+```
+ 
+ A p-value is not a measure of the predictive capacity of a model because the p-value is a function of 1) signal, 2) noise (unmodeled error), and 3) sample size while predictive capacity is a function of the signal:noise ratio. If the signal:noise ratio is tiny, the predictive capacity is small but the p-value can be tiny if the sample size is large.

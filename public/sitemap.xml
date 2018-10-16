@@ -3,6 +3,16 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2018/10/interaction-plots-with-ggplot2/</loc>
+    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/2018/09/a-low-p-value-for-the-full-model-does-not-mean-that-the-model-is-a-good-predictor-of-the-response/</loc>
+    <lastmod>2018-09-11T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2018/09/a-simple-ggplot-of-some-measure-against-depth/</loc>
     <lastmod>2018-09-10T00:00:00+00:00</lastmod>
   </url>
@@ -70,6 +80,12 @@
   </url>
   
   <url>
+    <loc>/tags/categorical-x/</loc>
+    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/categories/</loc>
     <priority>0</priority>
   </url>
@@ -106,13 +122,19 @@
   
   <url>
     <loc>/categories/ggplot/</loc>
-    <lastmod>2018-09-10T00:00:00+00:00</lastmod>
+    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/glm/</loc>
     <lastmod>2018-05-04T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/interaction/</loc>
+    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -136,7 +158,7 @@
   
   <url>
     <loc>/tags/model-averaged-predictions/</loc>
-    <lastmod>2018-05-13T00:00:00+00:00</lastmod>
+    <lastmod>2018-09-11T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -154,7 +176,7 @@
   
   <url>
     <loc>/tags/p-values/</loc>
-    <lastmod>2018-03-18T00:00:00+00:00</lastmod>
+    <lastmod>2018-09-11T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -166,7 +188,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2018-09-10T00:00:00+00:00</lastmod>
+    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -178,7 +200,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-09-10T00:00:00+00:00</lastmod>
+    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -189,8 +211,14 @@
   </url>
   
   <url>
+    <loc>/tags/regression/</loc>
+    <lastmod>2018-09-11T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2018-04-23T00:00:00+00:00</lastmod>
+    <lastmod>2018-09-11T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

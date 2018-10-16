@@ -30,6 +30,15 @@
     </item>
     
     <item>
+      <title>Categorical X</title>
+      <link>/tags/categorical-x/</link>
+      <pubDate>Mon, 15 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/categorical-x/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Ecology</title>
       <link>/tags/ecology/</link>
       <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
@@ -84,6 +93,15 @@
     </item>
     
     <item>
+      <title>Interaction</title>
+      <link>/tags/interaction/</link>
+      <pubDate>Mon, 15 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/interaction/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Microbiome</title>
       <link>/tags/microbiome/</link>
       <pubDate>Thu, 08 Mar 2018 00:00:00 +0000</pubDate>
@@ -104,7 +122,7 @@
     <item>
       <title>Model Averaged Predictions</title>
       <link>/tags/model-averaged-predictions/</link>
-      <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 11 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/model-averaged-predictions/</guid>
       <description></description>
@@ -131,7 +149,7 @@
     <item>
       <title>P Values</title>
       <link>/tags/p-values/</link>
-      <pubDate>Sun, 18 Mar 2018 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 11 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/p-values/</guid>
       <description></description>
@@ -161,6 +179,15 @@
       <pubDate>Thu, 08 Mar 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/reanalysis/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Regression</title>
+      <link>/tags/regression/</link>
+      <pubDate>Tue, 11 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/regression/</guid>
       <description></description>
     </item>
     

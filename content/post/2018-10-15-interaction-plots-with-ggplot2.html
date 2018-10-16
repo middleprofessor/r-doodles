@@ -1,0 +1,72 @@
+---
+title: Interaction plots with ggplot2
+author: Jeff Walker
+date: '2018-10-15'
+slug: interaction-plots-with-ggplot2
+categories:
+  - ggplot
+tags:
+  - interaction
+  - categorical X
+---
+
+
+
+<p>ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.</p>
+<p>The gg_interaction function returns a ggplot of the <em>modeled</em> means and standard errors and not the raw means and standard errors computed from each group independently. The modeled means and errors are computed using the emmeans function from the emmeans package. If a random term is passed, gg_interaction uses the function lmer, from the package lme4, to fit a linear mixed model with the random term as a random intercept.</p>
+<p>(requires ggplot2, data.table, and emmeans)</p>
+<pre class="r"><code>gg_interaction &lt;- function(x, y, random=NULL, data){
+  # x is a vector of the column labels of categorical variables
+  # y is the response column
+  # random is a column name of a blocking factor
+  # data is a data.frame or data.table
+  dt &lt;- data.table(data)
+  fixed_part &lt;- paste(y, &quot;~&quot;, paste(x[1], x[2], sep=&quot;*&quot;))
+  if(is.null(random)){ # linear model
+    lm_formula &lt;- formula(fixed_part)
+    fit &lt;- lm(lm_formula, data=dt)
+  }else{ ## linear mixed model
+    random_part &lt;- paste(&quot;(1|&quot;, random, &quot;)&quot;, sep=&quot;&quot;)
+    lmm_formula &lt;- formula(paste(fixed_part, random_part, sep=&quot; + &quot;))
+    fit &lt;- lmer(lmm_formula, data=dt)
+  }
+  fit.emm &lt;- data.table(summary(emmeans(fit, specs=x)))
+  new_names &lt;- c(&quot;f1&quot;, &quot;f2&quot;)
+  setnames(fit.emm, old=x, new=new_names)
+  pd &lt;- position_dodge(.3)
+  gg &lt;- ggplot(data=fit.emm, aes(x=f1, y=emmean, shape=f2, group=f2)) +
+    #geom_jitter(position=pd, color=&#39;gray&#39;, size=2) +
+    geom_point(color=&#39;black&#39;, size=4, position=pd) +
+    geom_errorbar(aes(ymin=(emmean-SE), ymax=(emmean+SE)), 
+                  color=&#39;black&#39;, width=.2, position=pd) +
+    geom_line(position=pd) +
+    xlab(x[1]) +
+    ylab(y) +
+    theme_bw() +
+    guides(shape=guide_legend(title=x[2])) +
+    theme(axis.title=element_text(size = rel(1.5)),
+          axis.text=element_text(size = rel(1.5)),
+          legend.title=element_text(size = rel(1.3)),
+          legend.text=element_text(size = rel(1.3))) +
+    NULL
+  return(gg)
+}</code></pre>
+<p>I use data from a study of the synergistic effect of UVB and temperature on infection intensity (citations below) to show how to use the function. The data are from a 2 x 2 factorial experiment and with a single blocking (random) factor “tank”.</p>
+<p>Dryad source: Cramp RL, Reid S, Seebacher F, Franklin CE (2014) Data from: Synergistic interaction between UVB radiation and temperature increases susceptibility to parasitic infection in a fish. Dryad Digital Repository. <a href="https://doi.org/10.5061/dryad.74b31" class="uri">https://doi.org/10.5061/dryad.74b31</a></p>
+<p>Article Source: Cramp RL, Reid S, Seebacher F, Franklin CE (2014) Synergistic interaction between UVB radiation and temperature increases susceptibility to parasitic infection in a fish. Biology Letters 10(9): 20140449. <a href="https://doi.org/10.1098/rsbl.2014.0449" class="uri">https://doi.org/10.1098/rsbl.2014.0449</a></p>
+<pre class="r"><code>library(ggplot2)
+library(readxl)
+library(data.table)
+library(lme4)
+library(emmeans)</code></pre>
+<pre class="r"><code>data_path &lt;- &quot;../data&quot;
+folder &lt;- &quot;Data from Synergistic interaction between UVB radiation and temperature increases susceptibility to parasitic infection in a fish&quot;
+filename &lt;- &quot;Cramp et al raw data.xlsx&quot;
+file_path &lt;- paste(data_path, folder, filename, sep=&quot;/&quot;)
+fish &lt;- data.table(read_excel(file_path, sheet=&quot;Infection Intensity&quot;))
+setnames(fish, old=colnames(fish), new=c(&quot;UV&quot;, &quot;Temp&quot;, &quot;Tank&quot;, &quot;Whitespots&quot;))
+fish[, UV:=factor(UV, c(&quot;Low&quot;, &quot;High&quot;))]
+fish[, Temp:=factor(Temp)]
+gg &lt;- gg_interaction(x=c(&quot;UV&quot;, &quot;Temp&quot;), y=&quot;Whitespots&quot;, random=&quot;Tank&quot;, data=fish)
+gg</code></pre>
+<p><img src="/post/2018-10-15-interaction-plots-with-ggplot2_files/figure-html/gg_interaction-example-1.png" width="672" /></p>
