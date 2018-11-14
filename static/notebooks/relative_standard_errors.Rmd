@@ -100,7 +100,7 @@ The relative effect $100\frac{\bar{y}_B - \bar{y}_A}{\bar{y}_A}$ is a non-linear
 \mathrm{VAR}(G(X)) \approx \nabla G(X)^\top \mathrm{COV}(X) \nabla G(X)
 \end{equation}
 
-where $nabla G(X)$ is the gradient of the function $G(X)$, which is a vector of partial derivatives -- think of this as the vector specifying the direction of the steepest ascent at some point on the surface of $G(X)$.
+where $\nabla G(X)$ is the gradient of the function $G(X)$, which is a vector of partial derivatives -- think of this as the vector specifying the direction of the steepest ascent at some point on the surface of $G(X)$.
 
 The Delta method is easily applied to any linear model, including a hierarchical models and generalized linear models. And it is even easier in R thanks to the `deltamethod` function from the msm package.
 
