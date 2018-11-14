@@ -54,7 +54,7 @@ If we are to follow best practices, we should present this effect with a measure
 relative\_CI = 100\frac{absolute\_CI}{\bar{y}_A}
 \end{equation}
 
-For the fly example, the 95% naive relative CIs are $100\frac{48.7}{117.5} = 41.4\%$ and $100\frac{69.3}{117.5} = 59.0\%$. These are easy to compute but wrong because the error in estimating a relative difference is a function of the error in estimating both the numerator (the absolute difference) and the denominator (the reference mean). The consequence is that naive relative confidence intervals are too narrow (or too optimistic, or suggest too much precision).
+For the fly example, the 95% naive relative CI is bounded by $100\frac{48.7}{117.5} = 41.4\%$ and $100\frac{69.3}{117.5} = 59.0\%$. These are easy to compute but wrong because the error in estimating a relative difference is a function of the error in estimating both the numerator (the absolute difference) and the denominator (the reference mean). The consequence is that naive relative confidence intervals are too narrow (or too optimistic, or suggest too much precision).
 
 ## Back-transformed intervals from log-transformed data.
 
