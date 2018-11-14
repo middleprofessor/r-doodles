@@ -267,6 +267,10 @@ ga('send', 'pageview');
                   ecology
                 </a>
               
+                <a class="tag tag--primary tag--small" href="#effect-size-list" data-tag="effect-size">
+                  effect-size
+                </a>
+              
                 <a class="tag tag--primary tag--small" href="#model-averaged-predictions-list" data-tag="model-averaged-predictions">
                   model-averaged-predictions
                 </a>
@@ -287,8 +291,8 @@ ga('send', 'pageview');
                   categorical-x
                 </a>
               
-                <a class="tag tag--primary tag--small" href="#effect-size-list" data-tag="effect-size">
-                  effect-size
+                <a class="tag tag--primary tag--small" href="#confidence-interval-list" data-tag="confidence-interval">
+                  confidence-interval
                 </a>
               
                 <a class="tag tag--primary tag--small" href="#fake-data-list" data-tag="fake-data">
@@ -403,6 +407,35 @@ ga('send', 'pageview');
                         </a>
                         <span class="archive-post-date"> - 
   May 13, 2018
+</span>
+                      </li>
+                    
+                  </ul>
+                </div>
+              
+                <div id="effect-size-list" class="archive box" data-tag="effect-size">
+                  <h4 class="archive-title">
+                    <a class="link-unstyled" href="effect-size">
+                      effect-size (2)
+                    </a>
+                  </h4>
+                  <ul class="archive-posts">
+                    
+                      <li class="archive-post">
+                        <a class="archive-post-title" href="/2018/03/combining-data-distribution-summary-model-effects-and-uncertainty-in-a-single-plot/">
+                          Combining data, distribution summary, model effects, and uncertainty in a single plot
+                        </a>
+                        <span class="archive-post-date"> - 
+  March 27, 2018
+</span>
+                      </li>
+                    
+                      <li class="archive-post">
+                        <a class="archive-post-title" href="/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/">
+                          Reporting effects as relative differences...with a confidence interval
+                        </a>
+                        <span class="archive-post-date"> - 
+  November 14, 2018
 </span>
                       </li>
                     
@@ -527,20 +560,20 @@ ga('send', 'pageview');
                   </ul>
                 </div>
               
-                <div id="effect-size-list" class="archive box" data-tag="effect-size">
+                <div id="confidence-interval-list" class="archive box" data-tag="confidence-interval">
                   <h4 class="archive-title">
-                    <a class="link-unstyled" href="effect-size">
-                      effect-size (1)
+                    <a class="link-unstyled" href="confidence-interval">
+                      confidence-interval (1)
                     </a>
                   </h4>
                   <ul class="archive-posts">
                     
                       <li class="archive-post">
-                        <a class="archive-post-title" href="/2018/03/combining-data-distribution-summary-model-effects-and-uncertainty-in-a-single-plot/">
-                          Combining data, distribution summary, model effects, and uncertainty in a single plot
+                        <a class="archive-post-title" href="/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/">
+                          Reporting effects as relative differences...with a confidence interval
                         </a>
                         <span class="archive-post-date"> - 
-  March 27, 2018
+  November 14, 2018
 </span>
                       </li>
                     
@@ -819,6 +852,26 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/">
+                <h3 class="media-heading">Reporting effects as relative differences...with a confidence interval</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Nov 11, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Researchers frequently report results as relative effects, for example,
+“Male flies from selected lines had 50% larger upwind flight ability than male flies from control lines (Control mean: 117.5 cm/s; Selected mean 176.5 cm/s).”
+where a relative effect is
+\[\begin{equation} 100 \frac{\bar{y}_B - \bar{y}_A}{\bar{y}_A} \end{equation}\] If we are to follow best practices, we should present this effect with a measure of uncertainty, such as a confidence interval. The absolute effect is 59.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/10/interaction-plots-with-ggplot2/">
                 <h3 class="media-heading">Interaction plots with ggplot2</h3>
               </a>
@@ -979,24 +1032,6 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
-                <h3 class="media-heading">What is the range of reasonable P-values given a two standard error difference in means?</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Mar 3, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
- I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -1004,7 +1039,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         12 posts found
+         13 posts found
       </p>
     </div>
   </div>

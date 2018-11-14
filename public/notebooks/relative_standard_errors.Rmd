@@ -1,0 +1,486 @@
+---
+title: "Reporting effects as relative differences...with a confidence interval"
+output:
+  html_notebook:
+    code_folding: hide
+    theme: united
+    toc: true
+    number_sections: true
+---
+
+```{r setup, echo=FALSE, message=FALSE, comment=FALSE, warning=FALSE}
+library(ggplot2)
+library(emmeans)
+library(data.table)
+library(msm) #deltamethod
+library(harrellplot)
+library(cowplot)
+data_path <- "../data"
+```
+
+```{r flyplot, echo=FALSE}
+# path <- 'manuscript/data/' # for console
+filename <- 'fly_burst.txt'
+file_path <- paste(data_path, filename, sep='/') # for knit
+fly <- fread(file_path, stringsAsFactors = TRUE)
+fly[, Treatment:=factor(Treatment, c('CN', 'AA'))]
+
+fit <- lm(Vburst ~ Treatment*Sex, data=fly)
+fit.emm <- emmeans(fit, specs=c("Treatment", "Sex"))
+fit.eff <- summary(contrast(fit.emm, adjust="none", method="revpairwise"),  infer=c(TRUE, TRUE))
+
+res1 <- harrellplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, interaction.group = TRUE, contrasts.method = 'revpairwise', y_label = ('Burst Speed (cm/s)'))
+res2 <- harrellplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, interaction.group = TRUE, contrasts.method = 'revpairwise',  contrasts.scaling = "percent", y_label = ('Burst Speed (cm/s)'))
+# plot_grid(res1$gg, res2$gg, ncol=2, labels="AUTO")
+```
+
+# Researchers frequently report results as relative effects
+
+For example,
+
+"Male flies from selected lines had 50% larger upwind flight ability than male flies from control lines (Control mean: 117.5 cm/s; Selected mean 176.5 cm/s)."
+
+where a relative effect is
+
+\begin{equation}
+100 \frac{\bar{y}_B - \bar{y}_A}{\bar{y}_A}
+\end{equation}
+
+If we are to follow best practices, we should present this effect with a measure of uncertainty, such as a confidence interval. The absolute effect is 59.0 cm/s and the 95% CI of this effect is (48.7, 69.3 cm/s). But if we present the result as a relative effect, or percent difference from some reference value, how do we compute a "relative CI"?
+
+# Four methods to compute the standard error and CI of a relative effect
+## Naive relative confidence intervals
+
+\begin{equation}
+relative\_CI = 100\frac{absolute\_CI}{\bar{y}_A}
+\end{equation}
+
+For the fly example, the 95% naive relative CIs are $100\frac{48.7}{117.5} = 41.4\%$ and $100\frac{69.3}{117.5} = 59.0\%$. These are easy to compute but wrong because the error in estimating a relative difference is a function of the error in estimating both the numerator (the absolute difference) and the denominator (the reference mean). The consequence is that naive relative confidence intervals are too narrow (or too optimistic, or suggest too much precision).
+
+## Back-transformed intervals from log-transformed data.
+
+This post is motivated by the post [The percent difference fallacy and a solution: the ratio t-test](http://scienceblog.darrouzet-nardi.net/?p=2066) from Anthony Darrouzet-Nardi at [Anthony's Science blog](http://scienceblog.darrouzet-nardi.net). Anthony suggests a clever solution for a simple, linear model with a single factor with two levels (or a "t-test" design): the relative CIs are the backtransformed CIs of the effect of the log-transformed data.
+
+1. log transform the response variable
+2. run the linear model $log(y) = b_0 + b_1 Treatment$
+3. compute the CI of $b_1$
+4. backtransform using $100(\mathrm{exp}(CI) - 1)$
+
+Let's think about this.
+
+1. The coefficient $b_1$ of the linear model of log transformed $y$ is $\overline{\mathrm{log}(y_B)} - \overline{\mathrm{log}(y_A)}$
+2. This is the difference in the logs of the geometric means of group B and group A, where a geometric mean is
+3. $GM=(\Pi y)^\frac{1}{n}$ and the log of a geometric mean is
+4. $\mathrm{log}(GM) = \mathrm{log}((\Pi y)^\frac{1}{n}) = \frac{1}{n}\sum{\mathrm{log}(y)}$ (note that the typical way to compute a geometric mean is using a log transformation since this is unlikely to blow up to really big values)
+5. And because the difference of two logs is the log of their ratio, $b_1 = \overline{\mathrm{log}(y_B)} - \overline{\mathrm{log}(y_A)} = \mathrm{log}(\frac{GM_B}{GM_A})$, and
+6. $\mathrm{exp}(b_1) = \frac{GM_B}{GM_A}$
+7. Backtransforming $b_1$ gives us the multiplier. To get the percent difference as a fraction, we need to subtract 1, therefore
+8. $\mathrm{exp}(b_1) - 1 = \frac{GM_B}{GM_A} - 1$, which is equal to
+9. $\mathrm{exp}(b_1) - 1 = \frac{GM_B}{GM_A} - \frac{GM_A}{GM_A}$, which is equal to
+10. $\mathrm{exp}(b_1) - 1 = \frac{GM_B - GM_A}{GM_A}$, so, the relative difference of log-transformed $y$ backtransformed and converted to a percent is
+
+\begin{equation}
+100(\mathrm{exp}(b_1) - 1) = 100(\frac{GM_B - GM_A}{GM_A})
+\end{equation}
+
+In other words, the CI using the backtransformed CI of the log-transformed $y$ is of the relative difference of the **geometric means**, not the arithmetic means. To think about this estimate of the CI of the relative effect, it helps to remember that the geometric mean is always smaller (closer to zero) than the arithmetic mean, so the numerator is a difference of slightly smaller values, and the denominator is a sligtly smaller values. I'll return to this. A potential problem with this method is, how to generalize it for more complex models, such as single factor models with more than two levels, or factorial models, or models with continuous covariates.
+
+## The Delta method
+
+The relative effect $100\frac{\bar{y}_B - \bar{y}_A}{\bar{y}_A}$ is a non-linear transformation of the absolute effect. The standard error of a non-linear transformation $G(X)$ of random variable can be approximated using a Taylor series approximation, using
+
+\begin{equation}
+\mathrm{VAR}(G(X)) \approx \nabla G(X)^\top \mathrm{COV}(X) \nabla G(X)
+\end{equation}
+
+where $nabla G(X)$ is the gradient of the function $G(X)$, which is a vector of partial derivatives -- think of this as the vector specifying the direction of the steepest ascent at some point on the surface of $G(X)$.
+
+The Delta method is easily applied to any linear model, including a hierarchical models and generalized linear models. And it is even easier in R thanks to the `deltamethod` function from the msm package.
+
+## Bootstrap standard errors and CI
+
+The bootstrap standard error of a relative effect is simply the standard deviation of the vector of $k$ relative effects, with each relative effect computed from a random sample (with replacement) of the original data. There are several methods for computing a bootstrap CI, the simplest is to simply use percentiles (e.g. 0.025 and 0.975) of the vector of re-sampled relative effects.
+
+# Comparing CIs computed using the naive, log, and Delta methods
+
+Sorry, no comparison with a bootstrap because this is a quick report!
+
+## Single factor with two levels ("t-test")
+
+```{r two-level, eval=TRUE}
+set.seed(1)
+n <- 27 # average n over the four groups of flies
+b0 <- 117.5 # control males
+b1 <- 176.5 - b0 # effect of selection in males
+
+# parameters gathered into vector
+b <- c(b0, b1)
+
+# error standard deviation
+sigma <- 19.2 # residual standard error of fly data
+
+# expected effects on percent scale
+b1.p <- b1/b0*100
+
+# make model matrix
+selection_levels <- c("CN", "AA") #AA is selected
+x <- data.table(Treatment=factor(rep(selection_levels, each=n), selection_levels))
+X <- model.matrix(formula(~Treatment), x)
+
+# make data
+niter <- 10^4
+res1 <- matrix(NA, nrow=niter, ncol=2) # naive
+colnames(res1) <- c("ci.low", "ci.high")
+res2 <- matrix(NA, nrow=niter, ncol=2) # log ratio
+colnames(res2) <- c("ci.low", "ci.high")
+res3 <- matrix(NA, nrow=niter, ncol=2) # delta
+colnames(res3) <- c("ci.low", "ci.high")
+for(iter in 1:niter){
+  y <- (X%*%b + rnorm(n*2, sd=sigma))[,1]
+  fd <- data.table(Y=y, x)
+  fit1 <- lm(Y~Treatment, data=fd)
+  bhat <- coef(fit1)
+  
+  # naive method
+  ci <- confint(fit1)["TreatmentAA", ]
+  res1[iter, ] <- ci/bhat[1]*100
+  
+  # log method
+  fit1.log <- lm(log(Y)~Treatment, data=fd)
+  ci <- exp(confint(fit1.log)["TreatmentAA", ])-1
+  res2[iter, ] <- ci*100
+
+  # delta method
+  df <- fit1$df.residual
+  tcrit <- qt(.975, df)
+  sd <- summary(fit1)$sigma
+  se <- deltamethod(~x2/x1, mean=coef(fit1), cov=vcov(fit1))
+  res3[iter, "ci.low"] <- 100*(bhat[2]/bhat[1] - tcrit*se)
+  res3[iter, "ci.high"] <- 100*(bhat[2]/bhat[1] + tcrit*se)
+  
+  # fun math
+  # G(X) = b1/b0 or y/x or x2/x1
+  # del(y/x) = (y/x^2, 1/x)
+  # del(b1/b0) = (b1/b0^2, 1/b0)
+  # del <- c(bhat[2]/bhat[1]^2, 1/bhat[1])
+  # se.fun <- sqrt(t(del)%*%vcov(fit1)%*%del)
+}
+
+naive <- length(which(res1[,"ci.low"] < b1.p & res1[,"ci.high"] > b1.p))/niter*100
+logratio <- length(which(res2[,"ci.low"] < b1.p & res2[,"ci.high"] > b1.p))/niter*100
+delta <- length(which(res3[,"ci.low"] < b1.p & res3[,"ci.high"] > b1.p))/niter*100
+
+res_table <- data.table(Method=c("naive", "log", "delta"),
+                        Coverage=round(c(naive, logratio, delta),1))
+knitr::kable(res_table)
+```
+
+The table above shows the long run ($10^4$ runs) frequency of CIs that include the true relative difference for each of the three methods. The simulation confirms that a naive CI is too narrow, which is why far fewer than 95% of the CIs covered the true value. The narrow interval implies a standard error that is too small, and a $t$-value that is too large, and a $p$-value that is too "optimistic".
+
+Both the log transform and espeically Delta methods have close to the nominal coverage. Nevertheless, there are interesting differences between the log and Delta methods.
+
+```{r two-level-plot}
+p1 <- qplot(res2[,1], res3[,1]) +
+  xlab("Lower CI (log method)") +
+  ylab("Lower CI (Delta method)") +
+  geom_abline(intercept=0, slope=1, color="red") +
+  NULL
+p2 <- qplot(res2[,2], res3[,2]) +
+  xlab("Upper CI (log method)") +
+  ylab("Upper CI (Delta method)") +
+  geom_abline(intercept=0, slope=1, color="red") +
+  NULL
+plot_grid(p1, p2, ncol=2, labels="AUTO")
+```
+
+The plots above show that the CIs estimated using the log transformation is "right" shifted (i.e. to larger values) compared to the CIs estimated using the Delta method. This right shift is because the mean in the denominator of the relative effect is a geometric mean using the log method, but an arithemetic mean using the Delta method. Because a geometric mean is always smaller than the arithmetic mean, the relative effect using the log method will be bigger than the relative effect computed using the Delta method. More curiously, how can both methods have seemingly good coverage if the CI computed using the log method is right-shifted relative to the CI computed using the Delta method?
+
+```{r two-level-shift}
+logratio.lo <- length(which(res2[,"ci.low"] > b1.p))/niter*100
+delta.lo <- length(which(res3[,"ci.low"] > b1.p))/niter*100
+logratio.hi <- length(which(res2[,"ci.high"] < b1.p))/niter*100
+delta.hi <- length(which(res3[,"ci.high"] < b1.p))/niter*100
+
+res_table <- data.table(Method=c("log", "delta"),
+                        Lower=round(c(logratio.lo, delta.lo),1),
+                        Upper=round(c(logratio.hi, delta.hi),1)
+                        )
+knitr::kable(res_table)
+```
+
+The table above gives the long run frequency of true relative effects that are less than the lower CI or greater than the upper CI for the log and Delta methods. The log method shows a higher than expected frequency at the lower CI and lower than expected frequency at the upper CI, indicated that the CIs computed using the log transformation are slightly right-shifted. The Delta method shows the opposite pattern, indicating that the CIs computed using the Delta method are slightly left-shifted. I assume these shifts are real (although they may be conditional on the parameterization) and not just sample artifacts. Regardless, despite these shifts, the coverage over the range is close to (or equal to for the Delta method) the expected coverage.
+
+## Single factor with four levels ("post-hoc")
+
+The Delta method is easily applied to more complex designs but its not clear how to implement the log method in more complex designs. For example, if there are four levels in a factor and we want the contrast and CIs for all six pairwise effects, do we just log transform the response and backtransform the CIs of the contrasts (the "whole model" log method) or do we do the log method on all six contrasts independently (the "pairwise" log method)?
+
+Here, I evaluate the two log methods, as well as the naive and Delta methods, by comparing the relative difference of three non-reference levels of the fly data (selected females, control males, selected males) from the reference level (control females or "CN-F").
+
+```{r four-levels, eval=FALSE}
+# use the four fly levels but pretend it is not factorial
+set.seed(1)
+n <- 27 # average n over the four groups of flies
+# means
+mu <- c(131.6, 181.0, 117.5, 176.5) #CN-F, AA-F, CN-M, AA-M
+b0 <- 131.6 # control females
+b1 <- 181.0 - b0 # effect of selection in females
+b2 <- 117.5 - b0 # effect of male in control
+b3 <- 176.5 - b0 # effect of selection and male -- not an interaction effect!
+
+# parameters gathered into vector
+b <- c(b0, b1, b2, b3)
+
+# error standard deviation
+sigma <- 19.2 # residual standard error of fly data
+
+# expected effects on response and percent scale
+# call the expected
+b1.p <- b1/b0*100
+b2.p <- b2/b0*100
+b3.p <- b3/b0*100
+
+# make model matrix
+A_levels <- c("CN-F", "AA-F", "CN-M", "AA-M")
+x <- data.table(Treatment=factor(rep(A_levels, each=n), factor(A_levels)))
+X <- model.matrix(formula(~Treatment), x)
+n_cells <- length(levels(x$Treatment))
+
+# make data
+niter <- 10^4
+res1.lo <- matrix(NA, nrow=niter, ncol=3) # naive
+res1.up <- matrix(NA, nrow=niter, ncol=3) # naive
+res2.lo <- matrix(NA, nrow=niter, ncol=3) # log
+res2.up <- matrix(NA, nrow=niter, ncol=3) # log
+res3.lo <- matrix(NA, nrow=niter, ncol=3) # delta
+res3.up <- matrix(NA, nrow=niter, ncol=3) # delta
+res4.lo <- matrix(NA, nrow=niter, ncol=3) # log-pairwise
+res4.up <- matrix(NA, nrow=niter, ncol=3) # log-pairwise
+for(iter in 1:niter){
+  y <- (X%*%b + rnorm(n*n_cells, sd=sigma))[,1]
+  fd <- data.table(Y=y, x)
+  fit1 <- lm(Y~Treatment, data=fd)
+  bhat <- coef(fit1)
+  # contrast(emmeans(fit1, specs="Treatment"), adjust="none", method="revpairwise")
+  
+  # naive method
+  ci.lo <- confint(fit1)[2:4, "2.5 %"]
+  ci.up <- confint(fit1)[2:4, "97.5 %"]
+  res1.lo[iter, ] <- ci.lo/bhat[1]*100
+  res1.up[iter, ] <- ci.up/bhat[1]*100
+  
+  # log method 1 - run everything at once
+  fit2 <- lm(log(Y)~Treatment, data=fd)
+  ci.lo <- exp(confint(fit2)[2:4, "2.5 %"]) - 1
+  ci.up <- exp(confint(fit2)[2:4, "97.5 %"]) - 1
+  res2.lo[iter, ] <- ci.lo*100
+  res2.up[iter, ] <- ci.up*100
+  
+  # log method 2 -- pairwise
+  fit2 <- lm(log(Y)~Treatment, data=fd[Treatment=="CN-F" | Treatment=="AA-F"])
+  ci.lo <- exp(confint(fit2)[2, "2.5 %"]) - 1
+  ci.up <- exp(confint(fit2)[2, "97.5 %"]) - 1
+  res4.lo[iter, 1] <- ci.lo*100
+  res4.up[iter, 1] <- ci.up*100
+
+  fit2 <- lm(log(Y)~Treatment, data=fd[Treatment=="CN-F" | Treatment=="CN-M"])
+  ci.lo <- exp(confint(fit2)[2, "2.5 %"]) - 1
+  ci.up <- exp(confint(fit2)[2, "97.5 %"]) - 1
+  res4.lo[iter, 2] <- ci.lo*100
+  res4.up[iter, 2] <- ci.up*100
+
+  fit2 <- lm(log(Y)~Treatment, data=fd[Treatment=="CN-F" | Treatment=="AA-M"])
+  ci.lo <- exp(confint(fit2)[2, "2.5 %"]) - 1
+  ci.up <- exp(confint(fit2)[2, "97.5 %"]) - 1
+  res4.lo[iter, 3] <- ci.lo*100
+  res4.up[iter, 3] <- ci.up*100
+
+  # delta method
+  df <- fit1$df.residual
+  tcrit <- qt(.975, df)
+  sd <- summary(fit1)$sigma
+  se <- c(
+    deltamethod(~x2/x1, mean=coef(fit1), cov=vcov(fit1)),
+    deltamethod(~x3/x1, mean=coef(fit1), cov=vcov(fit1)),
+    deltamethod(~x4/x1, mean=coef(fit1), cov=vcov(fit1))
+  )
+  res3.lo[iter, ] <- 100*(bhat[2:4]/bhat[1] - tcrit*se)
+  res3.up[iter, ] <- 100*(bhat[2:4]/bhat[1] + tcrit*se)
+}
+
+naive <- c(length(which(res1.lo[,1] < b1.p & res1.up[,1] > b1.p))/niter*100,
+           length(which(res1.lo[,2] < b2.p & res1.up[,2] > b2.p))/niter*100,
+           length(which(res1.lo[,3] < b3.p & res1.up[,3] > b3.p))/niter*100
+)
+logratio1 <- c(length(which(res2.lo[,1] < b1.p & res2.up[,1] > b1.p))/niter*100,
+              length(which(res2.lo[,2] < b2.p & res2.up[,2] > b2.p))/niter*100,
+              length(which(res2.lo[,3] < b3.p & res2.up[,3] > b3.p))/niter*100
+)
+logratio2 <- c(length(which(res4.lo[,1] < b1.p & res4.up[,1] > b1.p))/niter*100,
+              length(which(res4.lo[,2] < b2.p & res4.up[,2] > b2.p))/niter*100,
+              length(which(res4.lo[,3] < b3.p & res4.up[,3] > b3.p))/niter*100
+)
+delta <- c(length(which(res3.lo[,1] < b1.p & res3.up[,1] > b1.p))/niter*100,
+           length(which(res3.lo[,2] < b2.p & res3.up[,2] > b2.p))/niter*100,
+           length(which(res3.lo[,3] < b3.p & res3.up[,3] > b3.p))/niter*100
+)
+res.table <- data.table(rbind(naive, logratio1, logratio2, delta))
+colnames(res.table) <- c("AAF-CNF", "CNM-CNF", "AAM-CNF")
+res.table <- cbind(Method=c("naive", "log", "log-pw", "Delta"), res.table)
+knitr::kable(res.table, digits=c(0,1,1,1))
+```
+
+The table above shows the long run ($10^4$ runs) frequency of CIs that include the true relative difference for each of the three contrasts (differences from CN-F) for each of the four methods, including both the whole-model and pairwise log methods. The whole-model log method can have intervals that are two narrow, as indicated by the lower-than-nominal frequency for the CN-F relative difference. The frequencies of the run-pairwise log method and Deta method look pretty good, but this is only one parameterization.
+
+## 2 x 2 factorial
+```{r factorial, eval=TRUE}
+# use the four fly levels but pretend it is not factorial
+set.seed(1)
+n <- 27 # average n over the four groups of flies
+# means
+mu <- c(131.6, 181.0, 117.5, 176.5) #CN-F, AA-F, CN-M, AA-M
+b0 <- 131.6 # control females
+b1 <- 181.0 - b0 # effect of selection in females
+b2 <- 117.5 - b0 # effect of male in control
+b3 <- 176.5 - (b0 + b1 + b2) # interaction effect!
+
+# parameters gathered into vector
+b <- c(b0, b1, b2, b3)
+
+# error standard deviation
+sigma <- 19.2 # residual standard error of fly data
+
+# expected effects on response and percent scale
+# there are 2 x 2 = four pairwise effects (of one treatment within each level of the other treatment)
+# call these A0 and A1, B0 and B1
+# call the expected
+A0 <- b1
+A1 <- ((b0+b1+b2+b3)-(b0+b2))
+A0.p <- 100*A0/b0
+A1.p <- 100*A1/(b0+b2)
+
+# make model matrix
+A_levels <- factor(rep(c("CN", "AA"), each=n), c("CN", "AA"))
+B_levels <- factor(c("F", "M"))
+x <- expand.grid(Treatment=A_levels,Sex=B_levels)
+X <- model.matrix(formula(~Treatment*Sex), x)
+
+
+set.seed(1)
+niter <- 10^4
+methods <- c("naive", "log", "log-pw", "Delta")
+n.methods <- length(methods)
+res <- data.frame(method=rep(methods, niter),
+                  A0.lo=NA,
+                  A0.up=NA,
+                  A1.lo=NA,
+                  A1.up=NA)
+row.e <- 0 # end row for saving 
+for(iter in 1:niter){
+  # make data
+  y <- (X%*%b + rnorm(n*4, sd=sigma))[,1]
+  fd <- data.table(Y=y, x)
+  
+  # fit
+  fit <- lm(Y~Treatment*Sex, data=fd)
+  fit.emm <- emmeans(fit, specs=c("Treatment", "Sex"))
+  fit.eff <- summary(contrast(fit.emm, adjust="none", method="revpairwise"), infer=c(TRUE, TRUE))
+  
+  # cell means
+  ybar11 <- summary(fit.emm)[1, "emmean"] # CN-F
+  ybar21 <- summary(fit.emm)[2, "emmean"] # AA-F
+  ybar12 <- summary(fit.emm)[3, "emmean"] # CN-M
+  ybar22 <- summary(fit.emm)[4, "emmean"] # AA-M
+  
+  # naive convert CI to percent
+  naive <- 100*c(
+    fit.eff[1, "lower.CL"]/ybar11,
+    fit.eff[1, "upper.CL"]/ybar11,
+    fit.eff[6, "lower.CL"]/ybar12,
+    fit.eff[6, "upper.CL"]/ybar12
+  )
+
+  # log method 1 -- run everything at once
+  fit2 <- lm(log(Y)~Treatment*Sex, data=fd)
+  fit2.emm <- emmeans(fit2, specs=c("Treatment", "Sex"))
+  fit2.eff <- summary(contrast(fit2.emm, adjust="none", method="revpairwise"), infer=c(TRUE, TRUE))
+  logratio1 <- 100*c(
+    exp(fit2.eff[1, "lower.CL"])-1,
+    exp(fit2.eff[1, "upper.CL"])-1,
+    exp(fit2.eff[6, "lower.CL"])-1,
+    exp(fit2.eff[6, "upper.CL"])-1
+  )
+  
+  # log method 2 -- pairwise
+  combos <- c("CN-F", "AA-F", "CN-M", "AA-M")
+  fd[, combo:=factor(paste(Treatment, Sex, sep="-"), combos)]
+  fit2 <- lm(log(Y)~combo, data=fd[combo=="CN-F" | combo=="AA-F"])
+  ci.lo1 <- exp(confint(fit2)[2, "2.5 %"]) - 1
+  ci.up1 <- exp(confint(fit2)[2, "97.5 %"]) - 1
+
+  fit2 <- lm(log(Y)~combo, data=fd[combo=="CN-M" | combo=="AA-M"])
+  ci.lo2 <- exp(confint(fit2)[2, "2.5 %"]) - 1
+  ci.up2 <- exp(confint(fit2)[2, "97.5 %"]) - 1
+  
+  logratio2 <- 100*c(ci.lo1, ci.up1, ci.lo2, ci.up2)
+
+  # delta
+  A0hat.p <- fit.eff[1, "estimate"]/ybar11
+  A1hat.p <- fit.eff[6, "estimate"]/ybar12
+  se <- c(
+    deltamethod(~x2/x1, mean=coef(fit), cov=vcov(fit)),
+    deltamethod(~(x2+x4)/(x1+x3), mean=coef(fit), cov=vcov(fit))
+  )
+  delta <- 100*c(
+    A0hat.p-tcrit*se[1],
+    A0hat.p+tcrit*se[1],
+    A1hat.p-tcrit*se[2],
+    A1hat.p+tcrit*se[2]
+  )
+  row.s <- row.e + 1
+  row.e <- row.s + n.methods - 1
+  res[row.s:row.e, 2:(n.methods+1)] <-rbind(naive, logratio1, logratio2, delta)
+}
+res <- data.table(res)
+
+method_k <- "naive"
+naive <- c(
+  length(which(res[method==method_k,A0.lo] < A0.p & res[method==method_k,A0.up] > A0.p))/niter*100,
+  length(which(res[method==method_k,A1.lo] < A1.p & res[method==method_k,A1.up] > A1.p))/niter*100
+)
+
+method_k <- "log"
+logratio1 <- c(
+  length(which(res[method==method_k,A0.lo] < A0.p & res[method==method_k,A0.up] > A0.p))/niter*100,
+  length(which(res[method==method_k,A1.lo] < A1.p & res[method==method_k,A1.up] > A1.p))/niter*100
+)
+
+method_k <- "log-pw"
+logratio2 <- c(
+  length(which(res[method==method_k,A0.lo] < A0.p & res[method==method_k,A0.up] > A0.p))/niter*100,
+  length(which(res[method==method_k,A1.lo] < A1.p & res[method==method_k,A1.up] > A1.p))/niter*100
+)
+
+method_k <- "Delta"
+delta <- c(
+  length(which(res[method==method_k,A0.lo] < A0.p & res[method==method_k,A0.up] > A0.p))/niter*100,
+  length(which(res[method==method_k,A1.lo] < A1.p & res[method==method_k,A1.up] > A1.p))/niter*100
+)
+
+res.table <- data.table(rbind(naive, logratio1, logratio2, delta))
+colnames(res.table) <- c("AAF-CNF", "AAM-CNM")
+res.table <- cbind(Method=c("naive", "log", "log-pw", "Delta"), res.table)
+knitr::kable(res.table, digits=c(0,1,1))
+
+```
+
+The table above shows the long run ($10^4$ runs) frequency of CIs that include the true relative difference for the two simple effects of the selection factor for each of the four methods, including both the whole-model and pairwise log methods. Again, the pairwise log method and Delta method have pretty good coverage. The whole-model log method is less good and the naive method is even less good!
+
+# (probably not) Final thoughts
+
+Do not report naive CIs of relative effects! And, if you are emphasizing some aspect of inference using a relative effect, such as a $p$-value, make sure the $p$-value is computed from a statistically correct standard error, which isn't a naive SE (the absolute SE divided by the reference mean times 100).
+
+If the model is anything more complex than a simple $t$-test, do not use the log method on the whole model but instead use the log method on specific contrasts. This "pairwise" log method has pretty good results and the CIs are pretty easy to compute, although I explored this with only a single parameterization of only a few, simple linear models.
+
+The Delta method is somewhat more satisfying than the pairwise log method since it uses the whole model. And it also has pretty good results, with the caveat that I explored this with only a single parameterization of only a few, simple linear models.
+
+While relative effects give us some since of the bigness of an effect, a general problem with reporting results as relative effects is that it discourages us from doing the hard work of working out the biological (including physiological, ecological, evolutionary) consequences of absolute effects. Consider this when presenting results as relative effects.

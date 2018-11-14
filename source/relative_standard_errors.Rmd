@@ -1,0 +1,378 @@
+---
+title: How to compute a standard error (and confidence interval) of a difference in
+  means scaled as a percent difference
+author: "Jeff Walker"
+date: '2018-11-12'
+slug: how-to-compute-a-standard-error-and-confidence-interval-of-a-difference-in-means-scaled-as-a-percent-difference
+tags:
+- categorical X
+- effect size
+- confidence interval
+categories: stats 101
+---
+(This post is motivated by the post [The percent difference fallacy and a solution: the ratio t-test](http://scienceblog.darrouzet-nardi.net/?p=2066) from Anthony Darrouzet-Nardi at [Anthony's Science blog](http://scienceblog.darrouzet-nardi.net). Darrouzet-Nardi's blog post had two main points, 1) the CIs of this effect scaled as a percent is not easily intuited from a p-value, and 2) the CIs on the percent-scale are not simple transformations of the CIs on the response scale, and a solution for the simplest of designs -- a the CIs the log transformed response back-transformed to the response scale. Here I offer a more general solution and also a few more notes on funny behavor.)
+
+
+```{r setup, echo=FALSE, message=FALSE, comment=FALSE, warning=FALSE}
+library(ggplot2)
+library(emmeans)
+library(data.table)
+library(msm) #deltamethod
+library(harrellplot)
+library(cowplot)
+data_path <- "../data"
+```
+
+```{r flyplot, echo=FALSE}
+# path <- 'manuscript/data/' # for console
+filename <- 'fly_burst.txt'
+file_path <- paste(data_path, filename, sep='/') # for knit
+fly <- fread(file_path, stringsAsFactors = TRUE)
+fly[, Treatment:=factor(Treatment, c('CN', 'AA'))]
+
+fit <- lm(Vburst ~ Treatment*Sex, data=fly)
+fit.emm <- emmeans(fit, specs=c("Treatment", "Sex"))
+fit.eff <- summary(contrast(fit.emm, adjust="none", method="revpairwise"),  infer=c(TRUE, TRUE))
+
+res1 <- harrellplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, interaction.group = TRUE, contrasts.method = 'revpairwise', y_label = ('Burst Speed (cm/s)'))
+res2 <- harrellplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, interaction.group = TRUE, contrasts.method = 'revpairwise',  contrasts.scaling = "percent", y_label = ('Burst Speed (cm/s)'))
+# plot_grid(res1$gg, res2$gg, ncol=2, labels="AUTO")
+```
+
+Researchers frequently report results as relative effects, for example, "Male flies from selected lines had 50% larger upwind flight ability than male flies from control lines (Control mean: 117.5 cm/s; Selected mean 176.5 cm/s)." If we are to follow best practices, we should present this effect with a measure of uncertainty, such as a confidence interval. The absolute effect is 59.0 cm/s and the 95% CI of this effect is (48.7, 69.3 cm/s). But if we present the result as a relative effect, or percent difference from some reference value, how do we compute a "relative CI"?
+
+## Naive relative confidence intervals
+
+\begin{equation}
+relative\_CI = 100\frac{absolute\_CI}{\bar{y}_A}
+\end{equation}
+
+For the fly example, the 95% naive relative CIs are $100\frac{48.7}{117.5} = 41.4\%$ and $100\frac{69.3}{117.5} = 59.0\%$. These are easy to compute but wrong because the error in estimating a relative difference is a function of the error in estimating both the numerator (the absolute difference) and the denominator (the reference mean). The consequence is that naive relative confidence intervals are too narrow (or too optimistic, or suggest too much precision).
+
+## Back-transformed intervals from log-transformed data.
+
+This post is motivated by the post [The percent difference fallacy and a solution: the ratio t-test](http://scienceblog.darrouzet-nardi.net/?p=2066) from Anthony Darrouzet-Nardi at [Anthony's Science blog](http://scienceblog.darrouzet-nardi.net). Anthony suggests a clever solution for a simple, linear model with a single factor with two levels (or a "t-test" design): the relative CIs are the backtransformed CIs of the effect of the log-transformed data.
+
+1. log transform the response variable
+2. run the linear model $log(y) = b_0 + b_1 Treatment$
+3. compute the CI of $b_1$
+4. backtransform using $100(\mathrm{exp}(CI) - 1)$
+
+Let's think about this.
+
+1. The coefficient $b_1$ of the linear model using log transformed $y$ is $\overline{\mathrm{log}(y_B)} - \overline{\mathrm{log}(y_A)}$
+2. This is the difference in the log of the geometric means of group B and group A, where a geometric mean is
+3. $GM=(\Pi y)^\frac{1}{n} = \mathrm{exp}(\frac{1}{n}\sum{\mathrm{log}(y)})$ (note that the typical way to compute a geometric mean is using the log version since this is unlikely to blow up to really big values)
+4. So, $b_1 = \overline{\mathrm{log}(y_B)} - \overline{\mathrm{log}(y_A)} = \mathrm{log}(\frac{GM_B}{GM_A})$, and
+5. $\mathrm{exp}(b_1) = \frac{GM_B}{GM_A}$
+6. Backtransforming $b_1$ gives us the multiplier. To get the percent difference as a fraction, we need to subtract 1, therefore
+7. $\mathrm{exp}(b_1) - 1 = \frac{GM_B}{GM_A} - 1$, which is equal to
+8. $\mathrm{exp}(b_1) - 1 = \frac{GM_B}{GM_A} - \frac{GM_A}{GM_A}$, which is equal to
+9. $\mathrm{exp}(b_1) - 1 = \frac{GM_B - GM_A}{GM_A}$, and
+10. $100(\mathrm{exp}(b_1) - 1) = 100(\frac{GM_B - GM_A}{GM_A})$
+
+In other words, the CI using the backtransformed CI of the log-transformed $y$ is of the relative difference of the geometric, and not arithmetic, means. This doesn't mean they won't "work" (in the since they are probably very close), its just they aren't the 95% CIs of the relative effect.
+
+## The Delta method
+
+# Effect scaled as a percent and a naive transformation of the CI
+
+The marginal effect of selection on 
+
+# single factor with two levels ("t-test")
+
+```{r two-level, eval=FALSE}
+n <- 10
+b0 <- 10
+b1 <- b0*0.5 # 50% increase
+
+# parameters gathered into vector
+b <- c(b0, b1)
+
+# error standard deviation
+sigma <- 2.5 # this is a big standardized difference
+
+# expected effects on response and percent scale
+# call the expected
+b1.p <- b1/b0*100
+
+# make model matrix
+x <- data.frame(A=rep(c("a-", "a+"), each=n))
+X <- model.matrix(formula(~A), x)
+
+# make data
+niter <- 5000
+res1 <- matrix(NA, nrow=niter, ncol=2) # naive
+colnames(res1) <- c("ci.low", "ci.high")
+res2 <- matrix(NA, nrow=niter, ncol=2) # log ratio
+colnames(res2) <- c("ci.low", "ci.high")
+res3 <- matrix(NA, nrow=niter, ncol=2) # delta
+colnames(res3) <- c("ci.low", "ci.high")
+for(iter in 1:niter){
+  y <- (X%*%b + rnorm(n*2, sd=sigma))[,1]
+  fd <- data.table(Y=y, x)
+  fit1 <- lm(Y~A, data=fd)
+  bhat <- coef(fit1)
+  
+  # naive method
+  ci <- confint(fit1)["Aa+", ]
+  res1[iter, ] <- ci/bhat[1]*100
+  
+  # log method
+  fit2 <- lm(log(Y)~A, data=fd)
+  ci <- exp(confint(fit2)["Aa+", ])-1
+  res2[iter, ] <- ci*100
+
+  # delta method
+  df <- fit1$df.residual
+  tcrit <- qt(.975, df)
+  sd <- summary(fit1)$sigma
+  se <- abs((bhat[1]+bhat[2])/bhat[1])*sqrt(sd^2/n/(bhat[1]+bhat[2])^2 + sd^2/n/bhat[1]^2)
+  res3[iter, "ci.low"] <- 100*(bhat[2]/bhat[1] - tcrit*se)
+  res3[iter, "ci.high"] <- 100*(bhat[2]/bhat[1] + tcrit*se)
+  
+  se <- deltamethod(~x2/x1, mean=coef(fit1), cov=vcov(fit1))
+  res3[iter, "ci.low"] <- 100*(bhat[2]/bhat[1] - tcrit*se)
+  res3[iter, "ci.high"] <- 100*(bhat[2]/bhat[1] + tcrit*se)
+}
+
+length(which(res1[,"ci.low"] < b1.p & res1[,"ci.high"] > b1.p))/niter*100
+length(which(res2[,"ci.low"] < b1.p & res2[,"ci.high"] > b1.p))/niter*100
+length(which(res3[,"ci.low"] < b1.p & res3[,"ci.high"] > b1.p))/niter*100
+
+qplot(res2[,1], res3[,1]) # delta are shifted down
+
+length(which(res2[,"ci.low"] > b1.p))/niter*100
+length(which(res3[,"ci.low"] > b1.p))/niter*100
+length(which(res2[,"ci.high"] < b1.p))/niter*100
+length(which(res3[,"ci.high"] < b1.p))/niter*100
+
+# delta method CI has correct coverage but is asymmetric
+```
+
+# single factor with four levels ("post-hoc")
+
+```{r four-levels, eval=FALSE}
+n <- 10
+
+b0 <- 10
+b1 <- b0*.5 # 50% increase
+b2 <- b0*0
+b3 <- b0*1
+
+# parameters gathered into vector
+b <- c(b0, b1, b2, b3)
+
+# error standard deviation
+sigma <- 2.5 # this is a big standardized difference
+
+# expected effects on response and percent scale
+# call the expected
+b1.p <- b1/b0*100
+b2.p <- b2/b0*100
+b3.p <- b3/b0*100
+
+# make model matrix
+A_levels <- c("cn", "a", "b", "c")
+x <- data.table(A=factor(rep(A_levels, each=n), factor(A_levels)))
+X <- model.matrix(formula(~A), x)
+
+n_cells <- length(levels(x$A))
+
+# make data
+niter <- 1000
+res1.lo <- matrix(NA, nrow=niter, ncol=3) # naive
+res1.up <- matrix(NA, nrow=niter, ncol=3) # naive
+res2.lo <- matrix(NA, nrow=niter, ncol=3) # log
+res2.up <- matrix(NA, nrow=niter, ncol=3) # log
+res3.lo <- matrix(NA, nrow=niter, ncol=3) # delta
+res3.up <- matrix(NA, nrow=niter, ncol=3) # delta
+for(iter in 1:niter){
+  y <- (X%*%b + rnorm(n*n_cells, sd=sigma))[,1]
+  fd <- data.table(Y=y, x)
+  fit1 <- lm(Y~A, data=fd)
+  bhat <- coef(fit1)
+  contrast(emmeans(fit1, specs="A"), adjust="none", method="revpairwise")
+  
+  # naive method
+  ci.lo <- confint(fit1)[2:4, "2.5 %"]
+  ci.up <- confint(fit1)[2:4, "97.5 %"]
+  res1.lo[iter, ] <- ci.lo/bhat[1]*100
+  res1.up[iter, ] <- ci.up/bhat[1]*100
+  
+  # log method
+  fit2 <- lm(log(Y)~A, data=fd)
+  ci.lo <- exp(confint(fit2)[2:4, "2.5 %"]) - 1
+  ci.up <- exp(confint(fit2)[2:4, "97.5 %"]) - 1
+  res2.lo[iter, ] <- ci.lo*100
+  res2.up[iter, ] <- ci.up*100
+
+  # delta method
+  df <- fit1$df.residual
+  tcrit <- qt(.975, df)
+  sd <- summary(fit1)$sigma
+  se <- abs((bhat[1]+bhat[2:4])/bhat[1])*sqrt(sd^2/n/(bhat[1]+bhat[2:4])^2 + sd^2/n/bhat[1]^2)
+  res3.lo[iter, ] <- 100*(bhat[2:4]/bhat[1] - tcrit*se)
+  res3.up[iter, ] <- 100*(bhat[2:4]/bhat[1] + tcrit*se)
+  
+  se <- c(
+    deltamethod(~x2/x1, mean=coef(fit1), cov=vcov(fit1)),
+    deltamethod(~x3/x1, mean=coef(fit1), cov=vcov(fit1)),
+    deltamethod(~x4/x1, mean=coef(fit1), cov=vcov(fit1))
+  )
+  res3[iter, "ci.low"] <- 100*(bhat[2]/bhat[1] - tcrit*se)
+  res3[iter, "ci.high"] <- 100*(bhat[2]/bhat[1] + tcrit*se)
+
+}
+
+length(which(res1.lo[,1] < b1.p & res1.up[,1] > b1.p))/niter*100
+length(which(res1.lo[,2] < b2.p & res1.up[,2] > b2.p))/niter*100
+length(which(res1.lo[,3] < b3.p & res1.up[,3] > b3.p))/niter*100
+length(which(res2.lo[,1] < b1.p & res2.up[,1] > b1.p))/niter*100
+length(which(res2.lo[,2] < b2.p & res2.up[,2] > b2.p))/niter*100
+length(which(res2.lo[,3] < b3.p & res2.up[,3] > b3.p))/niter*100
+length(which(res3.lo[,1] < b1.p & res3.up[,1] > b1.p))/niter*100
+length(which(res3.lo[,2] < b2.p & res3.up[,2] > b2.p))/niter*100
+length(which(res3.lo[,3] < b3.p & res3.up[,3] > b3.p))/niter*100
+```
+
+# 2 x 2 factorial
+```{r factorial, eval=FALSE}
+n <- 10
+b0 <- 10
+b1 <- 5 #% 50% increase
+b2 <- 0
+b3 <- 10
+# parameters gathered into vector
+b <- c(b0, b1, b2, b3)
+
+# error standard deviation
+sigma <- b1/2
+
+# expected effects on response and percent scale
+# there are 2 x 2 = four pairwise effects (of one treatment within each level of the other treatment)
+# call these A0 and A1, B0 and B1
+# call the expected
+A0 <- b1
+A1 <- ((b0+b1+b2+b3)-(b0+b2))
+A0.p <- A0/b0
+A1.p <- A1/(b0+b2)
+
+# make model matrix
+A_levels <- rep(c("a-", "a+"), each=n)
+B_levels <- c("b-", "b+")
+x <- expand.grid(A=A_levels,B=B_levels)
+X <- model.matrix(formula(~A*B), x)
+
+# make data
+y <- (X%*%b + rnorm(n*4, sd=sigma))[,1]
+fd <- data.table(Y=y, x)
+
+# fit
+fit <- lm(Y~A*B, data=fd)
+fit.emm <- emmeans(fit, specs=c("A", "B"))
+fit.eff <- summary(contrast(fit.emm, adjust="none", method="revpairwise"), infer=c(TRUE, TRUE))
+
+# do the above within a loop
+set.seed(1)
+niter <- 1000
+# saves CIs for A0 and A1 on response scale
+res <- matrix(NA, nrow=niter, ncol=4)
+colnames(res) <- c("A0.low", "A0.high", "A1.low", "A1.high")
+# saves CIs for A0 and A1 on percent scale using naive convert CI to percent
+res2 <- matrix(NA, nrow=niter, ncol=4)
+colnames(res2) <- c("A0.low", "A0.high", "A1.low", "A1.high")
+# saves CIs for A0 and A1 on percent scale using log data then exp(CI)
+res3 <- matrix(NA, nrow=niter, ncol=4)
+colnames(res3) <- c("A0.low", "A0.high", "A1.low", "A1.high")
+# saves CIs for A0 and A1 on percent scale using alt se 1
+res4 <- matrix(NA, nrow=niter, ncol=4)
+colnames(res4) <- c("A0.low", "A0.high", "A1.low", "A1.high")
+# saves CIs for A0 and A1 on percent scale using alt se 2
+res5 <- matrix(NA, nrow=niter, ncol=4)
+colnames(res5) <- c("A0.low", "A0.high", "A1.low", "A1.high")
+
+# for bootstrap CI
+inc1 <- which(fd[,A]=="a-" & fd[,B]=="b-")
+inc2 <- which(fd[,A]=="a+" & fd[,B]=="b-")
+inc3 <- which(fd[,A]=="a-" & fd[,B]=="b+")
+inc4 <- which(fd[,A]=="a+" & fd[,B]=="b+")
+for(iter in 1:niter){
+  y <- (X%*%b + rnorm(n*4, sd=sigma))[,1]
+  fd <- data.table(Y=y, x)
+  fit <- lm(Y~A*B, data=fd)
+  fit.emm <- emmeans(fit, specs=c("A", "B"))
+  fit.eff <- summary(contrast(fit.emm, adjust="none", method="revpairwise"), infer=c(TRUE, TRUE))
+  ybar11 <- summary(fit.emm)[1, "emmean"] # mean a-/b-
+  ybar21 <- summary(fit.emm)[2, "emmean"] # mean a+/b-
+  ybar12 <- summary(fit.emm)[3, "emmean"] # mean a-/b+
+  ybar22 <- summary(fit.emm)[4, "emmean"] # mean a+/b+
+  
+  # response scale
+  res[iter, "A0.low"] <- fit.eff[1, "lower.CL"]
+  res[iter, "A0.high"] <- fit.eff[1, "upper.CL"]
+  res[iter, "A1.low"] <- fit.eff[6, "lower.CL"]
+  res[iter, "A1.high"] <- fit.eff[6, "upper.CL"]
+  # naive convert CI to percent
+  res2[iter, "A0.low"] <- fit.eff[1, "lower.CL"]/ybar11
+  res2[iter, "A0.high"] <- fit.eff[1, "upper.CL"]/ybar11
+  res2[iter, "A1.low"] <- fit.eff[6, "lower.CL"]/ybar12
+  res2[iter, "A1.high"] <- fit.eff[6, "upper.CL"]/ybar12
+  # naive se
+  se.A0 <- fit.eff[1, "SE"]/ybar11
+  se.A1 <- fit.eff[6, "SE"]/ybar12
+  
+  # convert to log and backtransform CI
+  fit2 <- lm(log(Y)~A*B, data=fd)
+  fit2.emm <- emmeans(fit2, specs=c("A", "B"))
+  fit2.eff <- summary(contrast(fit2.emm, adjust="none", method="revpairwise"), infer=c(TRUE, TRUE))
+  res3[iter, "A0.low"] <- exp(fit2.eff[1, "lower.CL"])-1
+  res3[iter, "A0.high"] <- exp(fit2.eff[1, "upper.CL"])-1
+  res3[iter, "A1.low"] <- exp(fit2.eff[6, "lower.CL"])-1
+  res3[iter, "A1.high"] <- exp(fit2.eff[6, "upper.CL"])-1
+  
+  # delta
+  A0hat.p <- fit.eff[1, "estimate"]/ybar11
+  A1hat.p <- fit.eff[6, "estimate"]/ybar12
+  se <- c(
+    deltamethod(~x2/x1, mean=coef(fit), cov=vcov(fit)),
+    deltamethod(~(x2+x4)/(x1+x3), mean=coef(fit), cov=vcov(fit))
+  )
+  res4[iter, "A0.low"] <- A0hat.p-tcrit*se[1]
+  res4[iter, "A0.high"] <- A0hat.p+tcrit*se[1]
+  res4[iter, "A1.low"] <- A1hat.p-tcrit*se[2]
+  res4[iter, "A1.high"] <- A1hat.p+tcrit*se[2]
+  
+
+  #boot
+  boot_it <- FALSE
+  if(boot_it==TRUE){
+    boot_n <- 100
+    effhat.1 <- numeric(boot_n)
+    effhat.2 <- numeric(boot_n)
+    for(boot_i in 1:boot_n){
+      inc <- c(sample(inc1, replace=TRUE),
+               sample(inc2, replace=TRUE),
+               sample(inc3, replace=TRUE),
+               sample(inc4, replace=TRUE))
+      fit2 <- lm(log(Y)~A*B, data=fd[inc,])
+      fit2.emm <- emmeans(fit2, specs=c("A", "B"))
+      fit2.eff <- summary(contrast(fit2.emm, adjust="none", method="revpairwise"), infer=c(TRUE, TRUE))
+      effhat.1[boot_i] <- exp(fit2.eff[1, "estimate"]) - 1
+      effhat.2[boot_i] <- exp(fit2.eff[6, "estimate"]) - 1
+    }
+  }
+  
+}
+
+length(which(res[,"A0.low"] < A0 & res[,"A0.high"] > A0))/niter*100
+length(which(res[,"A1.low"] < A1 & res[,"A1.high"] > A1))/niter*100
+length(which(res2[,"A0.low"] < A0.p & res2[,"A0.high"] > A0.p))/niter*100
+length(which(res2[,"A1.low"] < A1.p & res2[,"A1.high"] > A1.p))/niter*100
+length(which(res3[,"A0.low"] < A0.p & res3[,"A0.high"] > A0.p))/niter*100
+length(which(res3[,"A1.low"] < A1.p & res3[,"A1.high"] > A1.p))/niter*100
+length(which(res4[,"A0.low"] < A0.p & res4[,"A0.high"] > A0.p))/niter*100
+length(which(res4[,"A1.low"] < A1.p & res4[,"A1.high"] > A1.p))/niter*100
+length(which(res5[,"A0.low"] < A0.p & res5[,"A0.high"] > A0.p))/niter*100
+length(which(res5[,"A1.low"] < A1.p & res5[,"A1.high"] > A1.p))/niter*100
+```

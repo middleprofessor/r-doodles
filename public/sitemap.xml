@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/</loc>
+    <lastmod>2018-11-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2018/10/interaction-plots-with-ggplot2/</loc>
     <lastmod>2018-10-15T00:00:00+00:00</lastmod>
   </url>
@@ -91,6 +96,12 @@
   </url>
   
   <url>
+    <loc>/tags/confidence-interval/</loc>
+    <lastmod>2018-11-14T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/tags/ecology/</loc>
     <lastmod>2018-05-13T00:00:00+00:00</lastmod>
     <priority>0</priority>
@@ -98,7 +109,7 @@
   
   <url>
     <loc>/tags/effect-size/</loc>
-    <lastmod>2018-03-27T00:00:00+00:00</lastmod>
+    <lastmod>2018-11-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -188,7 +199,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
+    <lastmod>2018-11-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -200,7 +211,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
+    <lastmod>2018-11-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -218,7 +229,7 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2018-09-11T00:00:00+00:00</lastmod>
+    <lastmod>2018-11-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
