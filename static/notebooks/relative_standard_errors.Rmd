@@ -1,5 +1,7 @@
 ---
 title: "Reporting effects as relative differences...with a confidence interval"
+author: "Jeffrey A. Walker"
+date: "11/14/2018"
 output:
   html_notebook:
     code_folding: hide
@@ -9,6 +11,10 @@ output:
 ---
 
 [Go back to R doodles](https://rdoodles.rbind.io)
+
+[My personal web page](https://www.middleprofessor.com)
+
+[My official USM web page](https://usm.maine.edu/bio/jeffrey-walker)
 
 ```{r setup, echo=FALSE, message=FALSE, comment=FALSE, warning=FALSE}
 library(ggplot2)
