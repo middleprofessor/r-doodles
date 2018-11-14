@@ -99,7 +99,7 @@ The Delta method is easily applied to any linear model, including a hierarchical
 
 ## Bootstrap standard errors and CI
 
-The bootstrap standard error of a relative effect is simply the standard deviation of the vector of $k$ relative effects, with each relative effect computed from a random sample (with replacement) of the original data. There are several methods for computing a bootstrap CI, the simplest is to simply use percentiles (e.g. 0.025 and 0.975) of the vector of re-sampled relative effects.
+The bootstrap standard error of a relative effect is simply the standard deviation of the vector of $k$ relative effects, with each relative effect computed from a random re-sample, with replacement, of the original data. There are several methods for computing a bootstrap CI, the simplest is to simply use percentiles (e.g. 0.025 and 0.975) of the vector of re-sampled relative effects.
 
 # Comparing CIs computed using the naive, log, and Delta methods
 
@@ -109,6 +109,7 @@ Sorry, no comparison with a bootstrap because this is a quick report!
 
 ```{r two-level, eval=TRUE}
 set.seed(1)
+
 n <- 27 # average n over the four groups of flies
 b0 <- 117.5 # control males
 b1 <- 176.5 - b0 # effect of selection in males
@@ -216,7 +217,7 @@ The Delta method is easily applied to more complex designs but its not clear how
 
 Here, I evaluate the two log methods, as well as the naive and Delta methods, by comparing the relative difference of three non-reference levels of the fly data (selected females, control males, selected males) from the reference level (control females or "CN-F").
 
-```{r four-levels, eval=FALSE}
+```{r four-levels, eval=TRUE}
 # use the four fly levels but pretend it is not factorial
 set.seed(1)
 n <- 27 # average n over the four groups of flies
@@ -331,9 +332,9 @@ knitr::kable(res.table, digits=c(0,1,1,1))
 
 The table above shows the long run ($10^4$ runs) frequency of CIs that include the true relative difference for each of the three contrasts (differences from CN-F) for each of the four methods, including both the whole-model and pairwise log methods. The whole-model log method can have intervals that are two narrow, as indicated by the lower-than-nominal frequency for the CN-F relative difference. The frequencies of the run-pairwise log method and Deta method look pretty good, but this is only one parameterization.
 
-## 2 x 2 factorial
+## Factorial (2 X 2)
 ```{r factorial, eval=TRUE}
-# use the four fly levels but pretend it is not factorial
+# use the four fly levels in a fully factorial design
 set.seed(1)
 n <- 27 # average n over the four groups of flies
 # means
