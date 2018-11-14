@@ -8,6 +8,8 @@ output:
     number_sections: true
 ---
 
+[Go back to R doodles](https://rdoodles.rbind.io)
+
 ```{r setup, echo=FALSE, message=FALSE, comment=FALSE, warning=FALSE}
 library(ggplot2)
 library(emmeans)
