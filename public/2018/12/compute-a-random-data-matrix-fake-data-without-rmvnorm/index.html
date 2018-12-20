@@ -30,15 +30,21 @@
     
 
     
-    <meta name="description" content="fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.eigenvalues &lt;- function(p, m=p, start=2/3, rate=2){ # m is the number of positive eigenvalues s &lt;- start/seq(1:m)^rate s &lt;- c(s, rep(0, p-m)) # add zero eigenvalues L &lt;- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix, # which would occur if all the traits are variance standardized return(L) } fake.">
-    <meta property="og:description" content="fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.eigenvalues &lt;- function(p, m=p, start=2/3, rate=2){ # m is the number of positive eigenvalues s &lt;- start/seq(1:m)^rate s &lt;- c(s, rep(0, p-m)) # add zero eigenvalues L &lt;- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix, # which would occur if all the traits are variance standardized return(L) } fake.">
+    <meta name="description" content="This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
+First some functions…
+fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.">
+    <meta property="og:description" content="This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
+First some functions…
+fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="Compute a random data matrix (fake data) without rmvnorm">
     <meta property="og:url" content="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.eigenvalues &lt;- function(p, m=p, start=2/3, rate=2){ # m is the number of positive eigenvalues s &lt;- start/seq(1:m)^rate s &lt;- c(s, rep(0, p-m)) # add zero eigenvalues L &lt;- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix, # which would occur if all the traits are variance standardized return(L) } fake.">
+    <meta name="twitter:description" content="This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
+First some functions…
+fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -274,7 +280,9 @@ ga('send', 'pageview');
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <pre class="r"><code>fake.eigenvectors &lt;- function(p){
+              <p>This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.</p>
+<p>First some functions…</p>
+<pre class="r"><code>fake.eigenvectors &lt;- function(p){
     a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it
     a &lt;- t(a)%*%a # this is a pseudo-covariance matrix
     E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns
@@ -305,7 +313,9 @@ fake.X &lt;- function(n,p,E,L){
   X &lt;- matrix(rnorm(n*p),nrow=n,ncol=p) %*% t(E%*%sqrt(L))
     return(X)
 }</code></pre>
-<pre class="r"><code>set.seed(1)
+<p>Since, I’m not starting with a known covariance matrix, I have to create one. This isn’t necessary if you already have data. I start with fake data that does have a full-rank covariance matrix, and then create fake data that has a single zero eigenvalue.</p>
+<pre class="r"><code>library(mvtnorm)
+set.seed(1)
 n &lt;- 10^4 # number of cases (rows of the data)
 p &lt;- 5 # number of variables (columns of the data)
 
@@ -320,7 +330,7 @@ E &lt;- decomp$vectors
 L &lt;- diag(decomp$values)
 fake_data &lt;- fake.X(n, p, E, L)
 
-# okay what if our real covariance matrix is not positive semidefinite, that is has negative eigenvalues.
+# okay what if our real covariance matrix is not positive definite, that is has zero (negative) eigenvalues.
 # Here is our fake data and cov matrix
 X &lt;- fake.X(n, p, fake.eigenvectors(p), fake.eigenvalues(p, m=(p-1)))
 # and here is our &quot;real&quot; covariance matrix
@@ -329,26 +339,37 @@ decomp &lt;- eigen(S)
 E &lt;- decomp$vectors
 L &lt;- diag(decomp$values) # note last eigenvalue is negative
 
+# can we simulate with rmvnorm?
+fake_data_rmvnorm &lt;- data &lt;- rmvnorm(n, mean=rep(0, p), sigma=S)
+
 # now let&#39;s sample fake data from this non-pos matrix
 # set m to p-1
 m &lt;- p-1
 E_reduced &lt;- E[1:p, 1:m] # the first m columns of E
 L_reduced &lt;- L[1:m, 1:m] # the first m diag elements of L
 fake_data &lt;- fake.X(n, m, E_reduced, L_reduced)
-cov(fake_data)</code></pre>
-<pre><code>##            [,1]       [,2]        [,3]        [,4]        [,5]
-## [1,]  0.5473490  0.7630975 -0.21973673  0.15322090 -0.24470252
-## [2,]  0.7630975  1.8066703 -0.53972620  0.78277102 -0.60292281
-## [3,] -0.2197367 -0.5397262  0.36854850 -0.03222268  0.27472680
-## [4,]  0.1532209  0.7827710 -0.03222268  0.71610095 -0.07744135
-## [5,] -0.2447025 -0.6029228  0.27472680 -0.07744135  0.58133264</code></pre>
-<pre class="r"><code>S # compare...pretty good!</code></pre>
+S # compare...pretty good!</code></pre>
 <pre><code>##            [,1]       [,2]        [,3]        [,4]        [,5]
 ## [1,]  0.5398485  0.7425109 -0.21532358  0.14159064 -0.23851589
 ## [2,]  0.7425109  1.7617940 -0.53178069  0.76130481 -0.58310626
 ## [3,] -0.2153236 -0.5317807  0.37208370 -0.02311484  0.27687043
 ## [4,]  0.1415906  0.7613048 -0.02311484  0.71462183 -0.05870417
 ## [5,] -0.2385159 -0.5831063  0.27687043 -0.05870417  0.57917530</code></pre>
+<pre class="r"><code>cov(fake_data_rmvnorm)</code></pre>
+<pre><code>##            [,1]       [,2]       [,3]        [,4]        [,5]
+## [1,]  0.5464215  0.7388421 -0.2175477  0.13060380 -0.23634508
+## [2,]  0.7388421  1.7233337 -0.5191487  0.73625045 -0.56649338
+## [3,] -0.2175477 -0.5191487  0.3685953 -0.01083970  0.27354134
+## [4,]  0.1306038  0.7362504 -0.0108397  0.70975167 -0.04526926
+## [5,] -0.2363451 -0.5664934  0.2735413 -0.04526926  0.57631261</code></pre>
+<pre class="r"><code>cov(fake_data)</code></pre>
+<pre><code>##            [,1]       [,2]       [,3]        [,4]        [,5]
+## [1,]  0.5344351  0.7398674 -0.2180343  0.14037333 -0.23968770
+## [2,]  0.7398674  1.7446615 -0.5303269  0.74669169 -0.57794513
+## [3,] -0.2180343 -0.5303269  0.3726431 -0.01934560  0.27464999
+## [4,]  0.1403733  0.7466917 -0.0193456  0.70325746 -0.05516161
+## [5,] -0.2396877 -0.5779451  0.2746500 -0.05516161  0.57435071</code></pre>
+<p>The top matrix is the observed covariance matrix. The middle matrix is using rmvnorm. The bottom matrix is from my own code to generate fake data that is modeled to simulate the real data (although here, even the real data is fake).</p>
 
               
             </div>
@@ -473,7 +494,9 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   Dec 12, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.eigenvalues &lt;- function(p, m=p, start=2/3, rate=2){ # m is the number of positive eigenvalues s &lt;- start/seq(1:m)^rate s &lt;- c(s, rep(0, p-m)) # add zero eigenvalues L &lt;- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix, # which would occur if all the traits are variance standardized return(L) } fake.</div>
+              <div class="media-content hide-xs font-merryweather">This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
+First some functions…
+fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -817,7 +840,9 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
                   Dec 12, 2018
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.eigenvalues &lt;- function(p, m=p, start=2/3, rate=2){ # m is the number of positive eigenvalues s &lt;- start/seq(1:m)^rate s &lt;- c(s, rep(0, p-m)) # add zero eigenvalues L &lt;- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix, # which would occur if all the traits are variance standardized return(L) } fake.</div>
+              <div class="media-content hide-xs font-merryweather">This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
+First some functions…
+fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
