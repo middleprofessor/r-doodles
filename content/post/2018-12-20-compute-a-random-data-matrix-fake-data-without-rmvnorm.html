@@ -1,0 +1,86 @@
+---
+title: Compute a random data matrix (fake data) without rmvnorm
+author: Jeff Walker
+date: '2018-12-20'
+slug: compute-a-random-data-matrix-fake-data-without-rmvnorm
+categories: []
+tags: []
+---
+
+
+
+<pre class="r"><code>fake.eigenvectors &lt;- function(p){
+    a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it
+    a &lt;- t(a)%*%a # this is a pseudo-covariance matrix
+    E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns
+    return(E)
+}
+
+fake.eigenvalues &lt;- function(p, m=p, start=2/3, rate=2){
+    # m is the number of positive eigenvalues
+  s &lt;- start/seq(1:m)^rate
+  s &lt;- c(s, rep(0, p-m)) # add zero eigenvalues
+  L &lt;- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix,
+  # which would occur if all the traits are variance standardized
+  return(L)
+}
+
+fake.cov.matrix &lt;- function(p){
+    # p is the size of the matrix (number of cols and rows)
+    E &lt;- fake.eigenvectors(p)
+    L &lt;- diag(fake.eigenvalues(p))
+    S &lt;- E%*%L%*%t(E)
+    return(S)
+}
+
+# two functions to compute the random data
+fake.X &lt;- function(n,p,E,L){
+  # n is number of observations
+  # p is number of variables
+  X &lt;- matrix(rnorm(n*p),nrow=n,ncol=p) %*% t(E%*%sqrt(L))
+    return(X)
+}</code></pre>
+<pre class="r"><code>set.seed(1)
+n &lt;- 10^4 # number of cases (rows of the data)
+p &lt;- 5 # number of variables (columns of the data)
+
+# start with a matrix. In real life this would be our data
+X &lt;- fake.X(n, p, fake.eigenvectors(p), fake.eigenvalues(p))
+# and here is our &quot;real&quot; covariance matrix
+S &lt;- cov(X)
+
+# okay now we want to create fake data sets with this structure
+decomp &lt;- eigen(S)
+E &lt;- decomp$vectors
+L &lt;- diag(decomp$values)
+fake_data &lt;- fake.X(n, p, E, L)
+
+# okay what if our real covariance matrix is not positive semidefinite, that is has negative eigenvalues.
+# Here is our fake data and cov matrix
+X &lt;- fake.X(n, p, fake.eigenvectors(p), fake.eigenvalues(p, m=(p-1)))
+# and here is our &quot;real&quot; covariance matrix
+S &lt;- cov(X)
+decomp &lt;- eigen(S)
+E &lt;- decomp$vectors
+L &lt;- diag(decomp$values) # note last eigenvalue is negative
+
+# now let&#39;s sample fake data from this non-pos matrix
+# set m to p-1
+m &lt;- p-1
+E_reduced &lt;- E[1:p, 1:m] # the first m columns of E
+L_reduced &lt;- L[1:m, 1:m] # the first m diag elements of L
+fake_data &lt;- fake.X(n, m, E_reduced, L_reduced)
+cov(fake_data)</code></pre>
+<pre><code>##            [,1]       [,2]        [,3]        [,4]        [,5]
+## [1,]  0.5473490  0.7630975 -0.21973673  0.15322090 -0.24470252
+## [2,]  0.7630975  1.8066703 -0.53972620  0.78277102 -0.60292281
+## [3,] -0.2197367 -0.5397262  0.36854850 -0.03222268  0.27472680
+## [4,]  0.1532209  0.7827710 -0.03222268  0.71610095 -0.07744135
+## [5,] -0.2447025 -0.6029228  0.27472680 -0.07744135  0.58133264</code></pre>
+<pre class="r"><code>S # compare...pretty good!</code></pre>
+<pre><code>##            [,1]       [,2]        [,3]        [,4]        [,5]
+## [1,]  0.5398485  0.7425109 -0.21532358  0.14159064 -0.23851589
+## [2,]  0.7425109  1.7617940 -0.53178069  0.76130481 -0.58310626
+## [3,] -0.2153236 -0.5317807  0.37208370 -0.02311484  0.27687043
+## [4,]  0.1415906  0.7613048 -0.02311484  0.71462183 -0.05870417
+## [5,] -0.2385159 -0.5831063  0.27687043 -0.05870417  0.57917530</code></pre>
