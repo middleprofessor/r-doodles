@@ -17,7 +17,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="Hugo 0.37 with theme Tranquilpeak 0.4.3-BETA">
+    <meta name="generator" content="Hugo 0.48 with theme Tranquilpeak 0.4.3-BETA">
     <title>Pre Post</title>
     <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
     <meta name="keywords" content="">
@@ -67,14 +67,17 @@
 
     
       
-<script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-118821125-2', 'auto');
-ga('send', 'pageview');
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-118821125-2', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
 
     
@@ -341,6 +344,23 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
+                <h3 class="media-heading">Compute a random data matrix (fake data) without rmvnorm</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Dec 12, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.eigenvalues &lt;- function(p, m=p, start=2/3, rate=2){ # m is the number of positive eigenvalues s &lt;- start/seq(1:m)^rate s &lt;- c(s, rep(0, p-m)) # add zero eigenvalues L &lt;- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix, # which would occur if all the traits are variance standardized return(L) } fake.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/">
                 <h3 class="media-heading">Reporting effects as relative differences...with a confidence interval</h3>
               </a>
@@ -504,23 +524,6 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/03/combining-data-distribution-summary-model-effects-and-uncertainty-in-a-single-plot/">
-                <h3 class="media-heading">Combining data, distribution summary, model effects, and uncertainty in a single plot</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Mar 3, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">A Harrell plot combines a forest plot of estimated treatment effects and uncertainty, a dot plot of raw data, and a box plot of the distribution of the raw data into a single plot. A Harrell plot encourages best practices such as exploration of the distribution of the data and focus on effect size and uncertainty, while discouraging bad practices such as ignoring distributions and focusing on \(p\)-values. Consequently, a Harrell plot should replace the bar plots and Cleveland dot plots that are currently ubiquitous in the literature.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -528,7 +531,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         13 posts found
+         14 posts found
       </p>
     </div>
   </div>
@@ -589,6 +592,23 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
+                <h3 class="media-heading">Compute a random data matrix (fake data) without rmvnorm</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Dec 12, 2018
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.eigenvalues &lt;- function(p, m=p, start=2/3, rate=2){ # m is the number of positive eigenvalues s &lt;- start/seq(1:m)^rate s &lt;- c(s, rep(0, p-m)) # add zero eigenvalues L &lt;- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix, # which would occur if all the traits are variance standardized return(L) } fake.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/">
                 <h3 class="media-heading">Reporting effects as relative differences...with a confidence interval</h3>
               </a>
@@ -752,23 +772,6 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/03/combining-data-distribution-summary-model-effects-and-uncertainty-in-a-single-plot/">
-                <h3 class="media-heading">Combining data, distribution summary, model effects, and uncertainty in a single plot</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Mar 3, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">A Harrell plot combines a forest plot of estimated treatment effects and uncertainty, a dot plot of raw data, and a box plot of the distribution of the raw data into a single plot. A Harrell plot encourages best practices such as exploration of the distribution of the data and focus on effect size and uncertainty, while discouraging bad practices such as ignoring distributions and focusing on \(p\)-values. Consequently, a Harrell plot should replace the bar plots and Cleveland dot plots that are currently ubiquitous in the literature.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -776,7 +779,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         13 posts found
+         14 posts found
       </p>
     </div>
   </div>

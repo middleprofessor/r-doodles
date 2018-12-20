@@ -1,5 +1,7 @@
 ---
 title: "Reporting effects as relative differences...with a confidence interval"
+author: "Jeffrey A. Walker"
+date: "11/14/2018"
 output:
   html_notebook:
     code_folding: hide
@@ -7,6 +9,12 @@ output:
     toc: true
     number_sections: true
 ---
+
+[Go back to R doodles](https://rdoodles.rbind.io)
+
+[My personal web page](https://www.middleprofessor.com)
+
+[My official USM web page](https://usm.maine.edu/bio/jeffrey-walker)
 
 ```{r setup, echo=FALSE, message=FALSE, comment=FALSE, warning=FALSE}
 library(ggplot2)
@@ -29,9 +37,8 @@ fit <- lm(Vburst ~ Treatment*Sex, data=fly)
 fit.emm <- emmeans(fit, specs=c("Treatment", "Sex"))
 fit.eff <- summary(contrast(fit.emm, adjust="none", method="revpairwise"),  infer=c(TRUE, TRUE))
 
-res1 <- harrellplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, interaction.group = TRUE, contrasts.method = 'revpairwise', y_label = ('Burst Speed (cm/s)'))
-res2 <- harrellplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, interaction.group = TRUE, contrasts.method = 'revpairwise',  contrasts.scaling = "percent", y_label = ('Burst Speed (cm/s)'))
-# plot_grid(res1$gg, res2$gg, ncol=2, labels="AUTO")
+hp1 <- harrellplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, interaction.group = TRUE, contrasts.method = 'revpairwise', y_label = ('Burst Speed (cm/s)'))
+hp2 <- harrellplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, interaction.group = TRUE, contrasts.method = 'revpairwise',  contrasts.scaling = "percent", y_label = ('Burst Speed (cm/s)'))
 ```
 
 # Researchers frequently report results as relative effects
@@ -55,7 +62,7 @@ If we are to follow best practices, we should present this effect with a measure
 relative\_CI = 100\frac{absolute\_CI}{\bar{y}_A}
 \end{equation}
 
-For the fly example, the 95% naive relative CIs are $100\frac{48.7}{117.5} = 41.4\%$ and $100\frac{69.3}{117.5} = 59.0\%$. These are easy to compute but wrong because the error in estimating a relative difference is a function of the error in estimating both the numerator (the absolute difference) and the denominator (the reference mean). The consequence is that naive relative confidence intervals are too narrow (or too optimistic, or suggest too much precision).
+For the fly example, the 95% naive relative CI is bounded by $100\frac{48.7}{117.5} = 41.4\%$ and $100\frac{69.3}{117.5} = 59.0\%$. These are easy to compute but wrong because the error in estimating a relative difference is a function of the error in estimating both the numerator (the absolute difference) and the denominator (the reference mean). The consequence is that naive relative confidence intervals are too narrow (or too optimistic, or suggest too much precision).
 
 ## Back-transformed intervals from log-transformed data.
 
@@ -93,7 +100,7 @@ The relative effect $100\frac{\bar{y}_B - \bar{y}_A}{\bar{y}_A}$ is a non-linear
 \mathrm{VAR}(G(X)) \approx \nabla G(X)^\top \mathrm{COV}(X) \nabla G(X)
 \end{equation}
 
-where $nabla G(X)$ is the gradient of the function $G(X)$, which is a vector of partial derivatives -- think of this as the vector specifying the direction of the steepest ascent at some point on the surface of $G(X)$.
+where $\nabla G(X)$ is the gradient of the function $G(X)$, which is a vector of partial derivatives -- think of this as the vector specifying the direction of the steepest ascent at some point on the surface of $G(X)$.
 
 The Delta method is easily applied to any linear model, including a hierarchical models and generalized linear models. And it is even easier in R thanks to the `deltamethod` function from the msm package.
 
@@ -103,7 +110,13 @@ The bootstrap standard error of a relative effect is simply the standard deviati
 
 # Comparing CIs computed using the naive, log, and Delta methods
 
-Sorry, no comparison with a bootstrap because this is a quick report!
+I use a simple Monte-Carlo simulation to compute the frequency of CIs that contain the true relative effect. Sorry, no comparison with a bootstrap because this is a quick report! The simulated data use parameters estimated from a full-factorial analysis of the effect of a selection treatment (levels "CN" and "AA") and sex (levels "F" and "M") on upwind flight ability in *Drosophila melanogaster*. Upwind flight ability was measured as the highest wind tunnel speed at which the fly could fly. For more about the selection experiment, see Weber, K.E. (1996). Large genetic change at small fitness cost in large populations of Drosophila melanogaster selected for wind tunnel flight: rethinking fitness surfaces. Genetics 144, 205–213.
+
+```{r fly-harrel-plot, echo=FALSE}
+plot_grid(hp1$gg, hp2$gg, ncol=2, labels="AUTO")
+```
+
+The Harrell plots above show the (A) absolute and (B) relative effects (upper part) and the distribution of the raw data (bottom part) for the fly data. More about Harrell plots is at https://www.biorxiv.org/content/early/2018/11/10/458182
 
 ## Single factor with two levels ("t-test")
 

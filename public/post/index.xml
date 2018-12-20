@@ -6,10 +6,19 @@
     <description>Recent content in Posts on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 14 Nov 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 20 Dec 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Compute a random data matrix (fake data) without rmvnorm</title>
+      <link>/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/</link>
+      <pubDate>Thu, 20 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/</guid>
+      <description>fake.eigenvectors &amp;lt;- function(p){ a &amp;lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &amp;lt;- t(a)%*%a # this is a pseudo-covariance matrix E &amp;lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.eigenvalues &amp;lt;- function(p, m=p, start=2/3, rate=2){ # m is the number of positive eigenvalues s &amp;lt;- start/seq(1:m)^rate s &amp;lt;- c(s, rep(0, p-m)) # add zero eigenvalues L &amp;lt;- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix, # which would occur if all the traits are variance standardized return(L) } fake.</description>
+    </item>
     
     <item>
       <title>Reporting effects as relative differences...with a confidence interval</title>
