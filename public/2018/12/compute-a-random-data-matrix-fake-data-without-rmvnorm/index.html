@@ -31,11 +31,13 @@
 
     
     <meta name="description" content="This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
-First some functions…
-fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.">
+First, some libraries
+library(data.table) library(mvtnorm) library(MASS) Second, some functions…
+random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.">
     <meta property="og:description" content="This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
-First some functions…
-fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.">
+First, some libraries
+library(data.table) library(mvtnorm) library(MASS) Second, some functions…
+random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="Compute a random data matrix (fake data) without rmvnorm">
     <meta property="og:url" content="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
@@ -43,8 +45,9 @@ fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only ort
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
     <meta name="twitter:description" content="This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
-First some functions…
-fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.">
+First, some libraries
+library(data.table) library(mvtnorm) library(MASS) Second, some functions…
+random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -281,8 +284,19 @@ ga('send', 'pageview');
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
               <p>This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.</p>
-<p>First some functions…</p>
-<pre class="r"><code>fake.eigenvectors &lt;- function(p){
+<p>First, some libraries</p>
+<pre class="r"><code>library(data.table)
+library(mvtnorm)
+library(MASS)</code></pre>
+<p>Second, some functions…</p>
+<pre class="r"><code>random.sign &lt;- function(u){
+  # this is fastest of three
+    out &lt;- sign(runif(u)-0.5)
+    #randomly draws from {-1,1} with probability of each = 0.5
+    return(out)
+}
+
+fake.eigenvectors &lt;- function(p){
     a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it
     a &lt;- t(a)%*%a # this is a pseudo-covariance matrix
     E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns
@@ -290,7 +304,8 @@ ga('send', 'pageview');
 }
 
 fake.eigenvalues &lt;- function(p, m=p, start=2/3, rate=2){
-    # m is the number of positive eigenvalues
+  # m is the number of positive eigenvalues
+  # start and rate control the decline in the eigenvalue
   s &lt;- start/seq(1:m)^rate
   s &lt;- c(s, rep(0, p-m)) # add zero eigenvalues
   L &lt;- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix,
@@ -313,9 +328,8 @@ fake.X &lt;- function(n,p,E,L){
   X &lt;- matrix(rnorm(n*p),nrow=n,ncol=p) %*% t(E%*%sqrt(L))
     return(X)
 }</code></pre>
-<p>Since, I’m not starting with a known covariance matrix, I have to create one. This isn’t necessary if you already have data. I start with fake data that does have a full-rank covariance matrix, and then create fake data that has a single zero eigenvalue.</p>
-<pre class="r"><code>library(mvtnorm)
-set.seed(1)
+<p>And finally, some fake data. Since, I’m not starting with a known covariance matrix, I have to create one. This isn’t necessary if you already have data. I start with fake data that does have a full-rank covariance matrix, and then create fake data that has a single zero eigenvalue.</p>
+<pre class="r"><code>set.seed(2)
 n &lt;- 10^4 # number of cases (rows of the data)
 p &lt;- 5 # number of variables (columns of the data)
 
@@ -332,43 +346,45 @@ fake_data &lt;- fake.X(n, p, E, L)
 
 # okay what if our real covariance matrix is not positive definite, that is has zero (negative) eigenvalues.
 # Here is our fake data and cov matrix
-X &lt;- fake.X(n, p, fake.eigenvectors(p), fake.eigenvalues(p, m=(p-1)))
+k &lt;- 1 # number of eigenvalues to delete
+X &lt;- fake.X(n, p, fake.eigenvectors(p), fake.eigenvalues(p, m=(p-k)))
 # and here is our &quot;real&quot; covariance matrix
 S &lt;- cov(X)
 decomp &lt;- eigen(S)
 E &lt;- decomp$vectors
 L &lt;- diag(decomp$values) # note last eigenvalue is negative
 
-# can we simulate with rmvnorm?
-fake_data_rmvnorm &lt;- data &lt;- rmvnorm(n, mean=rep(0, p), sigma=S)
+# can we simulate with rmvnorm? mvrnorm?
+fake_data_rmvnorm &lt;- rmvnorm(n, mean=rep(0, p), sigma=S)
+fake_data_mvrnorm &lt;- mvrnorm(n, mu=rep(0, p), Sigma=S)
 
 # now let&#39;s sample fake data from this non-pos matrix
 # set m to p-1
-m &lt;- p-1
+m &lt;- p-k
 E_reduced &lt;- E[1:p, 1:m] # the first m columns of E
 L_reduced &lt;- L[1:m, 1:m] # the first m diag elements of L
 fake_data &lt;- fake.X(n, m, E_reduced, L_reduced)
 S # compare...pretty good!</code></pre>
-<pre><code>##            [,1]       [,2]        [,3]        [,4]        [,5]
-## [1,]  0.5398485  0.7425109 -0.21532358  0.14159064 -0.23851589
-## [2,]  0.7425109  1.7617940 -0.53178069  0.76130481 -0.58310626
-## [3,] -0.2153236 -0.5317807  0.37208370 -0.02311484  0.27687043
-## [4,]  0.1415906  0.7613048 -0.02311484  0.71462183 -0.05870417
-## [5,] -0.2385159 -0.5831063  0.27687043 -0.05870417  0.57917530</code></pre>
+<pre><code>##            [,1]        [,2]        [,3]       [,4]       [,5]
+## [1,]  0.4617029 -0.21686839  0.27537359 -0.4226386 -0.4834831
+## [2,] -0.2168684  0.33629531 -0.03734511  0.3562057  0.2632369
+## [3,]  0.2753736 -0.03734511  1.08725135 -0.5114116 -0.6554844
+## [4,] -0.4226386  0.35620567 -0.51141163  0.7362452  0.8899933
+## [5,] -0.4834831  0.26323687 -0.65548437  0.8899933  1.3156042</code></pre>
 <pre class="r"><code>cov(fake_data_rmvnorm)</code></pre>
-<pre><code>##            [,1]       [,2]       [,3]        [,4]        [,5]
-## [1,]  0.5464215  0.7388421 -0.2175477  0.13060380 -0.23634508
-## [2,]  0.7388421  1.7233337 -0.5191487  0.73625045 -0.56649338
-## [3,] -0.2175477 -0.5191487  0.3685953 -0.01083970  0.27354134
-## [4,]  0.1306038  0.7362504 -0.0108397  0.70975167 -0.04526926
-## [5,] -0.2363451 -0.5664934  0.2735413 -0.04526926  0.57631261</code></pre>
+<pre><code>##            [,1]        [,2]        [,3]       [,4]       [,5]
+## [1,]  0.4576706 -0.21395310  0.27322299 -0.4155847 -0.4731524
+## [2,] -0.2139531  0.33445024 -0.02847549  0.3487285  0.2528381
+## [3,]  0.2732230 -0.02847549  1.07250120 -0.4958794 -0.6397814
+## [4,] -0.4155847  0.34872855 -0.49587939  0.7217563  0.8751866
+## [5,] -0.4731524  0.25283813 -0.63978139  0.8751866  1.3047852</code></pre>
 <pre class="r"><code>cov(fake_data)</code></pre>
-<pre><code>##            [,1]       [,2]       [,3]        [,4]        [,5]
-## [1,]  0.5344351  0.7398674 -0.2180343  0.14037333 -0.23968770
-## [2,]  0.7398674  1.7446615 -0.5303269  0.74669169 -0.57794513
-## [3,] -0.2180343 -0.5303269  0.3726431 -0.01934560  0.27464999
-## [4,]  0.1403733  0.7466917 -0.0193456  0.70325746 -0.05516161
-## [5,] -0.2396877 -0.5779451  0.2746500 -0.05516161  0.57435071</code></pre>
+<pre><code>##            [,1]       [,2]       [,3]       [,4]       [,5]
+## [1,]  0.4596107 -0.2148138  0.2670967 -0.4164482 -0.4760025
+## [2,] -0.2148138  0.3366904 -0.0379339  0.3556336  0.2612796
+## [3,]  0.2670967 -0.0379339  1.0760712 -0.5059885 -0.6473009
+## [4,] -0.4164482  0.3556336 -0.5059885  0.7306168  0.8807419
+## [5,] -0.4760025  0.2612796 -0.6473009  0.8807419  1.3014562</code></pre>
 <p>The top matrix is the observed covariance matrix. The middle matrix is using rmvnorm. The bottom matrix is from my own code to generate fake data that is modeled to simulate the real data (although here, even the real data is fake).</p>
 
               
@@ -385,7 +401,7 @@ S # compare...pretty good!</code></pre>
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/01/expected-covariances-in-a-causal-network/" data-tooltip="Expected covariances in a causal network">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -458,7 +474,7 @@ S # compare...pretty good!</code></pre>
         </article>
         <footer id="footer" class="main-content-wrap">
   <span class="copyrights">
-    &copy; 2018 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+    &copy; 2019 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
   </span>
     <script src="//yihui.name/js/math-code.js"></script>
 <script async
@@ -486,6 +502,24 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/01/expected-covariances-in-a-causal-network/">
+                <h3 class="media-heading">Expected covariances in a causal network</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is a skeleton post
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.002701 var(g2) # E(VAR(g2)) = 1 ## [1] 1.005754 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
                 <h3 class="media-heading">Compute a random data matrix (fake data) without rmvnorm</h3>
               </a>
@@ -495,8 +529,9 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
-First some functions…
-fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.</div>
+First, some libraries
+library(data.table) library(mvtnorm) library(MASS) Second, some functions…
+random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -651,23 +686,6 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/04/on-alpha/">
-                <h3 class="media-heading">On alpha</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Apr 4, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">This post is motivated by Terry McGlynn’s thought provoking How do we move beyond an arbitrary statistical threshold? I have been struggling with the ideas explored in Terry’s post ever since starting my PhD 30 years ago, and its only been in the last couple of years that my own thoughts have begun to gel. This long marination period is largely because of my very classical biostatistical training. My PhD is from the Department of Anatomical Sciences at Stony Brook but the content was geometric morphometrics and James Rohlf was my mentor for morphometrics specifically, and multivariate statistics more generally.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -675,7 +693,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         14 posts found
+         15 posts found
       </p>
     </div>
   </div>
@@ -691,7 +709,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/01/expected-covariances-in-a-causal-network/" data-tooltip="Expected covariances in a causal network">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -832,6 +850,24 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/01/expected-covariances-in-a-causal-network/">
+                <h3 class="media-heading">Expected covariances in a causal network</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is a skeleton post
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.002701 var(g2) # E(VAR(g2)) = 1 ## [1] 1.005754 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
                 <h3 class="media-heading">Compute a random data matrix (fake data) without rmvnorm</h3>
               </a>
@@ -841,8 +877,9 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
-First some functions…
-fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.</div>
+First, some libraries
+library(data.table) library(mvtnorm) library(MASS) Second, some functions…
+random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -997,23 +1034,6 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/04/on-alpha/">
-                <h3 class="media-heading">On alpha</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Apr 4, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">This post is motivated by Terry McGlynn’s thought provoking How do we move beyond an arbitrary statistical threshold? I have been struggling with the ideas explored in Terry’s post ever since starting my PhD 30 years ago, and its only been in the last couple of years that my own thoughts have begun to gel. This long marination period is largely because of my very classical biostatistical training. My PhD is from the Department of Anatomical Sciences at Stony Brook but the content was geometric morphometrics and James Rohlf was my mentor for morphometrics specifically, and multivariate statistics more generally.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -1021,7 +1041,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         14 posts found
+         15 posts found
       </p>
     </div>
   </div>

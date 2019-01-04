@@ -39,11 +39,38 @@
     </item>
     
     <item>
+      <title>Causal Graph</title>
+      <link>/tags/causal-graph/</link>
+      <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/causal-graph/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Confidence Interval</title>
       <link>/tags/confidence-interval/</link>
       <pubDate>Wed, 14 Nov 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/confidence-interval/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Correlation</title>
+      <link>/tags/correlation/</link>
+      <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/correlation/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Covariance</title>
+      <link>/tags/covariance/</link>
+      <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/covariance/</guid>
       <description></description>
     </item>
     
@@ -197,6 +224,15 @@
       <pubDate>Tue, 11 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/regression/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Wright Style Path Analysis</title>
+      <link>/tags/wright-style-path-analysis/</link>
+      <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/wright-style-path-analysis/</guid>
       <description></description>
     </item>
     

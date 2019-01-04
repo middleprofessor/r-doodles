@@ -8,8 +8,23 @@ tags: []
 ---
 This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
 
-First some functions...
+First, some libraries
+
+```{r libraries}
+library(data.table)
+library(mvtnorm)
+library(MASS)
+```
+
+Second, some functions...
 ```{r functions}
+random.sign <- function(u){
+  # this is fastest of three
+	out <- sign(runif(u)-0.5)
+	#randomly draws from {-1,1} with probability of each = 0.5
+	return(out)
+}
+
 fake.eigenvectors <- function(p){
 	a <- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it
 	a <- t(a)%*%a # this is a pseudo-covariance matrix
@@ -18,7 +33,8 @@ fake.eigenvectors <- function(p){
 }
 
 fake.eigenvalues <- function(p, m=p, start=2/3, rate=2){
-    # m is the number of positive eigenvalues
+  # m is the number of positive eigenvalues
+  # start and rate control the decline in the eigenvalue
   s <- start/seq(1:m)^rate
   s <- c(s, rep(0, p-m)) # add zero eigenvalues
   L <- diag(s/sum(s)*m) # rescale so that sum(s)=m and put into matrix,
@@ -44,10 +60,9 @@ fake.X <- function(n,p,E,L){
 
 ```
 
-Since, I'm not starting with a known covariance matrix, I have to create one. This isn't necessary if you already have data. I start with fake data that does have a full-rank covariance matrix, and then create fake data that has a single zero eigenvalue.
+And finally, some fake data. Since, I'm not starting with a known covariance matrix, I have to create one. This isn't necessary if you already have data. I start with fake data that does have a full-rank covariance matrix, and then create fake data that has a single zero eigenvalue.
 ```{r}
-library(mvtnorm)
-set.seed(1)
+set.seed(2)
 n <- 10^4 # number of cases (rows of the data)
 p <- 5 # number of variables (columns of the data)
 
@@ -64,19 +79,21 @@ fake_data <- fake.X(n, p, E, L)
 
 # okay what if our real covariance matrix is not positive definite, that is has zero (negative) eigenvalues.
 # Here is our fake data and cov matrix
-X <- fake.X(n, p, fake.eigenvectors(p), fake.eigenvalues(p, m=(p-1)))
+k <- 1 # number of eigenvalues to delete
+X <- fake.X(n, p, fake.eigenvectors(p), fake.eigenvalues(p, m=(p-k)))
 # and here is our "real" covariance matrix
 S <- cov(X)
 decomp <- eigen(S)
 E <- decomp$vectors
 L <- diag(decomp$values) # note last eigenvalue is negative
 
-# can we simulate with rmvnorm?
-fake_data_rmvnorm <- data <- rmvnorm(n, mean=rep(0, p), sigma=S)
+# can we simulate with rmvnorm? mvrnorm?
+fake_data_rmvnorm <- rmvnorm(n, mean=rep(0, p), sigma=S)
+fake_data_mvrnorm <- mvrnorm(n, mu=rep(0, p), Sigma=S)
 
 # now let's sample fake data from this non-pos matrix
 # set m to p-1
-m <- p-1
+m <- p-k
 E_reduced <- E[1:p, 1:m] # the first m columns of E
 L_reduced <- L[1:m, 1:m] # the first m diag elements of L
 fake_data <- fake.X(n, m, E_reduced, L_reduced)
@@ -86,3 +103,4 @@ cov(fake_data)
 ```
 
 The top matrix is the observed covariance matrix. The middle matrix is using rmvnorm. The bottom matrix is from my own code to generate fake data that is modeled to simulate the real data (although here, even the real data is fake).
+

@@ -6,10 +6,20 @@
     <description>Recent content in Posts on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 20 Dec 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 03 Jan 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Expected covariances in a causal network</title>
+      <link>/2019/01/expected-covariances-in-a-causal-network/</link>
+      <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/01/expected-covariances-in-a-causal-network/</guid>
+      <description>This is a skeleton post
+Standardized variables (Wright’s rules) n &amp;lt;- 10^5 # z is the common cause of g1 and g2 z &amp;lt;- rnorm(n) # effects of z on g1 and g2 b1 &amp;lt;- 0.7 b2 &amp;lt;- 0.7 r12 &amp;lt;- b1*b2 g1 &amp;lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &amp;lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.002701 var(g2) # E(VAR(g2)) = 1 ## [1] 1.005754 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</description>
+    </item>
     
     <item>
       <title>Compute a random data matrix (fake data) without rmvnorm</title>
@@ -18,8 +28,9 @@
       
       <guid>/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/</guid>
       <description>This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
-First some functions…
-fake.eigenvectors &amp;lt;- function(p){ a &amp;lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &amp;lt;- t(a)%*%a # this is a pseudo-covariance matrix E &amp;lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.</description>
+First, some libraries
+library(data.table) library(mvtnorm) library(MASS) Second, some functions…
+random.sign &amp;lt;- function(u){ # this is fastest of three out &amp;lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.</description>
     </item>
     
     <item>

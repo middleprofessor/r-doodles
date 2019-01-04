@@ -267,6 +267,54 @@ ga('send', 'pageview');
     
     <div class="postShorten-header">
       <h1 class="postShorten-title" itemprop="headline">
+        <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
+          On model averaging the coefficients of linear models
+        </a>
+      </h1>
+      
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2018-05-10T00:00:00Z">
+        
+  May 10, 2018
+
+      </time>
+    
+    
+  </div>
+
+    </div>
+    <div class="postShorten-excerpt" itemprop="articleBody">
+      a shorter argument based on a specific example is here
+“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
+This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.
+      <p>
+        <a href="/2018/05/on-model-averaging-regression-coefficients/" class="postShorten-excerpt_link link">Continue reading</a>
+        
+      </p>
+    </div>
+  </div>
+  
+</article>
+
+          
+            
+  
+    
+      
+        
+      
+    
+  
+
+
+  
+
+<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
+  <div class="postShorten-wrap">
+    
+    <div class="postShorten-header">
+      <h1 class="postShorten-title" itemprop="headline">
         <a class="link-unstyled" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/">
           An even more compact defense of coefficient model averaging
         </a>
@@ -555,52 +603,6 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
 </article>
 
           
-            
-  
-    
-      
-        
-      
-    
-  
-
-
-  
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/03/what-is-an-r-doodle/">
-          What is an R doodle?
-        </a>
-      </h1>
-      
-  <div class="postShorten-meta post-meta">
-    
-      <time itemprop="datePublished" datetime="2018-03-07T00:00:00Z">
-        
-  March 7, 2018
-
-      </time>
-    
-    
-  </div>
-
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      An R doodle is a short script to check intuition or understanding. Almost always, this involves generating fake data. I might create an R doodle when I’m reviewing a manuscript or reading a published paper and I want to check if their statistical analysis is doing what the authors think it is doing. Or maybe I create it to help me figure out what the authors are doing. Or I might be teaching some method and I create an R doodle to help me understand how the method behaves given different input (fake) data sets.
-      <p>
-        <a href="/2018/03/what-is-an-r-doodle/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
-  
-</article>
-
-          
           
   <div class="pagination-bar">
     <ul class="pagination">
@@ -614,8 +616,15 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           </li>
         
         
+          <li class="pagination-next">
+            <a class="btn btn--default btn--small" href="/post/page/3/">
+              <span>OLDER POSTS</span>
+              <i class="fa fa-angle-right text-base icon-ml"></i>
+            </a>
+          </li>
+        
       
-      <li class="pagination-number">page 2 of 2</li>
+      <li class="pagination-number">page 2 of 3</li>
     </ul>
   </div>
 
@@ -623,7 +632,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
         </section>
         <footer id="footer" class="main-content-wrap">
   <span class="copyrights">
-    &copy; 2018 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+    &copy; 2019 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
   </span>
     <script src="//yihui.name/js/math-code.js"></script>
 <script async
@@ -651,6 +660,24 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/01/expected-covariances-in-a-causal-network/">
+                <h3 class="media-heading">Expected covariances in a causal network</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is a skeleton post
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.002701 var(g2) # E(VAR(g2)) = 1 ## [1] 1.005754 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
                 <h3 class="media-heading">Compute a random data matrix (fake data) without rmvnorm</h3>
               </a>
@@ -660,8 +687,9 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
-First some functions…
-fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.</div>
+First, some libraries
+library(data.table) library(mvtnorm) library(MASS) Second, some functions…
+random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -816,23 +844,6 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/04/on-alpha/">
-                <h3 class="media-heading">On alpha</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Apr 4, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">This post is motivated by Terry McGlynn’s thought provoking How do we move beyond an arbitrary statistical threshold? I have been struggling with the ideas explored in Terry’s post ever since starting my PhD 30 years ago, and its only been in the last couple of years that my own thoughts have begun to gel. This long marination period is largely because of my very classical biostatistical training. My PhD is from the Department of Anatomical Sciences at Stony Brook but the content was geometric morphometrics and James Rohlf was my mentor for morphometrics specifically, and multivariate statistics more generally.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -840,7 +851,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         14 posts found
+         15 posts found
       </p>
     </div>
   </div>
@@ -901,6 +912,24 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/01/expected-covariances-in-a-causal-network/">
+                <h3 class="media-heading">Expected covariances in a causal network</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is a skeleton post
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.002701 var(g2) # E(VAR(g2)) = 1 ## [1] 1.005754 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
                 <h3 class="media-heading">Compute a random data matrix (fake data) without rmvnorm</h3>
               </a>
@@ -910,8 +939,9 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
-First some functions…
-fake.eigenvectors &lt;- function(p){ a &lt;- matrix(rnorm(p*p), p, p) # only orthogonal if p is infinity so need to orthogonalize it a &lt;- t(a)%*%a # this is a pseudo-covariance matrix E &lt;- eigen(a)$vectors # decompose to truly orthogonal columns return(E) } fake.</div>
+First, some libraries
+library(data.table) library(mvtnorm) library(MASS) Second, some functions…
+random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -1066,23 +1096,6 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/04/on-alpha/">
-                <h3 class="media-heading">On alpha</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Apr 4, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">This post is motivated by Terry McGlynn’s thought provoking How do we move beyond an arbitrary statistical threshold? I have been struggling with the ideas explored in Terry’s post ever since starting my PhD 30 years ago, and its only been in the last couple of years that my own thoughts have begun to gel. This long marination period is largely because of my very classical biostatistical training. My PhD is from the Department of Anatomical Sciences at Stony Brook but the content was geometric morphometrics and James Rohlf was my mentor for morphometrics specifically, and multivariate statistics more generally.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -1090,7 +1103,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         14 posts found
+         15 posts found
       </p>
     </div>
   </div>
