@@ -110,7 +110,7 @@ cov(y1, y2) #
 (a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s)*sigma_y1*sigma_y2 # expected cov(y1, y2)
 # more compact and not using the standardized parameters
 # = sum of paths where path coef = stand coef * parent sd
-a11*a12*sigma.sq_g1 + a21*a22*sigma.sq_g2 + a11*s12*a22+ a21*s12*a12
+a11*a12*sigma.sq_g1 + a21*a22*sigma.sq_g2 + a11*s12*a22 + a21*s12*a12
 
 # correlation y1 and y2
 cor(y1, y2)

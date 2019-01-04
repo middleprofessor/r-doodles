@@ -18,7 +18,7 @@
       
       <guid>/2019/01/expected-covariances-in-a-causal-network/</guid>
       <description>This is a skeleton post
-Standardized variables (Wright’s rules) n &amp;lt;- 10^5 # z is the common cause of g1 and g2 z &amp;lt;- rnorm(n) # effects of z on g1 and g2 b1 &amp;lt;- 0.7 b2 &amp;lt;- 0.7 r12 &amp;lt;- b1*b2 g1 &amp;lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &amp;lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.002701 var(g2) # E(VAR(g2)) = 1 ## [1] 1.005754 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</description>
+Standardized variables (Wright’s rules) n &amp;lt;- 10^5 # z is the common cause of g1 and g2 z &amp;lt;- rnorm(n) # effects of z on g1 and g2 b1 &amp;lt;- 0.7 b2 &amp;lt;- 0.7 r12 &amp;lt;- b1*b2 g1 &amp;lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &amp;lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.9970283 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9986488 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</description>
     </item>
     
   </channel>
