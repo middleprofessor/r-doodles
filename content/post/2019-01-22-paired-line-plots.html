@@ -1,0 +1,37 @@
+---
+title: Paired line plots
+author: Jeff Walker
+date: '2019-01-22'
+slug: paired-line-plots
+categories:
+  - ggplot
+tags:
+  - fake data
+  - repeated measures
+---
+
+
+
+<p>ggplot scripts to draw figures like those in the Dynamic Ecology post <a href="https://dynamicecology.wordpress.com/2019/01/21/paired-line-plots-a-k-a-reaction-norms-to-visualize-likert-data/#comments">Paired line plots (a.k.a. “reaction norms”) to visualize Likert data</a></p>
+<pre class="r"><code>library(ggplot2)
+library(ggpubr)
+library(data.table)</code></pre>
+<pre class="r"><code>set.seed(3)
+n &lt;- 40
+self &lt;- rbinom(n, 5, 0.25) + 1
+others &lt;- self + rbinom(n, 3, 0.5)
+fd &lt;- data.table(id=factor(rep(1:n, 2)),
+                 who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)),
+                 stigma &lt;- c(self, others))</code></pre>
+<p>The students are identified by the column “id”. The students two responses (self and others) are joined by a line using the geom_line() layer. geom_line knows who to join with the “group=id” statement the aes function in line 1. The alpha setting draws transparent lines (alpha=1 is opaque) so the more lines that are superimposed the darker the line. The lines are slightly jittered in the vertical direction so that overlapping lines appear wider.</p>
+<pre class="r"><code>jitter_mag &lt;- 0.03
+gg &lt;- ggplot(data=fd, aes(x=who, y=stigma, group=id)) +
+  geom_line(size=1,
+            alpha=0.3, 
+            position=position_jitter(w=0, h=jitter_mag)) +
+  ylab(&quot;Amount of stigma (1=low, 6=high)&quot;) +
+  xlab(&quot;Responding about views of others or self&quot;) +
+  theme_pubr() +
+  NULL
+gg</code></pre>
+<p><img src="/post/2019-01-22-paired-line-plots_files/figure-html/ggplot-1.png" width="672" /></p>

@@ -1,0 +1,104 @@
+---
+title: GLM vs. t-tests vs. non-parametric tests if all we care about is NHST
+author: Jeff Walker
+date: '2019-01-07'
+slug: glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst
+categories:
+  - stats 101
+tags:
+  - generalized linear models
+  - non-parametric
+  - NHST
+---
+
+
+
+<p>A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)</p>
+<pre class="r"><code>library(ggplot2)
+library(MASS)
+library(data.table)</code></pre>
+<pre class="r"><code>do_sim &lt;- function(){
+  set.seed(1)
+  niter &lt;- 1000
+  methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;)
+  p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods))
+  colnames(p_table) &lt;- methods
+  
+  res_table &lt;- data.table(NULL)
+  beta_0_list &lt;- c(4, 10, 100) # control count
+  theta_list &lt;- c(0.5, 1, 100) # dispersion
+  effect_list &lt;- c(1:3, 5) # relative effect size will be 0%, 50%, 100%, 200%
+  n_list &lt;- c(5, 10, 20, 40) # sample size
+  for(theta in theta_list){
+    for(beta_0 in beta_0_list){
+      for(effect in effect_list){
+        beta_1 &lt;- (effect-1)*beta_0/2 # 0% 50% 100%
+        beta &lt;- c(beta_0, beta_1)
+        for(n in n_list){
+          treatment &lt;- rep(c(&quot;Cn&quot;, &quot;Trt&quot;), each=n)
+          X &lt;- model.matrix(~treatment)
+          mu &lt;- (X%*%beta)[,1]
+          fd &lt;- data.table(treatment=treatment, y=NA)
+          for(iter in 1:niter){
+            fd[, y:=rnegbin(n=n*2, mu=mu, theta=theta)]
+            fd[, log_yp1:=log10(y+1)]
+            p.t &lt;- t.test(y~treatment, data=fd, var.equal=TRUE)$p.value
+            p.welch &lt;- t.test(y~treatment, data=fd, var.equal=FALSE)$p.value
+            p.log &lt;- t.test(log_yp1~treatment, data=fd, var.equal=TRUE)$p.value
+            p.wilcox &lt;- wilcox.test(y~treatment, data=fd, exact=FALSE)$p.value
+            fit &lt;- glm.nb(y~treatment, data=fd)
+            p.nb &lt;- coef(summary(fit))[&quot;treatmentTrt&quot;, &quot;Pr(&gt;|z|)&quot;]
+            p_table[iter,] &lt;- c(p.t, p.welch, p.log, p.wilcox, p.nb)
+          }
+          p_sum &lt;- apply(p_table, 2, function(x) length(which(x &lt;= 0.05))/niter)
+          res_table &lt;- rbind(res_table, data.table(beta_0=beta_0,
+                                                   beta_1=beta_1,
+                                                   n=n,
+                                                   theta=theta,
+                                                   t(p_sum)))
+        }
+      }
+    }
+  }
+  return(res_table)
+}
+
+do_it &lt;- FALSE # if FALSE the results are available as a file
+if(do_it==TRUE){
+  res_table &lt;- do_sim()
+  write.table(res_table, &quot;../output/glm-t-wilcoxon.txt&quot;, row.names = FALSE, quote=FALSE)
+}
+res_table &lt;- fread(&quot;../output/glm-t-wilcoxon.txt&quot;)
+#res_table</code></pre>
+<pre class="r"><code>res &lt;- melt(res_table, 
+            id.vars=c(&quot;beta_0&quot;, &quot;beta_1&quot;, &quot;n&quot;, &quot;theta&quot;),
+            measure.vars=c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;),
+            variable.name=&quot;model&quot;,
+            value.name=&quot;frequency&quot;)
+# res[, beta_0:=factor(beta_0)]
+# res[, beta_1:=factor(beta_1)]
+# res[, theta:=factor(theta)]
+# res[, n:=factor(n)]</code></pre>
+<pre class="r"><code>gg &lt;- ggplot(data=res[beta_1==0], aes(x=n, y=frequency, group=model, color=model)) +
+  geom_line() +
+  facet_grid(beta_0 ~ theta, labeller=label_both) +
+  NULL
+gg</code></pre>
+<p><img src="/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/type%20I-1.png" width="672" /></p>
+<pre class="r"><code>b0_levels &lt;- unique(res$beta_0)
+# small count
+gg1 &lt;- ggplot(data=res[beta_0==b0_levels[1] &amp; beta_1 &gt; 0], aes(x=n, y=frequency, group=model, color=model)) +
+  geom_line() +
+  facet_grid(beta_1 ~ theta, labeller=label_both) +
+  NULL
+
+# large count
+gg2 &lt;- ggplot(data=res[beta_0==b0_levels[3] &amp; beta_1 &gt; 0], aes(x=n, y=frequency, group=model, color=model)) +
+  geom_line() +
+  facet_grid(beta_1 ~ theta, labeller=label_both) +
+  NULL
+
+gg1</code></pre>
+<p><img src="/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/power-1.png" width="672" /></p>
+<pre class="r"><code>gg2</code></pre>
+<p><img src="/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/power-2.png" width="672" /></p>

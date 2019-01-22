@@ -95,7 +95,7 @@
     <item>
       <title>Fake Data</title>
       <link>/tags/fake-data/</link>
-      <pubDate>Mon, 10 Sep 2018 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 22 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/fake-data/</guid>
       <description></description>
@@ -113,7 +113,7 @@
     <item>
       <title>Generalized Linear Models</title>
       <link>/tags/generalized-linear-models/</link>
-      <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/generalized-linear-models/</guid>
       <description></description>
@@ -176,9 +176,18 @@
     <item>
       <title>Nhst</title>
       <link>/tags/nhst/</link>
-      <pubDate>Mon, 23 Apr 2018 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/nhst/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Non Parametric</title>
+      <link>/tags/non-parametric/</link>
+      <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/non-parametric/</guid>
       <description></description>
     </item>
     
@@ -224,6 +233,15 @@
       <pubDate>Tue, 11 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/regression/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Repeated Measures</title>
+      <link>/tags/repeated-measures/</link>
+      <pubDate>Tue, 22 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/repeated-measures/</guid>
       <description></description>
     </item>
     

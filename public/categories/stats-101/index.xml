@@ -6,10 +6,20 @@
     <description>Recent content in Stats 101 on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 14 Nov 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 07 Jan 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/stats-101/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>GLM vs. t-tests vs. non-parametric tests if all we care about is NHST</title>
+      <link>/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/</link>
+      <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/</guid>
+      <description>A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
+library(ggplot2) library(MASS) library(data.table) do_sim &amp;lt;- function(){ set.seed(1) niter &amp;lt;- 1000 methods &amp;lt;- c(&amp;quot;t&amp;quot;, &amp;quot;Welch&amp;quot;, &amp;quot;log&amp;quot;, &amp;quot;Wilcoxan&amp;quot;, &amp;quot;nb&amp;quot;) p_table &amp;lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &amp;lt;- methods res_table &amp;lt;- data.</description>
+    </item>
     
     <item>
       <title>Reporting effects as relative differences...with a confidence interval</title>

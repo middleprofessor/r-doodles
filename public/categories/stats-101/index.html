@@ -270,6 +270,61 @@ ga('send', 'pageview');
     
     <div class="postShorten-header">
       <h1 class="postShorten-title" itemprop="headline">
+        <a class="link-unstyled" href="/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/">
+          GLM vs. t-tests vs. non-parametric tests if all we care about is NHST
+        </a>
+      </h1>
+      
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-01-07T00:00:00Z">
+        
+  January 7, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
+  </div>
+
+    </div>
+    <div class="postShorten-excerpt" itemprop="articleBody">
+      A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
+library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.
+      <p>
+        <a href="/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/" class="postShorten-excerpt_link link">Continue reading</a>
+        
+      </p>
+    </div>
+  </div>
+  
+</article>
+
+            
+              
+  
+    
+      
+        
+      
+    
+  
+
+
+  
+
+<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
+  <div class="postShorten-wrap">
+    
+    <div class="postShorten-header">
+      <h1 class="postShorten-title" itemprop="headline">
         <a class="link-unstyled" href="/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/">
           Reporting effects as relative differences...with a confidence interval
         </a>
@@ -508,6 +563,42 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/01/paired-line-plots/">
+                <h3 class="media-heading">Paired line plots</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
+library(ggplot2) library(ggpubr) library(data.table) set.seed(3) n &lt;- 40 self &lt;- rbinom(n, 5, 0.25) + 1 others &lt;- self + rbinom(n, 3, 0.5) fd &lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)), stigma &lt;- c(self, others)) The students are identified by the column “id”. The students two responses (self and others) are joined by a line using the geom_line() layer.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/">
+                <h3 class="media-heading">GLM vs. t-tests vs. non-parametric tests if all we care about is NHST</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
+library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2019/01/expected-covariances-in-a-causal-network/">
                 <h3 class="media-heading">Expected covariances in a causal network</h3>
               </a>
@@ -654,44 +745,6 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/">
-                <h3 class="media-heading">An even more compact defense of coefficient model averaging</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">a longer, more detailed argument is here
-The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
-David Draper suggested this example from the textbook by Freedman, Pisani and Purves.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/05/model-averaged-coefficients-of-a-glm/">
-                <h3 class="media-heading">Model-averaged coefficients of a GLM</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">This is a very quick post as a comment to the statement
-“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging.”
-from the supplement of Dormann et al. Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -699,7 +752,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         15 posts found
+         17 posts found
       </p>
     </div>
   </div>
@@ -760,6 +813,42 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/01/paired-line-plots/">
+                <h3 class="media-heading">Paired line plots</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
+library(ggplot2) library(ggpubr) library(data.table) set.seed(3) n &lt;- 40 self &lt;- rbinom(n, 5, 0.25) + 1 others &lt;- self + rbinom(n, 3, 0.5) fd &lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)), stigma &lt;- c(self, others)) The students are identified by the column “id”. The students two responses (self and others) are joined by a line using the geom_line() layer.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/">
+                <h3 class="media-heading">GLM vs. t-tests vs. non-parametric tests if all we care about is NHST</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
+library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2019/01/expected-covariances-in-a-causal-network/">
                 <h3 class="media-heading">Expected covariances in a causal network</h3>
               </a>
@@ -906,44 +995,6 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/">
-                <h3 class="media-heading">An even more compact defense of coefficient model averaging</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">a longer, more detailed argument is here
-The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
-David Draper suggested this example from the textbook by Freedman, Pisani and Purves.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/05/model-averaged-coefficients-of-a-glm/">
-                <h3 class="media-heading">Model-averaged coefficients of a GLM</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">This is a very quick post as a comment to the statement
-“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging.”
-from the supplement of Dormann et al. Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -951,7 +1002,7 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         15 posts found
+         17 posts found
       </p>
     </div>
   </div>
