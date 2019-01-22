@@ -13,6 +13,7 @@ tags:
 
 A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn't go terribly wrong (similar to doing experiments in triplicate -- it's not the effect size that matters only "we have experimental evidence of a replicatable effect")
 
+# load libraries
 ```{r setup}
 library(ggplot2)
 library(MASS)

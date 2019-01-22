@@ -8,16 +8,21 @@ categories:
 tags:
   - fake data
   - repeated measures
+output:
+  blogdown::html_page:
+    toc: true
 ---
 
 ggplot scripts to draw figures like those in the Dynamic Ecology post [Paired line plots (a.k.a. “reaction norms”) to visualize Likert data](https://dynamicecology.wordpress.com/2019/01/21/paired-line-plots-a-k-a-reaction-norms-to-visualize-likert-data/#comments)
 
+# load libraries
 ```{r libraries, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(ggpubr)
 library(data.table)
 ```
 
+# make some fake data
 ```{r fake data}
 set.seed(3)
 n <- 40
@@ -27,6 +32,8 @@ fd <- data.table(id=factor(rep(1:n, 2)),
                  who=factor(rep(c("self", "others"), each=n)),
                  stigma <- c(self, others))
 ```
+
+# make a plot with ggplot
 
 The students are identified by the column "id". The students two responses (self and others) are joined by a line using the geom_line() layer. geom_line knows who to join with the "group=id" statement the aes function in line 1. The alpha setting draws transparent lines (alpha=1 is opaque) so the more lines that are superimposed the darker the line. The lines are slightly jittered in the vertical direction so that overlapping lines appear wider.
 

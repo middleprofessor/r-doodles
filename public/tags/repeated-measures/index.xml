@@ -17,8 +17,8 @@
       <pubDate>Tue, 22 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/01/paired-line-plots/</guid>
-      <description>ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
-library(ggplot2) library(ggpubr) library(data.table) set.seed(3) n &amp;lt;- 40 self &amp;lt;- rbinom(n, 5, 0.25) + 1 others &amp;lt;- self + rbinom(n, 3, 0.5) fd &amp;lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&amp;quot;self&amp;quot;, &amp;quot;others&amp;quot;), each=n)), stigma &amp;lt;- c(self, others)) The students are identified by the column “id”. The students two responses (self and others) are joined by a line using the geom_line() layer.</description>
+      <description>load libraries make some fake data make a plot with ggplot   ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
+load libraries library(ggplot2) library(ggpubr) library(data.table)  make some fake data set.seed(3) n &amp;lt;- 40 self &amp;lt;- rbinom(n, 5, 0.25) + 1 others &amp;lt;- self + rbinom(n, 3, 0.5) fd &amp;lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&amp;quot;self&amp;quot;, &amp;quot;others&amp;quot;), each=n)), stigma &amp;lt;- c(self, others))  make a plot with ggplot The students are identified by the column “id”.</description>
     </item>
     
   </channel>

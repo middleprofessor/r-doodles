@@ -8,14 +8,29 @@ categories:
 tags:
   - fake data
   - repeated measures
+output:
+  blogdown::html_page:
+    toc: true
 ---
 
 
+<div id="TOC">
+<ul>
+<li><a href="#load-libraries">load libraries</a></li>
+<li><a href="#make-some-fake-data">make some fake data</a></li>
+<li><a href="#make-a-plot-with-ggplot">make a plot with ggplot</a></li>
+</ul>
+</div>
 
 <p>ggplot scripts to draw figures like those in the Dynamic Ecology post <a href="https://dynamicecology.wordpress.com/2019/01/21/paired-line-plots-a-k-a-reaction-norms-to-visualize-likert-data/#comments">Paired line plots (a.k.a. “reaction norms”) to visualize Likert data</a></p>
+<div id="load-libraries" class="section level1">
+<h1>load libraries</h1>
 <pre class="r"><code>library(ggplot2)
 library(ggpubr)
 library(data.table)</code></pre>
+</div>
+<div id="make-some-fake-data" class="section level1">
+<h1>make some fake data</h1>
 <pre class="r"><code>set.seed(3)
 n &lt;- 40
 self &lt;- rbinom(n, 5, 0.25) + 1
@@ -23,6 +38,9 @@ others &lt;- self + rbinom(n, 3, 0.5)
 fd &lt;- data.table(id=factor(rep(1:n, 2)),
                  who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)),
                  stigma &lt;- c(self, others))</code></pre>
+</div>
+<div id="make-a-plot-with-ggplot" class="section level1">
+<h1>make a plot with ggplot</h1>
 <p>The students are identified by the column “id”. The students two responses (self and others) are joined by a line using the geom_line() layer. geom_line knows who to join with the “group=id” statement the aes function in line 1. The alpha setting draws transparent lines (alpha=1 is opaque) so the more lines that are superimposed the darker the line. The lines are slightly jittered in the vertical direction so that overlapping lines appear wider.</p>
 <pre class="r"><code>jitter_mag &lt;- 0.03
 gg &lt;- ggplot(data=fd, aes(x=who, y=stigma, group=id)) +
@@ -35,3 +53,4 @@ gg &lt;- ggplot(data=fd, aes(x=who, y=stigma, group=id)) +
   NULL
 gg</code></pre>
 <p><img src="/post/2019-01-22-paired-line-plots_files/figure-html/ggplot-1.png" width="672" /></p>
+</div>

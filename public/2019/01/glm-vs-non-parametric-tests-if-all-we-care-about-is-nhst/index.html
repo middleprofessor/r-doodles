@@ -31,9 +31,9 @@
 
     
     <meta name="description" content="A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.">
+load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.">
     <meta property="og:description" content="A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.">
+load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="GLM vs. t-tests vs. non-parametric tests if all we care about is NHST">
     <meta property="og:url" content="/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/">
@@ -41,7 +41,7 @@ library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
     <meta name="twitter:description" content="A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.">
+load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -286,6 +286,8 @@ ga('send', 'pageview');
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
               <p>A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)</p>
+<div id="load-libraries" class="section level1">
+<h1>load libraries</h1>
 <pre class="r"><code>library(ggplot2)
 library(MASS)
 library(data.table)</code></pre>
@@ -374,6 +376,7 @@ gg1</code></pre>
 <p><img src="/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/power-1.png" width="672" /></p>
 <pre class="r"><code>gg2</code></pre>
 <p><img src="/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/power-2.png" width="672" /></p>
+</div>
 
               
             </div>
@@ -512,8 +515,8 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   Jan 1, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
-library(ggplot2) library(ggpubr) library(data.table) set.seed(3) n &lt;- 40 self &lt;- rbinom(n, 5, 0.25) + 1 others &lt;- self + rbinom(n, 3, 0.5) fd &lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)), stigma &lt;- c(self, others)) The students are identified by the column “id”. The students two responses (self and others) are joined by a line using the geom_line() layer.</div>
+              <div class="media-content hide-xs font-merryweather">load libraries make some fake data make a plot with ggplot   ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
+load libraries library(ggplot2) library(ggpubr) library(data.table)  make some fake data set.seed(3) n &lt;- 40 self &lt;- rbinom(n, 5, 0.25) + 1 others &lt;- self + rbinom(n, 3, 0.5) fd &lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)), stigma &lt;- c(self, others))  make a plot with ggplot The students are identified by the column “id”.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -531,7 +534,7 @@ library(ggplot2) library(ggpubr) library(data.table) set.seed(3) n &lt;- 40 self
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.</div>
+load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -858,8 +861,8 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
                   Jan 1, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
-library(ggplot2) library(ggpubr) library(data.table) set.seed(3) n &lt;- 40 self &lt;- rbinom(n, 5, 0.25) + 1 others &lt;- self + rbinom(n, 3, 0.5) fd &lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)), stigma &lt;- c(self, others)) The students are identified by the column “id”. The students two responses (self and others) are joined by a line using the geom_line() layer.</div>
+              <div class="media-content hide-xs font-merryweather">load libraries make some fake data make a plot with ggplot   ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
+load libraries library(ggplot2) library(ggpubr) library(data.table)  make some fake data set.seed(3) n &lt;- 40 self &lt;- rbinom(n, 5, 0.25) + 1 others &lt;- self + rbinom(n, 3, 0.5) fd &lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)), stigma &lt;- c(self, others))  make a plot with ggplot The students are identified by the column “id”.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -877,7 +880,7 @@ library(ggplot2) library(ggpubr) library(data.table) set.seed(3) n &lt;- 40 self
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.</div>
+load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
