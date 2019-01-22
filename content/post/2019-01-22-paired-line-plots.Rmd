@@ -35,7 +35,7 @@ fd <- data.table(id=factor(rep(1:n, 2)),
 
 # make a plot with ggplot
 
-The students are identified by the column "id". The students two responses (self and others) are joined by a line using the geom_line() layer. geom_line knows who to join with the "group=id" statement the aes function in line 1. The alpha setting draws transparent lines (alpha=1 is opaque) so the more lines that are superimposed the darker the line. The lines are slightly jittered in the vertical direction so that overlapping lines appear wider.
+The students are identified by the column "id". The students' two responses ("self" and "others") are joined by a line using the geom_line() layer. The function geom_line() knows who to join with the "group=id" statement in the aes function in line 1. The alpha setting draws transparent lines (alpha=1 is opaque) so the more lines that are superimposed the darker the line. The lines are slightly jittered in the vertical direction so that overlapping lines appear wider.
 
 ```{r ggplot}
 jitter_mag <- 0.03

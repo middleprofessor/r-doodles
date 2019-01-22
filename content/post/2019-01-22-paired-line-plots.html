@@ -41,7 +41,7 @@ fd &lt;- data.table(id=factor(rep(1:n, 2)),
 </div>
 <div id="make-a-plot-with-ggplot" class="section level1">
 <h1>make a plot with ggplot</h1>
-<p>The students are identified by the column “id”. The students two responses (self and others) are joined by a line using the geom_line() layer. geom_line knows who to join with the “group=id” statement the aes function in line 1. The alpha setting draws transparent lines (alpha=1 is opaque) so the more lines that are superimposed the darker the line. The lines are slightly jittered in the vertical direction so that overlapping lines appear wider.</p>
+<p>The students are identified by the column “id”. The students’ two responses (“self” and “others”) are joined by a line using the geom_line() layer. The function geom_line() knows who to join with the “group=id” statement in the aes function in line 1. The alpha setting draws transparent lines (alpha=1 is opaque) so the more lines that are superimposed the darker the line. The lines are slightly jittered in the vertical direction so that overlapping lines appear wider.</p>
 <pre class="r"><code>jitter_mag &lt;- 0.03
 gg &lt;- ggplot(data=fd, aes(x=who, y=stigma, group=id)) +
   geom_line(size=1,
