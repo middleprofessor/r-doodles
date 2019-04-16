@@ -40,9 +40,8 @@ beta_1 <- 0.8 # treatment effect on standardized scale
 beta <- c(beta_0, beta_1)
 target_cor <- 0.3
 
-niter <- 1000
-b <- se <- pval <- matrix(NA, nrow=niter, ncol=3)
-colnames(b) <- colnames(se) <- colnames(pval) <- c("no_adjust", "imbalance", "covariate")
+niter <- 2000 # modified below
+measure_cols <- c("no_adjust", "imbalance", "all_covariates", "weak_covariates", "strong_covariates")
 
 xcols <- paste0("X", 1:p)
 build_ycols <- c("Y_o", xcols)
@@ -52,86 +51,109 @@ b_mat <- data.table(NULL)
 se_mat <- data.table(NULL)
 p_mat <- data.table(NULL)
 
-for(n in c(20, 40, 100, 1000)){
+for(n in c(20, 100, 1000)){
+  # larger iterations with smaller n
+  niter <- round((3*10^4)/sqrt(n), 0)
+
+  # repopulate with NA each n
+  b <- se <- pval <- matrix(NA, nrow=niter, ncol=length(measure_cols))
+  colnames(b) <- colnames(se) <- colnames(pval) <- measure_cols
+  
   Treatment <- rep(c("Cn", "Tr"), each=n)
   X <- model.matrix(formula("~ Treatment"))
-  for(target_cor in c(0, .2, .5)){
-    for(iter in 1:niter){
-      # generate p random, correlated variables. The first is assigned to Y
-      fake_data <- fake.X(n*2, pp1, fake.eigenvectors(pp1), fake.eigenvalues(pp1))
-      colnames(fake_data) <- build_ycols
-      
-      # resacale so that var(Y) = 1, where Y is the first column
-      fake_data <- fake_data/sd(fake_data[,1])
-      
-      fake_data <- data.table(fake_data)
-      
-      # view the scatterplots
-      #gg <- ggpairs(X,progress = ggmatrix_progress(clear = FALSE))
-      show_it <- FALSE
-      if(show_it ==TRUE){
-        gg <- ggpairs(fake_data)
-        print(gg, progress = F)
+  
+  for(iter in 1:niter){
+    # generate p random, correlated variables. The first is assigned to Y
+    fake_data <- fake.X(n*2, pp1, fake.eigenvectors(pp1), fake.eigenvalues(pp1))
+    colnames(fake_data) <- build_ycols
+    
+    # resacale so that var(Y) = 1, where Y is the first column
+    fake_data <- fake_data/sd(fake_data[,1])
+    
+    fake_data <- data.table(fake_data)
+    
+    # view the scatterplots
+    #gg <- ggpairs(X,progress = ggmatrix_progress(clear = FALSE))
+    show_it <- FALSE
+    if(show_it ==TRUE){
+      gg <- ggpairs(fake_data)
+      print(gg, progress = F)
+    }
+    
+    # add the treatment effect
+    fake_data[, Y:=Y_o + X%*%beta]
+    fake_data[, Treatment:=Treatment]
+    
+    fit1 <- lm(Y ~ Treatment, data=fake_data)
+    
+    res <- coef(summary(fit1))["TreatmentTr", ]
+    b[iter, 1] <- res["Estimate"]
+    se[iter, 1] <- res["Std. Error"]
+    pval[iter, 1] <-res["Pr(>|t|)"]
+    
+    # adjust for imablance
+    inc_xcols <- NULL
+    for(i in 1:p){
+      formula <- paste0(xcols[i], " ~ Treatment")
+      fit2a <- lm(formula, data=fake_data)
+      if(coef(summary(fit2a))["TreatmentTr", "Pr(>|t|)"] < 0.05){
+        inc_xcols <- c(inc_xcols, xcols[i])
       }
-      
-      # add the treatment effect
-      fake_data[, Y:=Y_o + X%*%beta]
-      fake_data[, Treatment:=Treatment]
-      
-      fit1 <- lm(Y ~ Treatment, data=fake_data)
-
-      res <- coef(summary(fit1))["TreatmentTr", ]
-      b[iter, 1] <- res["Estimate"]
-      se[iter, 1] <- res["Std. Error"]
-      pval[iter, 1] <-res["Pr(>|t|)"]
-      
-      # adjust for imablance
-      inc_xcols <- NULL
-      for(i in 1:p){
-        formula <- paste0(xcols[i], " ~ Treatment")
-        fit2a <- lm(formula, data=fake_data)
-        if(coef(summary(fit2a))["TreatmentTr", "Pr(>|t|)"] < 0.05){
-          inc_xcols <- c(inc_xcols, xcols[i])
-        }
+    }
+    if(length(inc_xcols) > 0){
+      formula <- paste0("Y ~ Treatment + ", paste(inc_xcols, collapse=" + "))
+      fit2b <- lm(formula, data=fake_data)
+      res <- coef(summary(fit2b))["TreatmentTr", ]
+      b[iter, 2] <- res["Estimate"]
+      se[iter, 2] <- res["Std. Error"]
+      pval[iter, 2] <-res["Pr(>|t|)"]
+    }
+    
+    # adjust for covariates
+    (ycor <- abs(cor(fake_data[, .SD, .SDcols=cor_ycols])[2:pp1, 1]))
+    mean(ycor)
+    
+    j <- 2
+    for(target_cor in c(0, .2, .4)){
+      j <- j+1
+      if(target_cor == 0.2){
+        inc <- which(ycor < target_cor) # include only weak covariates
+      }else{
+        inc <- which(ycor > target_cor) # include all OR strong covariates
       }
-      if(length(inc_xcols) > 0){
-        formula <- paste0("Y ~ Treatment + ", paste(inc_xcols, collapse=" + "))
-        fit2b <- lm(formula, data=fake_data)
-        res <- coef(summary(fit2b))["TreatmentTr", ]
-        b[iter, 2] <- res["Estimate"]
-        se[iter, 2] <- res["Std. Error"]
-        pval[iter, 2] <-res["Pr(>|t|)"]
-      }
-
-      # adjust for covariates
-      (ycor <- abs(cor(fake_data[, .SD, .SDcols=cor_ycols])[2:pp1, 1]))
-      mean(ycor)
-      
-      inc <- which(ycor > target_cor)
       if(length(inc) > 0){
         inc_xcols <- xcols[inc]
         formula <- paste0("Y ~ Treatment + ", paste(inc_xcols, collapse=" + "))
         fit3 <- lm(formula, data=fake_data)
         res <- coef(summary(fit3))["TreatmentTr", ]
-        b[iter, 3] <- res["Estimate"]
-        se[iter, 3] <- res["Std. Error"]
-        pval[iter, 3] <-res["Pr(>|t|)"]
+        b[iter, j] <- res["Estimate"]
+        se[iter, j] <- res["Std. Error"]
+        pval[iter, j] <-res["Pr(>|t|)"]
+        if(n == 1000 & res["Std. Error"] > 0.05){
+          fit_inspect <- copy(fit3)
+          ycor_inspect <- ycor
+        }
       }
-      
     }
-    b_mat <- rbind(b_mat, data.table(n=n, min_r=target_cor, b))
-    se_mat <- rbind(se_mat, data.table(n=n, min_r=target_cor, se))
-    p_mat <- rbind(p_mat, data.table(n=n, min_r=target_cor, p))
   }  
+  b_mat <- rbind(b_mat, data.table(n=n, b))
+  se_mat <- rbind(se_mat, data.table(n=n, se))
+  p_mat <- rbind(p_mat, data.table(n=n, p))
 }
 
-
-pd <- position_dodge(1)
-se_long <- melt(se_mat, measure.vars=c("no_adjust", "imbalance", "covariate"), variable.name="method", value.name="se")
-gg <- ggplot(data=se_long, aes(x=factor(min_r), y=se, fill=method)) +
+pd <- position_dodge(0.8)
+b_long <- na.omit(melt(b_mat, measure.vars=measure_cols, variable.name="method", value.name="b"))
+gg <- ggplot(data=b_long, aes(x=factor(n), y=b, fill=method)) +
   geom_boxplot(position=pd) +
-  facet_grid(.~factor(n)) +
-  xlab("minimum COR(Y, X) to add as covariate") +
+  xlab("sample size (per treatment level)") +
+  NULL
+gg
+
+pd <- position_dodge(0.8)
+se_long <- na.omit(melt(se_mat, measure.vars=measure_cols, variable.name="method", value.name="se"))
+gg <- ggplot(data=se_long, aes(x=factor(n), y=se, fill=method)) +
+  geom_boxplot(position=pd) +
+  xlab("sample size (per treatment level)") +
   NULL
 gg
 
