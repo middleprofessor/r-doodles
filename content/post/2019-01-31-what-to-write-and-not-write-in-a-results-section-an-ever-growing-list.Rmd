@@ -1,0 +1,11 @@
+---
+title: What to write, and not write, in a results section — an ever-growing list
+author: Jeff Walker
+date: '2019-01-31'
+slug: what-to-write-and-not-write-in-a-results-section-an-ever-growing-list
+categories:
+  - stats 101
+tags: []
+---
+
+"GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability." -- Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.

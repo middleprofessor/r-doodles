@@ -6,10 +6,20 @@
     <description>Recent content in Ancova on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 08 Mar 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 12 Apr 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/ancova/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Covariate adjustment in randomized experiments</title>
+      <link>/2019/04/covariate-adjustment-in-randomized-experiments/</link>
+      <pubDate>Fri, 12 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/04/covariate-adjustment-in-randomized-experiments/</guid>
+      <description>The post motivated by a tweetorial from Darren Dahly
+In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &amp;lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?</description>
+    </item>
     
     <item>
       <title>Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study</title>

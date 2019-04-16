@@ -1,0 +1,45 @@
+---
+title: Omitted variable bias -- error correlatedwith x
+output: html_notebook
+---
+```{r}
+library(ggplot2)
+```
+
+```{r}
+n <- 10^4
+z <- rnorm(n)
+alpha_1 <- 0.7
+alpha_2 <- -0.7
+x1 <- alpha_1*z + sqrt(1-alpha_1^2)*rnorm(n)
+epsilon_2 <- sqrt(1-alpha_2^2)*rnorm(n)
+x2 <- alpha_2*z + epsilon_2
+beta_1 <- 0.0
+beta_2 <- -0.75
+epsilon <- sqrt(1 - (beta_1^2 + beta_2^2 + 2*beta_1*beta_2*alpha_1*alpha_2))*rnorm(n)
+mu <- beta_1*x1 + beta_2*x2
+y <- mu + epsilon
+sd(y)
+
+```
+```{r}
+# if the model is y ~ x1 + e then the true error, e is
+epsilon_red <- beta_2*epsilon_2 + epsilon
+mean(epsilon_2)
+mean(epsilon)
+mean(epsilon_red)
+cor(epsilon_red, x1)
+```
+
+
+```{r}
+fit <- lm(y ~ x1)
+coef(fit)
+yhat <- predict(fit)
+y_error <- (y - mu) # this is just epsilon
+y_res <- (y - yhat) # this is just residuals(fit)
+cor(y_error, x1)
+fit2 <- lm(y_error ~ x1)
+coef(fit2)
+```
+

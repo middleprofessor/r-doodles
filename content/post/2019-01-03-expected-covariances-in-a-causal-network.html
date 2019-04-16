@@ -28,11 +28,11 @@ r12 &lt;- b1*b2
 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n)
 g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n)
 var(g1) # E(VAR(g1)) = 1</code></pre>
-<pre><code>## [1] 0.9970283</code></pre>
+<pre><code>## [1] 0.997149</code></pre>
 <pre class="r"><code>var(g2) # E(VAR(g2)) = 1</code></pre>
-<pre><code>## [1] 0.9986488</code></pre>
+<pre><code>## [1] 0.9972956</code></pre>
 <pre class="r"><code>cor(g1, g2) # E(COR(g1,g2)) = b1*b2</code></pre>
-<pre><code>## [1] 0.4853138</code></pre>
+<pre><code>## [1] 0.4881183</code></pre>
 <pre class="r"><code>b1*b2</code></pre>
 <pre><code>## [1] 0.49</code></pre>
 <pre class="r"><code># effects of g1 and g2 on y1 and y2
@@ -45,11 +45,11 @@ r2.2 &lt;- a12^2 + a22^2 + 2*a12*a22*b1*b2 # systematic variance of y1
 y1 &lt;- a11*g1 + a21*g2 + sqrt(1-r2.1)*rnorm(n)
 y2 &lt;- a12*g1 + a22*g2 + sqrt(1-r2.2)*rnorm(n)
 var(y1) # E() = 1</code></pre>
-<pre><code>## [1] 0.9928183</code></pre>
+<pre><code>## [1] 0.9963031</code></pre>
 <pre class="r"><code>var(y2) # E() = 1</code></pre>
-<pre><code>## [1] 0.9946074</code></pre>
+<pre><code>## [1] 0.994697</code></pre>
 <pre class="r"><code>cor(y1, y2) # E() = a11*a12 + a21*a22 + a11*r12*a22 + a21*r12*a12</code></pre>
-<pre><code>## [1] 0.7431812</code></pre>
+<pre><code>## [1] 0.7454303</code></pre>
 <pre class="r"><code>a11*a12 + a21*a22 + a11*r12*a22 + a21*r12*a12 # sum of all paths</code></pre>
 <pre><code>## [1] 0.745</code></pre>
 </div>
@@ -78,21 +78,21 @@ sigma_g2 &lt;- sqrt(sigma.sq_g2)
 g1 &lt;- b1*z + sqrt(sigma.sq_g1 - sigma.sq_g1.sys)*rnorm(n)
 g2 &lt;- b2*z + sqrt(sigma.sq_g2 - sigma.sq_g2.sys)*rnorm(n)
 var(g1) # E(VAR(g1)) = sigma.sq_g1</code></pre>
-<pre><code>## [1] 6.3999</code></pre>
+<pre><code>## [1] 6.400034</code></pre>
 <pre class="r"><code>var(g2) # E(VAR(g2)) = sigma.sq_g2</code></pre>
-<pre><code>## [1] 6.404525</code></pre>
+<pre><code>## [1] 6.403562</code></pre>
 <pre class="r"><code>sigma.sq_g1</code></pre>
 <pre><code>## [1] 6.4</code></pre>
 <pre class="r"><code>sigma.sq_g2</code></pre>
 <pre><code>## [1] 6.4</code></pre>
 <pre class="r"><code>cov(g1,g2) # E() = b1*b2*sigma_z^2</code></pre>
-<pre><code>## [1] 5.762802</code></pre>
+<pre><code>## [1] 5.759874</code></pre>
 <pre class="r"><code>s12 # b1*b2*sigma_z^2</code></pre>
 <pre><code>## [1] 5.76</code></pre>
 <pre class="r"><code># effects of g1 and g2 on y1 and y2
 a11 &lt;- 1.5 # effect of g1 on y1
 a12 &lt;- 1.5 # effect of g1 on y2
-a21 &lt;- 1.5 # effect of g2 on y1
+a21 &lt;- 3 # effect of g2 on y1
 a22 &lt;- 1.5 # effect of g2 on y2
 sigma.sq_y1.sys &lt;- a11^2*sigma.sq_g1 + a21^2*sigma.sq_g2 + 2*a11*a21*s12 # systematic variance of y1
 sigma.sq_y2.sys &lt;- a12^2*sigma.sq_g1 + a22^2*sigma.sq_g2 + 2*a12*a22*s12 # systematic variance of y2
@@ -105,11 +105,11 @@ sigma_y2 &lt;- sqrt(sigma.sq_y2)
 y1 &lt;- a11*g1 + a21*g2 + sqrt(sigma.sq_y1 - sigma.sq_y1.sys)*rnorm(n)
 y2 &lt;- a12*g1 + a22*g2 + sqrt(sigma.sq_y2 - sigma.sq_y2.sys)*rnorm(n)
 var(y1) # E() = sigma.sq_y1</code></pre>
-<pre><code>## [1] 60.81204</code></pre>
+<pre><code>## [1] 137.5161</code></pre>
 <pre class="r"><code>var(y2) # E() = sigma.sq_y1</code></pre>
-<pre><code>## [1] 60.86759</code></pre>
+<pre><code>## [1] 60.87395</code></pre>
 <pre class="r"><code>sigma.sq_y1</code></pre>
-<pre><code>## [1] 60.8</code></pre>
+<pre><code>## [1] 137.6</code></pre>
 <pre class="r"><code>sigma.sq_y2</code></pre>
 <pre><code>## [1] 60.8</code></pre>
 <pre class="r"><code>a11.s &lt;- a11*sigma_g1/sigma_y1
@@ -120,19 +120,46 @@ r12 &lt;- s12/sigma_g1/sigma_g2
 r12 # expected correlation between g1 and g2</code></pre>
 <pre><code>## [1] 0.9</code></pre>
 <pre class="r"><code>cor(g1, g2) # actual correlation between g1 and g2</code></pre>
-<pre><code>## [1] 0.9001268</code></pre>
+<pre><code>## [1] 0.8997275</code></pre>
 <pre class="r"><code># covariance y1 and y2
 cov(y1, y2) #</code></pre>
-<pre><code>## [1] 54.75665</code></pre>
+<pre><code>## [1] 82.10576</code></pre>
 <pre class="r"><code>(a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s)*sigma_y1*sigma_y2 # expected cov(y1, y2)</code></pre>
-<pre><code>## [1] 54.72</code></pre>
+<pre><code>## [1] 82.08</code></pre>
 <pre class="r"><code># more compact and not using the standardized parameters
 # = sum of paths where path coef = stand coef * parent sd
 a11*a12*sigma.sq_g1 + a21*a22*sigma.sq_g2 + a11*s12*a22 + a21*s12*a12</code></pre>
-<pre><code>## [1] 54.72</code></pre>
+<pre><code>## [1] 82.08</code></pre>
 <pre class="r"><code># correlation y1 and y2
 cor(y1, y2)</code></pre>
-<pre><code>## [1] 0.9000136</code></pre>
+<pre><code>## [1] 0.8973897</code></pre>
 <pre class="r"><code>a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s</code></pre>
-<pre><code>## [1] 0.9</code></pre>
+<pre><code>## [1] 0.8973799</code></pre>
+</div>
+<div id="expected-value-of-b-with-missing-covariate" class="section level2">
+<h2>Expected value of b with missing covariate</h2>
+<pre class="r"><code>coef(summary(lm(y1 ~ g1 + g2)))</code></pre>
+<pre><code>##                Estimate  Std. Error    t value   Pr(&gt;|t|)
+## (Intercept) 0.006165963 0.003710027   1.661972 0.09651863
+## g1          1.503519031 0.003360074 447.466106 0.00000000
+## g2          2.994464649 0.003359148 891.435776 0.00000000</code></pre>
+<pre class="r"><code>coef(summary(lm(y1 ~ g1)))</code></pre>
+<pre><code>##                Estimate  Std. Error      t value  Pr(&gt;|t|)
+## (Intercept) 0.004241297 0.004970132    0.8533571 0.3934615
+## g1          4.198463665 0.001964609 2137.0475423 0.0000000</code></pre>
+<pre class="r"><code># expected = direct + cor*indirect using cor
+a11 + cor(g1,g2)*a21</code></pre>
+<pre><code>## [1] 4.199183</code></pre>
+<pre class="r"><code># expected = direct + cor*indirect, using cov as model param
+a11 + (s12/sigma_g1/sigma_g2)*a21</code></pre>
+<pre><code>## [1] 4.2</code></pre>
+<pre class="r"><code># need to correct if different variances in g1 and g2
+# expected is a11 + rho*sigma_g2/sigma_g1*a21
+rho &lt;- s12/sigma_g1/sigma_g2
+a11 + rho*sigma_g2/sigma_g1*a21</code></pre>
+<pre><code>## [1] 4.2</code></pre>
+<pre class="r"><code># this is equal to
+a11 + s12/sigma_g1^2*a21</code></pre>
+<pre><code>## [1] 4.2</code></pre>
+<pre class="r"><code># which is equal to a11 + b21*a21</code></pre>
 </div>

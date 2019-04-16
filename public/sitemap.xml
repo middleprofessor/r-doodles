@@ -3,6 +3,16 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2019/04/covariate-adjustment-in-randomized-experiments/</loc>
+    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/2019/01/what-to-write-and-not-write-in-a-results-section-an-ever-growing-list/</loc>
+    <lastmod>2019-01-31T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/01/paired-line-plots/</loc>
     <lastmod>2019-01-22T00:00:00+00:00</lastmod>
   </url>
@@ -89,7 +99,7 @@
   
   <url>
     <loc>/tags/ancova/</loc>
-    <lastmod>2018-03-08T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -106,7 +116,7 @@
   
   <url>
     <loc>/tags/categorical-x/</loc>
-    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -243,7 +253,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2019-01-22T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -255,7 +265,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-01-22T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -279,13 +289,13 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2019-01-07T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/</loc>
-    <lastmod>2018-03-08T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

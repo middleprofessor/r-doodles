@@ -21,7 +21,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="Hugo 0.37 with theme Tranquilpeak 0.4.3-BETA">
+    <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-BETA">
     <title>Expected covariances in a causal network</title>
     <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
     <meta name="keywords" content="">
@@ -31,9 +31,9 @@
 
     
     <meta name="description" content="This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.9970283 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9986488 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
     <meta property="og:description" content="This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.9970283 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9986488 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="Expected covariances in a causal network">
     <meta property="og:url" content="/2019/01/expected-covariances-in-a-causal-network/">
@@ -41,7 +41,7 @@ Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause o
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
     <meta name="twitter:description" content="This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.9970283 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9986488 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -72,14 +72,17 @@ Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause o
 
     
       
-<script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-118821125-2', 'auto');
-ga('send', 'pageview');
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-118821125-2', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
 
     
@@ -277,7 +280,10 @@ ga('send', 'pageview');
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <p>This is a skeleton post</p>
+              
+
+
+<p>This is a skeleton post</p>
 <div id="standardized-variables-wrights-rules" class="section level2">
 <h2>Standardized variables (Wright’s rules)</h2>
 <pre class="r"><code>n &lt;- 10^5
@@ -292,11 +298,11 @@ r12 &lt;- b1*b2
 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n)
 g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n)
 var(g1) # E(VAR(g1)) = 1</code></pre>
-<pre><code>## [1] 0.9970283</code></pre>
+<pre><code>## [1] 0.997149</code></pre>
 <pre class="r"><code>var(g2) # E(VAR(g2)) = 1</code></pre>
-<pre><code>## [1] 0.9986488</code></pre>
+<pre><code>## [1] 0.9972956</code></pre>
 <pre class="r"><code>cor(g1, g2) # E(COR(g1,g2)) = b1*b2</code></pre>
-<pre><code>## [1] 0.4853138</code></pre>
+<pre><code>## [1] 0.4881183</code></pre>
 <pre class="r"><code>b1*b2</code></pre>
 <pre><code>## [1] 0.49</code></pre>
 <pre class="r"><code># effects of g1 and g2 on y1 and y2
@@ -309,11 +315,11 @@ r2.2 &lt;- a12^2 + a22^2 + 2*a12*a22*b1*b2 # systematic variance of y1
 y1 &lt;- a11*g1 + a21*g2 + sqrt(1-r2.1)*rnorm(n)
 y2 &lt;- a12*g1 + a22*g2 + sqrt(1-r2.2)*rnorm(n)
 var(y1) # E() = 1</code></pre>
-<pre><code>## [1] 0.9928183</code></pre>
+<pre><code>## [1] 0.9963031</code></pre>
 <pre class="r"><code>var(y2) # E() = 1</code></pre>
-<pre><code>## [1] 0.9946074</code></pre>
+<pre><code>## [1] 0.994697</code></pre>
 <pre class="r"><code>cor(y1, y2) # E() = a11*a12 + a21*a22 + a11*r12*a22 + a21*r12*a12</code></pre>
-<pre><code>## [1] 0.7431812</code></pre>
+<pre><code>## [1] 0.7454303</code></pre>
 <pre class="r"><code>a11*a12 + a21*a22 + a11*r12*a22 + a21*r12*a12 # sum of all paths</code></pre>
 <pre><code>## [1] 0.745</code></pre>
 </div>
@@ -342,21 +348,21 @@ sigma_g2 &lt;- sqrt(sigma.sq_g2)
 g1 &lt;- b1*z + sqrt(sigma.sq_g1 - sigma.sq_g1.sys)*rnorm(n)
 g2 &lt;- b2*z + sqrt(sigma.sq_g2 - sigma.sq_g2.sys)*rnorm(n)
 var(g1) # E(VAR(g1)) = sigma.sq_g1</code></pre>
-<pre><code>## [1] 6.3999</code></pre>
+<pre><code>## [1] 6.400034</code></pre>
 <pre class="r"><code>var(g2) # E(VAR(g2)) = sigma.sq_g2</code></pre>
-<pre><code>## [1] 6.404525</code></pre>
+<pre><code>## [1] 6.403562</code></pre>
 <pre class="r"><code>sigma.sq_g1</code></pre>
 <pre><code>## [1] 6.4</code></pre>
 <pre class="r"><code>sigma.sq_g2</code></pre>
 <pre><code>## [1] 6.4</code></pre>
 <pre class="r"><code>cov(g1,g2) # E() = b1*b2*sigma_z^2</code></pre>
-<pre><code>## [1] 5.762802</code></pre>
+<pre><code>## [1] 5.759874</code></pre>
 <pre class="r"><code>s12 # b1*b2*sigma_z^2</code></pre>
 <pre><code>## [1] 5.76</code></pre>
 <pre class="r"><code># effects of g1 and g2 on y1 and y2
 a11 &lt;- 1.5 # effect of g1 on y1
 a12 &lt;- 1.5 # effect of g1 on y2
-a21 &lt;- 1.5 # effect of g2 on y1
+a21 &lt;- 3 # effect of g2 on y1
 a22 &lt;- 1.5 # effect of g2 on y2
 sigma.sq_y1.sys &lt;- a11^2*sigma.sq_g1 + a21^2*sigma.sq_g2 + 2*a11*a21*s12 # systematic variance of y1
 sigma.sq_y2.sys &lt;- a12^2*sigma.sq_g1 + a22^2*sigma.sq_g2 + 2*a12*a22*s12 # systematic variance of y2
@@ -369,11 +375,11 @@ sigma_y2 &lt;- sqrt(sigma.sq_y2)
 y1 &lt;- a11*g1 + a21*g2 + sqrt(sigma.sq_y1 - sigma.sq_y1.sys)*rnorm(n)
 y2 &lt;- a12*g1 + a22*g2 + sqrt(sigma.sq_y2 - sigma.sq_y2.sys)*rnorm(n)
 var(y1) # E() = sigma.sq_y1</code></pre>
-<pre><code>## [1] 60.81204</code></pre>
+<pre><code>## [1] 137.5161</code></pre>
 <pre class="r"><code>var(y2) # E() = sigma.sq_y1</code></pre>
-<pre><code>## [1] 60.86759</code></pre>
+<pre><code>## [1] 60.87395</code></pre>
 <pre class="r"><code>sigma.sq_y1</code></pre>
-<pre><code>## [1] 60.8</code></pre>
+<pre><code>## [1] 137.6</code></pre>
 <pre class="r"><code>sigma.sq_y2</code></pre>
 <pre><code>## [1] 60.8</code></pre>
 <pre class="r"><code>a11.s &lt;- a11*sigma_g1/sigma_y1
@@ -384,21 +390,48 @@ r12 &lt;- s12/sigma_g1/sigma_g2
 r12 # expected correlation between g1 and g2</code></pre>
 <pre><code>## [1] 0.9</code></pre>
 <pre class="r"><code>cor(g1, g2) # actual correlation between g1 and g2</code></pre>
-<pre><code>## [1] 0.9001268</code></pre>
+<pre><code>## [1] 0.8997275</code></pre>
 <pre class="r"><code># covariance y1 and y2
 cov(y1, y2) #</code></pre>
-<pre><code>## [1] 54.75665</code></pre>
+<pre><code>## [1] 82.10576</code></pre>
 <pre class="r"><code>(a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s)*sigma_y1*sigma_y2 # expected cov(y1, y2)</code></pre>
-<pre><code>## [1] 54.72</code></pre>
+<pre><code>## [1] 82.08</code></pre>
 <pre class="r"><code># more compact and not using the standardized parameters
 # = sum of paths where path coef = stand coef * parent sd
 a11*a12*sigma.sq_g1 + a21*a22*sigma.sq_g2 + a11*s12*a22 + a21*s12*a12</code></pre>
-<pre><code>## [1] 54.72</code></pre>
+<pre><code>## [1] 82.08</code></pre>
 <pre class="r"><code># correlation y1 and y2
 cor(y1, y2)</code></pre>
-<pre><code>## [1] 0.9000136</code></pre>
+<pre><code>## [1] 0.8973897</code></pre>
 <pre class="r"><code>a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s</code></pre>
-<pre><code>## [1] 0.9</code></pre>
+<pre><code>## [1] 0.8973799</code></pre>
+</div>
+<div id="expected-value-of-b-with-missing-covariate" class="section level2">
+<h2>Expected value of b with missing covariate</h2>
+<pre class="r"><code>coef(summary(lm(y1 ~ g1 + g2)))</code></pre>
+<pre><code>##                Estimate  Std. Error    t value   Pr(&gt;|t|)
+## (Intercept) 0.006165963 0.003710027   1.661972 0.09651863
+## g1          1.503519031 0.003360074 447.466106 0.00000000
+## g2          2.994464649 0.003359148 891.435776 0.00000000</code></pre>
+<pre class="r"><code>coef(summary(lm(y1 ~ g1)))</code></pre>
+<pre><code>##                Estimate  Std. Error      t value  Pr(&gt;|t|)
+## (Intercept) 0.004241297 0.004970132    0.8533571 0.3934615
+## g1          4.198463665 0.001964609 2137.0475423 0.0000000</code></pre>
+<pre class="r"><code># expected = direct + cor*indirect using cor
+a11 + cor(g1,g2)*a21</code></pre>
+<pre><code>## [1] 4.199183</code></pre>
+<pre class="r"><code># expected = direct + cor*indirect, using cov as model param
+a11 + (s12/sigma_g1/sigma_g2)*a21</code></pre>
+<pre><code>## [1] 4.2</code></pre>
+<pre class="r"><code># need to correct if different variances in g1 and g2
+# expected is a11 + rho*sigma_g2/sigma_g1*a21
+rho &lt;- s12/sigma_g1/sigma_g2
+a11 + rho*sigma_g2/sigma_g1*a21</code></pre>
+<pre><code>## [1] 4.2</code></pre>
+<pre class="r"><code># this is equal to
+a11 + s12/sigma_g1^2*a21</code></pre>
+<pre><code>## [1] 4.2</code></pre>
+<pre class="r"><code># which is equal to a11 + b21*a21</code></pre>
 </div>
 
               
@@ -532,6 +565,41 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/04/covariate-adjustment-in-randomized-experiments/">
+                <h3 class="media-heading">Covariate adjustment in randomized experiments</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">The post motivated by a tweetorial from Darren Dahly
+In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/01/what-to-write-and-not-write-in-a-results-section-an-ever-growing-list/">
+                <h3 class="media-heading">What to write, and not write, in a results section — an ever-growing list</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">“GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” – Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2019/01/paired-line-plots/">
                 <h3 class="media-heading">Paired line plots</h3>
               </a>
@@ -559,7 +627,7 @@ load libraries library(ggplot2) library(ggpubr) library(data.table)  make some f
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.</div>
+load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -577,7 +645,7 @@ load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- f
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.9970283 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9986488 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</div>
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -653,7 +721,7 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">On page 606, of Lock et al “Statistics: Unlocking the Power of Data”, the authors state in item D “The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average.” Ah no.
-library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag(2) Sigma[1,2] &lt;- Sigma[2,1] &lt;- rho X &lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &lt;- c(&quot;X1&quot;, &quot;X2&quot;) beta &lt;- c(0.01, -0.</div>
+library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag(2) Sigma[1,2] &lt;- Sigma[2,1] &lt;- rho X &lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &lt;- c(&quot;X1&quot;, &quot;X2&quot;) beta &lt;- c(0.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -677,43 +745,6 @@ library(ggplot2) library(data.table)  First – create fake data depths &lt;- c(
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/">
-                <h3 class="media-heading">Should the model-averaged prediction be computed on the link or response scale in a GLM?</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">[updated to include additional output from MuMIn, BMA, and BAS]
-This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
-                <h3 class="media-heading">On model averaging the coefficients of linear models</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">a shorter argument based on a specific example is here
-“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
-This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -721,7 +752,7 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         17 posts found
+         19 posts found
       </p>
     </div>
   </div>
@@ -878,6 +909,41 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/04/covariate-adjustment-in-randomized-experiments/">
+                <h3 class="media-heading">Covariate adjustment in randomized experiments</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">The post motivated by a tweetorial from Darren Dahly
+In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/01/what-to-write-and-not-write-in-a-results-section-an-ever-growing-list/">
+                <h3 class="media-heading">What to write, and not write, in a results section — an ever-growing list</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jan 1, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">“GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” – Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2019/01/paired-line-plots/">
                 <h3 class="media-heading">Paired line plots</h3>
               </a>
@@ -905,7 +971,7 @@ load libraries library(ggplot2) library(ggpubr) library(data.table)  make some f
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.seed(1) niter &lt;- 1000 methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;) p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &lt;- methods res_table &lt;- data.</div>
+load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -923,7 +989,7 @@ load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- f
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.9970283 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9986488 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</div>
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -999,7 +1065,7 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">On page 606, of Lock et al “Statistics: Unlocking the Power of Data”, the authors state in item D “The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average.” Ah no.
-library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag(2) Sigma[1,2] &lt;- Sigma[2,1] &lt;- rho X &lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &lt;- c(&quot;X1&quot;, &quot;X2&quot;) beta &lt;- c(0.01, -0.</div>
+library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag(2) Sigma[1,2] &lt;- Sigma[2,1] &lt;- rho X &lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &lt;- c(&quot;X1&quot;, &quot;X2&quot;) beta &lt;- c(0.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -1023,43 +1089,6 @@ library(ggplot2) library(data.table)  First – create fake data depths &lt;- c(
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/">
-                <h3 class="media-heading">Should the model-averaged prediction be computed on the link or response scale in a GLM?</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">[updated to include additional output from MuMIn, BMA, and BAS]
-This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
-                <h3 class="media-heading">On model averaging the coefficients of linear models</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">a shorter argument based on a specific example is here
-“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
-This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -1067,7 +1096,7 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         17 posts found
+         19 posts found
       </p>
     </div>
   </div>

@@ -80,7 +80,7 @@ s12 # b1*b2*sigma_z^2
 # effects of g1 and g2 on y1 and y2
 a11 <- 1.5 # effect of g1 on y1
 a12 <- 1.5 # effect of g1 on y2
-a21 <- 1.5 # effect of g2 on y1
+a21 <- 3 # effect of g2 on y1
 a22 <- 1.5 # effect of g2 on y2
 sigma.sq_y1.sys <- a11^2*sigma.sq_g1 + a21^2*sigma.sq_g2 + 2*a11*a21*s12 # systematic variance of y1
 sigma.sq_y2.sys <- a12^2*sigma.sq_g1 + a22^2*sigma.sq_g2 + 2*a12*a22*s12 # systematic variance of y2
@@ -116,5 +116,24 @@ a11*a12*sigma.sq_g1 + a21*a22*sigma.sq_g2 + a11*s12*a22 + a21*s12*a12
 cor(y1, y2)
 a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s
 
+```
+
+## Expected value of b with missing covariate
+
+```{r}
+coef(summary(lm(y1 ~ g1 + g2)))
+coef(summary(lm(y1 ~ g1)))
+# expected = direct + cor*indirect using cor
+a11 + cor(g1,g2)*a21
+# expected = direct + cor*indirect, using cov as model param
+a11 + (s12/sigma_g1/sigma_g2)*a21
+
+# need to correct if different variances in g1 and g2
+# expected is a11 + rho*sigma_g2/sigma_g1*a21
+rho <- s12/sigma_g1/sigma_g2
+a11 + rho*sigma_g2/sigma_g1*a21
+# this is equal to
+a11 + s12/sigma_g1^2*a21
+# which is equal to a11 + b21*a21
 ```
 

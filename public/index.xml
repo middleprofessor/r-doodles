@@ -6,10 +6,29 @@
     <description>Recent content on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 22 Jan 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 12 Apr 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Covariate adjustment in randomized experiments</title>
+      <link>/2019/04/covariate-adjustment-in-randomized-experiments/</link>
+      <pubDate>Fri, 12 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/04/covariate-adjustment-in-randomized-experiments/</guid>
+      <description>The post motivated by a tweetorial from Darren Dahly
+In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &amp;lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?</description>
+    </item>
+    
+    <item>
+      <title>What to write, and not write, in a results section — an ever-growing list</title>
+      <link>/2019/01/what-to-write-and-not-write-in-a-results-section-an-ever-growing-list/</link>
+      <pubDate>Thu, 31 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/01/what-to-write-and-not-write-in-a-results-section-an-ever-growing-list/</guid>
+      <description>“GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” – Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.</description>
+    </item>
     
     <item>
       <title>Paired line plots</title>
@@ -28,7 +47,7 @@ load libraries library(ggplot2) library(ggpubr) library(data.table)  make some f
       
       <guid>/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/</guid>
       <description>A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-load libraries library(ggplot2) library(MASS) library(data.table) do_sim &amp;lt;- function(){ set.seed(1) niter &amp;lt;- 1000 methods &amp;lt;- c(&amp;quot;t&amp;quot;, &amp;quot;Welch&amp;quot;, &amp;quot;log&amp;quot;, &amp;quot;Wilcoxan&amp;quot;, &amp;quot;nb&amp;quot;) p_table &amp;lt;- matrix(NA, nrow=niter, ncol=length(methods)) colnames(p_table) &amp;lt;- methods res_table &amp;lt;- data.</description>
+load libraries library(ggplot2) library(MASS) library(data.table) do_sim &amp;lt;- function(){ set.</description>
     </item>
     
     <item>
@@ -38,7 +57,7 @@ load libraries library(ggplot2) library(MASS) library(data.table) do_sim &amp;lt
       
       <guid>/2019/01/expected-covariances-in-a-causal-network/</guid>
       <description>This is a skeleton post
-Standardized variables (Wright’s rules) n &amp;lt;- 10^5 # z is the common cause of g1 and g2 z &amp;lt;- rnorm(n) # effects of z on g1 and g2 b1 &amp;lt;- 0.7 b2 &amp;lt;- 0.7 r12 &amp;lt;- b1*b2 g1 &amp;lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &amp;lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.9970283 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9986488 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</description>
+Standardized variables (Wright’s rules) n &amp;lt;- 10^5 # z is the common cause of g1 and g2 z &amp;lt;- rnorm(n) # effects of z on g1 and g2 b1 &amp;lt;- 0.7 b2 &amp;lt;- 0.7 r12 &amp;lt;- b1*b2 g1 &amp;lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &amp;lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</description>
     </item>
     
     <item>
@@ -82,7 +101,7 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
       
       <guid>/2018/09/a-low-p-value-for-the-full-model-does-not-mean-that-the-model-is-a-good-predictor-of-the-response/</guid>
       <description>On page 606, of Lock et al “Statistics: Unlocking the Power of Data”, the authors state in item D “The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average.” Ah no.
-library(data.table) library(mvtnorm) rho &amp;lt;- 0.5 n &amp;lt;- 10^5 Sigma &amp;lt;- diag(2) Sigma[1,2] &amp;lt;- Sigma[2,1] &amp;lt;- rho X &amp;lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &amp;lt;- c(&amp;quot;X1&amp;quot;, &amp;quot;X2&amp;quot;) beta &amp;lt;- c(0.01, -0.</description>
+library(data.table) library(mvtnorm) rho &amp;lt;- 0.5 n &amp;lt;- 10^5 Sigma &amp;lt;- diag(2) Sigma[1,2] &amp;lt;- Sigma[2,1] &amp;lt;- rho X &amp;lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &amp;lt;- c(&amp;quot;X1&amp;quot;, &amp;quot;X2&amp;quot;) beta &amp;lt;- c(0.</description>
     </item>
     
     <item>

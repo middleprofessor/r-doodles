@@ -1,0 +1,278 @@
+---
+title: "FDR in context of posthoc experiment"
+output: html_notebook
+---
+
+KO -- knockout with receptor for X missing
+Effect of X on regulation of Y.
+1. WT: X- - expected is normal amount of Y
+2. WT: X+ - expected is increased Y
+3. KO: X- expected is normal
+4. KO: X+ expected is normal
+5. xxx
+6 xxx
+
+```{r}
+library(ggplot2)
+library(data.table)
+library(emmeans)
+```
+
+```{r}
+# pairwise differences
+a <- c(1,3,9)
+u <- rep(1, length(a))
+aut <- a%*%t(u)
+t(aut)-aut
+```
+
+```{r functions}
+# replicating order of contrasts in contrast function of emmeans using method="revpairwise"
+# order of contrasts is all levels of factor A with first level of B then all levels of factor A with 2nd level of B, etc.
+# matrix of a0/b0, a1/b0, a0/b1, a1/b1, a0/b2, a1/b2
+# 1. use Upper triangle, contrast is column head minus row head
+# 2. Go down column until hit diagonal
+# 3. Move to next column and start at top
+# 4. (using letters=columns and numbers = rows) b1, c1, c2, d1, d2, d3, e1, e2, e3, e4, ...
+
+#a-/b-  a+/b-
+pairwise_differences <- function(a){
+  u <- rep(1, length(a))
+  aut <- a%*%t(u)
+  d <- t(aut)-aut
+  return(d[upper.tri(d)])
+}
+
+pairwise_differences_within_levels <- function(fcm){
+  # -- fcm is the data.frame of factor combination means
+  # -- fcm contains the factor level combinations in cols 1 and 2 and the expected mean
+  # of the combination in col 3.
+  # -- the factor level combinations is expand.grid(f1, f2), where the parameters are the levels
+  # of factor 1 and factor 2
+  # -- the expected means is X%*%beta where X is the model matrix of combinations and beta is the
+  # vector of effect coefficients, in the order a level effects, b level effects, interactions
+  fcm <- data.table(fcm)
+  setnames(fcm, old=colnames(fcm), new=c("A", "B", "mu"))
+  fcm[, A:=factor(A, unique(A))]
+  fcm[, B:=factor(B, unique(B))]
+  diffs <- NULL
+  for(b in levels(fcm$B)){
+    diffs <- c(diffs, pairwise_differences(fcm[B==b, mu]))
+  }
+  for(a in levels(fcm$A)){
+    diffs <- c(diffs, pairwise_differences(fcm[A==a, mu]))
+  }
+  return(diffs)
+}
+```
+
+```{r discovery-functions}
+
+family_discovery <- function(p, true_effect){
+  # did at least one discovery occur
+  # true_effect is the vector of binary indicating if true effect exists with 0=no, 1=yes
+  fd <- ifelse(length(which(p <= 0.05 & true_effect == 0)), 1, 0)
+  return(fd)
+}
+
+false_discovery <- function(p, true_effect){
+  # true_effect is the vector of binary indicating if true effect exists with 0=no, 1=yes
+  fd <- length(which(p <= 0.05 & true_effect == 0))
+  return(fd)
+}
+
+total_discovery <- function(p){
+  # true_effect is the vector of binary indicating if true effect exists with 0=no, 1=yes
+  td <- length(which(p <= 0.05))
+  return(td)
+}
+
+total_null <- function(true_effect){
+  # true_effect is the vector of binary indicating if true effect exists with 0=no, 1=yes
+  tn <- length(which(true_effect == 0))
+  return(tn)
+}
+
+
+```
+
+
+```{r core-loop}
+simulate_it <- function(n=6, beta=NULL, niter=1000){
+  if(is.null(beta)){beta <- c(0, 0, 0, 0, 0, 0)}
+  a_levels <- c("wt", "ko")
+  b_levels <- c("b-", "b+", "bR")
+  # effects: intercept, ko, b+, bR, kob+, kobR
+  combos <- expand.grid(mouse=a_levels, treatment=b_levels)
+  fd <- data.table(combos[rep(row.names(combos), n), 1:ncol(combos)])
+  fd[, mouse:=factor(mouse, a_levels)]
+  fd[, treatment:=factor(treatment, b_levels)]
+  
+  X <- model.matrix(~mouse*treatment, data=fd)
+  mu_i <- (X%*%beta)[,1]
+  N <- length(mu_i)
+  
+  # cell means
+  X.mu <- model.matrix(~mouse*treatment, data=combos)
+  mu <- (X.mu%*%beta)[,1] # same order as in emmeans
+  combos <- data.table(cbind(combos, mu=mu))
+  expected_diffs <- pairwise_differences(combos[, mu])
+  expected_diffs_within <- pairwise_differences_within_levels(combos)
+  true_effect <- ifelse(expected_diffs_within==0,0,1)
+  
+  p_none <- matrix(NA, nrow=niter, ncol=length(expected_diffs_within))
+  p_holm <- matrix(NA, nrow=niter, ncol=length(expected_diffs_within))
+  p_tukey <- matrix(NA, nrow=niter, ncol=length(expected_diffs_within))
+  p_fdr <- matrix(NA, nrow=niter, ncol=length(expected_diffs_within))
+  for(iter in 1:niter){
+    fd[, y:=mu_i + rnorm(N)]
+    fd.fit <- lm(y~mouse*treatment, data=fd)
+    fd.emm <- emmeans(fd.fit, specs=c("mouse", "treatment"))
+    fd.contrast <- contrast(fd.emm,
+                            method="revpairwise",
+                            simple = "each",
+                            combine=TRUE,
+                            adjust="none")
+    p_none[iter,] <- summary(fd.contrast)[, "p.value"] # pvalues
+    fd.contrast <- contrast(fd.emm,
+                            method="revpairwise",
+                            simple = "each",
+                            combine=TRUE,
+                            adjust="holm")
+    p_holm[iter,] <- summary(fd.contrast)[, "p.value"] # pvalues
+    fd.contrast <- contrast(fd.emm,
+                            method="revpairwise",
+                            simple = "each",
+                            combine=TRUE,
+                            adjust="tukey")
+    p_tukey[iter,] <- summary(fd.contrast)[, "p.value"] # pvalues
+    fd.contrast <- contrast(fd.emm,
+                            method="revpairwise",
+                            simple = "each",
+                            combine=TRUE,
+                            adjust="fdr")
+    p_fdr[iter,] <- summary(fd.contrast)[, "p.value"] # pvalues
+  }
+  return(list(none=p_none, holm=p_holm, tukey=p_tukey, fdr=p_fdr, true_effect=true_effect))
+}
+```
+
+```{r start-here}
+set.seed(1)
+niter <- 2000
+adjust <- c("none", "holm", "tukey", "fdr")
+type1 <- matrix(NA, nrow=6, ncol=(length(adjust)))
+fwer <- matrix(NA, nrow=6, ncol=length(adjust))
+power <- matrix(NA, nrow=6, ncol=length(adjust))
+fdr <- matrix(NA, nrow=6, ncol=length(adjust))
+colnames(type1) <- adjust
+colnames(fwer) <- adjust
+colnames(power) <- adjust
+colnames(fdr) <- adjust
+
+beta_i <- c(-1, 0, 0, 0, 0, 0)
+for(sim in 1:6){
+  beta_i[sim] <- beta_i[sim] + 1 # the intercept will be zero and the coeffs will move to one
+  sim_i <- simulate_it(n=6, beta=beta_i, niter=niter)
+  p_none <- sim_i$none
+  p_holm <- sim_i$holm
+  p_tukey <- sim_i$tukey
+  p_fdr <- sim_i$fdr
+  true_effect <- sim_i$true_effect
+  
+    # false discoveries
+  false_disovery.none <- sum(apply(p_none, 1, false_discovery, true_effect))
+  false_disovery.holm <- sum(apply(p_holm, 1, false_discovery, true_effect))
+  false_disovery.tukey <- sum(apply(p_tukey, 1, false_discovery, true_effect))
+  false_disovery.fdr <- sum(apply(p_fdr, 1, false_discovery, true_effect))
+  
+  # total discoveries (or total type I errors)
+  total_disovery.none <- sum(apply(p_none, 1, total_discovery))
+  total_disovery.holm <- sum(apply(p_holm, 1, total_discovery))
+  total_disovery.tukey <- sum(apply(p_tukey, 1, total_discovery))
+  total_disovery.fdr <- sum(apply(p_fdr, 1, total_discovery))
+  
+  true_discovery.none <- total_disovery.none - false_disovery.none
+  true_discovery.holm <- total_disovery.holm - false_disovery.holm
+  true_discovery.tukey <- total_disovery.tukey - false_disovery.tukey
+  true_discovery.fdr <- total_disovery.fdr - false_disovery.fdr
+  
+  # total nulls
+  total_null_H <- total_null(true_effect)*niter
+  
+  # total trues
+  total_true <- sum(true_effect)*niter
+  
+  # family wise error
+  fwe_none <- sum(apply(p_none, 1, family_discovery, true_effect))
+  fwe_holm <- sum(apply(p_holm, 1, family_discovery, true_effect))
+  fwe_tukey <- sum(apply(p_tukey, 1, family_discovery, true_effect))
+  fwe_fdr <- sum(apply(p_fdr, 1, family_discovery, true_effect))
+
+  # type I error
+  (stat_none <- false_disovery.none/total_null_H)
+  (stat_holm <- false_disovery.holm/total_null_H)
+  (stat_tukey <- false_disovery.tukey/total_null_H)
+  (stat_fdr <- false_disovery.fdr/total_null_H)
+  type1[sim,] <- c(stat_none, stat_holm, stat_tukey, stat_fdr)
+  
+  # fwer
+  (stat_none <- fwe_none/niter)
+  (stat_holm <- fwe_holm/niter)
+  (stat_tukey <- fwe_tukey/niter)
+  (stat_fdr <- fwe_fdr/niter)
+  fwer[sim,] <- c(stat_none, stat_holm, stat_tukey, stat_fdr)
+
+  # power
+  (stat_none <- true_discovery.none/total_true)
+  (stat_holm <- true_discovery.holm/total_true)
+  (stat_tukey <- true_discovery.tukey/total_true)
+  (stat_fdr <- true_discovery.fdr/total_true)
+  power[sim,] <- c(stat_none, stat_holm, stat_tukey, stat_fdr)
+  
+  # fdr
+  (stat_none <- false_disovery.none/total_disovery.none)
+  (stat_holm <- false_disovery.holm/total_disovery.holm)
+  (stat_tukey <- false_disovery.tukey/total_disovery.tukey)
+  (stat_fdr <- false_disovery.fdr/total_disovery.fdr)
+  fdr[sim,] <- c(stat_none, stat_holm, stat_tukey, stat_fdr)
+}
+
+res_wide <- rbind(data.table(stat="Type_I", type1),
+                  data.table(stat="FWER", fwer),
+                  data.table(stat="Power", power),
+                  data.table(stat="FDR", fdr))
+res <- melt(res_wide, id.vars="stat", variable.name="adjust", value.name="value")
+sim_levels <- c("b1-5=0", "b1=1", "b1-2=1", "b1-3=1", "b1-4=1", "b1-5=1")
+res[, sim:=sim_levels]
+res[, sim:=factor(sim, levels=sim_levels)]
+```
+
+```{r plots}
+gg1 <- ggplot(data=res[stat=="Type_I"], aes(x=sim, y=value, color=adjust, group=adjust)) +
+  geom_line() +
+  ylab("Type I error") +
+  ggtitle("Type I error") +
+  NULL
+gg2 <- ggplot(data=res[stat=="FWER"], aes(x=sim, y=value, color=adjust, group=adjust)) +
+  geom_line() +
+  ylab("FWER") +
+  ggtitle("FWER") +
+  NULL
+gg3 <- ggplot(data=res[stat=="Power"], aes(x=sim, y=value, color=adjust, group=adjust)) +
+  geom_line() +
+  ylab("Power") +
+  ggtitle("Power") +
+  NULL
+gg4 <- ggplot(data=res[stat=="FDR"], aes(x=sim, y=value, color=adjust, group=adjust)) +
+  geom_line() +
+  ylab("FDR") +
+  ggtitle("FDR") +
+  coord_cartesian(ylim=c(0,.25)) +
+  NULL
+gg1
+gg2
+gg3
+gg4
+```
+

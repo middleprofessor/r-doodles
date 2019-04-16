@@ -1,0 +1,187 @@
+---
+title: "type I error in three-way linear mixed model"
+output: html_notebook
+---
+
+
+```{r message=FALSE, warning=FALSE}
+library(purrr) # possibly
+library(ggplot2)
+library(data.table)
+library(nlme)
+library(lmerTest)
+library(emmeans)
+```
+
+
+```{r}
+get_lme <- function(data){
+  lme(y ~ A*B*C, random = ~1|Site/cage_id, method="ML", data=dt)
+}
+
+n.a_levels <- 3
+n.b_levels <- 2
+n.c_levels <- 2
+n.sites <- 3
+a_levels <- paste("a",1:n.a_levels, sep="")
+b_levels <- paste("b",1:n.b_levels, sep="")
+c_levels <- paste("c",1:n.c_levels, sep="")
+site_levels <- paste("site", 1:n.sites, sep="")
+combos <- expand.grid(A=a_levels, B=b_levels, C=c_levels, Site=site_levels)
+n.cages <- nrow(combos)
+cage_levels <- 1:n.cages
+combos <- cbind(cage_id=cage_levels, combos)
+n_within <- round(runif(n.cages, min=1, max=8), 0) # number plants within a cage
+sigma.site <- 0.6
+sigma.cage <- 0.49
+sigma <- .63
+sigma_levels <- c(0.6, 3, 6)
+dt_part <- data.table(combos[rep(row.names(combos), n_within), 1:ncol(combos)])
+dt_part[, cage_id:=factor(cage_id)]
+dt_part[, A:=factor(A)]
+dt_part[, B:=factor(B)]
+dt_part[, C:=factor(C)]
+dt_part[, Site:=factor(Site)]
+
+niter <- 1000
+N <- nrow(dt_part)
+pmat <- matrix(NA, nrow=niter*length(sigma_levels), ncol=7) #7 term rows of ANOVA table
+p2mat <- matrix(NA, nrow=niter*length(sigma_levels), ncol=3) # additive term rows of ANOVA table
+se_lmm <- matrix(NA, nrow=niter*length(sigma_levels), ncol=10) # coef of coef table of additive model
+se_lm <- matrix(NA, nrow=niter*length(sigma_levels), ncol=10) # coef of coef table of additive model
+colnames(se_lmm) <- c("signif_add", "intercept", "b1", "b2", "b3", "b4", "site", "cage", "residual", "sigma")
+colnames(se_lm) <- c("signif_add", "intercept", "b1", "b2", "b3", "b4", "site", "cage", "residual", "sigma")
+
+testfit <- list(NULL)
+sim_i <- 0
+for(sigma in sigma_levels){
+  iter <- 0
+  while(iter < niter){
+    dt.add<- data.table(Site=site_levels, sigma.site=rnorm(n.sites, sd=sigma.site))
+    dt <- merge(dt_part, dt.add, by="Site")
+    dt.add <- data.table(cage_id=cage_levels, sigma.cage=rnorm(n.cages, sd=sigma.cage))
+    dt <- merge(dt, dt.add, by="cage_id")
+    
+    dt[, y:=sigma.site + sigma.cage + rnorm(N, sd=sigma)]
+
+    #  fit <- possibly(lme(y ~ A*B*C, random = ~1|Site/cage_id, method="ML", data=dt), otherwise=NA)
+    fit <- try(lme(y ~ A*B*C, random = ~1|Site/cage_id, method="ML", data=dt), silent=TRUE)
+    if(class(fit)!="try-error"){
+      sim_i <- sim_i + 1
+      iter <- iter+1
+      fit.anova <- anova(fit, type="marginal")
+      p_values <- fit.anova[2:8, "p-value"] # from ANOVA table
+      pmat[sim_i, ] <- p_values
+      if(all(p_values[4:7] > 0.05) == TRUE){ # refit additive model
+        fit.add <- try(lme(y ~ A + B + C, random = ~1|Site/cage_id, method="ML", data=dt), silent=TRUE)
+        if(class(fit.add)!="try-error"){
+          fit.anova <- anova(fit.add, type="marginal")
+          p2_values <- fit.anova[2:4, "p-value"] # from ANOVA table
+          p2mat[sim_i, ] <- p2_values
+          se_lmm[sim_i, 1] <- ifelse(all(p2_values > 0.05)==FALSE, 1, 0)
+          se_lmm[sim_i, 2:6] <- coef(summary(fit.add))[, "Std.Error"]
+          se_lmm[sim_i, 7:9] <- as.numeric(VarCorr(fit.add)[c(2,4,5),2])
+          se_lmm[sim_i, 10] <- sigma
+          
+          fit.lm <- lm(y ~ A + B + C, data=dt)
+          se_lm[sim_i, 1] <- ifelse(all(p2_values > 0.05)==FALSE, 1, 0)
+          se_lm[sim_i, 2:6] <- coef(summary(fit.lm))[, "Std. Error"]
+          se_lm[sim_i, 7:9] <- as.numeric(VarCorr(fit.add)[c(2,4,5),2])
+          se_lm[sim_i, 10] <- sigma
+        }
+      }
+    }
+  }
+}
+lmm_table <- data.table(se_lmm)
+lmm_table <- na.omit(lmm_table)
+lmm_table[, sigma:=factor(sigma)]
+lmm_table[, signif_add:=factor(signif_add)]
+lmm_table[, cage_res_ratio:=cage/residual]
+lmm_table[, int_b3_ratio:=intercept/b3]
+
+lmm_table[, .(intercept=mean(intercept), b3=mean(b3)), by=.(sigma, signif_add)]
+
+qplot(x=cage_res_ratio, y=int_b3_ratio, data=lmm_table, color=signif_add)
+qplot(x=cage_res_ratio, y=int_b3_ratio, data=lmm_table, color=sigma)
+
+lm_table <- data.table(se_lm)
+lm_table <- na.omit(lm_table)
+lm_table[, sigma:=factor(sigma)]
+qplot(x=intercept, y=b3, color=sigma, data=lm_table)
+
+apply(na.omit(se_p.lt.05), 2, mean)
+apply(na.omit(se_p.gt.05), 2, mean)
+#coef(summary(fit))
+
+pmat <- data.table(cbind(pmat, sigma=rep(sigma_levels, each=niter))) # p values from factorial anova table
+pmat_long <- melt(pmat, id.vars="sigma", variable.names="sigma", value.name="p")
+pmat_long[, .(type_I=sum(p<0.05)/.N), by=.(sigma)]
+
+p2mat <- data.table(cbind(na.omit(p2mat), sigma=rep(sigma_levels, each=niter))) # p values from factorial anova table
+p2mat_long <- melt(p2mat, id.vars="sigma", variable.names="sigma", value.name="p")
+p2mat_long[, .(type_I=sum(p<0.05)/.N), by=.(sigma)]
+
+```
+
+# theory
+1. In full-factorial model, VAR increases along diag from intercept -> main factors -> 1st order interactions -> 2nd order interactions
+2. In full-factorial model, VAR of lower order terms stays that same as more terms are added
+3. In full-factorial  model, VAR of levels of a factor are the same regardless of number of levels
+4. In additive model, VAR increases along diagonal only if 2 factors each with 2 levels
+5. In addition model, with 3 factors and 2 levels each then VAR is the same for intercept and main effects.
+6. In additive model, with 2 factors, one with 3 levels and one with 2, VAR is higher for terms of factor with 3 levels while VAR is same for intercept and other factor (note the same number of terms as in #6)
+7. In additive model wit 3 factors, one with 3 levels and other two with two levels, VAR is lowest in terms of factors with 2 levels, highest in terms of factor with 3 levels, and intermediate for intercept.
+
+additive model, A (2 levels), B (2 levels), C (2 levels)
+0.3162278 0.3162278 0.3162278 0.3162278
+
+additive model, A (3 levels), B (2 levels), C (2 levels)
+n=5: 0.2886751 0.3162278 0.3162278 0.2581989 0.2581989 
+n=3: 0.3726780 0.4082483 0.4082483 0.3333333 0.3333333 --these are same proportionally so n doesn't matter
+
+additive model, A (4 levels), B (2 levels), C (2 levels)
+0.2738613 0.3162278 0.3162278 0.3162278 0.2236068 0.2236068
+
+Take-home - increased number of factors and increased number of levels within factor decreases the SE of the terms for the factors with fewer levels. huh?
+
+```{r}
+# factor A with 3 levels
+n <- 3
+a_levels <- c("a-", "a+", "a++")
+b_levels <- c("b-", "b+")
+c_levels <- c("c-", "c+")
+A <- rep(a_levels, each=n)
+B <- expand.grid(A=A, B=b_levels)
+C <- expand.grid(A=A, B=b_levels, C=c_levels)
+
+mm1 <- model.matrix(~A)
+mm2 <- model.matrix(~A*B, data=B)
+mm2a <- model.matrix(~A+B, data=B)
+mm3 <- model.matrix(~A*B*C, data=C)
+mm3a <- model.matrix(~A+B+C, data=C)
+
+sigma <- 1
+xtx1 <- t(mm1)%*%mm1
+xtx2 <- t(mm2)%*%mm2
+xtx2a <- t(mm2a)%*%mm2a
+xtx3 <- t(mm3)%*%mm3
+xtx3a <- t(mm3a)%*%mm3a
+solve(xtx1)
+solve(xtx2)
+solve(xtx2a)
+solve(xtx3)
+solve(xtx3a)
+Sigma1 <- diag(sigma, ncol(mm1))
+Sigma2 <- diag(sigma, ncol(mm2))
+Sigma2a <- diag(sigma, ncol(mm2a))
+Sigma3 <- diag(sigma, ncol(mm3))
+Sigma3a <- diag(sigma, ncol(mm3a))
+# standard errors
+sqrt(diag(Sigma1%*%solve(xtx1)))
+sqrt(diag(Sigma2%*%solve(xtx2)))
+sqrt(diag(Sigma2a%*%solve(xtx2a)))
+sqrt(diag(Sigma3%*%solve(xtx3)))
+sqrt(diag(Sigma3a%*%solve(xtx3a)))
+```
+
