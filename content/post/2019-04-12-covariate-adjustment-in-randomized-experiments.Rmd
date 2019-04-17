@@ -28,7 +28,7 @@ source("../R/fake_x.R") # bookdown
 
 # Fake data
 
-Generate 11 correlated variables and assign the first to the response ($\mathbf{y}$) and the rest to the covariates ($\mathbf{X}$). Construct a treatment variable and effect and add this to the response.
+Generate $p$ correlated variables and assign the first to the response ($\mathbf{y}$) and the rest to the covariates ($\mathbf{X}$). Construct a treatment variable and effect and add this to the response.
 
 ```{r, eval=TRUE}
 
@@ -157,6 +157,41 @@ ci_long <- melt(ci_mat, measure.vars=measure_cols, variable.name="method", value
 b_long <- melt(b_mat, measure.vars=measure_cols, variable.name="method", value.name="b")
 se_long <- melt(se_mat, measure.vars=measure_cols, variable.name="method", value.name="se")
 
+
+#ci_long[, .(coverage=sum(covers)/niter), by=.(method, n, beta_1)]
+
+
+```
+
+# Distribution of estimates
+
+```{r}
+
+pd <- position_dodge(0.8)
+gg <- ggplot(data=b_long, aes(x=factor(n), y=b, fill=method)) +
+  geom_boxplot(position=pd) +
+  xlab("sample size (per treatment level)") +
+  NULL
+gg
+
+```
+
+# Distribution of SE of estimate
+
+```{r}
+
+pd <- position_dodge(0.8)
+gg <- ggplot(data=se_long, aes(x=factor(n), y=se, fill=method)) +
+  geom_boxplot(position=pd) +
+  xlab("sample size (per treatment level)") +
+  NULL
+gg
+
+```
+
+# Type I error
+
+```{r}
 # type I
 p_sum <- p_long[, .(error=sum(p < 0.05)/niter), by=.(method, n, beta_1)]
 pd <- position_dodge(0.8)
@@ -169,7 +204,13 @@ gg <- ggplot(data=p_sum[beta_1==0], aes(x=factor(n), y=error, color=method, grou
   NULL
 gg
 
+```
+
+# Power
+
+```{r}
 # power
+# need p_sum from above
 gg <- ggplot(data=p_sum[beta_1!=0], aes(x=factor(n), y=error, color=method)) +
   geom_point(position=pd) +
   xlab("sample size (per treatment level)") +
@@ -178,31 +219,19 @@ gg <- ggplot(data=p_sum[beta_1!=0], aes(x=factor(n), y=error, color=method)) +
   NULL
 gg
 
+```
+
+# Sign error
+
+```{r}
 # sign error
-p_long <- cbind(p_long, b=b_long[, b])
-sign_error <- p_long[beta_1 > 0, .(error=sum(p < 0.1 & b < 0)/niter), by=.(method, n, beta_1)]
+p_long2 <- cbind(p_long, b=b_long[, b])
+sign_error <- p_long2[beta_1 > 0, .(error=sum(p < 0.1 & b < 0)/niter), by=.(method, n, beta_1)]
 gg <- ggplot(data=sign_error, aes(x=factor(n), y=error, color=method)) +
   geom_point(position=pd) +
   xlab("sample size (per treatment level)") +
   ylab("Sign error") +
   facet_grid(.~beta_1) +
-  NULL
-gg
-
-
-#ci_long[, .(coverage=sum(covers)/niter), by=.(method, n, beta_1)]
-
-pd <- position_dodge(0.8)
-gg <- ggplot(data=b_long, aes(x=factor(n), y=b, fill=method)) +
-  geom_boxplot(position=pd) +
-  xlab("sample size (per treatment level)") +
-  NULL
-gg
-
-pd <- position_dodge(0.8)
-gg <- ggplot(data=se_long, aes(x=factor(n), y=se, fill=method)) +
-  geom_boxplot(position=pd) +
-  xlab("sample size (per treatment level)") +
   NULL
 gg
 

@@ -301,7 +301,7 @@ library(data.table)
 source(&quot;../R/fake_x.R&quot;) # bookdown</code></pre>
 <div id="fake-data" class="section level1">
 <h1>Fake data</h1>
-<p>Generate 11 correlated variables and assign the first to the response (<span class="math inline">\(\mathbf{y}\)</span>) and the rest to the covariates (<span class="math inline">\(\mathbf{X}\)</span>). Construct a treatment variable and effect and add this to the response.</p>
+<p>Generate <span class="math inline">\(p\)</span> correlated variables and assign the first to the response (<span class="math inline">\(\mathbf{y}\)</span>) and the rest to the covariates (<span class="math inline">\(\mathbf{X}\)</span>). Construct a treatment variable and effect and add this to the response.</p>
 <pre class="r"><code>n &lt;- 100 # per treatment level - this is modified below
 p &lt;- 3 # number of covariates (columns of the data)
 pp1 &lt;- p+1
@@ -427,7 +427,32 @@ ci_long &lt;- melt(ci_mat, measure.vars=measure_cols, variable.name=&quot;method
 b_long &lt;- melt(b_mat, measure.vars=measure_cols, variable.name=&quot;method&quot;, value.name=&quot;b&quot;)
 se_long &lt;- melt(se_mat, measure.vars=measure_cols, variable.name=&quot;method&quot;, value.name=&quot;se&quot;)
 
-# type I
+
+#ci_long[, .(coverage=sum(covers)/niter), by=.(method, n, beta_1)]</code></pre>
+</div>
+<div id="distribution-of-estimates" class="section level1">
+<h1>Distribution of estimates</h1>
+<pre class="r"><code>pd &lt;- position_dodge(0.8)
+gg &lt;- ggplot(data=b_long, aes(x=factor(n), y=b, fill=method)) +
+  geom_boxplot(position=pd) +
+  xlab(&quot;sample size (per treatment level)&quot;) +
+  NULL
+gg</code></pre>
+<p><img src="/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="distribution-of-se-of-estimate" class="section level1">
+<h1>Distribution of SE of estimate</h1>
+<pre class="r"><code>pd &lt;- position_dodge(0.8)
+gg &lt;- ggplot(data=se_long, aes(x=factor(n), y=se, fill=method)) +
+  geom_boxplot(position=pd) +
+  xlab(&quot;sample size (per treatment level)&quot;) +
+  NULL
+gg</code></pre>
+<p><img src="/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="type-i-error" class="section level1">
+<h1>Type I error</h1>
+<pre class="r"><code># type I
 p_sum &lt;- p_long[, .(error=sum(p &lt; 0.05)/niter), by=.(method, n, beta_1)]
 pd &lt;- position_dodge(0.8)
 gg &lt;- ggplot(data=p_sum[beta_1==0], aes(x=factor(n), y=error, color=method, group=method)) +
@@ -438,8 +463,12 @@ gg &lt;- ggplot(data=p_sum[beta_1==0], aes(x=factor(n), y=error, color=method, g
   # facet_grid(.~beta_1) +
   NULL
 gg</code></pre>
-<p><img src="/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p><img src="/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="power" class="section level1">
+<h1>Power</h1>
 <pre class="r"><code># power
+# need p_sum from above
 gg &lt;- ggplot(data=p_sum[beta_1!=0], aes(x=factor(n), y=error, color=method)) +
   geom_point(position=pd) +
   xlab(&quot;sample size (per treatment level)&quot;) +
@@ -447,10 +476,13 @@ gg &lt;- ggplot(data=p_sum[beta_1!=0], aes(x=factor(n), y=error, color=method)) 
   facet_grid(.~beta_1) +
   NULL
 gg</code></pre>
-<p><img src="/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<p><img src="/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+<div id="sign-error" class="section level1">
+<h1>Sign error</h1>
 <pre class="r"><code># sign error
-p_long &lt;- cbind(p_long, b=b_long[, b])
-sign_error &lt;- p_long[beta_1 &gt; 0, .(error=sum(p &lt; 0.1 &amp; b &lt; 0)/niter), by=.(method, n, beta_1)]
+p_long2 &lt;- cbind(p_long, b=b_long[, b])
+sign_error &lt;- p_long2[beta_1 &gt; 0, .(error=sum(p &lt; 0.1 &amp; b &lt; 0)/niter), by=.(method, n, beta_1)]
 gg &lt;- ggplot(data=sign_error, aes(x=factor(n), y=error, color=method)) +
   geom_point(position=pd) +
   xlab(&quot;sample size (per treatment level)&quot;) +
@@ -458,23 +490,7 @@ gg &lt;- ggplot(data=sign_error, aes(x=factor(n), y=error, color=method)) +
   facet_grid(.~beta_1) +
   NULL
 gg</code></pre>
-<p><img src="/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-1-3.png" width="672" /></p>
-<pre class="r"><code>#ci_long[, .(coverage=sum(covers)/niter), by=.(method, n, beta_1)]
-
-pd &lt;- position_dodge(0.8)
-gg &lt;- ggplot(data=b_long, aes(x=factor(n), y=b, fill=method)) +
-  geom_boxplot(position=pd) +
-  xlab(&quot;sample size (per treatment level)&quot;) +
-  NULL
-gg</code></pre>
-<p><img src="/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-1-4.png" width="672" /></p>
-<pre class="r"><code>pd &lt;- position_dodge(0.8)
-gg &lt;- ggplot(data=se_long, aes(x=factor(n), y=se, fill=method)) +
-  geom_boxplot(position=pd) +
-  xlab(&quot;sample size (per treatment level)&quot;) +
-  NULL
-gg</code></pre>
-<p><img src="/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-1-5.png" width="672" /></p>
+<p><img src="/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 </div>
 
               
