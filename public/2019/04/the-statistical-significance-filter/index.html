@@ -1,5 +1,9 @@
 
 
+  
+    
+  
+
 
   
 
@@ -18,25 +22,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-BETA">
-    <title>P Values</title>
+    <title>The statistical significance filter</title>
     <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
-    <meta name="keywords" content="">
+    <meta name="keywords" content="tech">
 
     <link rel="icon" href="/favicon.png">
     
-      <link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/p-values/index.xml">
-    
 
     
-    <meta name="description" content="Some ecology. Some physiology. Much fake data">
-    <meta property="og:description" content="Some ecology. Some physiology. Much fake data">
+    <meta name="description" content="Setup library(ggplot2) library(GGally) library(data.table) source(&quot;../R/fake_x.R&quot;) # bookdown  Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects.">
+    <meta property="og:description" content="Setup library(ggplot2) library(GGally) library(data.table) source(&quot;../R/fake_x.R&quot;) # bookdown  Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects.">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="P Values">
-    <meta property="og:url" content="/tags/p-values/">
+    <meta property="og:title" content="The statistical significance filter">
+    <meta property="og:url" content="/2019/04/the-statistical-significance-filter/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="Some ecology. Some physiology. Much fake data">
+    <meta name="twitter:description" content="Setup library(ggplot2) library(GGally) library(data.table) source(&quot;../R/fake_x.R&quot;) # bookdown  Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -86,7 +91,7 @@ if (!doNotTrack) {
 
   <body>
     <div id="blog">
-      <header id="header" data-behavior="1">
+      <header id="header" data-behavior="4">
   <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
   <div class="header-title">
     <a class="header-title-link" href="/">R Doodles</a>
@@ -106,7 +111,7 @@ if (!doNotTrack) {
   
 </header>
 
-      <nav id="sidebar" data-behavior="1">
+      <nav id="sidebar" data-behavior="4">
   <div class="sidebar-container">
     
       <div class="sidebar-profile">
@@ -245,39 +250,21 @@ if (!doNotTrack) {
 </nav>
 
       
-        
 
-      
-      <div id="main" data-behavior="1"
+      <div id="main" data-behavior="4"
         class="
                hasCoverMetaIn
                ">
-        
-          <section class="postShorten-group main-content-wrap">
-            
-            
-              
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
   
-    
-      
-        
-      
-    
+    <h1 class="post-title" itemprop="headline">
+      The statistical significance filter
+    </h1>
   
-
-
   
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2019/04/the-statistical-significance-filter/">
-          The statistical significance filter
-        </a>
-      </h1>
-      
   <div class="postShorten-meta post-meta">
     
       <time itemprop="datePublished" datetime="2019-04-17T00:00:00Z">
@@ -297,134 +284,205 @@ if (!doNotTrack) {
 
   </div>
 
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      Setup library(ggplot2) library(GGally) library(data.table) source(&quot;../R/fake_x.R&quot;) # bookdown  Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
-When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects.
-      <p>
-        <a href="/2019/04/the-statistical-significance-filter/" class="postShorten-excerpt_link link">Continue reading</a>
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+
+<div id="setup" class="section level1">
+<h1>Setup</h1>
+<pre class="r"><code>library(ggplot2)
+library(GGally)
+library(data.table)
+
+source(&quot;../R/fake_x.R&quot;) # bookdown</code></pre>
+</div>
+<div id="why-reported-effect-sizes-are-inflated" class="section level1">
+<h1>Why reported effect sizes are inflated</h1>
+<p>This post is motivated by many discussions in Gelman’s blog <a href="https://statmodeling.stat.columbia.edu/2011/09/10/the-statistical-significance-filter/">but start here</a></p>
+<p>When we estimate an effect<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects. Reported effects are inflated if we use p-values to decide which to report and which to archive in the file drawer.</p>
+<p>The magnitude of an estimate of an effect is a function of its true effect size plus sampling error (this is with a perfectly designed and executed study. In any real study there will be biases of various sorts). The absolute magnitude of sampling error is bigger with smaller <span class="math inline">\(n\)</span>. The relative magnitude is bigger for smaller true effect size. Consequently, estimates in low powered studies (some combination of low <span class="math inline">\(n\)</span> and small true effect size) can be wildly off, especially relative to the true effect size. In low powered studies, it is these “wildly-off” estimates that are big enough to have <span class="math inline">\(p &lt; 0.05\)</span>. This phenomenon attenuates as power increases because estimates are less and less wildely-off.</p>
+<p>Here is a simulation of this</p>
+</div>
+<div id="exploration-1" class="section level1">
+<h1>Exploration 1</h1>
+<p>Modeling a typical set of experiments in ecology or physiology with <span class="math inline">\(p\)</span> independent responses each with the same standardized effect size. How big are the reported effect sizes for the subset with <span class="math inline">\(p.val &lt; 0.05\)</span> (with or without correction for multiple testing). Make this a function of power.</p>
+<pre class="r"><code>n &lt;- 20 # per treatment level. power will be a function of effect size
+np1 &lt;- n+1
+N &lt;- 2*n
+niter &lt;- 100 # number of iterations for each combination of fake data parameters
+treatment_levels &lt;- c(&quot;Cn&quot;, &quot;Tr&quot;)
+Treatment &lt;- rep(treatment_levels, each=n)
+p &lt;- 50
+b &lt;- pval &lt;- numeric(p)
+combo &lt;- 0 # which treatment combo
+res_table &lt;- data.table(NULL)
+for(beta_1 in c(0.05, 0.15, 0.5, 1)){
+  combo &lt;- combo + 1
+  j1 &lt;- 0
+  j &lt;- 0
+  res &lt;- matrix(NA, nrow=niter*p, ncol=3)
+  colnames(res) &lt;- c(&quot;ID&quot;, &quot;b&quot;, &quot;pval&quot;)
+  for(iter in 1:niter){
+    j1 &lt;- j1 + j # completed row -- start row will be this plus 1
+    Y &lt;- matrix(rnorm(n*2*p), nrow=n*2, ncol=p)
+    Y[np1:N,] &lt;- Y[np1:N,] + beta_1
+    fit &lt;- lm(Y ~ Treatment)
+    fit.coefs &lt;- coef(summary(fit))
+    for(j in 1:p){# inefficient...how do I extract this without a 
+      res[j1 + j, &quot;ID&quot;] &lt;- niter*(combo - 1) + iter
+      res[j1 + j, &quot;b&quot;] &lt;- fit.coefs[[j]][&quot;TreatmentTr&quot;, &quot;Estimate&quot;]
+      res[j1 + j, &quot;pval&quot;] &lt;- fit.coefs[[j]][&quot;TreatmentTr&quot;, &quot;Pr(&gt;|t|)&quot;]
+    }
+  } # iter
+  res_table &lt;- rbind(res_table, data.table(beta=beta_1, res))
+}</code></pre>
+</div>
+<div id="unconditional-means-power-and-sign-error" class="section level1">
+<h1>Unconditional means, power, and sign error</h1>
+<p>The unconditional mean is the mean effect size. I report the mean of the raw values (the expectation is beta) and the mean of the absolute values (so the mean magnitude)</p>
+<pre class="r"><code>res_table[, .(mean_unconditional=mean(b),
+              mean_abs_unconditional=mean(abs(b)),
+              power = sum(pval &lt; 0.05 &amp; b &gt; 0)/niter/p,
+              sign.error=sum(pval &lt; 0.05 &amp; b &lt; 0)/niter/p), by=.(beta)]</code></pre>
+<pre><code>##    beta mean_unconditional mean_abs_unconditional  power sign.error
+## 1: 0.05         0.05171193              0.2525600 0.0324     0.0192
+## 2: 0.15         0.14733072              0.2776393 0.0650     0.0082
+## 3: 0.50         0.50025821              0.5159192 0.3384     0.0002
+## 4: 1.00         0.99680789              0.9969055 0.8712     0.0000</code></pre>
+</div>
+<div id="conditional-means" class="section level1">
+<h1>Conditional means</h1>
+<p>The conditional mean is the mean effect size conditional on pval &lt; filter.</p>
+<div id="filter-0.05" class="section level2">
+<h2>filter = 0.05</h2>
+<pre class="r"><code>res_table[pval &lt; 0.05, .(mean_conditional=mean(b),
+                         mean_abs.conditional=mean(abs(b)),
+                         multiplier = mean(abs(b))/beta), by=.(beta)]</code></pre>
+<pre><code>##    beta mean_conditional mean_abs.conditional multiplier
+## 1: 0.05        0.1894618            0.7287291  14.574582
+## 2: 0.15        0.5801990            0.7424163   4.949442
+## 3: 0.50        0.8329258            0.8336378   1.667276
+## 4: 1.00        1.0711961            1.0711961   1.071196</code></pre>
+</div>
+<div id="filter-0.2" class="section level2">
+<h2>filter = 0.2</h2>
+<pre class="r"><code>res_table[pval &lt; 0.2, .(mean_conditional=mean(b),
+                         mean_abs.conditional=mean(abs(b)),
+                         multiplier = mean(abs(b))/beta), by=.(beta)]</code></pre>
+<pre><code>##    beta mean_conditional mean_abs.conditional multiplier
+## 1: 0.05        0.1520004            0.5524195  11.048391
+## 2: 0.15        0.3931652            0.5696077   3.797385
+## 3: 0.50        0.6922316            0.6966395   1.393279
+## 4: 1.00        1.0214667            1.0214667   1.021467</code></pre>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>for example, in an experiment, if we compare the mean response between a control group and a treated group, the difference in means is the effect. More generally, an effect is the coefficient of a linear model<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/fake-data/">fake data</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/p-values/">p-values</a>
+
+                  </div>
+                
+              
+            
+            
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/04/covariate-adjustment-in-randomized-experiments/" data-tooltip="Covariate adjustment in randomized experiments">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
         
-      </p>
-    </div>
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/04/the-statistical-significance-filter/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/04/the-statistical-significance-filter/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/04/the-statistical-significance-filter/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
   </div>
-  
-</article>
+
 
             
               
-  
-    
-      
-        
-      
-    
-  
-
-
-  
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/09/a-low-p-value-for-the-full-model-does-not-mean-that-the-model-is-a-good-predictor-of-the-response/">
-          Textbook error 101 -- A low p-value for the full model does not mean that the model is a good predictor of the response
-        </a>
-      </h1>
-      
-  <div class="postShorten-meta post-meta">
-    
-      <time itemprop="datePublished" datetime="2018-09-11T00:00:00Z">
-        
-  September 11, 2018
-
-      </time>
-    
-    
-  
-  
-    <span>in</span>
-    
-      <a class="category-link" href="/categories/stats-101">stats 101</a>
-    
-  
-
-  </div>
-
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      On page 606, of Lock et al “Statistics: Unlocking the Power of Data”, the authors state in item D “The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average.” Ah no.
-library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag(2) Sigma[1,2] &lt;- Sigma[2,1] &lt;- rho X &lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &lt;- c(&quot;X1&quot;, &quot;X2&quot;) beta &lt;- c(0.
-      <p>
-        <a href="/2018/09/a-low-p-value-for-the-full-model-does-not-mean-that-the-model-is-a-good-predictor-of-the-response/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
-  
-</article>
-
-            
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
               
-  
-    
-      
-        
-      
-    
-  
-
-
-  
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
-          What is the range of reasonable P-values given a two standard error difference in means?
-        </a>
-      </h1>
-      
-  <div class="postShorten-meta post-meta">
-    
-      <time itemprop="datePublished" datetime="2018-03-18T00:00:00Z">
-        
-  March 18, 2018
-
-      </time>
-    
-    
-  
-  
-    <span>in</span>
-    
-      <a class="category-link" href="/categories/stats-101">stats 101</a>
-    
-  
-
-  </div>
-
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
- I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.
-      <p>
-        <a href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
-  
-</article>
-
             
-            
-
-          </section>
-        
+          </div>
+        </article>
         <footer id="footer" class="main-content-wrap">
   <span class="copyrights">
     &copy; 2019 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
@@ -650,6 +708,102 @@ library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag
 </footer>
 
       </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/04/covariate-adjustment-in-randomized-experiments/" data-tooltip="Covariate adjustment in randomized experiments">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/04/the-statistical-significance-filter/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/04/the-statistical-significance-filter/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/04/the-statistical-significance-filter/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F04%2Fthe-statistical-significance-filter%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F04%2Fthe-statistical-significance-filter%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F04%2Fthe-statistical-significance-filter%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
     </div>
     
     <div id="about">
@@ -926,6 +1080,32 @@ $(document).ready(function() {
 });
 </script>
 
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2019\/04\/the-statistical-significance-filter\/';
+          
+            this.page.identifier = '\/2019\/04\/the-statistical-significance-filter\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
 
 
 

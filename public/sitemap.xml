@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2019/04/the-statistical-significance-filter/</loc>
+    <lastmod>2019-04-17T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/04/covariate-adjustment-in-randomized-experiments/</loc>
     <lastmod>2019-04-12T00:00:00+00:00</lastmod>
   </url>
@@ -163,7 +168,7 @@
   
   <url>
     <loc>/tags/fake-data/</loc>
-    <lastmod>2019-01-22T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-17T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -241,7 +246,7 @@
   
   <url>
     <loc>/tags/p-values/</loc>
-    <lastmod>2018-09-11T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-17T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -253,7 +258,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-17T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -265,7 +270,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-17T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -289,7 +294,7 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-17T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
