@@ -74,10 +74,12 @@ The unconditional mean is the mean effect size. I report the mean of the raw val
 
 ```{r}
 
-res_table[, .(mean_unconditional=mean(b),
+table1 <- res_table[, .(mean_unconditional=mean(b),
               mean_abs_unconditional=mean(abs(b)),
               power = sum(pval < 0.05 & b > 0)/niter/p,
               sign.error=sum(pval < 0.05 & b < 0)/niter/p), by=.(beta)]
+knitr::kable(table1, digits=c(2, 2, 2, 2, 3))
+
 ```
 
 # Conditional means
@@ -86,18 +88,20 @@ The conditional mean is the mean effect size conditional on pval < filter.
 
 ## filter = 0.05
 ```{r}
-res_table[pval < 0.05, .(mean_conditional=mean(b),
+table2 <- res_table[pval < 0.05, .(mean_conditional=mean(b),
                          mean_abs.conditional=mean(abs(b)),
                          multiplier = mean(abs(b))/beta), by=.(beta)]
+knitr::kable(table2, digits=c(2, 2, 2, 1))
 
 ```
 
 
 ## filter = 0.2
 ```{r}
-res_table[pval < 0.2, .(mean_conditional=mean(b),
+table3 <- res_table[pval < 0.2, .(mean_conditional=mean(b),
                          mean_abs.conditional=mean(abs(b)),
                          multiplier = mean(abs(b))/beta), by=.(beta)]
+knitr::kable(table3, digits=c(2, 2, 2, 1))
 
 ```
 
