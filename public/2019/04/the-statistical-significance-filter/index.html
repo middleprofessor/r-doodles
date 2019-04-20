@@ -30,18 +30,18 @@
     
 
     
-    <meta name="description" content="Setup library(ggplot2) library(GGally) library(data.table) source(&quot;../R/fake_x.R&quot;) # bookdown  Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
-When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects.">
-    <meta property="og:description" content="Setup library(ggplot2) library(GGally) library(data.table) source(&quot;../R/fake_x.R&quot;) # bookdown  Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
-When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects.">
+    <meta name="description" content="Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects. Reported effects are inflated if we use p-values to decide which to report and which to archive in the file drawer.">
+    <meta property="og:description" content="Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects. Reported effects are inflated if we use p-values to decide which to report and which to archive in the file drawer.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="The statistical significance filter">
     <meta property="og:url" content="/2019/04/the-statistical-significance-filter/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="Setup library(ggplot2) library(GGally) library(data.table) source(&quot;../R/fake_x.R&quot;) # bookdown  Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
-When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects.">
+    <meta name="twitter:description" content="Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects. Reported effects are inflated if we use p-values to decide which to report and which to archive in the file drawer.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -291,6 +291,13 @@ if (!doNotTrack) {
               
 
 
+<div id="why-reported-effect-sizes-are-inflated" class="section level1">
+<h1>Why reported effect sizes are inflated</h1>
+<p>This post is motivated by many discussions in Gelman’s blog <a href="https://statmodeling.stat.columbia.edu/2011/09/10/the-statistical-significance-filter/">but start here</a></p>
+<p>When we estimate an effect<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects. Reported effects are inflated if we use p-values to decide which to report and which to archive in the file drawer.</p>
+<p>The magnitude of an estimate of an effect is a function of its true effect size plus sampling error (this is with a perfectly designed and executed study. In any real study there will be biases of various sorts). The absolute magnitude of sampling error is bigger with smaller <span class="math inline">\(n\)</span>. The relative magnitude is bigger for smaller true effect size. Consequently, estimates in low powered studies (some combination of low <span class="math inline">\(n\)</span> and small true effect size) can be wildly off, especially relative to the true effect size. In low powered studies, it is these “wildly-off” estimates that are big enough to have <span class="math inline">\(p &lt; 0.05\)</span>. This phenomenon attenuates as power increases because estimates are less and less wildely-off.</p>
+<p>Here is a simulation of this</p>
+</div>
 <div id="setup" class="section level1">
 <h1>Setup</h1>
 <pre class="r"><code>library(ggplot2)
@@ -298,13 +305,6 @@ library(GGally)
 library(data.table)
 
 source(&quot;../R/fake_x.R&quot;) # bookdown</code></pre>
-</div>
-<div id="why-reported-effect-sizes-are-inflated" class="section level1">
-<h1>Why reported effect sizes are inflated</h1>
-<p>This post is motivated by many discussions in Gelman’s blog <a href="https://statmodeling.stat.columbia.edu/2011/09/10/the-statistical-significance-filter/">but start here</a></p>
-<p>When we estimate an effect<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects. Reported effects are inflated if we use p-values to decide which to report and which to archive in the file drawer.</p>
-<p>The magnitude of an estimate of an effect is a function of its true effect size plus sampling error (this is with a perfectly designed and executed study. In any real study there will be biases of various sorts). The absolute magnitude of sampling error is bigger with smaller <span class="math inline">\(n\)</span>. The relative magnitude is bigger for smaller true effect size. Consequently, estimates in low powered studies (some combination of low <span class="math inline">\(n\)</span> and small true effect size) can be wildly off, especially relative to the true effect size. In low powered studies, it is these “wildly-off” estimates that are big enough to have <span class="math inline">\(p &lt; 0.05\)</span>. This phenomenon attenuates as power increases because estimates are less and less wildely-off.</p>
-<p>Here is a simulation of this</p>
 </div>
 <div id="exploration-1" class="section level1">
 <h1>Exploration 1</h1>
@@ -342,7 +342,7 @@ for(beta_1 in c(0.05, 0.15, 0.5, 1)){
 </div>
 <div id="unconditional-means-power-and-sign-error" class="section level1">
 <h1>Unconditional means, power, and sign error</h1>
-<p>The unconditional mean is the mean effect size. I report the mean of the raw values (the expectation is beta) and the mean of the absolute values (so the mean magnitude)</p>
+<p>beta is the true effect. The unconditional mean is the mean of the estimated effect. The absolute value of the estimated effect is the measure of “size” or magnitude and the mean of the absolute values of the effect size will be bigger then the mean effect size if the true effect size is near zero.</p>
 <pre class="r"><code>table1 &lt;- res_table[, .(mean_unconditional=mean(b),
               mean_abs_unconditional=mean(abs(b)),
               power = sum(pval &lt; 0.05 &amp; b &gt; 0)/niter/p,
@@ -361,30 +361,30 @@ knitr::kable(table1, digits=c(2, 2, 2, 2, 3))</code></pre>
 <tbody>
 <tr class="odd">
 <td align="right">0.05</td>
+<td align="right">0.05</td>
+<td align="right">0.25</td>
 <td align="right">0.04</td>
-<td align="right">0.26</td>
-<td align="right">0.03</td>
-<td align="right">0.019</td>
+<td align="right">0.014</td>
 </tr>
 <tr class="even">
 <td align="right">0.15</td>
-<td align="right">0.16</td>
+<td align="right">0.15</td>
 <td align="right">0.28</td>
-<td align="right">0.07</td>
-<td align="right">0.009</td>
+<td align="right">0.06</td>
+<td align="right">0.007</td>
 </tr>
 <tr class="odd">
 <td align="right">0.50</td>
-<td align="right">0.50</td>
-<td align="right">0.52</td>
-<td align="right">0.35</td>
+<td align="right">0.49</td>
+<td align="right">0.51</td>
+<td align="right">0.33</td>
 <td align="right">0.000</td>
 </tr>
 <tr class="even">
 <td align="right">1.00</td>
-<td align="right">1.01</td>
-<td align="right">1.01</td>
-<td align="right">0.87</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.88</td>
 <td align="right">0.000</td>
 </tr>
 </tbody>
@@ -392,7 +392,7 @@ knitr::kable(table1, digits=c(2, 2, 2, 2, 3))</code></pre>
 </div>
 <div id="conditional-means" class="section level1">
 <h1>Conditional means</h1>
-<p>The conditional mean is the mean effect size conditional on pval &lt; filter.</p>
+<p>The conditional mean is the mean effect size conditional on pval &lt; filter. Again, beta is the true effect. And again, the absolute estimate (<span class="math inline">\(|b|\)</span>) is the measure of effect “size”.</p>
 <div id="filter-0.05" class="section level2">
 <h2>filter = 0.05</h2>
 <pre class="r"><code>table2 &lt;- res_table[pval &lt; 0.05, .(mean_conditional=mean(b),
@@ -411,26 +411,26 @@ knitr::kable(table2, digits=c(2, 2, 2, 1))</code></pre>
 <tbody>
 <tr class="odd">
 <td align="right">0.05</td>
-<td align="right">0.21</td>
-<td align="right">0.73</td>
-<td align="right">14.6</td>
+<td align="right">0.34</td>
+<td align="right">0.71</td>
+<td align="right">14.1</td>
 </tr>
 <tr class="even">
 <td align="right">0.15</td>
-<td align="right">0.57</td>
+<td align="right">0.59</td>
 <td align="right">0.74</td>
 <td align="right">4.9</td>
 </tr>
 <tr class="odd">
 <td align="right">0.50</td>
 <td align="right">0.83</td>
-<td align="right">0.83</td>
+<td align="right">0.84</td>
 <td align="right">1.7</td>
 </tr>
 <tr class="even">
 <td align="right">1.00</td>
-<td align="right">1.08</td>
-<td align="right">1.08</td>
+<td align="right">1.07</td>
+<td align="right">1.07</td>
 <td align="right">1.1</td>
 </tr>
 </tbody>
@@ -454,26 +454,26 @@ knitr::kable(table3, digits=c(2, 2, 2, 1))</code></pre>
 <tbody>
 <tr class="odd">
 <td align="right">0.05</td>
-<td align="right">0.15</td>
+<td align="right">0.18</td>
 <td align="right">0.55</td>
-<td align="right">11.0</td>
+<td align="right">10.9</td>
 </tr>
 <tr class="even">
 <td align="right">0.15</td>
-<td align="right">0.41</td>
-<td align="right">0.57</td>
+<td align="right">0.40</td>
+<td align="right">0.56</td>
 <td align="right">3.8</td>
 </tr>
 <tr class="odd">
 <td align="right">0.50</td>
-<td align="right">0.70</td>
+<td align="right">0.69</td>
 <td align="right">0.70</td>
 <td align="right">1.4</td>
 </tr>
 <tr class="even">
 <td align="right">1.00</td>
-<td align="right">1.03</td>
-<td align="right">1.03</td>
+<td align="right">1.02</td>
+<td align="right">1.02</td>
 <td align="right">1.0</td>
 </tr>
 </tbody>
@@ -622,8 +622,8 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   Apr 4, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Setup library(ggplot2) library(GGally) library(data.table) source(&quot;../R/fake_x.R&quot;) # bookdown  Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
-When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects.</div>
+              <div class="media-content hide-xs font-merryweather">Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects. Reported effects are inflated if we use p-values to decide which to report and which to archive in the file drawer.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -966,8 +966,8 @@ library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag
                   Apr 4, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Setup library(ggplot2) library(GGally) library(data.table) source(&quot;../R/fake_x.R&quot;) # bookdown  Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
-When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects.</div>
+              <div class="media-content hide-xs font-merryweather">Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects. Reported effects are inflated if we use p-values to decide which to report and which to archive in the file drawer.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

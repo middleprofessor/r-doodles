@@ -17,8 +17,8 @@
       <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/04/the-statistical-significance-filter/</guid>
-      <description>Setup library(ggplot2) library(GGally) library(data.table) source(&amp;quot;../R/fake_x.R&amp;quot;) # bookdown  Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
-When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects.</description>
+      <description>Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect. If all effects were reported, there would be no bias toward inflated effects. Reported effects are inflated if we use p-values to decide which to report and which to archive in the file drawer.</description>
     </item>
     
     <item>

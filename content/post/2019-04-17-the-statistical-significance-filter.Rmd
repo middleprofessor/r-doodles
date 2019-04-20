@@ -12,15 +12,6 @@ keywords:
   - tech
 ---
 
-# Setup
-```{r}
-library(ggplot2)
-library(GGally)
-library(data.table)
-
-source("../R/fake_x.R") # bookdown
-
-```
 # Why reported effect sizes are inflated
 
 This post is motivated by many discussions in Gelman's blog [but start here](https://statmodeling.stat.columbia.edu/2011/09/10/the-statistical-significance-filter/)
@@ -31,6 +22,17 @@ When we estimate an effect^[for example, in an experiment, if we compare the mea
 The magnitude of an estimate of an effect is a function of its true effect size plus sampling error (this is with a perfectly designed and executed study. In any real study there will be biases of various sorts). The absolute magnitude of sampling error is bigger with smaller $n$. The relative magnitude is bigger for smaller true effect size. Consequently, estimates in low powered studies (some combination of low $n$ and small true effect size) can be wildly off, especially relative to the true effect size. In low powered studies, it is these "wildly-off" estimates that are big enough to have $p < 0.05$. This phenomenon attenuates as power increases because estimates are less and less wildely-off.
 
 Here is a simulation of this
+
+# Setup
+
+```{r, message=FALSE}
+library(ggplot2)
+library(GGally)
+library(data.table)
+
+source("../R/fake_x.R") # bookdown
+
+```
 
 # Exploration 1
 
@@ -70,7 +72,7 @@ for(beta_1 in c(0.05, 0.15, 0.5, 1)){
 
 # Unconditional means, power, and sign error
 
-The unconditional mean is the mean effect size. I report the mean of the raw values (the expectation is beta) and the mean of the absolute values (so the mean magnitude)
+beta is the true effect. The unconditional mean is the mean of the estimated effect. The absolute value of the estimated effect is the measure of "size" or magnitude and the mean of the absolute values of the effect size will be bigger then the mean effect size if the true effect size is near zero.
 
 ```{r}
 
@@ -84,7 +86,7 @@ knitr::kable(table1, digits=c(2, 2, 2, 2, 3))
 
 # Conditional means
 
-The conditional mean is the mean effect size conditional on pval < filter.
+The conditional mean is the mean effect size conditional on pval < filter. Again, beta is the true effect. And again, the absolute estimate ($|b|$) is the measure of effect "size".
 
 ## filter = 0.05
 ```{r}
