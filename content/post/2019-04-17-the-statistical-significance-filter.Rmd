@@ -10,6 +10,11 @@ tags:
   - p-values
 keywords:
   - tech
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
+
 ---
 
 # Why reported effect sizes are inflated
