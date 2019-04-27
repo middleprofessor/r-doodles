@@ -296,24 +296,10 @@ HUGOMORE42
 <pre class="r"><code>library(ggplot2)
 library(data.table)
 library(doBy)
-library(lmerTest)</code></pre>
-<pre><code>## Loading required package: lme4</code></pre>
-<pre><code>## Loading required package: Matrix</code></pre>
-<pre><code>## 
-## Attaching package: &#39;lmerTest&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:lme4&#39;:
-## 
-##     lmer</code></pre>
-<pre><code>## The following object is masked from &#39;package:stats&#39;:
-## 
-##     step</code></pre>
-<pre class="r"><code>library(nlme)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;nlme&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:lme4&#39;:
-## 
-##     lmList</code></pre>
-<pre class="r"><code>odd &lt;- function(x) x%%2 != 0
+library(lmerTest)
+library(nlme)
+
+odd &lt;- function(x) x%%2 != 0
 even  &lt;- function(x) x%%2 == 0</code></pre>
 <p>Simulate data in which the response is a function of baseline_food consumption:</p>
 <pre class="r"><code>n &lt;- 10^1
@@ -363,13 +349,13 @@ for(iter in 1:niter){
 <p>Estimates</p>
 <pre class="r"><code>apply(b_mat, 2, quantile, probs=c(0.025, 0.5, 0.975))</code></pre>
 <pre><code>##             adj block.rand block.fix block.adj
-## 2.5%  0.2270708  0.2427675 0.2427675 0.2471735
-## 50%   0.9919837  1.0027477 1.0027477 1.0028797
-## 97.5% 1.7131099  1.8064724 1.8064724 1.8049418</code></pre>
+## 2.5%  0.2860858  0.1900138 0.1900138 0.2149683
+## 50%   0.9793077  1.0200845 1.0200845 1.0123762
+## 97.5% 1.7377907  1.8189378 1.8189378 1.8099282</code></pre>
 <p>Power</p>
 <pre class="r"><code>apply(p_mat, 2, function(x) sum(x &lt; 0.05)/niter)</code></pre>
 <pre><code>##        adj block.rand  block.fix  block.adj 
-##      0.701      0.559      0.552      0.589</code></pre>
+##      0.714      0.586      0.568      0.610</code></pre>
 
               
             </div>
