@@ -86,3 +86,4 @@ Power
 apply(p_mat, 2, function(x) sum(x < 0.05)/niter)
 ```
 
+Conclusion: over this model space, simply adjusting for baseline food consumption is more powerful than creating blocks using baseline food consumption.

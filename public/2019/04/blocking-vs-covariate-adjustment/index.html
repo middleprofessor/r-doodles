@@ -349,13 +349,14 @@ for(iter in 1:niter){
 <p>Estimates</p>
 <pre class="r"><code>apply(b_mat, 2, quantile, probs=c(0.025, 0.5, 0.975))</code></pre>
 <pre><code>##             adj block.rand block.fix block.adj
-## 2.5%  0.2860858  0.1900138 0.1900138 0.2149683
-## 50%   0.9793077  1.0200845 1.0200845 1.0123762
-## 97.5% 1.7377907  1.8189378 1.8189378 1.8099282</code></pre>
+## 2.5%  0.2797401  0.1476697 0.1476697 0.1528887
+## 50%   1.0076974  1.0161665 1.0161665 1.0165686
+## 97.5% 1.7149816  1.8121259 1.8121259 1.7995946</code></pre>
 <p>Power</p>
 <pre class="r"><code>apply(p_mat, 2, function(x) sum(x &lt; 0.05)/niter)</code></pre>
 <pre><code>##        adj block.rand  block.fix  block.adj 
-##      0.714      0.586      0.568      0.610</code></pre>
+##      0.732      0.576      0.558      0.619</code></pre>
+<p>Conclusion: over this model space, simply adjusting for baseline food consumption is more powerful than creating blocks using baseline food consumption.</p>
 
               
             </div>
