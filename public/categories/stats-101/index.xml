@@ -6,10 +6,19 @@
     <description>Recent content in Stats 101 on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 17 Apr 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 27 Apr 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/stats-101/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Blocking vs. covariate adjustment</title>
+      <link>/2019/04/blocking-vs-covariate-adjustment/</link>
+      <pubDate>Sat, 27 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/04/blocking-vs-covariate-adjustment/</guid>
+      <description>HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</description>
+    </item>
     
     <item>
       <title>The statistical significance filter</title>

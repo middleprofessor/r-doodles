@@ -270,6 +270,55 @@ if (!doNotTrack) {
     
     <div class="postShorten-header">
       <h1 class="postShorten-title" itemprop="headline">
+        <a class="link-unstyled" href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
+          Compute a random data matrix (fake data) without rmvnorm
+        </a>
+      </h1>
+      
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2018-12-20T00:00:00Z">
+        
+  December 20, 2018
+
+      </time>
+    
+    
+  </div>
+
+    </div>
+    <div class="postShorten-excerpt" itemprop="articleBody">
+      This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
+First, some libraries
+library(data.table) library(mvtnorm) library(MASS) Second, some functions…
+random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.
+      <p>
+        <a href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/" class="postShorten-excerpt_link link">Continue reading</a>
+        
+      </p>
+    </div>
+  </div>
+  
+</article>
+
+          
+            
+  
+    
+      
+        
+      
+    
+  
+
+
+  
+
+<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
+  <div class="postShorten-wrap">
+    
+    <div class="postShorten-header">
+      <h1 class="postShorten-title" itemprop="headline">
         <a class="link-unstyled" href="/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/">
           Reporting effects as relative differences...with a confidence interval
         </a>
@@ -570,54 +619,6 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
 </article>
 
           
-            
-  
-    
-      
-        
-      
-    
-  
-
-
-  
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/">
-          An even more compact defense of coefficient model averaging
-        </a>
-      </h1>
-      
-  <div class="postShorten-meta post-meta">
-    
-      <time itemprop="datePublished" datetime="2018-05-07T00:00:00Z">
-        
-  May 7, 2018
-
-      </time>
-    
-    
-  </div>
-
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      a longer, more detailed argument is here
-The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
-David Draper suggested this example from the textbook by Freedman, Pisani and Purves.
-      <p>
-        <a href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
-  
-</article>
-
-          
           
   <div class="pagination-bar">
     <ul class="pagination">
@@ -671,6 +672,23 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
       <div class="no-result text-color-light text-center">no post found</div>
       <div class="results">
         
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/04/blocking-vs-covariate-adjustment/">
+                <h3 class="media-heading">Blocking vs. covariate adjustment</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
         
           <div class="media">
             
@@ -837,24 +855,6 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/09/a-low-p-value-for-the-full-model-does-not-mean-that-the-model-is-a-good-predictor-of-the-response/">
-                <h3 class="media-heading">Textbook error 101 -- A low p-value for the full model does not mean that the model is a good predictor of the response</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Sep 9, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">On page 606, of Lock et al “Statistics: Unlocking the Power of Data”, the authors state in item D “The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average.” Ah no.
-library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag(2) Sigma[1,2] &lt;- Sigma[2,1] &lt;- rho X &lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &lt;- c(&quot;X1&quot;, &quot;X2&quot;) beta &lt;- c(0.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -862,7 +862,7 @@ library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         20 posts found
+         21 posts found
       </p>
     </div>
   </div>
@@ -923,6 +923,23 @@ library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/04/blocking-vs-covariate-adjustment/">
+                <h3 class="media-heading">Blocking vs. covariate adjustment</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2019/04/the-statistical-significance-filter/">
                 <h3 class="media-heading">The statistical significance filter</h3>
               </a>
@@ -1085,24 +1102,6 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/09/a-low-p-value-for-the-full-model-does-not-mean-that-the-model-is-a-good-predictor-of-the-response/">
-                <h3 class="media-heading">Textbook error 101 -- A low p-value for the full model does not mean that the model is a good predictor of the response</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Sep 9, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">On page 606, of Lock et al “Statistics: Unlocking the Power of Data”, the authors state in item D “The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average.” Ah no.
-library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag(2) Sigma[1,2] &lt;- Sigma[2,1] &lt;- rho X &lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &lt;- c(&quot;X1&quot;, &quot;X2&quot;) beta &lt;- c(0.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -1110,7 +1109,7 @@ library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         20 posts found
+         21 posts found
       </p>
     </div>
   </div>

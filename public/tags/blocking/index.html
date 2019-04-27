@@ -18,21 +18,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-BETA">
-    <title>Wright Style Path Analysis</title>
+    <title>Blocking</title>
     <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
     <meta name="keywords" content="">
 
     <link rel="icon" href="/favicon.png">
     
-      <link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/wright-style-path-analysis/index.xml">
+      <link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/blocking/index.xml">
     
 
     
     <meta name="description" content="Some ecology. Some physiology. Much fake data">
     <meta property="og:description" content="Some ecology. Some physiology. Much fake data">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="Wright Style Path Analysis">
-    <meta property="og:url" content="/tags/wright-style-path-analysis/">
+    <meta property="og:title" content="Blocking">
+    <meta property="og:url" content="/tags/blocking/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
@@ -273,28 +273,35 @@ if (!doNotTrack) {
     
     <div class="postShorten-header">
       <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2019/01/expected-covariances-in-a-causal-network/">
-          Expected covariances in a causal network
+        <a class="link-unstyled" href="/2019/04/blocking-vs-covariate-adjustment/">
+          Blocking vs. covariate adjustment
         </a>
       </h1>
       
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2019-01-03T00:00:00Z">
+      <time itemprop="datePublished" datetime="2019-04-27T00:00:00Z">
         
-  January 3, 2019
+  April 27, 2019
 
       </time>
     
     
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
   </div>
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.
+      HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.
       <p>
-        <a href="/2019/01/expected-covariances-in-a-causal-network/" class="postShorten-excerpt_link link">Continue reading</a>
+        <a href="/2019/04/blocking-vs-covariate-adjustment/" class="postShorten-excerpt_link link">Continue reading</a>
         
       </p>
     </div>

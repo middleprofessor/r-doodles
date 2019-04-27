@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2019/04/blocking-vs-covariate-adjustment/</loc>
+    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/04/the-statistical-significance-filter/</loc>
     <lastmod>2019-04-17T00:00:00+00:00</lastmod>
   </url>
@@ -104,7 +109,7 @@
   
   <url>
     <loc>/tags/ancova/</loc>
-    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -116,6 +121,12 @@
   <url>
     <loc>/tags/bias/</loc>
     <lastmod>2018-03-08T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/blocking/</loc>
+    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -258,7 +269,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2019-04-17T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -270,7 +281,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-04-17T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -294,13 +305,13 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2019-04-17T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/</loc>
-    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

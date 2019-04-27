@@ -6,7 +6,7 @@
     <description>Recent content in Tags on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 12 Apr 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 27 Apr 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,7 +14,7 @@
     <item>
       <title>Ancova</title>
       <link>/tags/ancova/</link>
-      <pubDate>Fri, 12 Apr 2019 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 27 Apr 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/ancova/</guid>
       <description></description>
@@ -26,6 +26,15 @@
       <pubDate>Thu, 08 Mar 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/bias/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Blocking</title>
+      <link>/tags/blocking/</link>
+      <pubDate>Sat, 27 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/blocking/</guid>
       <description></description>
     </item>
     
