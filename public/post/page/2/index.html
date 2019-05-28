@@ -270,6 +270,53 @@ if (!doNotTrack) {
     
     <div class="postShorten-header">
       <h1 class="postShorten-title" itemprop="headline">
+        <a class="link-unstyled" href="/2019/01/expected-covariances-in-a-causal-network/">
+          Expected covariances in a causal network
+        </a>
+      </h1>
+      
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-01-03T00:00:00Z">
+        
+  January 3, 2019
+
+      </time>
+    
+    
+  </div>
+
+    </div>
+    <div class="postShorten-excerpt" itemprop="articleBody">
+      This is a skeleton post
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.
+      <p>
+        <a href="/2019/01/expected-covariances-in-a-causal-network/" class="postShorten-excerpt_link link">Continue reading</a>
+        
+      </p>
+    </div>
+  </div>
+  
+</article>
+
+          
+            
+  
+    
+      
+        
+      
+    
+  
+
+
+  
+
+<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
+  <div class="postShorten-wrap">
+    
+    <div class="postShorten-header">
+      <h1 class="postShorten-title" itemprop="headline">
         <a class="link-unstyled" href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
           Compute a random data matrix (fake data) without rmvnorm
         </a>
@@ -571,54 +618,6 @@ This post is a follow up to my inital post, which was written as as a way for me
 </article>
 
           
-            
-  
-    
-      
-        
-      
-    
-  
-
-
-  
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
-          On model averaging the coefficients of linear models
-        </a>
-      </h1>
-      
-  <div class="postShorten-meta post-meta">
-    
-      <time itemprop="datePublished" datetime="2018-05-10T00:00:00Z">
-        
-  May 10, 2018
-
-      </time>
-    
-    
-  </div>
-
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      a shorter argument based on a specific example is here
-“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
-This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.
-      <p>
-        <a href="/2018/05/on-model-averaging-regression-coefficients/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
-  
-</article>
-
-          
           
   <div class="pagination-bar">
     <ul class="pagination">
@@ -640,7 +639,7 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
           </li>
         
       
-      <li class="pagination-number">page 2 of 3</li>
+      <li class="pagination-number">page 2 of 4</li>
     </ul>
   </div>
 
@@ -672,6 +671,24 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
       <div class="no-result text-color-light text-center">no post found</div>
       <div class="results">
         
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/05/should-we-be-skeptical-of-a-large-effect-size-if-p-0-05/">
+                <h3 class="media-heading">Should we be skeptical of a &#34;large&#34; effect size if p &gt; 0.05?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”1 2
+A thought: our belief in the magnitude of an observed effect should be based on our priors, which, hopefully, are formed from good mechanistic models and not sample size“.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
         
           <div class="media">
             
@@ -837,24 +854,6 @@ where a relative effect is
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/10/interaction-plots-with-ggplot2/">
-                <h3 class="media-heading">Interaction plots with ggplot2</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Oct 10, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.
-The gg_interaction function returns a ggplot of the modeled means and standard errors and not the raw means and standard errors computed from each group independently.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -862,7 +861,7 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         21 posts found
+         22 posts found
       </p>
     </div>
   </div>
@@ -923,6 +922,24 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/05/should-we-be-skeptical-of-a-large-effect-size-if-p-0-05/">
+                <h3 class="media-heading">Should we be skeptical of a &#34;large&#34; effect size if p &gt; 0.05?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”1 2
+A thought: our belief in the magnitude of an observed effect should be based on our priors, which, hopefully, are formed from good mechanistic models and not sample size“.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2019/04/blocking-vs-covariate-adjustment/">
                 <h3 class="media-heading">Blocking vs. covariate adjustment</h3>
               </a>
@@ -1084,24 +1101,6 @@ where a relative effect is
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/10/interaction-plots-with-ggplot2/">
-                <h3 class="media-heading">Interaction plots with ggplot2</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Oct 10, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.
-The gg_interaction function returns a ggplot of the modeled means and standard errors and not the raw means and standard errors computed from each group independently.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -1109,7 +1108,7 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         21 posts found
+         22 posts found
       </p>
     </div>
   </div>

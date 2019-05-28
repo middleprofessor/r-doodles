@@ -310,19 +310,19 @@ summary(fit)</code></pre>
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -4.0371 -0.6716 -0.0016  0.6723  4.2041 
+## -4.2513 -0.6704 -0.0026  0.6701  4.1725 
 ## 
 ## Coefficients:
 ##              Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) -0.004243   0.003155  -1.345    0.179    
-## XX1          0.015845   0.003648   4.344 1.40e-05 ***
-## XX2         -0.026376   0.003641  -7.245 4.36e-13 ***
+## (Intercept) -0.003597   0.003158  -1.139    0.255    
+## XX1          0.005449   0.003629   1.502    0.133    
+## XX2         -0.016562   0.003641  -4.548 5.41e-06 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.9975 on 99997 degrees of freedom
-## Multiple R-squared:  0.0005319,  Adjusted R-squared:  0.0005119 
-## F-statistic: 26.61 on 2 and 99997 DF,  p-value: 2.805e-12</code></pre>
+## Residual standard error: 0.9987 on 99997 degrees of freedom
+## Multiple R-squared:  0.0002146,  Adjusted R-squared:  0.0001946 
+## F-statistic: 10.73 on 2 and 99997 DF,  p-value: 2.184e-05</code></pre>
 <p>A p-value is not a measure of the predictive capacity of a model because the p-value is a function of 1) signal, 2) noise (unmodeled error), and 3) sample size while predictive capacity is a function of the signal:noise ratio. If the signal:noise ratio is tiny, the predictive capacity is small but the p-value can be tiny if the sample size is large.</p>
 
               
@@ -450,6 +450,24 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
       <div class="no-result text-color-light text-center">no post found</div>
       <div class="results">
         
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/05/should-we-be-skeptical-of-a-large-effect-size-if-p-0-05/">
+                <h3 class="media-heading">Should we be skeptical of a &#34;large&#34; effect size if p &gt; 0.05?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”1 2
+A thought: our belief in the magnitude of an observed effect should be based on our priors, which, hopefully, are formed from good mechanistic models and not sample size“.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
         
           <div class="media">
             
@@ -615,24 +633,6 @@ where a relative effect is
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/10/interaction-plots-with-ggplot2/">
-                <h3 class="media-heading">Interaction plots with ggplot2</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Oct 10, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.
-The gg_interaction function returns a ggplot of the modeled means and standard errors and not the raw means and standard errors computed from each group independently.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -640,7 +640,7 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         21 posts found
+         22 posts found
       </p>
     </div>
   </div>
@@ -797,6 +797,24 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/05/should-we-be-skeptical-of-a-large-effect-size-if-p-0-05/">
+                <h3 class="media-heading">Should we be skeptical of a &#34;large&#34; effect size if p &gt; 0.05?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”1 2
+A thought: our belief in the magnitude of an observed effect should be based on our priors, which, hopefully, are formed from good mechanistic models and not sample size“.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2019/04/blocking-vs-covariate-adjustment/">
                 <h3 class="media-heading">Blocking vs. covariate adjustment</h3>
               </a>
@@ -958,24 +976,6 @@ where a relative effect is
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2018/10/interaction-plots-with-ggplot2/">
-                <h3 class="media-heading">Interaction plots with ggplot2</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Oct 10, 2018
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.
-The gg_interaction function returns a ggplot of the modeled means and standard errors and not the raw means and standard errors computed from each group independently.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -983,7 +983,7 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         21 posts found
+         22 posts found
       </p>
     </div>
   </div>

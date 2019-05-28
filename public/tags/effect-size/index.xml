@@ -6,10 +6,20 @@
     <description>Recent content in Effect Size on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 14 Nov 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 28 May 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/effect-size/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Should we be skeptical of a &#34;large&#34; effect size if p &gt; 0.05?</title>
+      <link>/2019/05/should-we-be-skeptical-of-a-large-effect-size-if-p-0-05/</link>
+      <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/05/should-we-be-skeptical-of-a-large-effect-size-if-p-0-05/</guid>
+      <description>Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”1 2
+A thought: our belief in the magnitude of an observed effect should be based on our priors, which, hopefully, are formed from good mechanistic models and not sample size“.</description>
+    </item>
     
     <item>
       <title>Reporting effects as relative differences...with a confidence interval</title>

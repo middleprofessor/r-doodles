@@ -1,0 +1,277 @@
+---
+title: Should we be skeptical of a "large" effect size if p > 0.05?
+author: Jefff Walker
+date: '2019-05-28'
+slug: should-we-be-skeptical-of-a-large-effect-size-if-p-0-05
+categories:
+  - stats 101
+tags:
+  - effect size
+  - NHST
+  - p-values
+  - power
+keywords:
+  - tech
+---
+
+
+
+<p>Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
+<p>A thought: our belief in the magnitude of an observed effect should be based on our priors, which, hopefully, are formed from good mechanistic models and not sample size“.<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></p>
+<ol style="list-style-type: decimal">
+<li>If we observe a large effect but the sample size is small, then should we believe that the effect is strongly inflated?</li>
+<li>If we had measured a larger sample, would the effect be smaller?</li>
+</ol>
+<p>But…maybe sample size should influence our prior, because the expected estimated effect <strong>magnitude</strong> is bigger than than the true effect <em>if the true effect is near zero</em>. This is because, if an effect is near zero, estimates will vary on both sides of zero, and the absolute value of most of these estimates will be bigger than the absolute value of the true effect. But what effect size should we worry about this?</p>
+<div id="set-up" class="section level2">
+<h2>Set up</h2>
+<pre class="r"><code>library(ggplot2)
+library(ggpubr)</code></pre>
+<pre><code>## Loading required package: magrittr</code></pre>
+<pre class="r"><code>library(data.table)</code></pre>
+</div>
+<div id="the-simulation" class="section level2">
+<h2>The simulation</h2>
+<p>Simulate an experiment with two treatment levels (“control” and “treated”), with standardized (<span class="math inline">\(\frac{\delta}{\sigma}\)</span>) effect sizes of 0.05, .1, .2, .3, .5, .8, 1, 2 and sample sizes of 100, 20, and 10. Cohen considered .8 a “large” standardized effect but I’ll leave what is large up to you. Regardless, its worth comparing the results here to observed effects.</p>
+<pre class="r"><code>n &lt;- 100 # per treatment level. power will be a function of effect size
+b_array &lt;- c(0.05, 0.1, 0.2, 0.3, 0.5, 0.8, 1, 2)
+niter &lt;- 10^4
+res_table &lt;- data.table(NULL)
+power_table &lt;- data.table(NULL)
+for(b1 in b_array){
+  y1 &lt;- matrix(rnorm(n*niter), nrow=n)
+  y2 &lt;- matrix(rnorm(n*niter), nrow=n) + b1
+  d100 &lt;- apply(y2, 2, mean) - apply(y1,2,mean)
+  d20 &lt;- apply(y2[1:20,], 2, mean) - apply(y1[1:20,],2,mean)
+  d10 &lt;- apply(y2[1:10,], 2, mean) - apply(y1[1:10,],2,mean)
+  res_table &lt;- rbind(res_table, data.table(b=b1, d100=d100, d20=d20, d10=d10))
+  power_table &lt;- rbind(power_table, data.table(
+    b=b1,
+    &quot;power (n=100)&quot;=power.t.test(n=100, delta=b1, sd=1)$power,
+    &quot;power (n=20)&quot;=power.t.test(n=20, delta=b1, sd=1)$power,
+    &quot;power (n=10)&quot;=power.t.test(n=10, delta=b1, sd=1)$power
+  ))
+}</code></pre>
+</div>
+<div id="power-for-each-simulation-combination" class="section level2">
+<h2>Power for each simulation combination</h2>
+<pre class="r"><code>knitr::kable(power_table, digits=2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">b</th>
+<th align="right">power (n=100)</th>
+<th align="right">power (n=20)</th>
+<th align="right">power (n=10)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.05</td>
+<td align="right">0.05</td>
+<td align="right">0.04</td>
+<td align="right">0.03</td>
+</tr>
+<tr class="even">
+<td align="right">0.10</td>
+<td align="right">0.10</td>
+<td align="right">0.05</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="odd">
+<td align="right">0.20</td>
+<td align="right">0.29</td>
+<td align="right">0.09</td>
+<td align="right">0.06</td>
+</tr>
+<tr class="even">
+<td align="right">0.30</td>
+<td align="right">0.56</td>
+<td align="right">0.15</td>
+<td align="right">0.09</td>
+</tr>
+<tr class="odd">
+<td align="right">0.50</td>
+<td align="right">0.94</td>
+<td align="right">0.34</td>
+<td align="right">0.18</td>
+</tr>
+<tr class="even">
+<td align="right">0.80</td>
+<td align="right">1.00</td>
+<td align="right">0.69</td>
+<td align="right">0.39</td>
+</tr>
+<tr class="odd">
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.87</td>
+<td align="right">0.56</td>
+</tr>
+<tr class="even">
+<td align="right">2.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="absolute-median-effects" class="section level2">
+<h2>Absolute median effects</h2>
+<pre class="r"><code>knitr::kable(res_table[, .(&quot;median(|b|) (n=100)&quot;=median(abs(d100)),
+              &quot;median(|b|) (n=20)&quot;=median(abs(d20)),
+              &quot;median(|b|) (n=10)&quot;=median(abs(d10))
+              ), by=b], digits=c(2, 3, 3, 3))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">b</th>
+<th align="right">median(|b|) (n=100)</th>
+<th align="right">median(|b|) (n=20)</th>
+<th align="right">median(|b|) (n=10)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.05</td>
+<td align="right">0.101</td>
+<td align="right">0.217</td>
+<td align="right">0.309</td>
+</tr>
+<tr class="even">
+<td align="right">0.10</td>
+<td align="right">0.122</td>
+<td align="right">0.222</td>
+<td align="right">0.309</td>
+</tr>
+<tr class="odd">
+<td align="right">0.20</td>
+<td align="right">0.199</td>
+<td align="right">0.261</td>
+<td align="right">0.334</td>
+</tr>
+<tr class="even">
+<td align="right">0.30</td>
+<td align="right">0.298</td>
+<td align="right">0.317</td>
+<td align="right">0.368</td>
+</tr>
+<tr class="odd">
+<td align="right">0.50</td>
+<td align="right">0.506</td>
+<td align="right">0.500</td>
+<td align="right">0.511</td>
+</tr>
+<tr class="even">
+<td align="right">0.80</td>
+<td align="right">0.803</td>
+<td align="right">0.801</td>
+<td align="right">0.804</td>
+</tr>
+<tr class="odd">
+<td align="right">1.00</td>
+<td align="right">1.000</td>
+<td align="right">0.997</td>
+<td align="right">1.002</td>
+</tr>
+<tr class="even">
+<td align="right">2.00</td>
+<td align="right">2.004</td>
+<td align="right">2.006</td>
+<td align="right">2.008</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="inflation-factors" class="section level2">
+<h2>Inflation factors</h2>
+<pre class="r"><code>knitr::kable(res_table[, .(
+              &quot;IF (n=100)&quot; = median(abs(d100))/b,
+              &quot;IF (n=20)&quot; = median(abs(d20))/b,
+              &quot;IF (n=10)&quot; = median(abs(d10))/b
+              ), by=b], digits=c(2, 1, 1, 1))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">b</th>
+<th align="right">IF (n=100)</th>
+<th align="right">IF (n=20)</th>
+<th align="right">IF (n=10)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.05</td>
+<td align="right">2.0</td>
+<td align="right">4.3</td>
+<td align="right">6.2</td>
+</tr>
+<tr class="even">
+<td align="right">0.10</td>
+<td align="right">1.2</td>
+<td align="right">2.2</td>
+<td align="right">3.1</td>
+</tr>
+<tr class="odd">
+<td align="right">0.20</td>
+<td align="right">1.0</td>
+<td align="right">1.3</td>
+<td align="right">1.7</td>
+</tr>
+<tr class="even">
+<td align="right">0.30</td>
+<td align="right">1.0</td>
+<td align="right">1.1</td>
+<td align="right">1.2</td>
+</tr>
+<tr class="odd">
+<td align="right">0.50</td>
+<td align="right">1.0</td>
+<td align="right">1.0</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="right">0.80</td>
+<td align="right">1.0</td>
+<td align="right">1.0</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="odd">
+<td align="right">1.00</td>
+<td align="right">1.0</td>
+<td align="right">1.0</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="right">2.00</td>
+<td align="right">1.0</td>
+<td align="right">1.0</td>
+<td align="right">1.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="directly-answering-question-2" class="section level1">
+<h1>Directly answering question #2</h1>
+<p>Notice that if power is obove about .2, the absolute median effect is not inflated. That is, a study would have to be wicked underpowered for there to be an expected inflated effect size. This is an indirect answer to question no. 2. A more direct answer is explored by computing the log10 ratio of absolute effects between sample size levels for each run of the simulation.</p>
+<pre class="r"><code>res_table[, d100.d20:=log10(abs(d20)/abs(d100))]
+res_table[, d100.d10:=log10(abs(d10)/abs(d100))]
+res_table[, d20.d10:=log10(abs(d10)/abs(d20))]
+res_melt &lt;- melt(res_table[, .SD, .SDcols=c(&quot;b&quot;, &quot;d100.d20&quot;, &quot;d100.d10&quot;, &quot;d20.d10&quot;)], id.vars=&quot;b&quot;, variable.name=&quot;comparison&quot;, value.name=&quot;contrast&quot;)
+res_melt[, b:=factor(b)]
+pd &lt;- position_dodge(0.8)
+ggplot(data=res_melt, aes(x=b, y=contrast, fill=comparison)) +
+  geom_boxplot(position=pd, outlier.shape=NA) +
+  coord_cartesian(ylim=c(-1.25, 2))</code></pre>
+<p><img src="/post/2019-05-28-should-we-be-skeptical-of-a-large-effect-size-if-p-0-05_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>If the true effect is really small (0.05) then a smaller sample will often estimate a larger effect (just less than 75% of the time when decreasing <span class="math inline">\(n\)</span> from 100 to 20). When the true effect is about 0.5 or higher, decreasing sample size is no more likely to estimate a bigger effect than increasing sample size.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>The original question, and the motivating tweet, raise the question of what a “large” effect is. There is large in the absolute since, which would require subject level expertise to identify, and large relative to noise.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Note that the original post was not about the <a href="https://rdoodles.rbind.io/2019/04/the-statistical-significance-filter/">statistical significance filter</a> but about the ethics of a RCT in which the observed effect was “large” but there was not enough power to get a statistically significant p-value.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>at least if we are using an experiment to estimate an effect. If we are trying to estimate multiple effects, the bigger observed effects have tend to be inflated and the smaller observed effects tend to be dd<a href="#fnref3">↩</a></p></li>
+</ol>
+</div>
