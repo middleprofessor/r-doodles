@@ -30,18 +30,18 @@
     
 
     
-    <meta name="description" content="A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.">
-    <meta property="og:description" content="A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.">
+    <meta name="description" content="A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”).
+tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.">
+    <meta property="og:description" content="A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”).
+tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="GLM vs. t-tests vs. non-parametric tests if all we care about is NHST">
     <meta property="og:url" content="/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.">
+    <meta name="twitter:description" content="A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”).
+tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -291,65 +291,191 @@ if (!doNotTrack) {
               
 
 
-<p>A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)</p>
+<p>A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”).</p>
+<p>tl;dr - At least for Type I error at small <span class="math inline">\(n\)</span>, log(response) and Wilcoxan have the best performance over the simulation space. T-test is a bit conservative. Welch is even more conservative. glm-nb is too liberal.</p>
 <div id="load-libraries" class="section level1">
 <h1>load libraries</h1>
 <pre class="r"><code>library(ggplot2)
+library(ggpubr)
 library(MASS)
-library(data.table)</code></pre>
-<pre class="r"><code>do_sim &lt;- function(){
-  set.seed(1)
-  niter &lt;- 1000
+library(data.table)
+library(cowplot)</code></pre>
+<div id="the-simulation" class="section level2">
+<h2>The simulation</h2>
+<ol style="list-style-type: decimal">
+<li>Single factor with two levels and a count (negative binomial) response.</li>
+<li>Relative effect sizes of 0%, 50%, 100%, and 200%</li>
+<li>Ref count of 4, 10, 100</li>
+<li><span class="math inline">\(n\)</span> of 5, 10, 20, 40</li>
+</ol>
+<p><em>p</em>-values computed from</p>
+<ol style="list-style-type: decimal">
+<li>t-test on raw response</li>
+<li>Welch t-test on raw response</li>
+<li>t-test on log transformed response</li>
+<li>Wilcoxan test</li>
+<li>glm with negative binomial family and log-link</li>
+</ol>
+<pre class="r"><code>do_sim &lt;- function(niter=1, return_object=NULL){
+  # the function was run with n=1000 and the data saved. on subsequent runs
+  # the data are loaded from a file
+  # the function creates three different objects to return, the object
+  # return is specified by &quot;return_object&quot; = NULL, plot_data1, plot_data2
   methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;)
-  p_table &lt;- matrix(NA, nrow=niter, ncol=length(methods))
-  colnames(p_table) &lt;- methods
+  p_table_part &lt;- matrix(NA, nrow=niter, ncol=length(methods))
+  colnames(p_table_part) &lt;- methods
+  p_table &lt;- data.table(NULL)
   
   res_table &lt;- data.table(NULL)
   beta_0_list &lt;- c(4, 10, 100) # control count
   theta_list &lt;- c(0.5, 1, 100) # dispersion
   effect_list &lt;- c(1:3, 5) # relative effect size will be 0%, 50%, 100%, 200%
   n_list &lt;- c(5, 10, 20, 40) # sample size
-  for(theta in theta_list){
+  n_rows &lt;- length(beta_0_list)*length(theta_list)*length(effect_list)*length(n_list)*niter
+  sim_space &lt;- expand.grid(theta_list, beta_0_list, effect_list, n_list)
+  plot_data1 &lt;- data.table(NULL)
+  plot_data2 &lt;- data.table(NULL)
+  debug_table &lt;- data.table(matrix(NA, nrow=niter, ncol=2))
+  setnames(debug_table, old=colnames(debug_table), new=c(&quot;seed&quot;,&quot;model&quot;))
+  debug_table[, seed:=as.integer(seed)]
+  debug_table[, model:=as.character(model)]
+  i &lt;- 0
+  for(theta_i in theta_list){
     for(beta_0 in beta_0_list){
+      # first get plots of distributions given parameters
+      y &lt;- rnegbin(n=10^4, mu=beta_0, theta=theta_i)
+      x_i &lt;- seq(min(y), max(y), by=1)
+      prob_x_i &lt;- dnbinom(x_i, size=theta_i, mu=beta_0)
+      plot_data1 &lt;- rbind(plot_data1, data.table(
+        theta=theta_i,
+        mu=beta_0,
+        x=x_i,
+        prob_x=prob_x_i
+      ))
+      # the simulation
       for(effect in effect_list){
-        beta_1 &lt;- (effect-1)*beta_0/2 # 0% 50% 100%
-        beta &lt;- c(beta_0, beta_1)
         for(n in n_list){
+          beta_1 &lt;- (effect-1)*beta_0/2 # 0% 50% 100%
+
+          do_manual &lt;- FALSE
+          if(do_manual==TRUE){
+            theta_i &lt;- res_table[row, theta]
+            beta_0 &lt;- res_table[row, beta_0]
+            beta_1 &lt;- res_table[row, beta_1]
+            n &lt;- res_table[row, n]
+          }
+          
+          beta &lt;- c(beta_0, beta_1)
           treatment &lt;- rep(c(&quot;Cn&quot;, &quot;Trt&quot;), each=n)
           X &lt;- model.matrix(~treatment)
           mu &lt;- (X%*%beta)[,1]
           fd &lt;- data.table(treatment=treatment, y=NA)
           for(iter in 1:niter){
-            fd[, y:=rnegbin(n=n*2, mu=mu, theta=theta)]
+            i &lt;- i+1
+            set.seed(i)
+            fd[, y:=rnegbin(n=n*2, mu=mu, theta=theta_i)]
             fd[, log_yp1:=log10(y+1)]
             p.t &lt;- t.test(y~treatment, data=fd, var.equal=TRUE)$p.value
             p.welch &lt;- t.test(y~treatment, data=fd, var.equal=FALSE)$p.value
             p.log &lt;- t.test(log_yp1~treatment, data=fd, var.equal=TRUE)$p.value
             p.wilcox &lt;- wilcox.test(y~treatment, data=fd, exact=FALSE)$p.value
             fit &lt;- glm.nb(y~treatment, data=fd)
+            debug_table[iter, seed:=i]
+            debug_table[iter, model:=&quot;glm.nb&quot;]
+            #if(fit$th.warn == &quot;iteration limit reached&quot;){
+            if(!is.null(fit$th.warn)){
+              fit &lt;- glm(y~treatment, data=fd, family=poisson)
+              debug_table[iter, model:=&quot;poisson&quot;]
+            }
             p.nb &lt;- coef(summary(fit))[&quot;treatmentTrt&quot;, &quot;Pr(&gt;|z|)&quot;]
-            p_table[iter,] &lt;- c(p.t, p.welch, p.log, p.wilcox, p.nb)
+            p_table_part[iter,] &lt;- c(p.t, p.welch, p.log, p.wilcox, p.nb)
           }
-          p_sum &lt;- apply(p_table, 2, function(x) length(which(x &lt;= 0.05))/niter)
+          p_table &lt;- rbind(p_table, data.table(p_table_part, debug_table))
+          p_sum &lt;- apply(p_table_part, 2, function(x) length(which(x &lt;= 0.05))/niter)
           res_table &lt;- rbind(res_table, data.table(beta_0=beta_0,
                                                    beta_1=beta_1,
                                                    n=n,
-                                                   theta=theta,
+                                                   theta=theta_i,
                                                    t(p_sum)))
-        }
-      }
+        } # n
+      } # effect
+      plot_data2 &lt;- rbind(plot_data2, data.table(
+        theta=theta_i,
+        mu=beta_0,
+        n_i=n,
+        beta1=beta_1,
+        x=treatment,
+        y=fd[, y]
+      ))
     }
   }
-  return(res_table)
+  if(is.null(return_object)){return(res_table)}else{
+    if(return_object==&quot;plot_data1&quot;){return(plot_data1)}
+    if(return_object==&quot;plot_data2&quot;){return(plot_data2)}
+    
+  }
+  
 }
 
 do_it &lt;- FALSE # if FALSE the results are available as a file
 if(do_it==TRUE){
-  res_table &lt;- do_sim()
+  res_table &lt;- do_sim(niter=1000)
   write.table(res_table, &quot;../output/glm-t-wilcoxon.txt&quot;, row.names = FALSE, quote=FALSE)
+}else{
+  plot_data &lt;- do_sim(niter=1, return_object=&quot;plot_data2&quot;)
+  res_table &lt;- fread(&quot;../output/glm-t-wilcoxon.txt&quot;)
+  res_table[, n:=factor(n)]
 }
-res_table &lt;- fread(&quot;../output/glm-t-wilcoxon.txt&quot;)
 #res_table</code></pre>
+<p>Distribution of the response for the 3 x 3 simulation space</p>
+<pre class="r"><code># extreme inelegance
+mu_levels &lt;- unique(plot_data[, mu])
+theta_levels &lt;- unique(plot_data[, theta])
+show_function &lt;- FALSE
+show_violin &lt;- TRUE
+
+if(show_function==TRUE){
+  gg1 &lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[1] &amp; theta==theta_levels[1],], geom=&quot;line&quot;)
+  gg2 &lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[2] &amp; theta==theta_levels[1],], geom=&quot;line&quot;)
+  gg3 &lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[3] &amp; theta==theta_levels[1],], geom=&quot;line&quot;)
+  gg4 &lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[1] &amp; theta==theta_levels[2],], geom=&quot;line&quot;)
+  gg5 &lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[2] &amp; theta==theta_levels[2],], geom=&quot;line&quot;)
+  gg6 &lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[3] &amp; theta==theta_levels[2],], geom=&quot;line&quot;)
+  gg7 &lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[1] &amp; theta==theta_levels[3],], geom=&quot;line&quot;)
+  gg8 &lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[2] &amp; theta==theta_levels[3],], geom=&quot;line&quot;)
+  gg9 &lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[3] &amp; theta==theta_levels[3],], geom=&quot;line&quot;)
+}
+
+if(show_violin==TRUE){
+  gg1 &lt;- ggviolin(x=&quot;x&quot;, y=&quot;y&quot;, data=plot_data[mu==mu_levels[1] &amp; theta==theta_levels[1],], add=&quot;jitter&quot;)
+  gg2 &lt;- ggviolin(x=&quot;x&quot;, y=&quot;y&quot;, data=plot_data[mu==mu_levels[2] &amp; theta==theta_levels[1],], add=&quot;jitter&quot;)
+  gg3 &lt;- ggviolin(x=&quot;x&quot;, y=&quot;y&quot;, data=plot_data[mu==mu_levels[3] &amp; theta==theta_levels[1],], add=&quot;jitter&quot;)
+  gg4 &lt;- ggviolin(x=&quot;x&quot;, y=&quot;y&quot;, data=plot_data[mu==mu_levels[1] &amp; theta==theta_levels[2],], add=&quot;jitter&quot;)
+  gg5 &lt;- ggviolin(x=&quot;x&quot;, y=&quot;y&quot;, data=plot_data[mu==mu_levels[2] &amp; theta==theta_levels[2],], add=&quot;jitter&quot;)
+  gg6 &lt;- ggviolin(x=&quot;x&quot;, y=&quot;y&quot;, data=plot_data[mu==mu_levels[3] &amp; theta==theta_levels[2],], add=&quot;jitter&quot;)
+  gg7 &lt;- ggviolin(x=&quot;x&quot;, y=&quot;y&quot;, data=plot_data[mu==mu_levels[1] &amp; theta==theta_levels[3],], add=&quot;jitter&quot;)
+  gg8 &lt;- ggviolin(x=&quot;x&quot;, y=&quot;y&quot;, data=plot_data[mu==mu_levels[2] &amp; theta==theta_levels[3],], add=&quot;jitter&quot;)
+  gg9 &lt;- ggviolin(x=&quot;x&quot;, y=&quot;y&quot;, data=plot_data[mu==mu_levels[3] &amp; theta==theta_levels[3],], add=&quot;jitter&quot;)
+}
+
+gg_example &lt;- plot_grid(gg1, gg2, gg3, gg4, gg5, gg6, gg7, gg8, gg9, 
+          nrow=3,
+          labels=c(paste0(&quot;mu=&quot;, mu_levels[1], &quot;; theta=&quot;, theta_levels[1]),
+                   paste0(&quot;mu=&quot;, mu_levels[2], &quot;; theta=&quot;, theta_levels[1]),
+                   paste0(&quot;mu=&quot;, mu_levels[3], &quot;; theta=&quot;, theta_levels[1]),
+                   paste0(&quot;mu=&quot;, mu_levels[1], &quot;; theta=&quot;, theta_levels[2]),
+                   paste0(&quot;mu=&quot;, mu_levels[2], &quot;; theta=&quot;, theta_levels[2]),
+                   paste0(&quot;mu=&quot;, mu_levels[3], &quot;; theta=&quot;, theta_levels[2]),
+                   paste0(&quot;mu=&quot;, mu_levels[1], &quot;; theta=&quot;, theta_levels[3]),
+                   paste0(&quot;mu=&quot;, mu_levels[2], &quot;; theta=&quot;, theta_levels[3]),
+                   paste0(&quot;mu=&quot;, mu_levels[3], &quot;; theta=&quot;, theta_levels[3])),
+          label_size = 10, label_x=0.1)
+gg_example</code></pre>
+<p><img src="/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+</div>
+</div>
+<div id="type-i-error" class="section level1">
+<h1>Type I error</h1>
 <pre class="r"><code>res &lt;- melt(res_table, 
             id.vars=c(&quot;beta_0&quot;, &quot;beta_1&quot;, &quot;n&quot;, &quot;theta&quot;),
             measure.vars=c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;),
@@ -365,6 +491,10 @@ res_table &lt;- fread(&quot;../output/glm-t-wilcoxon.txt&quot;)
   NULL
 gg</code></pre>
 <p><img src="/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/type%20I-1.png" width="672" /></p>
+<p>Ouch. glm-nb with hih error rates especially when n is small and the scale parameter is small</p>
+</div>
+<div id="power" class="section level1">
+<h1>Power</h1>
 <pre class="r"><code>b0_levels &lt;- unique(res$beta_0)
 # small count
 gg1 &lt;- ggplot(data=res[beta_0==b0_levels[1] &amp; beta_1 &gt; 0], aes(x=n, y=frequency, group=model, color=model)) +
@@ -382,6 +512,7 @@ gg1</code></pre>
 <p><img src="/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/power-1.png" width="672" /></p>
 <pre class="r"><code>gg2</code></pre>
 <p><img src="/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/power-2.png" width="672" /></p>
+<p>glm-nb has higher power, especially at small n, but at a type I cost.</p>
 </div>
 
               
@@ -627,8 +758,8 @@ load libraries library(ggplot2) library(ggpubr) library(data.table)  make some f
                   Jan 1, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.</div>
+              <div class="media-content hide-xs font-merryweather">A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”).
+tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -970,8 +1101,8 @@ load libraries library(ggplot2) library(ggpubr) library(data.table)  make some f
                   Jan 1, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-load libraries library(ggplot2) library(MASS) library(data.table) do_sim &lt;- function(){ set.</div>
+              <div class="media-content hide-xs font-merryweather">A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”).
+tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

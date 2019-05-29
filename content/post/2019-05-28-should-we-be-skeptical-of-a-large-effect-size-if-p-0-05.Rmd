@@ -21,7 +21,7 @@ A thought: our belief in the magnitude of an observed effect should be based on 
 1. If we observe a large effect but the sample size is small, then should we believe that the effect is strongly inflated?
 2. If we had measured a larger sample, would the effect be smaller?
 
-But...maybe sample size should influence our prior, because the expected estimated effect **magnitude** is bigger than than the true effect *if the true effect is near zero*. This is because, if an effect is near zero, estimates will vary on both sides of zero, and the absolute value of most of these estimates will be bigger than the absolute value of the true effect. But what effect size should we worry about this?
+But...maybe sample size should influence our prior, because the expected estimated effect **magnitude** is bigger than than the true effect *if the true effect is near zero* [explored a bit here](../../../2019/04/the-statistical-significance-filter/). This is because, if an effect is near zero, estimates will vary on both sides of zero, and the absolute value of most of these estimates will be bigger than the absolute value of the true effect. But what effect size should we worry about this?
 
 ## Set up
 

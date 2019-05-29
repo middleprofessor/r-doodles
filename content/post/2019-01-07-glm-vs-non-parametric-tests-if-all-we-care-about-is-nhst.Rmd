@@ -11,71 +11,201 @@ tags:
   - NHST
 ---
 
-A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn't go terribly wrong (similar to doing experiments in triplicate -- it's not the effect size that matters only "we have experimental evidence of a replicatable effect")
+A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn't go terribly wrong (similar to doing experiments in triplicate -- it's not the effect size that matters only "we have experimental evidence of a replicatable effect").
+
+tl;dr - At least for Type I error at small $n$, log(response) and Wilcoxan have the best performance over the simulation space. T-test is a bit conservative. Welch is even more conservative. glm-nb is too liberal.
 
 # load libraries
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
 library(ggplot2)
+library(ggpubr)
 library(MASS)
 library(data.table)
+library(cowplot)
 ```
 
-```{r simulation}
+## The simulation
 
-do_sim <- function(){
-  set.seed(1)
-  niter <- 1000
+1. Single factor with two levels and a count (negative binomial) response.
+2. Relative effect sizes of 0%, 50%, 100%, and 200%
+3. Ref count of 4, 10, 100
+4. $n$ of 5, 10, 20, 40
+
+*p*-values computed from
+
+1. t-test on raw response
+2. Welch t-test on raw response
+3. t-test on log transformed response
+4. Wilcoxan test
+5. glm with negative binomial family and log-link
+
+
+```{r simulation, warning=FALSE}
+
+do_sim <- function(niter=1, return_object=NULL){
+  # the function was run with n=1000 and the data saved. on subsequent runs
+  # the data are loaded from a file
+  # the function creates three different objects to return, the object
+  # return is specified by "return_object" = NULL, plot_data1, plot_data2
   methods <- c("t", "Welch", "log", "Wilcoxan", "nb")
-  p_table <- matrix(NA, nrow=niter, ncol=length(methods))
-  colnames(p_table) <- methods
+  p_table_part <- matrix(NA, nrow=niter, ncol=length(methods))
+  colnames(p_table_part) <- methods
+  p_table <- data.table(NULL)
   
   res_table <- data.table(NULL)
   beta_0_list <- c(4, 10, 100) # control count
   theta_list <- c(0.5, 1, 100) # dispersion
   effect_list <- c(1:3, 5) # relative effect size will be 0%, 50%, 100%, 200%
   n_list <- c(5, 10, 20, 40) # sample size
-  for(theta in theta_list){
+  n_rows <- length(beta_0_list)*length(theta_list)*length(effect_list)*length(n_list)*niter
+  sim_space <- expand.grid(theta_list, beta_0_list, effect_list, n_list)
+  plot_data1 <- data.table(NULL)
+  plot_data2 <- data.table(NULL)
+  debug_table <- data.table(matrix(NA, nrow=niter, ncol=2))
+  setnames(debug_table, old=colnames(debug_table), new=c("seed","model"))
+  debug_table[, seed:=as.integer(seed)]
+  debug_table[, model:=as.character(model)]
+  i <- 0
+  for(theta_i in theta_list){
     for(beta_0 in beta_0_list){
+      # first get plots of distributions given parameters
+      y <- rnegbin(n=10^4, mu=beta_0, theta=theta_i)
+      x_i <- seq(min(y), max(y), by=1)
+      prob_x_i <- dnbinom(x_i, size=theta_i, mu=beta_0)
+      plot_data1 <- rbind(plot_data1, data.table(
+        theta=theta_i,
+        mu=beta_0,
+        x=x_i,
+        prob_x=prob_x_i
+      ))
+      # the simulation
       for(effect in effect_list){
-        beta_1 <- (effect-1)*beta_0/2 # 0% 50% 100%
-        beta <- c(beta_0, beta_1)
         for(n in n_list){
+          beta_1 <- (effect-1)*beta_0/2 # 0% 50% 100%
+
+          do_manual <- FALSE
+          if(do_manual==TRUE){
+            theta_i <- res_table[row, theta]
+            beta_0 <- res_table[row, beta_0]
+            beta_1 <- res_table[row, beta_1]
+            n <- res_table[row, n]
+          }
+          
+          beta <- c(beta_0, beta_1)
           treatment <- rep(c("Cn", "Trt"), each=n)
           X <- model.matrix(~treatment)
           mu <- (X%*%beta)[,1]
           fd <- data.table(treatment=treatment, y=NA)
           for(iter in 1:niter){
-            fd[, y:=rnegbin(n=n*2, mu=mu, theta=theta)]
+            i <- i+1
+            set.seed(i)
+            fd[, y:=rnegbin(n=n*2, mu=mu, theta=theta_i)]
             fd[, log_yp1:=log10(y+1)]
             p.t <- t.test(y~treatment, data=fd, var.equal=TRUE)$p.value
             p.welch <- t.test(y~treatment, data=fd, var.equal=FALSE)$p.value
             p.log <- t.test(log_yp1~treatment, data=fd, var.equal=TRUE)$p.value
             p.wilcox <- wilcox.test(y~treatment, data=fd, exact=FALSE)$p.value
             fit <- glm.nb(y~treatment, data=fd)
+            debug_table[iter, seed:=i]
+            debug_table[iter, model:="glm.nb"]
+            #if(fit$th.warn == "iteration limit reached"){
+            if(!is.null(fit$th.warn)){
+              fit <- glm(y~treatment, data=fd, family=poisson)
+              debug_table[iter, model:="poisson"]
+            }
             p.nb <- coef(summary(fit))["treatmentTrt", "Pr(>|z|)"]
-            p_table[iter,] <- c(p.t, p.welch, p.log, p.wilcox, p.nb)
+            p_table_part[iter,] <- c(p.t, p.welch, p.log, p.wilcox, p.nb)
           }
-          p_sum <- apply(p_table, 2, function(x) length(which(x <= 0.05))/niter)
+          p_table <- rbind(p_table, data.table(p_table_part, debug_table))
+          p_sum <- apply(p_table_part, 2, function(x) length(which(x <= 0.05))/niter)
           res_table <- rbind(res_table, data.table(beta_0=beta_0,
                                                    beta_1=beta_1,
                                                    n=n,
-                                                   theta=theta,
+                                                   theta=theta_i,
                                                    t(p_sum)))
-        }
-      }
+        } # n
+      } # effect
+      plot_data2 <- rbind(plot_data2, data.table(
+        theta=theta_i,
+        mu=beta_0,
+        n_i=n,
+        beta1=beta_1,
+        x=treatment,
+        y=fd[, y]
+      ))
     }
   }
-  return(res_table)
+  if(is.null(return_object)){return(res_table)}else{
+    if(return_object=="plot_data1"){return(plot_data1)}
+    if(return_object=="plot_data2"){return(plot_data2)}
+    
+  }
+  
 }
 
 do_it <- FALSE # if FALSE the results are available as a file
 if(do_it==TRUE){
-  res_table <- do_sim()
+  res_table <- do_sim(niter=1000)
   write.table(res_table, "../output/glm-t-wilcoxon.txt", row.names = FALSE, quote=FALSE)
+}else{
+  plot_data <- do_sim(niter=1, return_object="plot_data2")
+  res_table <- fread("../output/glm-t-wilcoxon.txt")
+  res_table[, n:=factor(n)]
 }
-res_table <- fread("../output/glm-t-wilcoxon.txt")
 #res_table
 ```
+
+Distribution of the response for the 3 x 3 simulation space
+
+```{r, eval=TRUE}
+# extreme inelegance
+mu_levels <- unique(plot_data[, mu])
+theta_levels <- unique(plot_data[, theta])
+show_function <- FALSE
+show_violin <- TRUE
+
+if(show_function==TRUE){
+  gg1 <- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[1] & theta==theta_levels[1],], geom="line")
+  gg2 <- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[2] & theta==theta_levels[1],], geom="line")
+  gg3 <- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[3] & theta==theta_levels[1],], geom="line")
+  gg4 <- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[1] & theta==theta_levels[2],], geom="line")
+  gg5 <- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[2] & theta==theta_levels[2],], geom="line")
+  gg6 <- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[3] & theta==theta_levels[2],], geom="line")
+  gg7 <- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[1] & theta==theta_levels[3],], geom="line")
+  gg8 <- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[2] & theta==theta_levels[3],], geom="line")
+  gg9 <- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[3] & theta==theta_levels[3],], geom="line")
+}
+
+if(show_violin==TRUE){
+  gg1 <- ggviolin(x="x", y="y", data=plot_data[mu==mu_levels[1] & theta==theta_levels[1],], add="jitter")
+  gg2 <- ggviolin(x="x", y="y", data=plot_data[mu==mu_levels[2] & theta==theta_levels[1],], add="jitter")
+  gg3 <- ggviolin(x="x", y="y", data=plot_data[mu==mu_levels[3] & theta==theta_levels[1],], add="jitter")
+  gg4 <- ggviolin(x="x", y="y", data=plot_data[mu==mu_levels[1] & theta==theta_levels[2],], add="jitter")
+  gg5 <- ggviolin(x="x", y="y", data=plot_data[mu==mu_levels[2] & theta==theta_levels[2],], add="jitter")
+  gg6 <- ggviolin(x="x", y="y", data=plot_data[mu==mu_levels[3] & theta==theta_levels[2],], add="jitter")
+  gg7 <- ggviolin(x="x", y="y", data=plot_data[mu==mu_levels[1] & theta==theta_levels[3],], add="jitter")
+  gg8 <- ggviolin(x="x", y="y", data=plot_data[mu==mu_levels[2] & theta==theta_levels[3],], add="jitter")
+  gg9 <- ggviolin(x="x", y="y", data=plot_data[mu==mu_levels[3] & theta==theta_levels[3],], add="jitter")
+}
+
+gg_example <- plot_grid(gg1, gg2, gg3, gg4, gg5, gg6, gg7, gg8, gg9, 
+          nrow=3,
+          labels=c(paste0("mu=", mu_levels[1], "; theta=", theta_levels[1]),
+                   paste0("mu=", mu_levels[2], "; theta=", theta_levels[1]),
+                   paste0("mu=", mu_levels[3], "; theta=", theta_levels[1]),
+                   paste0("mu=", mu_levels[1], "; theta=", theta_levels[2]),
+                   paste0("mu=", mu_levels[2], "; theta=", theta_levels[2]),
+                   paste0("mu=", mu_levels[3], "; theta=", theta_levels[2]),
+                   paste0("mu=", mu_levels[1], "; theta=", theta_levels[3]),
+                   paste0("mu=", mu_levels[2], "; theta=", theta_levels[3]),
+                   paste0("mu=", mu_levels[3], "; theta=", theta_levels[3])),
+          label_size = 10, label_x=0.1)
+gg_example
+
+```
+
+
+# Type I error
 
 ```{r melt}
 res <- melt(res_table, 
@@ -99,6 +229,9 @@ gg <- ggplot(data=res[beta_1==0], aes(x=n, y=frequency, group=model, color=model
 gg
 ```
 
+Ouch. glm-nb with hih error rates especially when n is small and the scale parameter is small
+
+# Power
 ```{r power}
 b0_levels <- unique(res$beta_0)
 # small count
@@ -118,4 +251,4 @@ gg2
 
 ```
 
-
+glm-nb has higher power, especially at small n, but at a type I cost.

@@ -17,8 +17,8 @@
       <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/</guid>
-      <description>A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”)
-load libraries library(ggplot2) library(MASS) library(data.table) do_sim &amp;lt;- function(){ set.</description>
+      <description>A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”).
+tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.</description>
     </item>
     
   </channel>
