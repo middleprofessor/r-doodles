@@ -95,6 +95,7 @@ lrtest(m2, m1)</code></pre>
 ##   #Df  LogLik Df  Chisq Pr(&gt;Chisq)
 ## 1   5 -1706.7                     
 ## 2   6 -1706.0  1 1.4974     0.2211</code></pre>
+<p>Hmm. Need to explore the error.</p>
 <p>incorrect LRT</p>
 <pre class="r"><code># correct LRT
 m1 &lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Cycle) + (1|Donor), data=mouse)

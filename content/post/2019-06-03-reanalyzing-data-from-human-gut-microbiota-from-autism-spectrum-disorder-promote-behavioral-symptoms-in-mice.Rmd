@@ -98,6 +98,8 @@ m2 <- lmer(OFT_Distance ~ Gender + (1|Cycle) + (1|Donor), REML=FALSE, data=mouse
 lrtest(m2, m1)
 ```
 
+Hmm. Need to explore the error.
+
 incorrect LRT
 
 ```{r}
