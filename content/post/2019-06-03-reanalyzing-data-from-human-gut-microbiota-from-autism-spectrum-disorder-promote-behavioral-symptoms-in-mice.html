@@ -16,6 +16,10 @@ tags:
 <p>A very skeletal analysis of</p>
 <p>Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.</p>
 <p><a href="https://pubpeer.com/publications/B521D325772244D8F656F1ED193ACA#">which got some attention on pubpeer</a>.</p>
+<p>Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented. A much better plot for inferring differences is an effects plot with the CI of the effect. That said, I’ll try to reproduce the resulting p-value.</p>
+<div id="caveats" class="section level1">
+<h1>Caveats</h1>
+<p>Failure to reproduce or partial reproducibility might be an error in my coding, or my misunderstanding of the author’s methods, or my lack of knowledge of statistics generally or the R functions that I use more specifically.</p>
 <pre class="r"><code>library(ggplot2)
 library(lmerTest)
 library(emmeans)
@@ -27,6 +31,7 @@ library(data.table)</code></pre>
 file_path &lt;- paste(data_path, fn, sep=&quot;/&quot;)
 mouse &lt;- fread(file_path)
 mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c(&quot;NT&quot;, &quot;ASD&quot;))]</code></pre>
+</div>
 <div id="figure-1g" class="section level1">
 <h1>Figure 1G</h1>
 <div id="method-no.-1-as-stated-in-caption-to-fig-1" class="section level2">

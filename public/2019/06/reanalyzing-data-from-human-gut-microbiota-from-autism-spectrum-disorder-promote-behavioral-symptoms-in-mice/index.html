@@ -33,11 +33,11 @@
     <meta name="description" content="A very skeletal analysis of
 Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
 which got some attention on pubpeer.
-library(ggplot2) library(lmerTest) library(emmeans) library(lmtest) library(data.table) data_path &lt;- &quot;../data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&quot; #data_path &lt;- &quot;data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&quot; fn &lt;- &quot;Fig1EFGH_subset8.">
+Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.">
     <meta property="og:description" content="A very skeletal analysis of
 Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
 which got some attention on pubpeer.
-library(ggplot2) library(lmerTest) library(emmeans) library(lmtest) library(data.table) data_path &lt;- &quot;../data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&quot; #data_path &lt;- &quot;data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&quot; fn &lt;- &quot;Fig1EFGH_subset8.">
+Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="Reanalyzing data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice">
     <meta property="og:url" content="/2019/06/reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/">
@@ -47,7 +47,7 @@ library(ggplot2) library(lmerTest) library(emmeans) library(lmtest) library(data
     <meta name="twitter:description" content="A very skeletal analysis of
 Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
 which got some attention on pubpeer.
-library(ggplot2) library(lmerTest) library(emmeans) library(lmtest) library(data.table) data_path &lt;- &quot;../data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&quot; #data_path &lt;- &quot;data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&quot; fn &lt;- &quot;Fig1EFGH_subset8.">
+Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -300,6 +300,10 @@ if (!doNotTrack) {
 <p>A very skeletal analysis of</p>
 <p>Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.</p>
 <p><a href="https://pubpeer.com/publications/B521D325772244D8F656F1ED193ACA#">which got some attention on pubpeer</a>.</p>
+<p>Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented. A much better plot for inferring differences is an effects plot with the CI of the effect. That said, I’ll try to reproduce the resulting p-value.</p>
+<div id="caveats" class="section level1">
+<h1>Caveats</h1>
+<p>Failure to reproduce or partial reproducibility might be an error in my coding, or my misunderstanding of the author’s methods, or my lack of knowledge of statistics generally or the R functions that I use more specifically.</p>
 <pre class="r"><code>library(ggplot2)
 library(lmerTest)
 library(emmeans)
@@ -311,6 +315,7 @@ library(data.table)</code></pre>
 file_path &lt;- paste(data_path, fn, sep=&quot;/&quot;)
 mouse &lt;- fread(file_path)
 mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c(&quot;NT&quot;, &quot;ASD&quot;))]</code></pre>
+</div>
 <div id="figure-1g" class="section level1">
 <h1>Figure 1G</h1>
 <div id="method-no.-1-as-stated-in-caption-to-fig-1" class="section level2">
@@ -552,7 +557,7 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
               <div class="media-content hide-xs font-merryweather">A very skeletal analysis of
 Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
 which got some attention on pubpeer.
-library(ggplot2) library(lmerTest) library(emmeans) library(lmtest) library(data.table) data_path &lt;- &quot;../data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&quot; #data_path &lt;- &quot;data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&quot; fn &lt;- &quot;Fig1EFGH_subset8.</div>
+Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -892,7 +897,7 @@ Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause o
               <div class="media-content hide-xs font-merryweather">A very skeletal analysis of
 Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
 which got some attention on pubpeer.
-library(ggplot2) library(lmerTest) library(emmeans) library(lmtest) library(data.table) data_path &lt;- &quot;../data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&quot; #data_path &lt;- &quot;data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&quot; fn &lt;- &quot;Fig1EFGH_subset8.</div>
+Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

@@ -17,6 +17,11 @@ Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M
 
 [which got some attention on pubpeer](https://pubpeer.com/publications/B521D325772244D8F656F1ED193ACA#).
 
+Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented. A much better plot for inferring differences is an effects plot with the CI of the effect. That said, I'll try to reproduce the resulting p-value.
+
+# Caveats
+Failure to reproduce or partial reproducibility might be an error in my coding, or my misunderstanding of the author's methods, or my lack of knowledge of statistics generally or the R functions that I use more specifically.
+
 ```{r, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(lmerTest)
