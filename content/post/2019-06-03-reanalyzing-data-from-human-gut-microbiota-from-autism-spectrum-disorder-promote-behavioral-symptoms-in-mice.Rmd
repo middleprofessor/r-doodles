@@ -1,0 +1,111 @@
+---
+title: Reanalyzing data from Human Gut Microbiota from Autism Spectrum Disorder Promote
+  Behavioral Symptoms in Mice
+author: Jeff Walker
+date: '2019-06-03'
+slug: reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice
+categories:
+  - reproducibility
+tags:
+  - linear mixed model
+  - microbiome
+---
+
+A very skeletal analysis of
+
+Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
+
+[which got some attention on pubpeer](https://pubpeer.com/publications/B521D325772244D8F656F1ED193ACA#).
+
+```{r, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(lmerTest)
+library(emmeans)
+library(lmtest)
+library(data.table)
+```
+
+```{r}
+data_path <- "../data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1"
+#data_path <- "data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1"
+```
+
+```{r}
+fn <- "Fig1EFGH_subset8.csv"
+file_path <- paste(data_path, fn, sep="/")
+mouse <- fread(file_path)
+mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c("NT", "ASD"))]
+```
+
+# Figure 1G
+## Method no. 1 (as stated in caption to Fig 1)
+The figure caption gives the method as "Hypothesis testing for differences of the means were done by a mixed effects analysis using donor diagnosis and mouse sex as fixed effects and donor ID as a random effect. p values were derived from a chi-square test". This would be a Likelihood Ratio Test (LRT). The LRT requires that the model be fit by maximum likelhood for the statistic to have any meaning. The default fit in R is REML.
+
+Estimate of marginal means
+
+```{r}
+m1 <- lmer(OFT_Distance ~ ASD_diagnosis + (1|Donor), data=mouse)
+(emmeans(m1, specs=c("ASD_diagnosis")))
+```
+
+and effect, standardized to cohen's D using residual standard deviation from model: (NT - ASD)/sigma 
+
+```{r}
+coef(summary(m1))["ASD_diagnosisASD", "Estimate"]/sigma(m1)
+```
+
+The reported cohen's D for the distance traveled is doTD-oASD = -0.58
+
+The LRT of the model as specified in the caption of Fig1G
+```{r}
+
+# correct LRT
+m1 <- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), REML=FALSE, data=mouse)
+anova(m1)
+m2 <- lmer(OFT_Distance ~ Gender + (1|Donor), REML=FALSE, data=mouse)
+lrtest(m2, m1)
+
+
+```
+
+The p-value is .2208
+
+The LRT of the model as specified but using the default lmer settings, which is fit by REML, which results in a meaningless chisq statistic
+
+```{r}
+
+# incorrect LRT
+# correct LRT
+m1 <- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), data=mouse)
+anova(m1)
+m2 <- lmer(OFT_Distance ~ Gender + (1|Donor), data=mouse)
+lrtest(m2, m1)
+```
+
+## method no. 2 (as stated in methods section)
+the p-value is 0.00013. Is this the reported p-value? Note in the "methods" the authors write:
+
+"Statistical analysis for behavioral outcomes in fecal transplanted offspring. Comparison of behavioral outcomes between TD Controls and ASD donors were tested using longitudinal linear mixed effects analyses, with test cycles and donors treated as repeated factors. Analyses were performed in SPSS (v 24); a priori alpha = 0.05. All outcomes were tested for normality and transformed as required. Diagonal covariance matrices were used so that intra-cycle and intra-donor correlations were accounted for in the modeling. The donor type (TD versus ASD) was the primary fixed effect measured, and mouse sex was an a priori covariate."
+
+(I think) it would be unlikely to get the wrong LRT using SPSS. Also the specified model differs from that in the caption. Was the response transformed (note it's not the reponse that needs to be "normal" but the residuals from the linear model (or equivalently the conditional response))
+
+correct LRT
+```{r}
+# correct LRT
+m1 <- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Cycle) + (1|Donor), REML=FALSE, data=mouse)
+anova(m1)
+m2 <- lmer(OFT_Distance ~ Gender + (1|Cycle) + (1|Donor), REML=FALSE, data=mouse)
+lrtest(m2, m1)
+```
+
+incorrect LRT
+
+```{r}
+# correct LRT
+m1 <- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Cycle) + (1|Donor), data=mouse)
+anova(m1)
+m2 <- lmer(OFT_Distance ~ Gender + (1|Cycle) + (1|Donor), data=mouse)
+lrtest(m2, m1)
+```
+
+Basically the same results

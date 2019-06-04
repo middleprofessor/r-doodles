@@ -104,7 +104,7 @@
     <item>
       <title>Fake Data</title>
       <link>/tags/fake-data/</link>
-      <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/fake-data/</guid>
       <description></description>
@@ -122,7 +122,7 @@
     <item>
       <title>Generalized Linear Models</title>
       <link>/tags/generalized-linear-models/</link>
-      <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/generalized-linear-models/</guid>
       <description></description>
@@ -147,9 +147,18 @@
     </item>
     
     <item>
+      <title>Linear Mixed Model</title>
+      <link>/tags/linear-mixed-model/</link>
+      <pubDate>Mon, 03 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/linear-mixed-model/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Microbiome</title>
       <link>/tags/microbiome/</link>
-      <pubDate>Thu, 08 Mar 2018 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 03 Jun 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/microbiome/</guid>
       <description></description>
@@ -185,7 +194,7 @@
     <item>
       <title>Nhst</title>
       <link>/tags/nhst/</link>
-      <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/nhst/</guid>
       <description></description>
@@ -194,7 +203,7 @@
     <item>
       <title>Non Parametric</title>
       <link>/tags/non-parametric/</link>
-      <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/non-parametric/</guid>
       <description></description>
@@ -203,7 +212,7 @@
     <item>
       <title>P Values</title>
       <link>/tags/p-values/</link>
-      <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/p-values/</guid>
       <description></description>
@@ -221,7 +230,7 @@
     <item>
       <title>Power</title>
       <link>/tags/power/</link>
-      <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/power/</guid>
       <description></description>

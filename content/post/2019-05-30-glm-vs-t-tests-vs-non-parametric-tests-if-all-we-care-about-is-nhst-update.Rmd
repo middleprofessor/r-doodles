@@ -1,0 +1,200 @@
+---
+title: GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update
+author: Jeff Walker
+date: '2019-05-30'
+slug: glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update
+categories:
+  - stats 101
+tags:
+  - generalized linear models
+  - NHST
+  - non-parametric
+  - p-values
+  - power
+  - fake data
+---
+
+[Update to the earlier post](../../../2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/), which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough -- or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R. "For testing the significance of regression coefficients, go ahead and log‐transform count data." Methods in Ecology and Evolution 6, no. 7 (2015): 828-835) or [Warton et al.](Warton, D.I., Lyons, M., Stoklosa, J. and Ives, A.R., 2016. Three points to consider when choosing a LM or GLM test for count data. Methods in Ecology and Evolution, 7(8), pp.882-890). With hindsight, I do vaguely recall Ives, and my previous results support his conclusions, but I was unaware of Warton.
+
+Warton et al is a fabulous paper. A must read. So here is my earlier simulation in light of Warton.
+
+# load libraries
+```{r setup, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(ggpubr)
+library(MASS)
+library(mvabund)
+library(lmtest)
+library(nlme)
+library(data.table)
+library(cowplot)
+```
+
+## The simulation
+
+1. Single factor with two levels and a count (negative binomial) response.
+2. Relative effect sizes of 0%, 50%, 100%, and 200%
+3. Ref count of 4, 10, 100
+4. $n$ of 5, 10, 20, 40
+
+*p*-values computed from
+
+1. t-test on raw response
+2. Welch t-test on raw response
+3. t-test on log transformed response
+4. Wilcoxan test
+5. glm with negative binomial family and log-link
+
+
+```{r simulation, warning=FALSE}
+
+perm.glm <- function(fd, nperm=1000, family="nb"){
+  # permute treatment and recompute glm
+  fd_perm <- copy(fd)
+  test_stat <- numeric(nperm)
+  for(i in 1:nperm){
+    if(family=="nb"){
+      fit <- glm.nb(y~treatment, data=fd_perm)
+    }
+    if(family=="poisson"){
+      fit <- glm(y~treatment, data=fd_perm, family=poisson)
+    }
+    test_stat[i] <- lrtest(fit)[2, "Chisq"]
+    # permute
+    fd_perm[, y:=sample(y)] # this could be residuals if there are covariates
+  }
+  p <- sum(test_stat >= test_stat[1])/nperm
+  return(p)
+}
+
+
+
+do_sim <- function(sim_space, niter=1000, nperm=1000, algebra=FALSE){
+  # the function was run with n=1000 and the data saved. on subsequent runs
+  # the data are loaded from a file
+  # the function creates three different objects to return, the object
+  # return is specified by "return_object" = NULL, plot_data1, plot_data2
+  
+  set.seed(1)
+  
+  methods <- c("t", "Welch", "log", "Wilcoxan", "nb", "nb.x2", "nb.perm", "qp")
+  p_table <- data.table(NULL)
+  
+  res_table <- data.table(NULL)
+  
+  for(i in 1:nrow(sim_space)){
+    # construct clean results table 
+    p_table_part <- matrix(NA, nrow=niter, ncol=length(methods))
+    colnames(p_table_part) <- methods
+    
+    # parameters of simulation
+    theta_i <- sim_space[i, theta]
+    mu_0_i <- sim_space[i, mu_0]
+    effect_i <- sim_space[i, effect]
+    n_i <- sim_space[i, n]
+    treatment <- rep(c("Cn", "Trt"), each=n_i)
+    fd <- data.table(treatment=treatment)
+    
+    # mu (using algebra)
+    if(algebra==TRUE){
+      X <- model.matrix(~treatment)
+      beta_0 <- log(mu_0_i)
+      beta_1 <- log(effect_i*mu_0_i) - beta_0
+      beta <- c(beta_0, beta_1)
+      mu_i <- exp((X%*%beta)[,1])
+    }else{ #  using R
+      mu_vec <- c(mu_0_i, mu_0_i*effect_i)
+      mu_i <- rep(mu_vec, each=n_i)
+    }
+    
+    for(iter in 1:niter){
+      #set.seed(iter)
+      fd[, y:=rnegbin(n=n_i*2, mu=mu_i, theta=theta_i)]
+      fd[, log_yp1:=log10(y+1)]
+      p.t <- t.test(y~treatment, data=fd, var.equal=TRUE)$p.value
+      p.welch <- t.test(y~treatment, data=fd, var.equal=FALSE)$p.value
+      p.log <- t.test(log_yp1~treatment, data=fd, var.equal=TRUE)$p.value
+      p.wilcox <- wilcox.test(y~treatment, data=fd, exact=FALSE)$p.value
+      
+      # weighted lm, this will be ~same as welch for k=2 groups
+      # fit <- gls(y~treatment, data=fd, weights = varIdent(form=~1|treatment), method="ML")
+      # p.wls <- coef(summary(fit))["treatmentTrt", "p-value"]
+      
+      # negative binomial
+      # default test using summary is Wald.
+      # anova(fit) uses chisq of sequential fit, but using same estimate of theta
+      # anova(fit2, fit1), uses chisq but with different estimate of theta
+      # lrtest(fit) same as anova(fit2, fit1)
+      
+      fit <- glm.nb(y~treatment, data=fd)
+      #if(fit$th.warn == "iteration limit reached"){
+      if(!is.null(fit$th.warn)){
+        fit <- glm(y~treatment, data=fd, family=poisson)
+        p.nb.perm <- perm.glm(fd, family="poisson", nperm=nperm)
+      }else{
+        p.nb.perm <- perm.glm(fd, family="nb", nperm=nperm)
+      }
+      p.nb <- coef(summary(fit))["treatmentTrt", "Pr(>|z|)"]
+      p.nb.x2 <- lrtest(fit)[2, "Pr(>Chisq)"]
+      
+      # quasipoisson
+      fit <- glm(y~treatment, data=fd, family=quasipoisson)
+      p.qp <- coeftest(fit)[2, "Pr(>|z|)"]
+      
+      p_table_part[iter,] <- c(p.t, p.welch, p.log, p.wilcox, p.nb, p.nb.x2, p.nb.perm, p.qp)
+      
+    } # niter
+    p_table <- rbind(p_table, data.table(combo=i,
+                                         mu_0=mu_0_i,
+                                         effect=effect_i,
+                                         n=n_i,
+                                         theta=theta_i,
+                                         p_table_part))
+    
+  } # combos
+  
+  return(p_table)
+}
+
+
+# Algebra is slower (duh!)
+# start_time <- Sys.time()
+# do_sim(niter=niter, algebra=FALSE)
+# end_time <- Sys.time()
+# end_time - start_time
+# 
+# start_time <- Sys.time()
+# do_sim(niter=niter, algebra=TRUE)
+# end_time <- Sys.time()
+# end_time - start_time
+
+  mu_0_list <- c(4) # control count
+  theta_list <- c(0.5) # dispersion
+  effect_list <- c(1, 2, 4) # effect size will be 1X, 1.5X, 2X, 3X
+  n_list <- c(10) # sample size
+  sim_space <- data.table(expand.grid(theta=theta_list, mu_0=mu_0_list, effect=effect_list, n=n_list))
+
+do_it <- FALSE # if FALSE the results are available as a file
+if(do_it==TRUE){
+  p_table <- do_sim(sim_space, niter=1000, nperm=2000)
+  write.table(p_table, "../output/glm-v-lm.txt", row.names = FALSE, quote=FALSE)
+}else{
+  p_table <- fread("../output/glm-v-lm.2000.txt")
+  ycols <- setdiff(colnames(p_table), c("combo", "mu_0", "effect", "n", "theta"))
+  res_table <- data.table(NULL)
+  for(i in p_table[, unique(combo)]){
+    p_table_part <- p_table[combo==i, .SD, .SDcols=ycols]
+    n_iter_i <- nrow(p_table_part)
+    p_sum <- apply(p_table_part, 2, function(x) length(which(x <= 0.05))/n_iter_i)
+    res_table <- rbind(res_table, data.table(mu_0 = sim_space[i, mu_0],
+                                             effect = sim_space[i, effect],
+                                             n = sim_space[i, n],
+                                             theta = sim_space[i, theta],
+                                             t(p_sum)))    
+  }
+  res_table[, n:=factor(n)]
+}
+#res_table
+```
+
+

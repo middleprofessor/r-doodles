@@ -6,10 +6,31 @@
     <description>Recent content on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 28 May 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 03 Jun 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Reanalyzing data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice</title>
+      <link>/2019/06/reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/</link>
+      <pubDate>Mon, 03 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/06/reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/</guid>
+      <description>A very skeletal analysis of
+Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
+which got some attention on pubpeer.
+library(ggplot2) library(lmerTest) library(emmeans) library(lmtest) library(data.table) data_path &amp;lt;- &amp;quot;../data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&amp;quot; #data_path &amp;lt;- &amp;quot;data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&amp;quot; fn &amp;lt;- &amp;quot;Fig1EFGH_subset8.</description>
+    </item>
+    
+    <item>
+      <title>GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update</title>
+      <link>/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/</link>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/</guid>
+      <description>Update to the earlier post, which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough – or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R.</description>
+    </item>
     
     <item>
       <title>Should we be skeptical of a &#34;large&#34; effect size if p &gt; 0.05?</title>
@@ -75,7 +96,7 @@ load libraries library(ggplot2) library(ggpubr) library(data.table)  make some f
       <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/</guid>
-      <description>A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicatable effect”).
+      <description>A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicable effect”).
 tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.</description>
     </item>
     
@@ -230,6 +251,15 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
       
       <guid>/2018/03/what-is-an-r-doodle/</guid>
       <description>An R doodle is a short script to check intuition or understanding. Almost always, this involves generating fake data. I might create an R doodle when I’m reviewing a manuscript or reading a published paper and I want to check if their statistical analysis is doing what the authors think it is doing. Or maybe I create it to help me figure out what the authors are doing. Or I might be teaching some method and I create an R doodle to help me understand how the method behaves given different input (fake) data sets.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>/data/data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/fig1/a2564b3a-0a93-4bf9-a424-084dac9878d3/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/data/data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/fig1/a2564b3a-0a93-4bf9-a424-084dac9878d3/</guid>
+      <description>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({&#39;gtm.start&#39;: new Date().getTime(),event:&#39;gtm.js&#39;});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!=&#39;dataLayer&#39;?&#39;&amp;l=&#39;+l:&#39;&#39;;j.async=true;j.src= &#39;https://www.googletagmanager.com/gtm.js?id=&#39;+i+dl;f.parentNode.insertBefore(j,f); })(window,document,&#39;script&#39;,&#39;dataLayer&#39;,&#39;GTM-T4NWPM8&#39;);   Mendeley Data - Viewer - Fig1C_ObsOTUs_16samples.csv  (function() { var supportsSVG = document.implementation.hasFeature(&#34;http://www.w3.org/TR/SVG11/feature#BasicStructure&#34;, &#34;1.1&#34;); if (! supportsSVG) { document.documentElement.className += &#39; no-svg&#39;; } if (window.opener &amp;&amp; window.name == &#39;authFlow&#39;) { window.opener.location.reload(true); window.close(); } })();  window.NREUM||(NREUM={});NREUM.info = {&#34;agent&#34;:&#34;&#34;,&#34;beacon&#34;:&#34;bam.nr-data.net&#34;,&#34;errorBeacon&#34;:&#34;bam.nr-data.net&#34;,&#34;licenseKey&#34;:&#34;fc20a8d468&#34;,&#34;applicationID&#34;:&#34;114917815&#34;,&#34;applicationTime&#34;:589.910739,&#34;transactionName&#34;:&#34;b1MBMEpWWxEFBkFQWVYZJhxIRVARFw9GFnF9YkxLXFZBAxcAQUoZAl8HSwJBUBAXDFpXeE1bAQFKGFMLCABGFgxeXw8BcVM=&#34;,&#34;queueTime&#34;:0,&#34;ttGuid&#34;:&#34;13f2a5be6af394&#34;,&#34;agentToken&#34;:null}; (window.NREUM||(NREUM={})).loader_config={xpid:&#34;UgEBVFdACQIEXVBVDwAC&#34;};window.NREUM||(NREUM={}),__nr_require=function(t,n,e){function r(e){if(!n[e]){var o=n[e]={exports:{}};t[e][0].call(o.exports,function(n){var o=t[e][1][n];return r(o||n)},o,o.exports)}return n[e].exports}if(&#34;function&#34;==typeof __nr_require)return __nr_require;for(var o=0;o0&amp;&amp;(p-=1)}),s.on(&#34;internal-error&#34;,function(t){i(&#34;ierr&#34;,[t,c.now(),!0])})},{}],3:[function(t,n,e){t(&#34;loader&#34;).features.ins=!0},{}],4:[function(t,n,e){function r(t){}if(window.performance&amp;&amp;window.performance.timing&amp;&amp;window.performance.getEntriesByType){var o=t(&#34;ee&#34;),i=t(&#34;handle&#34;),a=t(8),s=t(7),c=&#34;learResourceTimings&#34;,f=&#34;addEventListener&#34;,u=&#34;resourcetimingbufferfull&#34;,d=&#34;bstResource&#34;,l=&#34;resource&#34;,p=&#34;-start&#34;,h=&#34;-end&#34;,m=&#34;fn&#34;+p,w=&#34;fn&#34;+h,v=&#34;bstTimer&#34;,y=&#34;pushState&#34;,g=t(&#34;loader&#34;);g.features.stn=!0,t(6);var x=NREUM.o.EV;o.on(m,function(t,n){var e=t[0];e instanceof x&amp;&amp;(this.bstStart=g.now())}),o.on(w,function(t,n){var e=t[0];e instanceof x&amp;&amp;i(&#34;bst&#34;,[e,n,this.bstStart,g.now()])}),a.on(m,function(t,n,e){this.bstStart=g.now(),this.bstType=e}),a.on(w,function(t,n){i(v,[n,this.bstStart,g.now(),this.bstType])}),s.on(m,function(){this.bstStart=g.now()}),s.on(w,function(t,n){i(v,[n,this.bstStart,g.now(),&#34;requestAnimationFrame&#34;])}),o.on(y+p,function(t){this.time=g.now(),this.startPath=location.pathname+location.hash}),o.on(y+h,function(t){i(&#34;bstHist&#34;,[location.pathname+location.hash,this.startPath,this.time])}),f in window.performance&amp;&amp;(window.performance[&#34;c&#34;+c]?window.performance[f](u,function(t){i(d,[window.performance.getEntriesByType(l)]),window.performance[&#34;c&#34;+c]()},!1):window.performance[f](&#34;webkit&#34;+u,function(t){i(d,[window.performance.getEntriesByType(l)]),window.performance[&#34;webkitC&#34;+c]()},!1)),document[f](&#34;scroll&#34;,r,{passive:!0}),document[f](&#34;keypress&#34;,r,!1),document[f](&#34;click&#34;,r,!1)}},{}],5:[function(t,n,e){function r(t){for(var n=t;n&amp;&amp;!n.hasOwnProperty(u);)n=Object.getPrototypeOf(n);n&amp;&amp;o(n)}function o(t){s.</description>
     </item>
     
   </channel>
