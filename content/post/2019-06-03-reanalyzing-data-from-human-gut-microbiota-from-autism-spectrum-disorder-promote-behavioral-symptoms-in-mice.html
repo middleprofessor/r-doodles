@@ -53,12 +53,7 @@ mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c(&quot;NT&quot;, &quot;ASD&quot;))
 <p>The LRT of the model as specified in the caption of Fig1G</p>
 <pre class="r"><code># correct LRT
 m1 &lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), REML=FALSE, data=mouse)
-anova(m1)</code></pre>
-<pre><code>## Type III Analysis of Variance Table with Satterthwaite&#39;s method
-##                Sum Sq Mean Sq NumDF   DenDF F value Pr(&gt;F)
-## Gender         665003  665003     1 200.288  0.7706 0.3811
-## ASD_diagnosis 1388695 1388695     1   8.403  1.6091 0.2386</code></pre>
-<pre class="r"><code>m2 &lt;- lmer(OFT_Distance ~ Gender + (1|Donor), REML=FALSE, data=mouse)
+m2 &lt;- lmer(OFT_Distance ~ Gender + (1|Donor), REML=FALSE, data=mouse)
 lrtest(m2, m1)</code></pre>
 <pre><code>## Likelihood ratio test
 ## 
@@ -69,15 +64,8 @@ lrtest(m2, m1)</code></pre>
 ## 2   5 -1706.0  1 1.4994     0.2208</code></pre>
 <p>The p-value is .2208</p>
 <p>The LRT of the model as specified but using the default lmer settings, which is fit by REML, which results in a meaningless chisq statistic</p>
-<pre class="r"><code># incorrect LRT
-# correct LRT
-m1 &lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), data=mouse)
-anova(m1)</code></pre>
-<pre><code>## Type III Analysis of Variance Table with Satterthwaite&#39;s method
-##                Sum Sq Mean Sq NumDF   DenDF F value Pr(&gt;F)
-## Gender         628519  628519     1 198.647  0.7242 0.3958
-## ASD_diagnosis 1094412 1094412     1   6.256  1.2609 0.3027</code></pre>
-<pre class="r"><code>m2 &lt;- lmer(OFT_Distance ~ Gender + (1|Donor), data=mouse)
+<pre class="r"><code>m1 &lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), data=mouse)
+m2 &lt;- lmer(OFT_Distance ~ Gender + (1|Donor), data=mouse)
 lrtest(m2, m1)</code></pre>
 <pre><code>## Likelihood ratio test
 ## 
@@ -98,11 +86,6 @@ lrtest(m2, m1)</code></pre>
 <pre class="r"><code># correct LRT
 m1 &lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Cycle) + (1|Donor), REML=FALSE, data=mouse)</code></pre>
 <pre><code>## boundary (singular) fit: see ?isSingular</code></pre>
-<pre class="r"><code>anova(m1)</code></pre>
-<pre><code>## Type III Analysis of Variance Table with Satterthwaite&#39;s method
-##                Sum Sq Mean Sq NumDF   DenDF F value Pr(&gt;F)
-## Gender         665004  665004     1 200.288  0.7706 0.3811
-## ASD_diagnosis 1388697 1388697     1   8.403  1.6091 0.2386</code></pre>
 <pre class="r"><code>m2 &lt;- lmer(OFT_Distance ~ Gender + (1|Cycle) + (1|Donor), REML=FALSE, data=mouse)
 lrtest(m2, m1)</code></pre>
 <pre><code>## Likelihood ratio test
@@ -115,12 +98,7 @@ lrtest(m2, m1)</code></pre>
 <p>incorrect LRT</p>
 <pre class="r"><code># correct LRT
 m1 &lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Cycle) + (1|Donor), data=mouse)
-anova(m1)</code></pre>
-<pre><code>## Type III Analysis of Variance Table with Satterthwaite&#39;s method
-##                Sum Sq Mean Sq NumDF   DenDF F value Pr(&gt;F)
-## Gender         603760  603760     1 198.479  0.6967 0.4049
-## ASD_diagnosis 1065188 1065188     1   6.221  1.2291 0.3086</code></pre>
-<pre class="r"><code>m2 &lt;- lmer(OFT_Distance ~ Gender + (1|Cycle) + (1|Donor), data=mouse)
+m2 &lt;- lmer(OFT_Distance ~ Gender + (1|Cycle) + (1|Donor), data=mouse)
 lrtest(m2, m1)</code></pre>
 <pre><code>## Likelihood ratio test
 ## 
