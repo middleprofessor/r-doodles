@@ -82,8 +82,9 @@ m2 <- lmer(OFT_Distance ~ Gender + (1|Donor), data=mouse)
 lrtest(m2, m1)
 ```
 
-## method no. 2 (as stated in methods section)
 the p-value is 0.00013. Is this the reported p-value? Note in the "methods" the authors write:
+
+## method no. 2 (as stated in methods section)
 
 "Statistical analysis for behavioral outcomes in fecal transplanted offspring. Comparison of behavioral outcomes between TD Controls and ASD donors were tested using longitudinal linear mixed effects analyses, with test cycles and donors treated as repeated factors. Analyses were performed in SPSS (v 24); a priori alpha = 0.05. All outcomes were tested for normality and transformed as required. Diagonal covariance matrices were used so that intra-cycle and intra-donor correlations were accounted for in the modeling. The donor type (TD versus ASD) was the primary fixed effect measured, and mouse sex was an a priori covariate."
 
