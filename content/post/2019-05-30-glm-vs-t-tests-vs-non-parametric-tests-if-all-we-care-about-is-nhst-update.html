@@ -17,7 +17,9 @@ tags:
 
 
 <p><a href="../../../2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/">Update to the earlier post</a>, which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough – or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R. “For testing the significance of regression coefficients, go ahead and log‐transform count data.” Methods in Ecology and Evolution 6, no. 7 (2015): 828-835) or <a href="Warton,%20D.I.,%20Lyons,%20M.,%20Stoklosa,%20J.%20and%20Ives,%20A.R.,%202016.%20Three%20points%20to%20consider%20when%20choosing%20a%20LM%20or%20GLM%20test%20for%20count%20data.%20Methods%20in%20Ecology%20and%20Evolution,%207(8),%20pp.882-890">Warton et al.</a>. With hindsight, I do vaguely recall Ives, and my previous results support his conclusions, but I was unaware of Warton.</p>
-<p>Warton et al is a fabulous paper. A must read. So here is my earlier simulation in light of Warton.</p>
+<p>Warton et al is a fabulous paper. A must read. A question that I have is, under the null isn’t the response itself exchangeable, so that residuals are unnecceary? Regardless, the implementation in the mvabund package is way faster than my own R-scripted permutation. So here is my earlier simulation in light of Warton et al.</p>
+<p>TL;DR – If we live and die by NHST, then we want to choose a test with good Type I error control but has high power. The quasi-poisson both estimates an interpretable effect (unlike a t-test of log(y +1)) and has good Type I control with high power.</p>
+<p>A bit longer: The quasi-poisson LRT and the permutation NB have good Type I control and high power. The NB Wald and LRT have too liberal Type I control. The t-test of log response has good Type I control and high power at low <span class="math inline">\(n\)</span> but is slightly inferior to the glm with increased <span class="math inline">\(n\)</span>. The t-test, Welch, and Wilcoxan have conservative Type I control. Of these, the Wilcoxan has higher power than the t-test and Welch but not as the GLMs or log-transformed.</p>
 <div id="load-libraries" class="section level1">
 <h1>load libraries</h1>
 <pre class="r"><code>library(ggplot2)
@@ -32,9 +34,9 @@ library(cowplot)</code></pre>
 <h2>The simulation</h2>
 <ol style="list-style-type: decimal">
 <li>Single factor with two levels and a count (negative binomial) response.</li>
-<li>Relative effect sizes of 0%, 50%, 100%, and 200%</li>
-<li>Ref count of 4, 10, 100</li>
-<li><span class="math inline">\(n\)</span> of 5, 10, 20, 40</li>
+<li>Relative effect sizes of 0%, 100%, and 200%</li>
+<li>Ref count of 4</li>
+<li><span class="math inline">\(n\)</span> of 5 and 10</li>
 </ol>
 <p><em>p</em>-values computed from</p>
 <ol style="list-style-type: decimal">
@@ -42,30 +44,12 @@ library(cowplot)</code></pre>
 <li>Welch t-test on raw response</li>
 <li>t-test on log transformed response</li>
 <li>Wilcoxan test</li>
-<li>glm with negative binomial family and log-link</li>
+<li>glm with negative binomial family and log-link using Wald test</li>
+<li>glm with negative binomial family and log-link using LRT</li>
+<li>glm with negative binomial family and permutation test (using PIT residuals)<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></li>
+<li>glm with quasi-poisson family and log-link using LRT</li>
 </ol>
-<pre class="r"><code>perm.glm &lt;- function(fd, nperm=1000, family=&quot;nb&quot;){
-  # permute treatment and recompute glm
-  fd_perm &lt;- copy(fd)
-  test_stat &lt;- numeric(nperm)
-  for(i in 1:nperm){
-    if(family==&quot;nb&quot;){
-      fit &lt;- glm.nb(y~treatment, data=fd_perm)
-    }
-    if(family==&quot;poisson&quot;){
-      fit &lt;- glm(y~treatment, data=fd_perm, family=poisson)
-    }
-    test_stat[i] &lt;- lrtest(fit)[2, &quot;Chisq&quot;]
-    # permute
-    fd_perm[, y:=sample(y)] # this could be residuals if there are covariates
-  }
-  p &lt;- sum(test_stat &gt;= test_stat[1])/nperm
-  return(p)
-}
-
-
-
-do_sim &lt;- function(sim_space, niter=1000, nperm=1000, algebra=FALSE){
+<pre class="r"><code>do_sim &lt;- function(sim_space=NULL, niter=1000, nperm=1000, algebra=FALSE){
   # the function was run with n=1000 and the data saved. on subsequent runs
   # the data are loaded from a file
   # the function creates three different objects to return, the object
@@ -76,8 +60,16 @@ do_sim &lt;- function(sim_space, niter=1000, nperm=1000, algebra=FALSE){
   methods &lt;- c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;, &quot;nb.x2&quot;, &quot;nb.perm&quot;, &quot;qp&quot;)
   p_table &lt;- data.table(NULL)
   
-  res_table &lt;- data.table(NULL)
+  if(is.null(sim_space)){
+    mu_0_list &lt;- c(4) # control count
+    theta_list &lt;- c(0.5) # dispersion
+    effect_list &lt;- c(1) # effect size will be 1X, 1.5X, 2X, 3X
+    n_list &lt;- c(10) # sample size
+    sim_space &lt;- data.table(expand.grid(theta=theta_list, mu_0=mu_0_list, effect=effect_list, n=n_list))
+  }
   
+  res_table &lt;- data.table(NULL)
+  i &lt;- 1 # this is just for debugging
   for(i in 1:nrow(sim_space)){
     # construct clean results table 
     p_table_part &lt;- matrix(NA, nrow=niter, ncol=length(methods))
@@ -102,11 +94,13 @@ do_sim &lt;- function(sim_space, niter=1000, nperm=1000, algebra=FALSE){
       mu_vec &lt;- c(mu_0_i, mu_0_i*effect_i)
       mu_i &lt;- rep(mu_vec, each=n_i)
     }
+    nb.error &lt;- numeric(niter)
     
     for(iter in 1:niter){
-      #set.seed(iter)
+      set.seed(niter*(i-1) + iter)
       fd[, y:=rnegbin(n=n_i*2, mu=mu_i, theta=theta_i)]
       fd[, log_yp1:=log10(y+1)]
+      
       p.t &lt;- t.test(y~treatment, data=fd, var.equal=TRUE)$p.value
       p.welch &lt;- t.test(y~treatment, data=fd, var.equal=FALSE)$p.value
       p.log &lt;- t.test(log_yp1~treatment, data=fd, var.equal=TRUE)$p.value
@@ -122,16 +116,22 @@ do_sim &lt;- function(sim_space, niter=1000, nperm=1000, algebra=FALSE){
       # anova(fit2, fit1), uses chisq but with different estimate of theta
       # lrtest(fit) same as anova(fit2, fit1)
       
-      fit &lt;- glm.nb(y~treatment, data=fd)
-      #if(fit$th.warn == &quot;iteration limit reached&quot;){
-      if(!is.null(fit$th.warn)){
-        fit &lt;- glm(y~treatment, data=fd, family=poisson)
-        p.nb.perm &lt;- perm.glm(fd, family=&quot;poisson&quot;, nperm=nperm)
-      }else{
-        p.nb.perm &lt;- perm.glm(fd, family=&quot;nb&quot;, nperm=nperm)
-      }
-      p.nb &lt;- coef(summary(fit))[&quot;treatmentTrt&quot;, &quot;Pr(&gt;|z|)&quot;]
-      p.nb.x2 &lt;- lrtest(fit)[2, &quot;Pr(&gt;Chisq)&quot;]
+      # m1 &lt;- glm.nb(y~treatment, data=fd)
+      # m0 &lt;- glm.nb(y~1, data=fd)
+      # p.nb.x2 &lt;- anova(m0, m1)[2, &quot;Pr(Chi)&quot;]
+      # lr &lt;- 2*(logLik(m1) - logLik(m0))
+      # df.x2 = m0$df.residual-m1$df.residual
+      # p.nb.x2 &lt;- pchisq(lr, df=df.x2, lower.tail = F)
+                
+      m1 &lt;- manyglm(y~treatment, data=fd) # default theta estimation &quot;PHI&quot;
+      m0 &lt;- manyglm(y~1, data=fd)
+      lr &lt;- 2*(logLik(m1) - logLik(m0))
+      df.x2 = m0$df.residual-m1$df.residual
+      p.nb &lt;- coef(summary(m1))[&quot;treatmentTrt&quot;, &quot;Pr(&gt;wald)&quot;] # Wald
+      p.nb.x2 &lt;- as.numeric(pchisq(lr, df=df.x2, lower.tail = F))
+      p.nb.perm &lt;- (anova(m0, m1, nBoot=nperm, show.time=&#39;none&#39;, p.uni=&quot;unadjusted&quot;)$uni.p)[2,1]
+
+      # p.nb.x2 &lt;- lrtest(fit)[2, &quot;Pr(&gt;Chisq)&quot;] # doesn&#39;t work with a data.table
       
       # quasipoisson
       fit &lt;- glm(y~treatment, data=fd, family=quasipoisson)
@@ -145,15 +145,14 @@ do_sim &lt;- function(sim_space, niter=1000, nperm=1000, algebra=FALSE){
                                          effect=effect_i,
                                          n=n_i,
                                          theta=theta_i,
+                                         nb.error=nb.error,
                                          p_table_part))
     
   } # combos
   
   return(p_table)
-}
-
-
-# Algebra is slower (duh!)
+}</code></pre>
+<pre class="r"><code># Algebra is slower (duh!)
 # start_time &lt;- Sys.time()
 # do_sim(niter=niter, algebra=FALSE)
 # end_time &lt;- Sys.time()
@@ -164,32 +163,209 @@ do_sim &lt;- function(sim_space, niter=1000, nperm=1000, algebra=FALSE){
 # end_time &lt;- Sys.time()
 # end_time - start_time
 
-  mu_0_list &lt;- c(4) # control count
-  theta_list &lt;- c(0.5) # dispersion
-  effect_list &lt;- c(1, 2, 4) # effect size will be 1X, 1.5X, 2X, 3X
-  n_list &lt;- c(10) # sample size
-  sim_space &lt;- data.table(expand.grid(theta=theta_list, mu_0=mu_0_list, effect=effect_list, n=n_list))
+n_iter &lt;- 2000
+n_perm &lt;- 2000
+mu_0_list &lt;- c(4) # control count
+theta_list &lt;- c(0.5) # dispersion
+effect_list &lt;- c(1, 2, 4) # effect size will be 1X, 1.5X, 2X, 3X
+n_list &lt;- c(5, 10) # sample size
+sim_space &lt;- data.table(expand.grid(theta=theta_list, mu_0=mu_0_list, effect=effect_list, n=n_list))
 
 do_it &lt;- FALSE # if FALSE the results are available as a file
 if(do_it==TRUE){
-  p_table &lt;- do_sim(sim_space, niter=1000, nperm=2000)
-  write.table(p_table, &quot;../output/glm-v-lm.txt&quot;, row.names = FALSE, quote=FALSE)
+  p_table &lt;- do_sim(sim_space, niter=n_iter, nperm=n_perm)
+  write.table(p_table, &quot;../output/glm-v-lm.0004.txt&quot;, row.names = FALSE, quote=FALSE)
 }else{
-  p_table &lt;- fread(&quot;../output/glm-v-lm.2000.txt&quot;)
+  p_table &lt;- fread(&quot;../output/glm-v-lm.0001.txt&quot;)
+  p_table[, combo:=paste(effect, n, sep=&quot;-&quot;)]
   ycols &lt;- setdiff(colnames(p_table), c(&quot;combo&quot;, &quot;mu_0&quot;, &quot;effect&quot;, &quot;n&quot;, &quot;theta&quot;))
   res_table &lt;- data.table(NULL)
   for(i in p_table[, unique(combo)]){
-    p_table_part &lt;- p_table[combo==i, .SD, .SDcols=ycols]
+    p_table_part &lt;- p_table[combo==i, ]
+    mu_0_i &lt;- p_table_part[1, mu_0]
+    effect_i &lt;- p_table_part[1, effect]
+    n_i &lt;- p_table_part[1, n]
+    theta_i &lt;- p_table_part[1, theta]
     n_iter_i &lt;- nrow(p_table_part)
-    p_sum &lt;- apply(p_table_part, 2, function(x) length(which(x &lt;= 0.05))/n_iter_i)
-    res_table &lt;- rbind(res_table, data.table(mu_0 = sim_space[i, mu_0],
-                                             effect = sim_space[i, effect],
-                                             n = sim_space[i, n],
-                                             theta = sim_space[i, theta],
+    p_sum &lt;- apply(p_table_part[, .SD, .SDcols=ycols], 2, function(x) length(which(x &lt;= 0.05))/n_iter_i)
+    res_table &lt;- rbind(res_table, data.table(mu_0 = mu_0_i,
+                                             effect = effect_i,
+                                             n = n_i,
+                                             theta = theta_i,
                                              t(p_sum)))    
   }
   res_table[, n:=factor(n)]
-}
-#res_table</code></pre>
+}</code></pre>
 </div>
+</div>
+<div id="type-i-error" class="section level1">
+<h1>Type I error</h1>
+<p>Key: 1. “nb” uses the Wald test of negative binomial model. 2. “nb.x2” uses the LRT of negative binomial model. 3. “nb.perm” uses a permutation test on PIT residuals of negative binomial model 4. qp uses a LRT of quasi-poisson model</p>
+<pre class="r"><code>knitr::kable(res_table[effect==1,],
+             caption = &quot;Type 1 error as a function of n&quot;)</code></pre>
+<table>
+<caption><span id="tab:type-1-table">Table 1: </span>Type 1 error as a function of n</caption>
+<thead>
+<tr class="header">
+<th align="right">mu_0</th>
+<th align="right">effect</th>
+<th align="left">n</th>
+<th align="right">theta</th>
+<th align="right">nb.error</th>
+<th align="right">t</th>
+<th align="right">Welch</th>
+<th align="right">log</th>
+<th align="right">Wilcoxan</th>
+<th align="right">nb</th>
+<th align="right">nb.x2</th>
+<th align="right">nb.perm</th>
+<th align="right">qp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="left">5</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">0.032</td>
+<td align="right">0.0175</td>
+<td align="right">0.0475</td>
+<td align="right">0.0270</td>
+<td align="right">0.1280</td>
+<td align="right">0.1015</td>
+<td align="right">0.0515</td>
+<td align="right">0.054</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="left">10</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">0.036</td>
+<td align="right">0.0295</td>
+<td align="right">0.0505</td>
+<td align="right">0.0435</td>
+<td align="right">0.0675</td>
+<td align="right">0.0695</td>
+<td align="right">0.0460</td>
+<td align="right">0.053</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="power" class="section level1">
+<h1>Power</h1>
+<pre class="r"><code>knitr::kable(res_table[effect!=1,],
+             caption = &quot;Power as a function of n&quot;)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-1">Table 2: </span>Power as a function of n</caption>
+<thead>
+<tr class="header">
+<th align="right">mu_0</th>
+<th align="right">effect</th>
+<th align="left">n</th>
+<th align="right">theta</th>
+<th align="right">nb.error</th>
+<th align="right">t</th>
+<th align="right">Welch</th>
+<th align="right">log</th>
+<th align="right">Wilcoxan</th>
+<th align="right">nb</th>
+<th align="right">nb.x2</th>
+<th align="right">nb.perm</th>
+<th align="right">qp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">2</td>
+<td align="left">5</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">0.0465</td>
+<td align="right">0.0240</td>
+<td align="right">0.0845</td>
+<td align="right">0.0540</td>
+<td align="right">0.1710</td>
+<td align="right">0.1565</td>
+<td align="right">0.0825</td>
+<td align="right">0.0960</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="left">5</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">0.1055</td>
+<td align="right">0.0475</td>
+<td align="right">0.1950</td>
+<td align="right">0.1310</td>
+<td align="right">0.3310</td>
+<td align="right">0.3295</td>
+<td align="right">0.1860</td>
+<td align="right">0.1800</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">2</td>
+<td align="left">10</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">0.0900</td>
+<td align="right">0.0750</td>
+<td align="right">0.1150</td>
+<td align="right">0.1025</td>
+<td align="right">0.1730</td>
+<td align="right">0.1850</td>
+<td align="right">0.1285</td>
+<td align="right">0.1480</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="left">10</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">0.3120</td>
+<td align="right">0.2600</td>
+<td align="right">0.3780</td>
+<td align="right">0.3235</td>
+<td align="right">0.5255</td>
+<td align="right">0.5345</td>
+<td align="right">0.4190</td>
+<td align="right">0.4405</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="plot" class="section level1">
+<h1>plot</h1>
+<pre class="r"><code>res &lt;- melt(res_table, 
+            id.vars=c(&quot;mu_0&quot;, &quot;effect&quot;, &quot;n&quot;, &quot;theta&quot;, &quot;nb.error&quot;),
+            measure.vars=c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;, &quot;nb.x2&quot;, &quot;nb.perm&quot;, &quot;qp&quot;),
+            variable.name=&quot;model&quot;,
+            value.name=&quot;frequency&quot;)</code></pre>
+<pre class="r"><code>gg &lt;- ggplot(data=res[effect==1,], aes(x=n, y=frequency, group=model, color=model)) +
+  geom_line() +
+  facet_grid(. ~ effect, labeller=label_both) +
+  NULL
+gg</code></pre>
+<p><img src="/post/2019-05-30-glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update_files/figure-html/type-1-plot-1.png" width="672" /></p>
+<pre class="r"><code>gg &lt;- ggplot(data=res[effect!=1,], aes(x=n, y=frequency, group=model, color=model)) +
+  geom_line() +
+  facet_grid(. ~ effect, labeller=label_both) +
+  NULL
+gg</code></pre>
+<p><img src="/post/2019-05-30-glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update_files/figure-html/plower-plot-1.png" width="672" /></p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Warton, D.I., Thibaut, L., Wang, Y.A., 2017. The PIT-trap—A “model-free” bootstrap procedure for inference about regression models with discrete, multivariate responses. PLOS ONE 12, e0181790. <a href="https://doi.org/10.1371/journal.pone.0181790" class="uri">https://doi.org/10.1371/journal.pone.0181790</a><a href="#fnref1">↩</a></p></li>
+</ol>
 </div>

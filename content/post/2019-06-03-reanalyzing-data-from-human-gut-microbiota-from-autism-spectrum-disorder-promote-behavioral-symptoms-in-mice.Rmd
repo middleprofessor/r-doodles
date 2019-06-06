@@ -43,23 +43,34 @@ mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c("NT", "ASD"))]
 ```
 
 # Figure 1G
-## Method no. 1 (as stated in caption to Fig 1)
-The figure caption gives the method as "Hypothesis testing for differences of the means were done by a mixed effects analysis using donor diagnosis and mouse sex as fixed effects and donor ID as a random effect. p values were derived from a chi-square test". This would be a Likelihood Ratio Test (LRT). The LRT requires that the model be fit by maximum likelhood for the statistic to have any meaning. The default fit in R is REML.
 
-Estimate of marginal means
+## Estimate of marginal means and Cohen's d
+
+One could reasonably estimate Cohen's d several ways given the 2 x 2 design. Here are two
 
 ```{r}
 m1 <- lmer(OFT_Distance ~ ASD_diagnosis + (1|Donor), data=mouse)
-(emmeans(m1, specs=c("ASD_diagnosis")))
+(m1.emm <- emmeans(m1, specs=c("ASD_diagnosis")))
+m2 <- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), data=mouse)
+(m2.emm <- emmeans(m2, specs=c("ASD_diagnosis")))
+
 ```
 
 and effect, standardized to cohen's D using residual standard deviation from model: (NT - ASD)/sigma 
 
 ```{r}
 coef(summary(m1))["ASD_diagnosisASD", "Estimate"]/sigma(m1)
+
+summary(contrast(m2.emm, method="revpairwise"))[1, "estimate"]/sigma(m2)
+
+
 ```
 
 The reported cohen's D for the distance traveled is doTD-oASD = -0.58
+
+## Fig 1G p-value
+### Method no. 1 (as stated in caption to Fig 1)
+The figure caption gives the method as "Hypothesis testing for differences of the means were done by a mixed effects analysis using donor diagnosis and mouse sex as fixed effects and donor ID as a random effect. p values were derived from a chi-square test". This would be a Likelihood Ratio Test (LRT). The LRT requires that the model be fit by maximum likelhood for the statistic to have any meaning. The default fit in R is REML.
 
 The LRT of the model as specified in the caption of Fig1G
 ```{r}
@@ -82,7 +93,7 @@ m2 <- lmer(OFT_Distance ~ Gender + (1|Donor), data=mouse)
 lrtest(m2, m1)
 ```
 
-the p-value is 0.00013. Is this the reported p-value? Note in the "methods" the authors write:
+the p-value is 0.00013. Is this the reported p-value? I don't know. A problem is that the methods section suggests a different model was used. This leads to:
 
 ## method no. 2 (as stated in methods section)
 

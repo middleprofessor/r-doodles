@@ -34,22 +34,38 @@ mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c(&quot;NT&quot;, &quot;ASD&quot;))
 </div>
 <div id="figure-1g" class="section level1">
 <h1>Figure 1G</h1>
-<div id="method-no.-1-as-stated-in-caption-to-fig-1" class="section level2">
-<h2>Method no. 1 (as stated in caption to Fig 1)</h2>
-<p>The figure caption gives the method as “Hypothesis testing for differences of the means were done by a mixed effects analysis using donor diagnosis and mouse sex as fixed effects and donor ID as a random effect. p values were derived from a chi-square test”. This would be a Likelihood Ratio Test (LRT). The LRT requires that the model be fit by maximum likelhood for the statistic to have any meaning. The default fit in R is REML.</p>
-<p>Estimate of marginal means</p>
+<div id="estimate-of-marginal-means-and-cohens-d" class="section level2">
+<h2>Estimate of marginal means and Cohen’s d</h2>
+<p>One could reasonably estimate Cohen’s d several ways given the 2 x 2 design. Here are two</p>
 <pre class="r"><code>m1 &lt;- lmer(OFT_Distance ~ ASD_diagnosis + (1|Donor), data=mouse)
-(emmeans(m1, specs=c(&quot;ASD_diagnosis&quot;)))</code></pre>
+(m1.emm &lt;- emmeans(m1, specs=c(&quot;ASD_diagnosis&quot;)))</code></pre>
 <pre><code>##  ASD_diagnosis emmean  SE   df lower.CL upper.CL
 ##  NT              4600 262 5.70     3951     5249
 ##  ASD             4235 206 6.08     3731     4738
 ## 
 ## Degrees-of-freedom method: kenward-roger 
 ## Confidence level used: 0.95</code></pre>
+<pre class="r"><code>m2 &lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), data=mouse)
+(m2.emm &lt;- emmeans(m2, specs=c(&quot;ASD_diagnosis&quot;)))</code></pre>
+<pre><code>##  ASD_diagnosis emmean  SE   df lower.CL upper.CL
+##  NT              4603 259 5.68     3960     5246
+##  ASD             4233 204 6.07     3735     4731
+## 
+## Results are averaged over the levels of: Gender 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95</code></pre>
 <p>and effect, standardized to cohen’s D using residual standard deviation from model: (NT - ASD)/sigma</p>
 <pre class="r"><code>coef(summary(m1))[&quot;ASD_diagnosisASD&quot;, &quot;Estimate&quot;]/sigma(m1)</code></pre>
 <pre><code>## [1] -0.3928202</code></pre>
+<pre class="r"><code>summary(contrast(m2.emm, method=&quot;revpairwise&quot;))[1, &quot;estimate&quot;]/sigma(m2)</code></pre>
+<pre><code>## [1] -0.3970379</code></pre>
 <p>The reported cohen’s D for the distance traveled is doTD-oASD = -0.58</p>
+</div>
+<div id="fig-1g-p-value" class="section level2">
+<h2>Fig 1G p-value</h2>
+<div id="method-no.-1-as-stated-in-caption-to-fig-1" class="section level3">
+<h3>Method no. 1 (as stated in caption to Fig 1)</h3>
+<p>The figure caption gives the method as “Hypothesis testing for differences of the means were done by a mixed effects analysis using donor diagnosis and mouse sex as fixed effects and donor ID as a random effect. p values were derived from a chi-square test”. This would be a Likelihood Ratio Test (LRT). The LRT requires that the model be fit by maximum likelhood for the statistic to have any meaning. The default fit in R is REML.</p>
 <p>The LRT of the model as specified in the caption of Fig1G</p>
 <pre class="r"><code># correct LRT
 m1 &lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), REML=FALSE, data=mouse)
@@ -76,7 +92,8 @@ lrtest(m2, m1)</code></pre>
 ## 2   5 -1687.6  1 14.692  0.0001266 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>the p-value is 0.00013. Is this the reported p-value? Note in the “methods” the authors write:</p>
+<p>the p-value is 0.00013. Is this the reported p-value? I don’t know. A problem is that the methods section suggests a different model was used. This leads to:</p>
+</div>
 </div>
 <div id="method-no.-2-as-stated-in-methods-section" class="section level2">
 <h2>method no. 2 (as stated in methods section)</h2>
