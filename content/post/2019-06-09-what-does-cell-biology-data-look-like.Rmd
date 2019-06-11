@@ -1,0 +1,152 @@
+---
+title: What does cell biology data look like?
+author: Jeff Walker
+date: '2019-06-09'
+slug: what-does-cell-biology-data-look-like
+categories:
+  - stats 101
+tags:
+  - generalized linear models
+  - NHST
+keywords:
+  - tech
+---
+
+If I'm going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I'd like to know what these data look like, specifically the shape ("overdispersion") parameter and zero-inflatedness.
+
+# Set up
+```{r setup, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(readxl)
+library(ggpubr)
+library(cowplot)
+library(plyr) #mapvalues
+library(data.table)
+
+# glm packages
+library(MASS)
+library(DHARMa)
+library(mvabund)
+
+  data_path <- "../data" # notebook, console
+  source("../../../R/clean_labels.R") # notebook, console
+
+```
+
+# Import
+
+## Data from The enteric nervous system promotes intestinal health by constraining microbiota composition
+
+```{r}
+read_enteric <- function(sheet_i, range_i, file_path, wide_2_long=TRUE){
+  dt_wide <- data.table(read_excel(file_path, sheet=sheet_i, range=range_i))
+  dt_long <- na.omit(melt(dt_wide, measure.vars=colnames(dt_wide), variable.name="treatment", value.name="count"))
+  return(dt_long)
+}
+
+folder <- "Data from The enteric nervous system promotes intestinal health by constraining microbiota composition"
+fn <- "journal.pbio.2000689.s008.xlsx"
+file_path <- paste(data_path, folder, fn, sep="/")
+fig1c <- read_enteric(sheet_i="Figure 1", range_i="a2:b11", file_path)
+fig1e <- read_enteric(sheet_i="Figure 1", range_i="d2:g31", file_path)
+fig1f <- read_enteric(sheet_i="Figure 1", range_i="i2:l53", file_path)
+fig2a <- read_enteric(sheet_i="Figure 2", range_i="a2:d33", file_path)
+fig2d <- read_enteric(sheet_i="Figure 2", range_i="F2:I24", file_path)
+fig3a <- read_enteric(sheet_i="Figure 3", range_i="a2:c24", file_path)
+fig3b <- read_enteric(sheet_i="Figure 3", range_i="e2:g12", file_path)
+fig4a <- read_enteric(sheet_i="Figure 4", range_i="a2:b125", file_path)
+fig5c <- read_enteric(sheet_i="Figure 5", range_i="i2:l205", file_path)
+fig6d <- read_enteric(sheet_i="Figure 6", range_i="I2:L16", file_path)
+
+```
+
+## Estimates of the shape parameter
+```{r, warning=FALSE, message=FALSE, fig.asp = 1.5}
+plot_enteric <- function(fig_i, fig_num){
+  fit <- glm.nb(count ~ treatment, data=fig_i)
+  #fig_no <- deparse(substitute(fig_i)) # this works when df is sent but not a list element
+  #fig_no <- names(fig_i)
+  theta <- fit$theta
+  fit_title <- paste0(fig_num, " (theta = ", round(theta,1), ")")
+  gg <- ggdotplot(fig_i,
+           x="treatment", 
+           y="count",
+           color="treatment",
+           pallete="jco",
+           add="mean") +
+    #annotate("text", x=1, y= max(fig_i[, count]), label=paste("theta =", round(theta,1))) +
+    ggtitle(fit_title) +
+    rremove("legend") +
+    NULL
+  return(gg)
+}
+
+plot_enteric2 <- function(fig_i, fig_num, i){
+  fit <- glm.nb(count ~ treatment, data=fig_i[[i]])
+  #fig_no <- deparse(substitute(fig_i)) # this works when df is sent but not a list element
+  #fig_no <- names(fig_i)
+  theta <- fit$theta
+  fit_title <- paste0(fig_num[[i]], " (theta = ", round(theta,1), ")")
+  gg <- ggdotplot(fig_i[[i]],
+           x="treatment", 
+           y="count",
+           color="treatment",
+           pallete="jco",
+           add="mean") +
+    #annotate("text", x=1, y= max(fig_i[, count]), label=paste("theta =", round(theta,1))) +
+    ggtitle(fit_title) +
+    rremove("legend") +
+    NULL
+  return(gg)
+}
+
+fig_list <- list(fig1c, fig1e, fig1f, fig2a, fig2d, fig3a, fig3b, fig4a, fig5c, fig6d)
+names(fig_list) <- c("fig1c", "fig1e", "fig1f", "fig2a", "fig2d", "fig3a", "fig3b", "fig4a", "fig5c", "fig6d")
+#gg_list <- lapply(fig_list, plot_enteric, names(fig_list))
+#lapply(seq_along(x), function(y, n, i) { paste(n[[i]], y[[i]]) }, y=x, n=names(x))
+gg_list <- lapply(seq_along(fig_list), plot_enteric2, fig_i=fig_list, fig_num=names(fig_list))
+
+plot_grid(plotlist=gg_list, ncol = 3)
+
+```
+```{r , echo=FALSE, eval=FALSE, warning=FALSE, message=FALSE}
+# 5c looks different, re-code
+data_path <- "../data" # notebook, console
+folder <- "Data from The enteric nervous system promotes intestinal health by constraining microbiota composition"
+fn <- "journal.pbio.2000689.s008.xlsx"
+file_path <- paste(data_path, folder, fn, sep="/")
+sheet_i <- "Figure 5"
+range_i <- "i2:l205"
+dt_wide <- data.table(read_excel(file_path, sheet=sheet_i, range=range_i))
+fig5c <- na.omit(melt(dt_wide, measure.vars=colnames(dt_wide), variable.name="treatment", value.name="count"))
+fig5c[, treatment:=factor(treatment, 
+                          c("CV sox10-", "GF sox10-", "CV sox10- + Vibrio", "GF sox10- + Vibrio"))]
+#qplot(x=treatment, y=count, data=fig5c, geom="boxplot")
+ggdotplot(fig5c,
+           x="treatment", 
+           y="count",
+           color="treatment",
+           pallete="jco",
+           add="mean")
+
+#fig5c[count>35, ]
+  
+# it looks like the vibrio coding is reversed for GF, so either the labels of the excel spreadsheet are wrong
+#  or the labels of the graph are wrong
+# recode
+fig5c[, treatment_rc:=factor(mapvalues(treatment, 
+                          c("CV sox10-", "GF sox10-", "CV sox10- + Vibrio", "GF sox10- + Vibrio"),
+                          c("CV sox10-", "GF sox10- + Vibrio", "CV sox10- + Vibrio", "GF sox10-")),
+                          c("CV sox10-", "GF sox10-", "CV sox10- + Vibrio", "GF sox10- + Vibrio"))]
+ggdotplot(fig5c,
+           x="treatment_rc", 
+           y="count",
+           color="treatment_rc",
+           pallete="jco",
+           add="mean")
+
+fig5c[, .(count=mean(count)), by=treatment_rc]
+```
+
+## Plots of simulated samples that differ in $\mu$ and $\theta$
+

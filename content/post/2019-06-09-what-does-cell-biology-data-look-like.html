@@ -1,0 +1,111 @@
+---
+title: What does cell biology data look like?
+author: Jeff Walker
+date: '2019-06-09'
+slug: what-does-cell-biology-data-look-like
+categories:
+  - stats 101
+tags:
+  - generalized linear models
+  - NHST
+keywords:
+  - tech
+---
+
+
+
+<p>If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.</p>
+<div id="set-up" class="section level1">
+<h1>Set up</h1>
+<pre class="r"><code>library(ggplot2)
+library(readxl)
+library(ggpubr)
+library(cowplot)
+library(plyr) #mapvalues
+library(data.table)
+
+# glm packages
+library(MASS)
+library(DHARMa)
+library(mvabund)
+
+  data_path &lt;- &quot;../data&quot; # notebook, console
+  source(&quot;../../../R/clean_labels.R&quot;) # notebook, console</code></pre>
+</div>
+<div id="import" class="section level1">
+<h1>Import</h1>
+<div id="data-from-the-enteric-nervous-system-promotes-intestinal-health-by-constraining-microbiota-composition" class="section level2">
+<h2>Data from The enteric nervous system promotes intestinal health by constraining microbiota composition</h2>
+<pre class="r"><code>read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){
+  dt_wide &lt;- data.table(read_excel(file_path, sheet=sheet_i, range=range_i))
+  dt_long &lt;- na.omit(melt(dt_wide, measure.vars=colnames(dt_wide), variable.name=&quot;treatment&quot;, value.name=&quot;count&quot;))
+  return(dt_long)
+}
+
+folder &lt;- &quot;Data from The enteric nervous system promotes intestinal health by constraining microbiota composition&quot;
+fn &lt;- &quot;journal.pbio.2000689.s008.xlsx&quot;
+file_path &lt;- paste(data_path, folder, fn, sep=&quot;/&quot;)
+fig1c &lt;- read_enteric(sheet_i=&quot;Figure 1&quot;, range_i=&quot;a2:b11&quot;, file_path)
+fig1e &lt;- read_enteric(sheet_i=&quot;Figure 1&quot;, range_i=&quot;d2:g31&quot;, file_path)
+fig1f &lt;- read_enteric(sheet_i=&quot;Figure 1&quot;, range_i=&quot;i2:l53&quot;, file_path)
+fig2a &lt;- read_enteric(sheet_i=&quot;Figure 2&quot;, range_i=&quot;a2:d33&quot;, file_path)
+fig2d &lt;- read_enteric(sheet_i=&quot;Figure 2&quot;, range_i=&quot;F2:I24&quot;, file_path)
+fig3a &lt;- read_enteric(sheet_i=&quot;Figure 3&quot;, range_i=&quot;a2:c24&quot;, file_path)
+fig3b &lt;- read_enteric(sheet_i=&quot;Figure 3&quot;, range_i=&quot;e2:g12&quot;, file_path)
+fig4a &lt;- read_enteric(sheet_i=&quot;Figure 4&quot;, range_i=&quot;a2:b125&quot;, file_path)
+fig5c &lt;- read_enteric(sheet_i=&quot;Figure 5&quot;, range_i=&quot;i2:l205&quot;, file_path)
+fig6d &lt;- read_enteric(sheet_i=&quot;Figure 6&quot;, range_i=&quot;I2:L16&quot;, file_path)</code></pre>
+</div>
+<div id="estimates-of-the-shape-parameter" class="section level2">
+<h2>Estimates of the shape parameter</h2>
+<pre class="r"><code>plot_enteric &lt;- function(fig_i, fig_num){
+  fit &lt;- glm.nb(count ~ treatment, data=fig_i)
+  #fig_no &lt;- deparse(substitute(fig_i)) # this works when df is sent but not a list element
+  #fig_no &lt;- names(fig_i)
+  theta &lt;- fit$theta
+  fit_title &lt;- paste0(fig_num, &quot; (theta = &quot;, round(theta,1), &quot;)&quot;)
+  gg &lt;- ggdotplot(fig_i,
+           x=&quot;treatment&quot;, 
+           y=&quot;count&quot;,
+           color=&quot;treatment&quot;,
+           pallete=&quot;jco&quot;,
+           add=&quot;mean&quot;) +
+    #annotate(&quot;text&quot;, x=1, y= max(fig_i[, count]), label=paste(&quot;theta =&quot;, round(theta,1))) +
+    ggtitle(fit_title) +
+    rremove(&quot;legend&quot;) +
+    NULL
+  return(gg)
+}
+
+plot_enteric2 &lt;- function(fig_i, fig_num, i){
+  fit &lt;- glm.nb(count ~ treatment, data=fig_i[[i]])
+  #fig_no &lt;- deparse(substitute(fig_i)) # this works when df is sent but not a list element
+  #fig_no &lt;- names(fig_i)
+  theta &lt;- fit$theta
+  fit_title &lt;- paste0(fig_num[[i]], &quot; (theta = &quot;, round(theta,1), &quot;)&quot;)
+  gg &lt;- ggdotplot(fig_i[[i]],
+           x=&quot;treatment&quot;, 
+           y=&quot;count&quot;,
+           color=&quot;treatment&quot;,
+           pallete=&quot;jco&quot;,
+           add=&quot;mean&quot;) +
+    #annotate(&quot;text&quot;, x=1, y= max(fig_i[, count]), label=paste(&quot;theta =&quot;, round(theta,1))) +
+    ggtitle(fit_title) +
+    rremove(&quot;legend&quot;) +
+    NULL
+  return(gg)
+}
+
+fig_list &lt;- list(fig1c, fig1e, fig1f, fig2a, fig2d, fig3a, fig3b, fig4a, fig5c, fig6d)
+names(fig_list) &lt;- c(&quot;fig1c&quot;, &quot;fig1e&quot;, &quot;fig1f&quot;, &quot;fig2a&quot;, &quot;fig2d&quot;, &quot;fig3a&quot;, &quot;fig3b&quot;, &quot;fig4a&quot;, &quot;fig5c&quot;, &quot;fig6d&quot;)
+#gg_list &lt;- lapply(fig_list, plot_enteric, names(fig_list))
+#lapply(seq_along(x), function(y, n, i) { paste(n[[i]], y[[i]]) }, y=x, n=names(x))
+gg_list &lt;- lapply(seq_along(fig_list), plot_enteric2, fig_i=fig_list, fig_num=names(fig_list))
+
+plot_grid(plotlist=gg_list, ncol = 3)</code></pre>
+<p><img src="/post/2019-06-09-what-does-cell-biology-data-look-like_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="plots-of-simulated-samples-that-differ-in-mu-and-theta" class="section level2">
+<h2>Plots of simulated samples that differ in <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\theta\)</span></h2>
+</div>
+</div>
