@@ -296,7 +296,9 @@ if (!doNotTrack) {
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      “GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” – Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.
+      
+      	“GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” – Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.
+      
       <p>
         <a href="/2019/01/what-to-write-and-not-write-in-a-results-section-an-ever-growing-list/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -350,8 +352,10 @@ if (!doNotTrack) {
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      load libraries make some fake data make a plot with ggplot   ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
+      
+      	load libraries make some fake data make a plot with ggplot   ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
 load libraries library(ggplot2) library(ggpubr) library(data.table)  make some fake data set.seed(3) n &lt;- 40 self &lt;- rbinom(n, 5, 0.25) + 1 others &lt;- self + rbinom(n, 3, 0.5) fd &lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)), stigma &lt;- c(self, others))  make a plot with ggplot The students are identified by the column “id”.
+      
       <p>
         <a href="/2019/01/paired-line-plots/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -405,9 +409,11 @@ load libraries library(ggplot2) library(ggpubr) library(data.table)  make some f
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      This post has been updated.
+      
+      	This post has been updated.
 A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicable effect”).
-tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.
+tl;dr - At least for Type I error at small (n), log(response) and Wilcoxan have the best performance over the simulation space.
+      
       <p>
         <a href="/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -453,8 +459,10 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      This is a skeleton post
+      
+      	This is a skeleton post
 Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.
+      
       <p>
         <a href="/2019/01/expected-covariances-in-a-causal-network/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -500,10 +508,12 @@ Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause o
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
+      
+      	This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
 First, some libraries
 library(data.table) library(mvtnorm) library(MASS) Second, some functions…
 random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.
+      
       <p>
         <a href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -557,10 +567,12 @@ random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      Researchers frequently report results as relative effects, for example,
+      
+      	Researchers frequently report results as relative effects, for example,
 “Male flies from selected lines had 50% larger upwind flight ability than male flies from control lines (Control mean: 117.5 cm/s; Selected mean 176.5 cm/s).”
 where a relative effect is
-\[\begin{equation} 100 \frac{\bar{y}_B - \bar{y}_A}{\bar{y}_A} \end{equation}\] If we are to follow best practices, we should present this effect with a measure of uncertainty, such as a confidence interval. The absolute effect is 59.
+[\begin{equation} 100 \frac{\bar{y}_B - \bar{y}_A}{\bar{y}_A} \end{equation}] If we are to follow best practices, we should present this effect with a measure of uncertainty, such as a confidence interval. The absolute effect is 59.
+      
       <p>
         <a href="/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -614,8 +626,10 @@ where a relative effect is
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.
+      
+      	ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.
 The gg_interaction function returns a ggplot of the modeled means and standard errors and not the raw means and standard errors computed from each group independently.
+      
       <p>
         <a href="/2018/10/interaction-plots-with-ggplot2/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -691,8 +705,8 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -936,8 +950,8 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

@@ -296,8 +296,10 @@ if (!doNotTrack) {
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      On page 606, of Lock et al “Statistics: Unlocking the Power of Data”, the authors state in item D “The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average.” Ah no.
+      
+      	On page 606, of Lock et al “Statistics: Unlocking the Power of Data”, the authors state in item D “The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average.” Ah no.
 library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag(2) Sigma[1,2] &lt;- Sigma[2,1] &lt;- rho X &lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &lt;- c(&quot;X1&quot;, &quot;X2&quot;) beta &lt;- c(0.
+      
       <p>
         <a href="/2018/09/a-low-p-value-for-the-full-model-does-not-mean-that-the-model-is-a-good-predictor-of-the-response/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -351,8 +353,10 @@ library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      set up The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days
+      
+      	set up The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days
 library(ggplot2) library(data.table)  First – create fake data depths &lt;- c(0, seq(10,100, by=10)) dates &lt;- c(&quot;Jan-18&quot;, &quot;Mar-18&quot;, &quot;May-18&quot;, &quot;Jul-18&quot;) x &lt;- expand.grid(date=dates, depth=depths) n &lt;- nrow(x) head(x) ## date depth ## 1 Jan-18 0 ## 2 Mar-18 0 ## 3 May-18 0 ## 4 Jul-18 0 ## 5 Jan-18 10 ## 6 Mar-18 10 X &lt;- model.
+      
       <p>
         <a href="/2018/09/a-simple-ggplot-of-some-measure-against-depth/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -398,8 +402,10 @@ library(ggplot2) library(data.table)  First – create fake data depths &lt;- c(
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      [updated to include additional output from MuMIn, BMA, and BAS]
+      
+      	[updated to include additional output from MuMIn, BMA, and BAS]
 This post is a follow up to my inital post, which was written as as a way for me to pen my mental thoughts on the recent review of “Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference”. It was also written without contacting and discussing the issue with the authors. This post benefits from a series of e-mails with the lead author Carsten Dormann and the last author Florian Hartig.
+      
       <p>
         <a href="/2018/05/should-the-model-averaged-prediction-be-computed-on-the-link-or-response-scale-in-a-glm/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -445,9 +451,11 @@ This post is a follow up to my inital post, which was written as as a way for me
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      a shorter argument based on a specific example is here
+      
+      	a shorter argument based on a specific example is here
 “What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.
+      
       <p>
         <a href="/2018/05/on-model-averaging-regression-coefficients/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -493,9 +501,11 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      a longer, more detailed argument is here
+      
+      	a longer, more detailed argument is here
 The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
 David Draper suggested this example from the textbook by Freedman, Pisani and Purves.
+      
       <p>
         <a href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -541,9 +551,11 @@ David Draper suggested this example from the textbook by Freedman, Pisani and Pu
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      This is a very quick post as a comment to the statement
+      
+      	This is a very quick post as a comment to the statement
 “For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging.”
 from the supplement of Dormann et al. Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference.
+      
       <p>
         <a href="/2018/05/model-averaged-coefficients-of-a-glm/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -597,7 +609,9 @@ from the supplement of Dormann et al. Model averaging in ecology: a review of Ba
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      This post is motivated by Terry McGlynn’s thought provoking How do we move beyond an arbitrary statistical threshold? I have been struggling with the ideas explored in Terry’s post ever since starting my PhD 30 years ago, and its only been in the last couple of years that my own thoughts have begun to gel. This long marination period is largely because of my very classical biostatistical training. My PhD is from the Department of Anatomical Sciences at Stony Brook but the content was geometric morphometrics and James Rohlf was my mentor for morphometrics specifically, and multivariate statistics more generally.
+      
+      	This post is motivated by Terry McGlynn’s thought provoking How do we move beyond an arbitrary statistical threshold? I have been struggling with the ideas explored in Terry’s post ever since starting my PhD 30 years ago, and its only been in the last couple of years that my own thoughts have begun to gel. This long marination period is largely because of my very classical biostatistical training. My PhD is from the Department of Anatomical Sciences at Stony Brook but the content was geometric morphometrics and James Rohlf was my mentor for morphometrics specifically, and multivariate statistics more generally.
+      
       <p>
         <a href="/2018/04/on-alpha/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -673,8 +687,8 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -918,8 +932,8 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

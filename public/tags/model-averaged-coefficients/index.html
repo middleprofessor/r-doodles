@@ -291,9 +291,11 @@ if (!doNotTrack) {
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      a shorter argument based on a specific example is here
+      
+      	a shorter argument based on a specific example is here
 “What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
 This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.
+      
       <p>
         <a href="/2018/05/on-model-averaging-regression-coefficients/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -339,9 +341,11 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      a longer, more detailed argument is here
+      
+      	a longer, more detailed argument is here
 The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
 David Draper suggested this example from the textbook by Freedman, Pisani and Purves.
+      
       <p>
         <a href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -387,9 +391,11 @@ David Draper suggested this example from the textbook by Freedman, Pisani and Pu
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      This is a very quick post as a comment to the statement
+      
+      	This is a very quick post as a comment to the statement
 “For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging.”
 from the supplement of Dormann et al. Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference.
+      
       <p>
         <a href="/2018/05/model-averaged-coefficients-of-a-glm/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -442,8 +448,8 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -687,8 +693,8 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

@@ -10,9 +10,10 @@ tags:
   - NHST
 keywords:
   - tech
+description: "If I'm going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I'd like to know what these data look like, specifically the shape (overdispersion) parameter."
 ---
 
-If I'm going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I'd like to know what these data look like, specifically the shape ("overdispersion") parameter and zero-inflatedness.
+If I'm going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I'd like to know what these data look like, specifically the shape ("overdispersion") parameter.
 
 # Set up
 ```{r setup, message=FALSE, warning=FALSE}
@@ -25,6 +26,7 @@ library(data.table)
 
 # glm packages
 library(MASS)
+library(pscl) #zeroinfl
 library(DHARMa)
 library(mvabund)
 
@@ -33,10 +35,8 @@ library(mvabund)
 
 ```
 
-# Import
-
-## Data from The enteric nervous system promotes intestinal health by constraining microbiota composition
-
+# Data from The enteric nervous system promotes intestinal health by constraining microbiota composition
+## Import
 ```{r}
 read_enteric <- function(sheet_i, range_i, file_path, wide_2_long=TRUE){
   dt_wide <- data.table(read_excel(file_path, sheet=sheet_i, range=range_i))
@@ -62,10 +62,13 @@ fig6d <- read_enteric(sheet_i="Figure 6", range_i="I2:L16", file_path)
 
 ## Estimates of the shape parameter
 ```{r, warning=FALSE, message=FALSE, fig.asp = 1.5}
-plot_enteric <- function(fig_i, fig_num){
+plot_enteric <- function(fig_i, fig_num=NULL){
   fit <- glm.nb(count ~ treatment, data=fig_i)
-  #fig_no <- deparse(substitute(fig_i)) # this works when df is sent but not a list element
-  #fig_no <- names(fig_i)
+
+  #fig_num <- names(fig_i)
+  if(is.null(fig_num)){
+    fig_num <- deparse(substitute(fig_i)) # this works when df is sent but not a list element
+  }
   theta <- fit$theta
   fit_title <- paste0(fig_num, " (theta = ", round(theta,1), ")")
   gg <- ggdotplot(fig_i,
@@ -100,15 +103,24 @@ plot_enteric2 <- function(fig_i, fig_num, i){
   return(gg)
 }
 
+fig_list_names <- c("fig1c", "fig1e", "fig1f", "fig2a", "fig2d", "fig3a", "fig3b", "fig4a", "fig5c", "fig6d")
 fig_list <- list(fig1c, fig1e, fig1f, fig2a, fig2d, fig3a, fig3b, fig4a, fig5c, fig6d)
-names(fig_list) <- c("fig1c", "fig1e", "fig1f", "fig2a", "fig2d", "fig3a", "fig3b", "fig4a", "fig5c", "fig6d")
-#gg_list <- lapply(fig_list, plot_enteric, names(fig_list))
-#lapply(seq_along(x), function(y, n, i) { paste(n[[i]], y[[i]]) }, y=x, n=names(x))
-gg_list <- lapply(seq_along(fig_list), plot_enteric2, fig_i=fig_list, fig_num=names(fig_list))
+names(fig_list) <- fig_list_names # super kludgy
+# this doesn't work
+# gg_list <- lapply(fig_list, plot_enteric, names(fig_list))
+
+# this works but requires i in the function which is unsatifying
+#gg_list <- lapply(seq_along(fig_list), plot_enteric2, fig_i=fig_list, fig_num=names(fig_list))
+gg_list <- list(NULL)
+for(i in 1:length(fig_list)){
+  gg_list[[i]] <- plot_enteric(fig_list[[i]], names(fig_list)[[i]])
+}
 
 plot_grid(plotlist=gg_list, ncol = 3)
 
 ```
+
+
 ```{r , echo=FALSE, eval=FALSE, warning=FALSE, message=FALSE}
 # 5c looks different, re-code
 data_path <- "../data" # notebook, console
@@ -148,5 +160,18 @@ ggdotplot(fig5c,
 fig5c[, .(count=mean(count)), by=treatment_rc]
 ```
 
-## Plots of simulated samples that differ in $\mu$ and $\theta$
+# Data from Organic cation transporter 3 (Oct3) is a distinct catecholamines clearance route in adipocytes mediating the beiging of white adipose tissue
+## Import
+```{r, eval=FALSE}
+folder <- "Data from Organic cation transporter 3 (Oct3) is a distinct catecholamines clearance route in adipocytes mediating the beiging of white adipose tissue"
+fn <- "journal.pbio.2006571.s012.xlsx"
+file_path <- paste(data_path, folder, fn, sep="/")
+fig5b <- read_enteric(sheet_i="Fig 5B", range_i="b2:c12", file_path)
+plot_enteric(fig5b)
+
+```
+
+## Estimates of the shape parameter
+
+# Plots of simulated samples that differ in $\mu$ and $\theta$
 

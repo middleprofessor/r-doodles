@@ -30,18 +30,15 @@
     
 
     
-    <meta name="description" content="If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.">
-    <meta property="og:description" content="If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.">
+    <meta name="description" content="If I&#39;m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I&#39;d like to know what these data look like, specifically the shape (overdispersion) parameter.">
+    <meta property="og:description" content="If I&#39;m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I&#39;d like to know what these data look like, specifically the shape (overdispersion) parameter.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="What does cell biology data look like?">
     <meta property="og:url" content="/2019/06/what-does-cell-biology-data-look-like/">
     <meta property="og:site_name" content="R Doodles">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.">
+    <meta name="twitter:description" content="If I&#39;m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I&#39;d like to know what these data look like, specifically the shape (overdispersion) parameter.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -291,7 +288,7 @@ if (!doNotTrack) {
               
 
 
-<p>If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.</p>
+<p>If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.</p>
 <div id="set-up" class="section level1">
 <h1>Set up</h1>
 <pre class="r"><code>library(ggplot2)
@@ -303,16 +300,17 @@ library(data.table)
 
 # glm packages
 library(MASS)
+library(pscl) #zeroinfl
 library(DHARMa)
 library(mvabund)
 
   data_path &lt;- &quot;../data&quot; # notebook, console
   source(&quot;../../../R/clean_labels.R&quot;) # notebook, console</code></pre>
 </div>
-<div id="import" class="section level1">
-<h1>Import</h1>
-<div id="data-from-the-enteric-nervous-system-promotes-intestinal-health-by-constraining-microbiota-composition" class="section level2">
-<h2>Data from The enteric nervous system promotes intestinal health by constraining microbiota composition</h2>
+<div id="data-from-the-enteric-nervous-system-promotes-intestinal-health-by-constraining-microbiota-composition" class="section level1">
+<h1>Data from The enteric nervous system promotes intestinal health by constraining microbiota composition</h1>
+<div id="import" class="section level2">
+<h2>Import</h2>
 <pre class="r"><code>read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){
   dt_wide &lt;- data.table(read_excel(file_path, sheet=sheet_i, range=range_i))
   dt_long &lt;- na.omit(melt(dt_wide, measure.vars=colnames(dt_wide), variable.name=&quot;treatment&quot;, value.name=&quot;count&quot;))
@@ -335,10 +333,13 @@ fig6d &lt;- read_enteric(sheet_i=&quot;Figure 6&quot;, range_i=&quot;I2:L16&quot
 </div>
 <div id="estimates-of-the-shape-parameter" class="section level2">
 <h2>Estimates of the shape parameter</h2>
-<pre class="r"><code>plot_enteric &lt;- function(fig_i, fig_num){
+<pre class="r"><code>plot_enteric &lt;- function(fig_i, fig_num=NULL){
   fit &lt;- glm.nb(count ~ treatment, data=fig_i)
-  #fig_no &lt;- deparse(substitute(fig_i)) # this works when df is sent but not a list element
-  #fig_no &lt;- names(fig_i)
+
+  #fig_num &lt;- names(fig_i)
+  if(is.null(fig_num)){
+    fig_num &lt;- deparse(substitute(fig_i)) # this works when df is sent but not a list element
+  }
   theta &lt;- fit$theta
   fit_title &lt;- paste0(fig_num, &quot; (theta = &quot;, round(theta,1), &quot;)&quot;)
   gg &lt;- ggdotplot(fig_i,
@@ -373,18 +374,39 @@ plot_enteric2 &lt;- function(fig_i, fig_num, i){
   return(gg)
 }
 
+fig_list_names &lt;- c(&quot;fig1c&quot;, &quot;fig1e&quot;, &quot;fig1f&quot;, &quot;fig2a&quot;, &quot;fig2d&quot;, &quot;fig3a&quot;, &quot;fig3b&quot;, &quot;fig4a&quot;, &quot;fig5c&quot;, &quot;fig6d&quot;)
 fig_list &lt;- list(fig1c, fig1e, fig1f, fig2a, fig2d, fig3a, fig3b, fig4a, fig5c, fig6d)
-names(fig_list) &lt;- c(&quot;fig1c&quot;, &quot;fig1e&quot;, &quot;fig1f&quot;, &quot;fig2a&quot;, &quot;fig2d&quot;, &quot;fig3a&quot;, &quot;fig3b&quot;, &quot;fig4a&quot;, &quot;fig5c&quot;, &quot;fig6d&quot;)
-#gg_list &lt;- lapply(fig_list, plot_enteric, names(fig_list))
-#lapply(seq_along(x), function(y, n, i) { paste(n[[i]], y[[i]]) }, y=x, n=names(x))
-gg_list &lt;- lapply(seq_along(fig_list), plot_enteric2, fig_i=fig_list, fig_num=names(fig_list))
+names(fig_list) &lt;- fig_list_names # super kludgy
+# this doesn&#39;t work
+# gg_list &lt;- lapply(fig_list, plot_enteric, names(fig_list))
+
+# this works but requires i in the function which is unsatifying
+#gg_list &lt;- lapply(seq_along(fig_list), plot_enteric2, fig_i=fig_list, fig_num=names(fig_list))
+gg_list &lt;- list(NULL)
+for(i in 1:length(fig_list)){
+  gg_list[[i]] &lt;- plot_enteric(fig_list[[i]], names(fig_list)[[i]])
+}
 
 plot_grid(plotlist=gg_list, ncol = 3)</code></pre>
 <p><img src="/post/2019-06-09-what-does-cell-biology-data-look-like_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 </div>
-<div id="plots-of-simulated-samples-that-differ-in-mu-and-theta" class="section level2">
-<h2>Plots of simulated samples that differ in <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\theta\)</span></h2>
 </div>
+<div id="data-from-organic-cation-transporter-3-oct3-is-a-distinct-catecholamines-clearance-route-in-adipocytes-mediating-the-beiging-of-white-adipose-tissue" class="section level1">
+<h1>Data from Organic cation transporter 3 (Oct3) is a distinct catecholamines clearance route in adipocytes mediating the beiging of white adipose tissue</h1>
+<div id="import-1" class="section level2">
+<h2>Import</h2>
+<pre class="r"><code>folder &lt;- &quot;Data from Organic cation transporter 3 (Oct3) is a distinct catecholamines clearance route in adipocytes mediating the beiging of white adipose tissue&quot;
+fn &lt;- &quot;journal.pbio.2006571.s012.xlsx&quot;
+file_path &lt;- paste(data_path, folder, fn, sep=&quot;/&quot;)
+fig5b &lt;- read_enteric(sheet_i=&quot;Fig 5B&quot;, range_i=&quot;b2:c12&quot;, file_path)
+plot_enteric(fig5b)</code></pre>
+</div>
+<div id="estimates-of-the-shape-parameter-1" class="section level2">
+<h2>Estimates of the shape parameter</h2>
+</div>
+</div>
+<div id="plots-of-simulated-samples-that-differ-in-mu-and-theta" class="section level1">
+<h1>Plots of simulated samples that differ in <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\theta\)</span></h1>
 </div>
 
               
@@ -522,8 +544,8 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -863,8 +885,8 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

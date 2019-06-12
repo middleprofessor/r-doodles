@@ -299,8 +299,10 @@ if (!doNotTrack) {
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      load libraries make some fake data make a plot with ggplot   ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
+      
+      	load libraries make some fake data make a plot with ggplot   ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
 load libraries library(ggplot2) library(ggpubr) library(data.table)  make some fake data set.seed(3) n &lt;- 40 self &lt;- rbinom(n, 5, 0.25) + 1 others &lt;- self + rbinom(n, 3, 0.5) fd &lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)), stigma &lt;- c(self, others))  make a plot with ggplot The students are identified by the column “id”.
+      
       <p>
         <a href="/2019/01/paired-line-plots/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -354,8 +356,10 @@ load libraries library(ggplot2) library(ggpubr) library(data.table)  make some f
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.
+      
+      	ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.
 The gg_interaction function returns a ggplot of the modeled means and standard errors and not the raw means and standard errors computed from each group independently.
+      
       <p>
         <a href="/2018/10/interaction-plots-with-ggplot2/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -409,8 +413,10 @@ The gg_interaction function returns a ggplot of the modeled means and standard e
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      set up The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days
+      
+      	set up The goal is to plot the measure of something, say O2 levels, against depth (soil or lake), with the measures taken on multiple days
 library(ggplot2) library(data.table)  First – create fake data depths &lt;- c(0, seq(10,100, by=10)) dates &lt;- c(&quot;Jan-18&quot;, &quot;Mar-18&quot;, &quot;May-18&quot;, &quot;Jul-18&quot;) x &lt;- expand.grid(date=dates, depth=depths) n &lt;- nrow(x) head(x) ## date depth ## 1 Jan-18 0 ## 2 Mar-18 0 ## 3 May-18 0 ## 4 Jul-18 0 ## 5 Jan-18 10 ## 6 Mar-18 10 X &lt;- model.
+      
       <p>
         <a href="/2018/09/a-simple-ggplot-of-some-measure-against-depth/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -463,8 +469,8 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -708,8 +714,8 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

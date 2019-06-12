@@ -299,8 +299,9 @@ if (!doNotTrack) {
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.
+      
+      	If I&#39;m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I&#39;d like to know what these data look like, specifically the shape (overdispersion) parameter.
+      
       <p>
         <a href="/2019/06/what-does-cell-biology-data-look-like/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -354,7 +355,9 @@ Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      Update to the earlier post, which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough – or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R.
+      
+      	TL;DR -- If we live and die by NHST, then we want to choose a test with good Type I error control but has high power. The quasi-poisson both estimates an interpretable effect (unlike a t-test of log(y &#43;1)) and has good Type I control with high power. A bit longer: The quasi-poisson LRT and the permutation NB have good Type I control and high power. The NB Wald and LRT have too liberal Type I control. The t-test of log response has good Type I control and high power at low $n$ but is slightly inferior to the glm with increased $n$. The t-test, Welch, and Wilcoxan have conservative Type I control. Of these, the Wilcoxan has higher power than the t-test and Welch but not as high as the GLMs or log-transformed response.
+      
       <p>
         <a href="/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -408,8 +411,10 @@ Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”1 2
+      
+      	Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”1 2
 A thought: our belief in the magnitude of an observed effect should be based on our priors, which, hopefully, are formed from good mechanistic models and not sample size“.
+      
       <p>
         <a href="/2019/05/should-we-be-skeptical-of-a-large-effect-size-if-p-0-05/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -463,7 +468,9 @@ A thought: our belief in the magnitude of an observed effect should be based on 
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.
+      
+      	HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.
+      
       <p>
         <a href="/2019/04/blocking-vs-covariate-adjustment/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -517,8 +524,10 @@ A thought: our belief in the magnitude of an observed effect should be based on 
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      1 Why reported effect sizes are inflated 2 Setup 3 Exploration 1 4 Unconditional means, power, and sign error 5 Conditional means 5.1 filter = 0.05 5.2 filter = 0.2    1 Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+      
+      	1 Why reported effect sizes are inflated 2 Setup 3 Exploration 1 4 Unconditional means, power, and sign error 5 Conditional means 5.1 filter = 0.05 5.2 filter = 0.2    1 Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
 When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect.
+      
       <p>
         <a href="/2019/04/the-statistical-significance-filter/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -572,8 +581,10 @@ When we estimate an effect1, the estimate will be a little inflated or a little 
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      The post motivated by a tweetorial from Darren Dahly
+      
+      	The post motivated by a tweetorial from Darren Dahly
 In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?
+      
       <p>
         <a href="/2019/04/covariate-adjustment-in-randomized-experiments/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -627,7 +638,9 @@ In an experiment, do we adjust for covariates that differ between treatment leve
 
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
-      “GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” – Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.
+      
+      	“GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” – Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.
+      
       <p>
         <a href="/2019/01/what-to-write-and-not-write-in-a-results-section-an-ever-growing-list/" class="postShorten-excerpt_link link">Continue reading</a>
         
@@ -697,8 +710,8 @@ src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -942,8 +955,8 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter and zero-inflatedness.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Import Data from The enteric nervous system promotes intestinal health by constraining microbiota composition read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
