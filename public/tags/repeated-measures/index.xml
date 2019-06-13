@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 22 Jan 2019 00:00:00 +0000</lastBuildDate>
     
-        <atom:link href="/tags/repeated-measures/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/repeated-measures/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -17,49 +17,8 @@
       <pubDate>Tue, 22 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/01/paired-line-plots/</guid>
-      <description>
-
-&lt;div id=&#34;TOC&#34;&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;#load-libraries&#34;&gt;load libraries&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#make-some-fake-data&#34;&gt;make some fake data&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#make-a-plot-with-ggplot&#34;&gt;make a plot with ggplot&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-
-&lt;p&gt;ggplot scripts to draw figures like those in the Dynamic Ecology post &lt;a href=&#34;https://dynamicecology.wordpress.com/2019/01/21/paired-line-plots-a-k-a-reaction-norms-to-visualize-likert-data/#comments&#34;&gt;Paired line plots (a.k.a. “reaction norms”) to visualize Likert data&lt;/a&gt;&lt;/p&gt;
-&lt;div id=&#34;load-libraries&#34; class=&#34;section level1&#34;&gt;
-&lt;h1&gt;load libraries&lt;/h1&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(ggplot2)
-library(ggpubr)
-library(data.table)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div id=&#34;make-some-fake-data&#34; class=&#34;section level1&#34;&gt;
-&lt;h1&gt;make some fake data&lt;/h1&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(3)
-n &amp;lt;- 40
-self &amp;lt;- rbinom(n, 5, 0.25) + 1
-others &amp;lt;- self + rbinom(n, 3, 0.5)
-fd &amp;lt;- data.table(id=factor(rep(1:n, 2)),
-                 who=factor(rep(c(&amp;quot;self&amp;quot;, &amp;quot;others&amp;quot;), each=n)),
-                 stigma &amp;lt;- c(self, others))&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div id=&#34;make-a-plot-with-ggplot&#34; class=&#34;section level1&#34;&gt;
-&lt;h1&gt;make a plot with ggplot&lt;/h1&gt;
-&lt;p&gt;The students are identified by the column “id”. Each students’ two responses (“self” and “others”) are joined by a line using geom_line(), which knows who to join with the “group=id” statement in the aes function in line 1. The alpha setting draws transparent lines (alpha=1 is opaque) so the more lines that are superimposed the darker the line. The lines are slightly jittered in the vertical direction so that overlapping lines appear wider.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;jitter_mag &amp;lt;- 0.03
-gg &amp;lt;- ggplot(data=fd, aes(x=who, y=stigma, group=id)) +
-  geom_line(size=1,
-            alpha=0.3, 
-            position=position_jitter(w=0, h=jitter_mag)) +
-  ylab(&amp;quot;Amount of stigma (1=low, 6=high)&amp;quot;) +
-  xlab(&amp;quot;Responding about views of others or self&amp;quot;) +
-  theme_pubr() +
-  NULL
-gg&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2019-01-22-paired-line-plots_files/figure-html/ggplot-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
-&lt;/div&gt;
-</description>
+      <description>load libraries make some fake data make a plot with ggplot   ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
+load libraries library(ggplot2) library(ggpubr) library(data.table)  make some fake data set.seed(3) n &amp;lt;- 40 self &amp;lt;- rbinom(n, 5, 0.25) + 1 others &amp;lt;- self + rbinom(n, 3, 0.5) fd &amp;lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&amp;quot;self&amp;quot;, &amp;quot;others&amp;quot;), each=n)), stigma &amp;lt;- c(self, others))  make a plot with ggplot The students are identified by the column “id”.</description>
     </item>
     
   </channel>

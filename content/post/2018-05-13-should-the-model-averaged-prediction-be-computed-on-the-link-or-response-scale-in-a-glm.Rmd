@@ -211,12 +211,12 @@ This simulation uses the fake data generated above.
   fit.bma <- bas.glm(count ~ x1 + x2, family=poisson(link = "log"), data=dt)
  
   res.bma.rs <- predict(fit.bma, type='response')
-  res.bma0.rs <- res.bma.rs$fit[,1]
+  res.bma0.rs <- res.bma.rs$fit
   res.bma1.rs.ls <- res.bma.rs$Ybma[,1]
   res.bma1.rs.exp.ls <- exp(res.bma1.rs.ls)
   
   res.bma.ls <- predict(fit.bma)
-  res.bma0.ls <- res.bma.ls$fit[,1]
+  res.bma0.ls <- res.bma.ls$fit
   res.bma1.ls.ls <- res.bma.ls$Ybma[,1]
   res.bma1.ls.exp.ls <- exp(res.bma1.ls.ls)
   
@@ -231,7 +231,7 @@ This simulation uses the fake data generated above.
   )
   
   res.bma <- predict(fit.bma)
-  yhat.bma.response <- res.bma$fit[,1]
+  yhat.bma.response <- res.bma$fit
   yhat.bma.link <- res.bma$Ybma[,1]
   YHAT <- t(res.bma$Ypred)
   w <- res.bma$postprobs

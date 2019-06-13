@@ -461,7 +461,7 @@ tl;dr - At least for Type I error at small (n), log(response) and Wilcoxan have 
     <div class="postShorten-excerpt" itemprop="articleBody">
       
       	This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.007478 var(g2) # E(VAR(g2)) = 1 ## [1] 1.004495 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.
       
       <p>
         <a href="/2019/01/expected-covariances-in-a-causal-network/" class="postShorten-excerpt_link link">Continue reading</a>

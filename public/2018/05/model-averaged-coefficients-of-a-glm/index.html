@@ -347,12 +347,12 @@ yhat0.link_scale &lt;- predict(fit.avg, backtransform=FALSE)
 yhat0.response_scale2 &lt;- expit(yhat0.link_scale) 
 head(data.table(yhat0.response_scale, yhat0.response_scale2)) # these should be equal</code></pre>
 <pre><code>##    yhat0.response_scale yhat0.response_scale2
-## 1:            0.1958144             0.1958144
-## 2:            0.6747000             0.6747000
-## 3:            0.2327797             0.2327797
-## 4:            0.2047924             0.2047924
-## 5:            0.5043722             0.5043722
-## 6:            0.8114121             0.8114121</code></pre>
+## 1:           0.82209888            0.82209888
+## 2:           0.09576469            0.09576469
+## 3:           0.15603027            0.15603027
+## 4:           0.21352485            0.21352485
+## 5:           0.94455256            0.94455256
+## 6:           0.03910189            0.03910189</code></pre>
 <pre class="r"><code>yhat0 &lt;- yhat0.response_scale # predictions using MuMIn package
 
 
@@ -386,13 +386,13 @@ MSE3 &lt;- sqrt(mean((yhat3-dt[, y])^2))
 
 # Predicted values computed 4 different ways
 head(data.table(yhat0=yhat0, yhat1=yhat1[,1], yhat2=yhat2[,1], yhat3=yhat3[,1]))</code></pre>
-<pre><code>##        yhat0     yhat1     yhat2     yhat3
-## 1: 0.1958144 0.1958144 0.1958144 0.1966351
-## 2: 0.6747000 0.6747000 0.6747000 0.6729130
-## 3: 0.2327797 0.2327797 0.2327797 0.2334907
-## 4: 0.2047924 0.2047924 0.2047924 0.2088204
-## 5: 0.5043722 0.5043722 0.5043722 0.5043093
-## 6: 0.8114121 0.8114121 0.8114121 0.8105789</code></pre>
+<pre><code>##         yhat0      yhat1      yhat2      yhat3
+## 1: 0.82209888 0.82209888 0.82209888 0.82180883
+## 2: 0.09576469 0.09576469 0.09576469 0.09988705
+## 3: 0.15603027 0.15603027 0.15603027 0.15789741
+## 4: 0.21352485 0.21352485 0.21352485 0.21359496
+## 5: 0.94455256 0.94455256 0.94455256 0.94445906
+## 6: 0.03910189 0.03910189 0.03910189 0.03985895</code></pre>
 <pre class="r"><code>#yhat0 = MuMIn model averaged predictions (correct method)
 #yhat1 = RHS of equation s2 in appendix (correct method)
 #yhat2 = Corrected LHS of s2 in appendix (correct method)

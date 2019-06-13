@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Thu, 08 Mar 2018 00:00:00 +0000</lastBuildDate>
     
-        <atom:link href="/categories/medicine/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/categories/medicine/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -17,16 +17,7 @@
       <pubDate>Thu, 08 Mar 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/</guid>
-      <description>
-
-
-&lt;p&gt;This post is motivated by a twitter link to a &lt;a href=&#34;https://honey-guide.com/2018/02/13/graphic-faecal-transplants-and-obesity/&#34; target=&#34;_blank&#34;&gt;recent blog post&lt;/a&gt; critical of the old but influential study &lt;a href=&#34;https://scholar.google.co.uk/scholar?hl=en&amp;amp;as_sdt=0%2C5&amp;amp;q=An+obesity-associated+gut+microbiome+with+increased+capacity+for+energy+harvest.&amp;amp;btnG=&#34;&gt;An obesity-associated gut microbiome with increased capacity for energy harvest&lt;/a&gt; with &lt;a href=&#34;https://www.nature.com/articles/nature05414/metrics&#34; target=&#34;_blank&#34;&gt;impressive citation metrics&lt;/a&gt;. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.&lt;/p&gt;
-&lt;p&gt;This is true, but doesn’t quite capture the essence of the major problem with the analysis: a simple &lt;em&gt;t&lt;/em&gt;-test of differences in percent weight change fails to condition on initial weight. And, in pre-post designs, groups with smaller initial measures are expected to have more change due to &lt;a href=&#34;https://en.wikipedia.org/wiki/Regression_toward_the_mean&#34; target=&#34;_blank&#34;&gt;regression to the mean&lt;/a&gt;. This is exactly what was observed. In the fecal transplant study, the initial mean weight of the rats infected with &lt;em&gt;ob/ob&lt;/em&gt; feces was smaller (by 1.2SD) than that of the rats infected with &lt;em&gt;+/+&lt;/em&gt; feces and, consequently, the expected difference in the change in weight is not zero but positive (this is the expected difference &lt;em&gt;conditional on an inital difference&lt;/em&gt;). More generally, a difference in percent change &lt;em&gt;as an estimate of the parametric difference in percent change&lt;/em&gt; is not biased, but it is also not an estimate of the treatment effect, except under very limited conditions explained below. If these conditions are not met, a difference in percent change &lt;em&gt;as an estimate of the treatment effect&lt;/em&gt; is biased, unless estimated conditional on (or “adusted for”) the initial weight.&lt;/p&gt;
-&lt;p&gt;Regression to the mean also has consequences on the hypothesis testing approach taken by the authors. Somewhat perplexingly, a simple &lt;em&gt;t&lt;/em&gt;-test of the post-treatment weights or of pre-post difference in weight, or of percent change in weight does not have elevated Type I error. This is demonstrated using simulation below. The explaination is, in short, the Type I error rate is also a function of the initial difference in weight. If the initial difference is near zero, the Type I error is much less than the nominal alpha (say, 0.05). But as the intial difference moves away from zero, the Type I error is much greater than the nominal alpha. Over the space of the initial difference, these rates average to the nominal alpha.&lt;/p&gt;
-&lt;div id=&#34;continue-reading-the-whole-post&#34; class=&#34;section level2&#34;&gt;
-&lt;h2&gt;&lt;a href=&#34;https://www.middleprofessor.com/files/quasipubs/change_scores.html&#34;&gt;continue reading the whole post&lt;/a&gt;&lt;/h2&gt;
-&lt;/div&gt;
-</description>
+      <description>This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.</description>
     </item>
     
   </channel>

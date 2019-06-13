@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 11 Sep 2018 00:00:00 +0000</lastBuildDate>
     
-        <atom:link href="/tags/regression/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/regression/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -17,43 +17,8 @@
       <pubDate>Tue, 11 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/09/a-low-p-value-for-the-full-model-does-not-mean-that-the-model-is-a-good-predictor-of-the-response/</guid>
-      <description>
-
-
-&lt;p&gt;On page 606, of Lock et al “Statistics: Unlocking the Power of Data”, the authors state in item D “The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average.” Ah no.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(data.table)
-library(mvtnorm)
-rho &amp;lt;- 0.5
-n &amp;lt;- 10^5
-Sigma &amp;lt;- diag(2)
-Sigma[1,2] &amp;lt;- Sigma[2,1] &amp;lt;- rho
-X &amp;lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma)
-colnames(X) &amp;lt;- c(&amp;quot;X1&amp;quot;, &amp;quot;X2&amp;quot;)
-beta &amp;lt;- c(0.01, -0.02)
-y &amp;lt;- X%*%beta + rnorm(n)
-fit &amp;lt;- lm(y ~ X)
-summary(fit)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## 
-## Call:
-## lm(formula = y ~ X)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -4.2513 -0.6704 -0.0026  0.6701  4.1725 
-## 
-## Coefficients:
-##              Estimate Std. Error t value Pr(&amp;gt;|t|)    
-## (Intercept) -0.003597   0.003158  -1.139    0.255    
-## XX1          0.005449   0.003629   1.502    0.133    
-## XX2         -0.016562   0.003641  -4.548 5.41e-06 ***
-## ---
-## Signif. codes:  0 &amp;#39;***&amp;#39; 0.001 &amp;#39;**&amp;#39; 0.01 &amp;#39;*&amp;#39; 0.05 &amp;#39;.&amp;#39; 0.1 &amp;#39; &amp;#39; 1
-## 
-## Residual standard error: 0.9987 on 99997 degrees of freedom
-## Multiple R-squared:  0.0002146,  Adjusted R-squared:  0.0001946 
-## F-statistic: 10.73 on 2 and 99997 DF,  p-value: 2.184e-05&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;A p-value is not a measure of the predictive capacity of a model because the p-value is a function of 1) signal, 2) noise (unmodeled error), and 3) sample size while predictive capacity is a function of the signal:noise ratio. If the signal:noise ratio is tiny, the predictive capacity is small but the p-value can be tiny if the sample size is large.&lt;/p&gt;
-</description>
+      <description>On page 606, of Lock et al “Statistics: Unlocking the Power of Data”, the authors state in item D “The p-value from the ANOVA table is 0.000 so the model as a whole is effective at predicting grade point average.” Ah no.
+library(data.table) library(mvtnorm) rho &amp;lt;- 0.5 n &amp;lt;- 10^5 Sigma &amp;lt;- diag(2) Sigma[1,2] &amp;lt;- Sigma[2,1] &amp;lt;- rho X &amp;lt;- rmvnorm(n, mean=c(0,0), sigma=Sigma) colnames(X) &amp;lt;- c(&amp;quot;X1&amp;quot;, &amp;quot;X2&amp;quot;) beta &amp;lt;- c(0.</description>
     </item>
     
   </channel>

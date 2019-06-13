@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Sat, 27 Apr 2019 00:00:00 +0000</lastBuildDate>
     
-        <atom:link href="/tags/blocking/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/blocking/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -17,79 +17,7 @@
       <pubDate>Sat, 27 Apr 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/04/blocking-vs-covariate-adjustment/</guid>
-      <description>
-
-
-
-
-HUGOMORE42
-
-&lt;p&gt;“A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group. Each rat in a pair is expected to eat a similar amount of food during the experiment because they have been matched on their baseline food consumption. By removing this source of variation, the comparison between rats in a pair will be mostly unaffected by the amount of food they eat, allowing treatment effects to be more easily detected.” – Lazic, Stanley E.. Experimental Design for Laboratory Biologists: Maximising Information and Improving Reproducibility . Cambridge University Press. Kindle Edition.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(ggplot2)
-library(data.table)
-library(doBy)
-library(lmerTest)
-library(nlme)
-
-odd &amp;lt;- function(x) x%%2 != 0
-even  &amp;lt;- function(x) x%%2 == 0&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Simulate data in which the response is a function of baseline_food consumption:&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;n &amp;lt;- 10^1
-niter &amp;lt;- 1000
-# create the response y as a function of baseline_food
-out_cols &amp;lt;- c(&amp;quot;adj&amp;quot;, &amp;quot;block.rand&amp;quot;, &amp;quot;block.fix&amp;quot;, &amp;quot;block.adj&amp;quot;)
-b_mat &amp;lt;- p_mat &amp;lt;- matrix(NA, nrow=niter, ncol=length(out_cols))
-colnames(b_mat) &amp;lt;-colnames(p_mat) &amp;lt;- out_cols
-for(iter in 1:niter){
-  baseline_food &amp;lt;- rnorm(n*2)
-  beta_baseline_food &amp;lt;- 0.6
-  y &amp;lt;- beta_baseline_food*baseline_food + sqrt(1-beta_baseline_food^2)*rnorm(n*2)
-  
-  # covariate adjustment
-  # add treatment effect to half
-  treatment &amp;lt;- as.factor(rep(c(&amp;quot;tr&amp;quot;, &amp;quot;cn&amp;quot;), each=n))
-  beta_1 &amp;lt;- 1
-  y[1:n] &amp;lt;- y[1:n] + beta_1
-  fit1 &amp;lt;- lm(y ~ baseline_food + treatment)
-  b_mat[iter, &amp;quot;adj&amp;quot;] &amp;lt;- coef(summary(fit1))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Estimate&amp;quot;]
-  p_mat[iter, &amp;quot;adj&amp;quot;] &amp;lt;- coef(summary(fit1))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Pr(&amp;gt;|t|)&amp;quot;]
-  
-  # block
-  treatment &amp;lt;- NULL
-  for(i in 1:n){
-    treatment &amp;lt;- c(treatment, sample(c(&amp;quot;tr&amp;quot;, &amp;quot;cn&amp;quot;), 2))
-  }
-  fake_data &amp;lt;- data.table(y=y, baseline_food=baseline_food)
-  setorder(fake_data, baseline_food)
-  fake_data[, treatment:=factor(treatment)]
-  fake_data[, block:=factor(rep(1:n, each=2))]
-  fake_data[, y_exp:=ifelse(treatment==&amp;quot;tr&amp;quot;, y+1, y)]
-  # fit2 &amp;lt;- lmer(y_exp ~ treatment + (1|block), data=fake_data)
-  # b_mat[iter, &amp;quot;block&amp;quot;] &amp;lt;- coef(summary(fit2))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Estimate&amp;quot;]
-  fit2 &amp;lt;- lme(y_exp ~ treatment, random= ~1|block, data=fake_data)
-  b_mat[iter, &amp;quot;block.rand&amp;quot;] &amp;lt;- coef(summary(fit2))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Value&amp;quot;]
-  p_mat[iter, &amp;quot;block.rand&amp;quot;] &amp;lt;- coef(summary(fit2))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;p-value&amp;quot;]
-
-  fit2b &amp;lt;- lm(y_exp ~ block + treatment, data=fake_data)
-  b_mat[iter, &amp;quot;block.fix&amp;quot;] &amp;lt;- coef(summary(fit2b))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Estimate&amp;quot;]
-  p_mat[iter, &amp;quot;block.fix&amp;quot;] &amp;lt;- coef(summary(fit2b))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Pr(&amp;gt;|t|)&amp;quot;]
-
-  fit3 &amp;lt;- lm(y_exp ~ baseline_food + treatment, data=fake_data)
-  b_mat[iter, &amp;quot;block.adj&amp;quot;] &amp;lt;- coef(summary(fit3))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Estimate&amp;quot;]
-  p_mat[iter, &amp;quot;block.adj&amp;quot;] &amp;lt;- coef(summary(fit3))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Pr(&amp;gt;|t|)&amp;quot;]
-}&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Estimates&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;apply(b_mat, 2, quantile, probs=c(0.025, 0.5, 0.975))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;##             adj block.rand block.fix block.adj
-## 2.5%  0.2797401  0.1476697 0.1476697 0.1528887
-## 50%   1.0076974  1.0161665 1.0161665 1.0165686
-## 97.5% 1.7149816  1.8121259 1.8121259 1.7995946&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Power&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;apply(p_mat, 2, function(x) sum(x &amp;lt; 0.05)/niter)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;##        adj block.rand  block.fix  block.adj 
-##      0.732      0.576      0.558      0.619&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Conclusion: over this model space, simply adjusting for baseline food consumption is more powerful than creating blocks using baseline food consumption.&lt;/p&gt;
-</description>
+      <description>HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</description>
     </item>
     
   </channel>

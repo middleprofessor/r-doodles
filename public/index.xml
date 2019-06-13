@@ -765,51 +765,51 @@ for(b1 in b_array){
 &lt;tbody&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.05&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.102&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.216&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.099&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.215&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;0.305&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.10&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.121&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.227&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.320&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.120&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.228&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.309&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.20&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.200&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.254&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.329&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.197&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.257&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.333&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.30&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.297&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.319&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.378&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.300&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.318&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.374&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.50&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.500&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.503&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.510&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.501&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.498&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.508&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.80&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.799&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.799&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;0.798&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.797&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.800&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;1.00&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;1.002&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;1.003&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;1.007&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1.001&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1.004&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1.011&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;2.00&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1.997&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;2.002&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;2.005&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;2.000&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1.996&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -841,19 +841,19 @@ for(b1 in b_array){
 &lt;td align=&#34;right&#34;&gt;0.10&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;1.2&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;2.3&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;3.2&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3.1&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.20&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;1.0&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;1.3&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;1.6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1.7&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.30&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;1.0&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;1.1&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;1.3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1.2&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.50&lt;/td&gt;
@@ -978,13 +978,13 @@ for(iter in 1:niter){
 &lt;p&gt;Estimates&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;apply(b_mat, 2, quantile, probs=c(0.025, 0.5, 0.975))&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##             adj block.rand block.fix block.adj
-## 2.5%  0.2797401  0.1476697 0.1476697 0.1528887
-## 50%   1.0076974  1.0161665 1.0161665 1.0165686
-## 97.5% 1.7149816  1.8121259 1.8121259 1.7995946&lt;/code&gt;&lt;/pre&gt;
+## 2.5%  0.3132018  0.1810287 0.1810287 0.1892231
+## 50%   1.0092889  0.9948879 0.9948879 0.9857162
+## 97.5% 1.6694994  1.8773969 1.8773969 1.8941577&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Power&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;apply(p_mat, 2, function(x) sum(x &amp;lt; 0.05)/niter)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##        adj block.rand  block.fix  block.adj 
-##      0.732      0.576      0.558      0.619&lt;/code&gt;&lt;/pre&gt;
+##      0.731      0.552      0.535      0.584&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Conclusion: over this model space, simply adjusting for baseline food consumption is more powerful than creating blocks using baseline food consumption.&lt;/p&gt;
 </description>
     </item>
@@ -1081,7 +1081,7 @@ knitr::kable(table1, digits=c(2, 2, 2, 2, 3))&lt;/code&gt;&lt;/pre&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.05&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;0.05&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.25&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.26&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;0.04&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;0.017&lt;/td&gt;
 &lt;/tr&gt;
@@ -1095,13 +1095,13 @@ knitr::kable(table1, digits=c(2, 2, 2, 2, 3))&lt;/code&gt;&lt;/pre&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.50&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;0.50&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.51&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.34&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.001&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.52&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.35&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.000&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;1.00&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;1.01&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1.00&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;1.01&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;0.88&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;0.000&lt;/td&gt;
@@ -1130,15 +1130,15 @@ knitr::kable(table2, digits=c(2, 2, 2, 1))&lt;/code&gt;&lt;/pre&gt;
 &lt;tbody&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.05&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.29&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.73&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;14.5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.30&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.72&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;14.4&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.15&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.59&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.74&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;4.9&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.61&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.75&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5.0&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.50&lt;/td&gt;
@@ -1173,20 +1173,20 @@ knitr::kable(table3, digits=c(2, 2, 2, 1))&lt;/code&gt;&lt;/pre&gt;
 &lt;tbody&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.05&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.15&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.17&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;0.55&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;11.1&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.15&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.42&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.57&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;3.8&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.40&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.58&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3.9&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;right&#34;&gt;0.50&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.69&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;0.69&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.70&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.70&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;1.4&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
@@ -1745,11 +1745,11 @@ r12 &amp;lt;- b1*b2
 g1 &amp;lt;- b1*z + sqrt(1-b1^2)*rnorm(n)
 g2 &amp;lt;- b2*z + sqrt(1-b2^2)*rnorm(n)
 var(g1) # E(VAR(g1)) = 1&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.997149&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 1.007478&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;var(g2) # E(VAR(g2)) = 1&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.9972956&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 1.004495&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;cor(g1, g2) # E(COR(g1,g2)) = b1*b2&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.4881183&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 0.4940367&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;b1*b2&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 0.49&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# effects of g1 and g2 on y1 and y2
@@ -1762,11 +1762,11 @@ r2.2 &amp;lt;- a12^2 + a22^2 + 2*a12*a22*b1*b2 # systematic variance of y1
 y1 &amp;lt;- a11*g1 + a21*g2 + sqrt(1-r2.1)*rnorm(n)
 y2 &amp;lt;- a12*g1 + a22*g2 + sqrt(1-r2.2)*rnorm(n)
 var(y1) # E() = 1&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.9963031&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 1.010452&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;var(y2) # E() = 1&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.994697&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 1.008915&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;cor(y1, y2) # E() = a11*a12 + a21*a22 + a11*r12*a22 + a21*r12*a12&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.7454303&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 0.7475318&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;a11*a12 + a21*a22 + a11*r12*a22 + a21*r12*a12 # sum of all paths&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 0.745&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
@@ -1795,15 +1795,15 @@ sigma_g2 &amp;lt;- sqrt(sigma.sq_g2)
 g1 &amp;lt;- b1*z + sqrt(sigma.sq_g1 - sigma.sq_g1.sys)*rnorm(n)
 g2 &amp;lt;- b2*z + sqrt(sigma.sq_g2 - sigma.sq_g2.sys)*rnorm(n)
 var(g1) # E(VAR(g1)) = sigma.sq_g1&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 6.400034&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 6.403093&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;var(g2) # E(VAR(g2)) = sigma.sq_g2&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 6.403562&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 6.410138&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;sigma.sq_g1&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 6.4&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;sigma.sq_g2&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 6.4&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;cov(g1,g2) # E() = b1*b2*sigma_z^2&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 5.759874&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 5.767158&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;s12 # b1*b2*sigma_z^2&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 5.76&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# effects of g1 and g2 on y1 and y2
@@ -1822,9 +1822,9 @@ sigma_y2 &amp;lt;- sqrt(sigma.sq_y2)
 y1 &amp;lt;- a11*g1 + a21*g2 + sqrt(sigma.sq_y1 - sigma.sq_y1.sys)*rnorm(n)
 y2 &amp;lt;- a12*g1 + a22*g2 + sqrt(sigma.sq_y2 - sigma.sq_y2.sys)*rnorm(n)
 var(y1) # E() = sigma.sq_y1&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 137.5161&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 137.7647&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;var(y2) # E() = sigma.sq_y1&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 60.87395&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 60.8176&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;sigma.sq_y1&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 137.6&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;sigma.sq_y2&lt;/code&gt;&lt;/pre&gt;
@@ -1837,10 +1837,10 @@ r12 &amp;lt;- s12/sigma_g1/sigma_g2
 r12 # expected correlation between g1 and g2&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 0.9&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;cor(g1, g2) # actual correlation between g1 and g2&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.8997275&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 0.900188&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# covariance y1 and y2
 cov(y1, y2) #&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 82.10576&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 82.16849&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;(a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s)*sigma_y1*sigma_y2 # expected cov(y1, y2)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 82.08&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# more compact and not using the standardized parameters
@@ -1849,24 +1849,24 @@ a11*a12*sigma.sq_g1 + a21*a22*sigma.sq_g2 + a11*s12*a22 + a21*s12*a12&lt;/code&g
 &lt;pre&gt;&lt;code&gt;## [1] 82.08&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# correlation y1 and y2
 cor(y1, y2)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.8973897&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 0.8976801&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 0.8973799&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;div id=&#34;expected-value-of-b-with-missing-covariate&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Expected value of b with missing covariate&lt;/h2&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;coef(summary(lm(y1 ~ g1 + g2)))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;##                Estimate  Std. Error    t value   Pr(&amp;gt;|t|)
-## (Intercept) 0.006165963 0.003710027   1.661972 0.09651863
-## g1          1.503519031 0.003360074 447.466106 0.00000000
-## g2          2.994464649 0.003359148 891.435776 0.00000000&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##                 Estimate  Std. Error    t value  Pr(&amp;gt;|t|)
+## (Intercept) -0.003236911 0.003706074  -0.873407 0.3824415
+## g1           1.505002692 0.003363021 447.515059 0.0000000
+## g2           2.995658785 0.003361173 891.254067 0.0000000&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;coef(summary(lm(y1 ~ g1)))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;##                Estimate  Std. Error      t value  Pr(&amp;gt;|t|)
-## (Intercept) 0.004241297 0.004970132    0.8533571 0.3934615
-## g1          4.198463665 0.001964609 2137.0475423 0.0000000&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##                 Estimate  Std. Error      t value  Pr(&amp;gt;|t|)
+## (Intercept) -0.004949166 0.004964388   -0.9969338 0.3187969
+## g1           4.203142030 0.001961873 2142.4126174 0.0000000&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# expected = direct + cor*indirect using cor
 a11 + cor(g1,g2)*a21&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 4.199183&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 4.200564&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# expected = direct + cor*indirect, using cov as model param
 a11 + (s12/sigma_g1/sigma_g2)*a21&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 4.2&lt;/code&gt;&lt;/pre&gt;
@@ -2116,19 +2116,19 @@ summary(fit)&lt;/code&gt;&lt;/pre&gt;
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -4.2513 -0.6704 -0.0026  0.6701  4.1725 
+## -4.4908 -0.6749 -0.0011  0.6736  4.2441 
 ## 
 ## Coefficients:
 ##              Estimate Std. Error t value Pr(&amp;gt;|t|)    
-## (Intercept) -0.003597   0.003158  -1.139    0.255    
-## XX1          0.005449   0.003629   1.502    0.133    
-## XX2         -0.016562   0.003641  -4.548 5.41e-06 ***
+## (Intercept) -0.006924   0.003165  -2.188   0.0287 *  
+## XX1          0.016228   0.003642   4.456 8.35e-06 ***
+## XX2         -0.019160   0.003641  -5.263 1.42e-07 ***
 ## ---
 ## Signif. codes:  0 &amp;#39;***&amp;#39; 0.001 &amp;#39;**&amp;#39; 0.01 &amp;#39;*&amp;#39; 0.05 &amp;#39;.&amp;#39; 0.1 &amp;#39; &amp;#39; 1
 ## 
-## Residual standard error: 0.9987 on 99997 degrees of freedom
-## Multiple R-squared:  0.0002146,  Adjusted R-squared:  0.0001946 
-## F-statistic: 10.73 on 2 and 99997 DF,  p-value: 2.184e-05&lt;/code&gt;&lt;/pre&gt;
+## Residual standard error: 1.001 on 99997 degrees of freedom
+## Multiple R-squared:  0.0003215,  Adjusted R-squared:  0.0003015 
+## F-statistic: 16.08 on 2 and 99997 DF,  p-value: 1.04e-07&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;A p-value is not a measure of the predictive capacity of a model because the p-value is a function of 1) signal, 2) noise (unmodeled error), and 3) sample size while predictive capacity is a function of the signal:noise ratio. If the signal:noise ratio is tiny, the predictive capacity is small but the p-value can be tiny if the sample size is large.&lt;/p&gt;
 </description>
     </item>
@@ -2175,13 +2175,13 @@ head(X)&lt;/code&gt;&lt;/pre&gt;
 y &amp;lt;- X%*%beta + rnorm(n, sd=5)
 fake_data &amp;lt;- data.frame(O2=y, x)
 head(fake_data)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;##          O2   date depth
-## 1 -5.618861 Jan-18     0
-## 2 13.885828 Mar-18     0
-## 3  1.309404 May-18     0
-## 4  4.442890 Jul-18     0
-## 5  6.504647 Jan-18    10
-## 6  5.378927 Mar-18    10&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##           O2   date depth
+## 1  9.0410356 Jan-18     0
+## 2  3.5873498 Mar-18     0
+## 3 -0.3098757 May-18     0
+## 4 -3.1022589 Jul-18     0
+## 5  2.1098876 Jan-18    10
+## 6 19.1130320 Mar-18    10&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;div id=&#34;second-make-ggplot&#34; class=&#34;section level1&#34;&gt;
 &lt;h1&gt;Second – make ggplot&lt;/h1&gt;
@@ -2267,7 +2267,7 @@ library(BMA)&lt;/code&gt;&lt;/pre&gt;
 ##     heart&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## Loading required package: inline&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## Loading required package: rrcov&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## Scalable Robust Estimators with High Breakdown Point (version 1.4-3)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Scalable Robust Estimators with High Breakdown Point (version 1.4-7)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(BAS)
 library(AICcmodavg)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## 
@@ -2402,17 +2402,17 @@ res &amp;lt;- data.table(default=yhat.default, yhat1=yhat1)&lt;/code&gt;&lt;/pre
 &lt;p&gt;This simulation uses the fake data generated above.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # fit using BMA
   packageVersion(&amp;quot;BAS&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] &amp;#39;1.5.0&amp;#39;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] &amp;#39;1.5.3&amp;#39;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;  # fit &amp;lt;- glm(count ~ x1 + x2, family=poisson(link = &amp;quot;log&amp;quot;), data=dt,na.action=na.fail )
   fit.bma &amp;lt;- bas.glm(count ~ x1 + x2, family=poisson(link = &amp;quot;log&amp;quot;), data=dt)
  
   res.bma.rs &amp;lt;- predict(fit.bma, type=&amp;#39;response&amp;#39;)
-  res.bma0.rs &amp;lt;- res.bma.rs$fit[,1]
+  res.bma0.rs &amp;lt;- res.bma.rs$fit
   res.bma1.rs.ls &amp;lt;- res.bma.rs$Ybma[,1]
   res.bma1.rs.exp.ls &amp;lt;- exp(res.bma1.rs.ls)
   
   res.bma.ls &amp;lt;- predict(fit.bma)
-  res.bma0.ls &amp;lt;- res.bma.ls$fit[,1]
+  res.bma0.ls &amp;lt;- res.bma.ls$fit
   res.bma1.ls.ls &amp;lt;- res.bma.ls$Ybma[,1]
   res.bma1.ls.exp.ls &amp;lt;- exp(res.bma1.ls.ls)
   
@@ -2427,7 +2427,7 @@ res &amp;lt;- data.table(default=yhat.default, yhat1=yhat1)&lt;/code&gt;&lt;/pre
   )
   
   res.bma &amp;lt;- predict(fit.bma)
-  yhat.bma.response &amp;lt;- res.bma$fit[,1]
+  yhat.bma.response &amp;lt;- res.bma$fit
   yhat.bma.link &amp;lt;- res.bma$Ybma[,1]
   YHAT &amp;lt;- t(res.bma$Ypred)
   w &amp;lt;- res.bma$postprobs
@@ -2445,31 +2445,31 @@ res &amp;lt;- data.table(default=yhat.default, yhat1=yhat1)&lt;/code&gt;&lt;/pre
 &lt;p&gt;predict.basglm seems to have the same output regardless of the type=‘response’ specification. The prediction on the link scale is in “Ybma” and the prediction on the response scale is in “fit”. Note that &lt;span class=&#34;math inline&#34;&gt;\(exp(Ybma) \ne fit\)&lt;/span&gt;. s&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;head(bas.res1)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##    default.fit default.Ybma default.exp.Ybma response.fit response.Ybma
-## 1:    176.5610     5.173649         176.5580     176.5610      5.173649
-## 2:    173.0640     5.153591         173.0518     173.0640      5.153591
-## 3:    175.7336     5.168932         175.7271     175.7336      5.168932
-## 4:    172.5097     5.150390         172.4988     172.5097      5.150390
-## 5:    177.8421     5.180803         177.8256     177.8421      5.180803
-## 6:    173.3129     5.155058         173.3059     173.3129      5.155058
+## 1:    176.3709     5.172571         176.3677     176.3709      5.172571
+## 2:    173.3735     5.155378         173.3613     173.3735      5.155378
+## 3:    175.6617     5.168528         175.6560     175.6617      5.168528
+## 4:    172.8983     5.152634         172.8863     172.8983      5.152634
+## 5:    177.4689     5.178703         177.4525     177.4689      5.178703
+## 6:    173.5868     5.156636         173.5795     173.5868      5.156636
 ##    response.exp.Ybma
-## 1:          176.5580
-## 2:          173.0518
-## 3:          175.7271
-## 4:          172.4988
-## 5:          177.8256
-## 6:          173.3059&lt;/code&gt;&lt;/pre&gt;
+## 1:          176.3677
+## 2:          173.3613
+## 3:          175.6560
+## 4:          172.8863
+## 5:          177.4525
+## 6:          173.5795&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;div id=&#34;result-2&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Result 2&lt;/h3&gt;
 &lt;p&gt;&lt;span class=&#34;math inline&#34;&gt;\(fit\)&lt;/span&gt; is indeed the predictions averaged on the response scale and not &lt;span class=&#34;math inline&#34;&gt;\(exp(Ybma)\)&lt;/span&gt;&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;head(bas.res2)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##       yhat0    yhat1    yhat2
-## 1: 176.5610 176.5610 176.5580
-## 2: 173.0640 173.0640 173.0518
-## 3: 175.7336 175.7336 175.7271
-## 4: 172.5097 172.5097 172.4988
-## 5: 177.8421 177.8421 177.8256
-## 6: 173.3129 173.3129 173.3059&lt;/code&gt;&lt;/pre&gt;
+## 1: 176.3709 176.3709 176.3677
+## 2: 173.3735 173.3735 173.3613
+## 3: 175.6617 175.6617 175.6560
+## 4: 172.8983 172.8983 172.8863
+## 5: 177.4689 177.4689 177.4525
+## 6: 173.5868 173.5868 173.5795&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Key:&lt;/p&gt;
 &lt;p&gt;yhat0 - “fit”, which is the prediction on the response scale&lt;/p&gt;
 &lt;p&gt;yhat1 - my manual computation of the average on the response scale&lt;/p&gt;
@@ -2697,12 +2697,12 @@ yhat0.link_scale &amp;lt;- predict(fit.avg, backtransform=FALSE)
 yhat0.response_scale2 &amp;lt;- expit(yhat0.link_scale) 
 head(data.table(yhat0.response_scale, yhat0.response_scale2)) # these should be equal&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##    yhat0.response_scale yhat0.response_scale2
-## 1:            0.1958144             0.1958144
-## 2:            0.6747000             0.6747000
-## 3:            0.2327797             0.2327797
-## 4:            0.2047924             0.2047924
-## 5:            0.5043722             0.5043722
-## 6:            0.8114121             0.8114121&lt;/code&gt;&lt;/pre&gt;
+## 1:           0.82209888            0.82209888
+## 2:           0.09576469            0.09576469
+## 3:           0.15603027            0.15603027
+## 4:           0.21352485            0.21352485
+## 5:           0.94455256            0.94455256
+## 6:           0.03910189            0.03910189&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;yhat0 &amp;lt;- yhat0.response_scale # predictions using MuMIn package
 
 
@@ -2736,13 +2736,13 @@ MSE3 &amp;lt;- sqrt(mean((yhat3-dt[, y])^2))
 
 # Predicted values computed 4 different ways
 head(data.table(yhat0=yhat0, yhat1=yhat1[,1], yhat2=yhat2[,1], yhat3=yhat3[,1]))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;##        yhat0     yhat1     yhat2     yhat3
-## 1: 0.1958144 0.1958144 0.1958144 0.1966351
-## 2: 0.6747000 0.6747000 0.6747000 0.6729130
-## 3: 0.2327797 0.2327797 0.2327797 0.2334907
-## 4: 0.2047924 0.2047924 0.2047924 0.2088204
-## 5: 0.5043722 0.5043722 0.5043722 0.5043093
-## 6: 0.8114121 0.8114121 0.8114121 0.8105789&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##         yhat0      yhat1      yhat2      yhat3
+## 1: 0.82209888 0.82209888 0.82209888 0.82180883
+## 2: 0.09576469 0.09576469 0.09576469 0.09988705
+## 3: 0.15603027 0.15603027 0.15603027 0.15789741
+## 4: 0.21352485 0.21352485 0.21352485 0.21359496
+## 5: 0.94455256 0.94455256 0.94455256 0.94445906
+## 6: 0.03910189 0.03910189 0.03910189 0.03985895&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;#yhat0 = MuMIn model averaged predictions (correct method)
 #yhat1 = RHS of equation s2 in appendix (correct method)
 #yhat2 = Corrected LHS of s2 in appendix (correct method)

@@ -31,9 +31,9 @@
 
     
     <meta name="description" content="This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.007478 var(g2) # E(VAR(g2)) = 1 ## [1] 1.004495 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
     <meta property="og:description" content="This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.007478 var(g2) # E(VAR(g2)) = 1 ## [1] 1.004495 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
     <meta property="og:type" content="blog">
     <meta property="og:title" content="Expected covariances in a causal network">
     <meta property="og:url" content="/2019/01/expected-covariances-in-a-causal-network/">
@@ -41,7 +41,7 @@ Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause o
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="R Doodles">
     <meta name="twitter:description" content="This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 0.997149 var(g2) # E(VAR(g2)) = 1 ## [1] 0.9972956 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.007478 var(g2) # E(VAR(g2)) = 1 ## [1] 1.004495 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
     
       <meta name="twitter:creator" content="@jwalkrunski">
     
@@ -298,11 +298,11 @@ r12 &lt;- b1*b2
 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n)
 g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n)
 var(g1) # E(VAR(g1)) = 1</code></pre>
-<pre><code>## [1] 0.997149</code></pre>
+<pre><code>## [1] 1.007478</code></pre>
 <pre class="r"><code>var(g2) # E(VAR(g2)) = 1</code></pre>
-<pre><code>## [1] 0.9972956</code></pre>
+<pre><code>## [1] 1.004495</code></pre>
 <pre class="r"><code>cor(g1, g2) # E(COR(g1,g2)) = b1*b2</code></pre>
-<pre><code>## [1] 0.4881183</code></pre>
+<pre><code>## [1] 0.4940367</code></pre>
 <pre class="r"><code>b1*b2</code></pre>
 <pre><code>## [1] 0.49</code></pre>
 <pre class="r"><code># effects of g1 and g2 on y1 and y2
@@ -315,11 +315,11 @@ r2.2 &lt;- a12^2 + a22^2 + 2*a12*a22*b1*b2 # systematic variance of y1
 y1 &lt;- a11*g1 + a21*g2 + sqrt(1-r2.1)*rnorm(n)
 y2 &lt;- a12*g1 + a22*g2 + sqrt(1-r2.2)*rnorm(n)
 var(y1) # E() = 1</code></pre>
-<pre><code>## [1] 0.9963031</code></pre>
+<pre><code>## [1] 1.010452</code></pre>
 <pre class="r"><code>var(y2) # E() = 1</code></pre>
-<pre><code>## [1] 0.994697</code></pre>
+<pre><code>## [1] 1.008915</code></pre>
 <pre class="r"><code>cor(y1, y2) # E() = a11*a12 + a21*a22 + a11*r12*a22 + a21*r12*a12</code></pre>
-<pre><code>## [1] 0.7454303</code></pre>
+<pre><code>## [1] 0.7475318</code></pre>
 <pre class="r"><code>a11*a12 + a21*a22 + a11*r12*a22 + a21*r12*a12 # sum of all paths</code></pre>
 <pre><code>## [1] 0.745</code></pre>
 </div>
@@ -348,15 +348,15 @@ sigma_g2 &lt;- sqrt(sigma.sq_g2)
 g1 &lt;- b1*z + sqrt(sigma.sq_g1 - sigma.sq_g1.sys)*rnorm(n)
 g2 &lt;- b2*z + sqrt(sigma.sq_g2 - sigma.sq_g2.sys)*rnorm(n)
 var(g1) # E(VAR(g1)) = sigma.sq_g1</code></pre>
-<pre><code>## [1] 6.400034</code></pre>
+<pre><code>## [1] 6.403093</code></pre>
 <pre class="r"><code>var(g2) # E(VAR(g2)) = sigma.sq_g2</code></pre>
-<pre><code>## [1] 6.403562</code></pre>
+<pre><code>## [1] 6.410138</code></pre>
 <pre class="r"><code>sigma.sq_g1</code></pre>
 <pre><code>## [1] 6.4</code></pre>
 <pre class="r"><code>sigma.sq_g2</code></pre>
 <pre><code>## [1] 6.4</code></pre>
 <pre class="r"><code>cov(g1,g2) # E() = b1*b2*sigma_z^2</code></pre>
-<pre><code>## [1] 5.759874</code></pre>
+<pre><code>## [1] 5.767158</code></pre>
 <pre class="r"><code>s12 # b1*b2*sigma_z^2</code></pre>
 <pre><code>## [1] 5.76</code></pre>
 <pre class="r"><code># effects of g1 and g2 on y1 and y2
@@ -375,9 +375,9 @@ sigma_y2 &lt;- sqrt(sigma.sq_y2)
 y1 &lt;- a11*g1 + a21*g2 + sqrt(sigma.sq_y1 - sigma.sq_y1.sys)*rnorm(n)
 y2 &lt;- a12*g1 + a22*g2 + sqrt(sigma.sq_y2 - sigma.sq_y2.sys)*rnorm(n)
 var(y1) # E() = sigma.sq_y1</code></pre>
-<pre><code>## [1] 137.5161</code></pre>
+<pre><code>## [1] 137.7647</code></pre>
 <pre class="r"><code>var(y2) # E() = sigma.sq_y1</code></pre>
-<pre><code>## [1] 60.87395</code></pre>
+<pre><code>## [1] 60.8176</code></pre>
 <pre class="r"><code>sigma.sq_y1</code></pre>
 <pre><code>## [1] 137.6</code></pre>
 <pre class="r"><code>sigma.sq_y2</code></pre>
@@ -390,10 +390,10 @@ r12 &lt;- s12/sigma_g1/sigma_g2
 r12 # expected correlation between g1 and g2</code></pre>
 <pre><code>## [1] 0.9</code></pre>
 <pre class="r"><code>cor(g1, g2) # actual correlation between g1 and g2</code></pre>
-<pre><code>## [1] 0.8997275</code></pre>
+<pre><code>## [1] 0.900188</code></pre>
 <pre class="r"><code># covariance y1 and y2
 cov(y1, y2) #</code></pre>
-<pre><code>## [1] 82.10576</code></pre>
+<pre><code>## [1] 82.16849</code></pre>
 <pre class="r"><code>(a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s)*sigma_y1*sigma_y2 # expected cov(y1, y2)</code></pre>
 <pre><code>## [1] 82.08</code></pre>
 <pre class="r"><code># more compact and not using the standardized parameters
@@ -402,24 +402,24 @@ a11*a12*sigma.sq_g1 + a21*a22*sigma.sq_g2 + a11*s12*a22 + a21*s12*a12</code></pr
 <pre><code>## [1] 82.08</code></pre>
 <pre class="r"><code># correlation y1 and y2
 cor(y1, y2)</code></pre>
-<pre><code>## [1] 0.8973897</code></pre>
+<pre><code>## [1] 0.8976801</code></pre>
 <pre class="r"><code>a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s</code></pre>
 <pre><code>## [1] 0.8973799</code></pre>
 </div>
 <div id="expected-value-of-b-with-missing-covariate" class="section level2">
 <h2>Expected value of b with missing covariate</h2>
 <pre class="r"><code>coef(summary(lm(y1 ~ g1 + g2)))</code></pre>
-<pre><code>##                Estimate  Std. Error    t value   Pr(&gt;|t|)
-## (Intercept) 0.006165963 0.003710027   1.661972 0.09651863
-## g1          1.503519031 0.003360074 447.466106 0.00000000
-## g2          2.994464649 0.003359148 891.435776 0.00000000</code></pre>
+<pre><code>##                 Estimate  Std. Error    t value  Pr(&gt;|t|)
+## (Intercept) -0.003236911 0.003706074  -0.873407 0.3824415
+## g1           1.505002692 0.003363021 447.515059 0.0000000
+## g2           2.995658785 0.003361173 891.254067 0.0000000</code></pre>
 <pre class="r"><code>coef(summary(lm(y1 ~ g1)))</code></pre>
-<pre><code>##                Estimate  Std. Error      t value  Pr(&gt;|t|)
-## (Intercept) 0.004241297 0.004970132    0.8533571 0.3934615
-## g1          4.198463665 0.001964609 2137.0475423 0.0000000</code></pre>
+<pre><code>##                 Estimate  Std. Error      t value  Pr(&gt;|t|)
+## (Intercept) -0.004949166 0.004964388   -0.9969338 0.3187969
+## g1           4.203142030 0.001961873 2142.4126174 0.0000000</code></pre>
 <pre class="r"><code># expected = direct + cor*indirect using cor
 a11 + cor(g1,g2)*a21</code></pre>
-<pre><code>## [1] 4.199183</code></pre>
+<pre><code>## [1] 4.200564</code></pre>
 <pre class="r"><code># expected = direct + cor*indirect, using cov as model param
 a11 + (s12/sigma_g1/sigma_g2)*a21</code></pre>
 <pre><code>## [1] 4.2</code></pre>
