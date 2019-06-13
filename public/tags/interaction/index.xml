@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Mon, 15 Oct 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/interaction/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/tags/interaction/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -17,8 +17,68 @@
       <pubDate>Mon, 15 Oct 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/10/interaction-plots-with-ggplot2/</guid>
-      <description>ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.
-The gg_interaction function returns a ggplot of the modeled means and standard errors and not the raw means and standard errors computed from each group independently.</description>
+      <description>
+
+
+&lt;p&gt;ggpubr is a fantastic resource for teaching applied biostats because it makes ggplot a bit easier for students. I’m not super familiar with all that ggpubr can do, but I’m not sure it includes a good “interaction plot” function. Maybe I’m wrong. But if I’m not, here is a simple function to create a gg_interaction plot.&lt;/p&gt;
+&lt;p&gt;The gg_interaction function returns a ggplot of the &lt;em&gt;modeled&lt;/em&gt; means and standard errors and not the raw means and standard errors computed from each group independently. The modeled means and errors are computed using the emmeans function from the emmeans package. If a random term is passed, gg_interaction uses the function lmer, from the package lme4, to fit a linear mixed model with the random term as a random intercept.&lt;/p&gt;
+&lt;p&gt;(requires ggplot2, data.table, and emmeans)&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;gg_interaction &amp;lt;- function(x, y, random=NULL, data){
+  # x is a vector of the column labels of categorical variables
+  # y is the response column
+  # random is a column name of a blocking factor
+  # data is a data.frame or data.table
+  dt &amp;lt;- data.table(data)
+  fixed_part &amp;lt;- paste(y, &amp;quot;~&amp;quot;, paste(x[1], x[2], sep=&amp;quot;*&amp;quot;))
+  if(is.null(random)){ # linear model
+    lm_formula &amp;lt;- formula(fixed_part)
+    fit &amp;lt;- lm(lm_formula, data=dt)
+  }else{ ## linear mixed model
+    random_part &amp;lt;- paste(&amp;quot;(1|&amp;quot;, random, &amp;quot;)&amp;quot;, sep=&amp;quot;&amp;quot;)
+    lmm_formula &amp;lt;- formula(paste(fixed_part, random_part, sep=&amp;quot; + &amp;quot;))
+    fit &amp;lt;- lmer(lmm_formula, data=dt)
+  }
+  fit.emm &amp;lt;- data.table(summary(emmeans(fit, specs=x)))
+  new_names &amp;lt;- c(&amp;quot;f1&amp;quot;, &amp;quot;f2&amp;quot;)
+  setnames(fit.emm, old=x, new=new_names)
+  pd &amp;lt;- position_dodge(.3)
+  gg &amp;lt;- ggplot(data=fit.emm, aes(x=f1, y=emmean, shape=f2, group=f2)) +
+    #geom_jitter(position=pd, color=&amp;#39;gray&amp;#39;, size=2) +
+    geom_point(color=&amp;#39;black&amp;#39;, size=4, position=pd) +
+    geom_errorbar(aes(ymin=(emmean-SE), ymax=(emmean+SE)), 
+                  color=&amp;#39;black&amp;#39;, width=.2, position=pd) +
+    geom_line(position=pd) +
+    xlab(x[1]) +
+    ylab(y) +
+    theme_bw() +
+    guides(shape=guide_legend(title=x[2])) +
+    theme(axis.title=element_text(size = rel(1.5)),
+          axis.text=element_text(size = rel(1.5)),
+          legend.title=element_text(size = rel(1.3)),
+          legend.text=element_text(size = rel(1.3))) +
+    NULL
+  return(gg)
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I use data from a study of the synergistic effect of UVB and temperature on infection intensity (citations below) to show how to use the function. The data are from a 2 x 2 factorial experiment and with a single blocking (random) factor “tank”.&lt;/p&gt;
+&lt;p&gt;Dryad source: Cramp RL, Reid S, Seebacher F, Franklin CE (2014) Data from: Synergistic interaction between UVB radiation and temperature increases susceptibility to parasitic infection in a fish. Dryad Digital Repository. &lt;a href=&#34;https://doi.org/10.5061/dryad.74b31&#34; class=&#34;uri&#34;&gt;https://doi.org/10.5061/dryad.74b31&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Article Source: Cramp RL, Reid S, Seebacher F, Franklin CE (2014) Synergistic interaction between UVB radiation and temperature increases susceptibility to parasitic infection in a fish. Biology Letters 10(9): 20140449. &lt;a href=&#34;https://doi.org/10.1098/rsbl.2014.0449&#34; class=&#34;uri&#34;&gt;https://doi.org/10.1098/rsbl.2014.0449&lt;/a&gt;&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(ggplot2)
+library(readxl)
+library(data.table)
+library(lme4)
+library(emmeans)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data_path &amp;lt;- &amp;quot;../data&amp;quot;
+folder &amp;lt;- &amp;quot;Data from Synergistic interaction between UVB radiation and temperature increases susceptibility to parasitic infection in a fish&amp;quot;
+filename &amp;lt;- &amp;quot;Cramp et al raw data.xlsx&amp;quot;
+file_path &amp;lt;- paste(data_path, folder, filename, sep=&amp;quot;/&amp;quot;)
+fish &amp;lt;- data.table(read_excel(file_path, sheet=&amp;quot;Infection Intensity&amp;quot;))
+setnames(fish, old=colnames(fish), new=c(&amp;quot;UV&amp;quot;, &amp;quot;Temp&amp;quot;, &amp;quot;Tank&amp;quot;, &amp;quot;Whitespots&amp;quot;))
+fish[, UV:=factor(UV, c(&amp;quot;Low&amp;quot;, &amp;quot;High&amp;quot;))]
+fish[, Temp:=factor(Temp)]
+gg &amp;lt;- gg_interaction(x=c(&amp;quot;UV&amp;quot;, &amp;quot;Temp&amp;quot;), y=&amp;quot;Whitespots&amp;quot;, random=&amp;quot;Tank&amp;quot;, data=fish)
+gg&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-10-15-interaction-plots-with-ggplot2_files/figure-html/gg_interaction-example-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+</description>
     </item>
     
   </channel>

@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Mon, 03 Jun 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/linear-mixed-model/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/tags/linear-mixed-model/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -17,10 +17,127 @@
       <pubDate>Mon, 03 Jun 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/06/reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/</guid>
-      <description>A very skeletal analysis of
-Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
-which got some attention on pubpeer.
-Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.</description>
+      <description>
+
+
+&lt;p&gt;A very skeletal analysis of&lt;/p&gt;
+&lt;p&gt;Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://pubpeer.com/publications/B521D325772244D8F656F1ED193ACA#&#34;&gt;which got some attention on pubpeer&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented. A much better plot for inferring differences is an effects plot with the CI of the effect. That said, I’ll try to reproduce the resulting p-value.&lt;/p&gt;
+&lt;div id=&#34;caveats&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Caveats&lt;/h1&gt;
+&lt;p&gt;Failure to reproduce or partial reproducibility might be an error in my coding, or my misunderstanding of the author’s methods, or my lack of knowledge of statistics generally or the R functions that I use more specifically.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(ggplot2)
+library(lmerTest)
+library(emmeans)
+library(lmtest)
+library(data.table)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data_path &amp;lt;- &amp;quot;../data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&amp;quot;
+#data_path &amp;lt;- &amp;quot;data/Data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice/Fig1&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;fn &amp;lt;- &amp;quot;Fig1EFGH_subset8.csv&amp;quot;
+file_path &amp;lt;- paste(data_path, fn, sep=&amp;quot;/&amp;quot;)
+mouse &amp;lt;- fread(file_path)
+mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c(&amp;quot;NT&amp;quot;, &amp;quot;ASD&amp;quot;))]&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;figure-1g&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Figure 1G&lt;/h1&gt;
+&lt;div id=&#34;estimate-of-marginal-means-and-cohens-d&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Estimate of marginal means and Cohen’s d&lt;/h2&gt;
+&lt;p&gt;One could reasonably estimate Cohen’s d several ways given the 2 x 2 design. Here are two&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;m1 &amp;lt;- lmer(OFT_Distance ~ ASD_diagnosis + (1|Donor), data=mouse)
+(m1.emm &amp;lt;- emmeans(m1, specs=c(&amp;quot;ASD_diagnosis&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##  ASD_diagnosis emmean  SE   df lower.CL upper.CL
+##  NT              4600 262 5.70     3951     5249
+##  ASD             4235 206 6.08     3731     4738
+## 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;m2 &amp;lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), data=mouse)
+(m2.emm &amp;lt;- emmeans(m2, specs=c(&amp;quot;ASD_diagnosis&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##  ASD_diagnosis emmean  SE   df lower.CL upper.CL
+##  NT              4603 259 5.68     3960     5246
+##  ASD             4233 204 6.07     3735     4731
+## 
+## Results are averaged over the levels of: Gender 
+## Degrees-of-freedom method: kenward-roger 
+## Confidence level used: 0.95&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and effect, standardized to cohen’s D using residual standard deviation from model: (NT - ASD)/sigma&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;coef(summary(m1))[&amp;quot;ASD_diagnosisASD&amp;quot;, &amp;quot;Estimate&amp;quot;]/sigma(m1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] -0.3928202&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;summary(contrast(m2.emm, method=&amp;quot;revpairwise&amp;quot;))[1, &amp;quot;estimate&amp;quot;]/sigma(m2)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] -0.3970379&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The reported cohen’s D for the distance traveled is doTD-oASD = -0.58&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;fig-1g-p-value&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Fig 1G p-value&lt;/h2&gt;
+&lt;div id=&#34;method-no.-1-as-stated-in-caption-to-fig-1&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Method no. 1 (as stated in caption to Fig 1)&lt;/h3&gt;
+&lt;p&gt;The figure caption gives the method as “Hypothesis testing for differences of the means were done by a mixed effects analysis using donor diagnosis and mouse sex as fixed effects and donor ID as a random effect. p values were derived from a chi-square test”. This would be a Likelihood Ratio Test (LRT). The LRT requires that the model be fit by maximum likelhood for the statistic to have any meaning. The default fit in R is REML.&lt;/p&gt;
+&lt;p&gt;The LRT of the model as specified in the caption of Fig1G&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# correct LRT
+m1 &amp;lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), REML=FALSE, data=mouse)
+m2 &amp;lt;- lmer(OFT_Distance ~ Gender + (1|Donor), REML=FALSE, data=mouse)
+lrtest(m2, m1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Likelihood ratio test
+## 
+## Model 1: OFT_Distance ~ Gender + (1 | Donor)
+## Model 2: OFT_Distance ~ Gender + ASD_diagnosis + (1 | Donor)
+##   #Df  LogLik Df  Chisq Pr(&amp;gt;Chisq)
+## 1   4 -1706.7                     
+## 2   5 -1706.0  1 1.4994     0.2208&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The p-value is .2208&lt;/p&gt;
+&lt;p&gt;The LRT of the model as specified but using the default lmer settings, which is fit by REML, which results in a meaningless chisq statistic&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;m1 &amp;lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), data=mouse)
+m2 &amp;lt;- lmer(OFT_Distance ~ Gender + (1|Donor), data=mouse)
+lrtest(m2, m1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Likelihood ratio test
+## 
+## Model 1: OFT_Distance ~ Gender + (1 | Donor)
+## Model 2: OFT_Distance ~ Gender + ASD_diagnosis + (1 | Donor)
+##   #Df  LogLik Df  Chisq Pr(&amp;gt;Chisq)    
+## 1   4 -1695.0                         
+## 2   5 -1687.6  1 14.692  0.0001266 ***
+## ---
+## Signif. codes:  0 &amp;#39;***&amp;#39; 0.001 &amp;#39;**&amp;#39; 0.01 &amp;#39;*&amp;#39; 0.05 &amp;#39;.&amp;#39; 0.1 &amp;#39; &amp;#39; 1&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;the p-value is 0.00013. Is this the reported p-value? I don’t know. A problem is that the methods section suggests a different model was used. This leads to:&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;method-no.-2-as-stated-in-methods-section&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;method no. 2 (as stated in methods section)&lt;/h2&gt;
+&lt;p&gt;“Statistical analysis for behavioral outcomes in fecal transplanted offspring. Comparison of behavioral outcomes between TD Controls and ASD donors were tested using longitudinal linear mixed effects analyses, with test cycles and donors treated as repeated factors. Analyses were performed in SPSS (v 24); a priori alpha = 0.05. All outcomes were tested for normality and transformed as required. Diagonal covariance matrices were used so that intra-cycle and intra-donor correlations were accounted for in the modeling. The donor type (TD versus ASD) was the primary fixed effect measured, and mouse sex was an a priori covariate.”&lt;/p&gt;
+&lt;p&gt;(I think) it would be unlikely to get the wrong LRT using SPSS. Also the specified model differs from that in the caption. Was the response transformed (note it’s not the reponse that needs to be “normal” but the residuals from the linear model (or equivalently the conditional response))&lt;/p&gt;
+&lt;p&gt;correct LRT&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# correct LRT
+m1 &amp;lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Cycle) + (1|Donor), REML=FALSE, data=mouse)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## boundary (singular) fit: see ?isSingular&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;m2 &amp;lt;- lmer(OFT_Distance ~ Gender + (1|Cycle) + (1|Donor), REML=FALSE, data=mouse)
+lrtest(m2, m1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Likelihood ratio test
+## 
+## Model 1: OFT_Distance ~ Gender + (1 | Cycle) + (1 | Donor)
+## Model 2: OFT_Distance ~ Gender + ASD_diagnosis + (1 | Cycle) + (1 | Donor)
+##   #Df  LogLik Df  Chisq Pr(&amp;gt;Chisq)
+## 1   5 -1706.7                     
+## 2   6 -1706.0  1 1.4974     0.2211&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Hmm. Need to explore the error.&lt;/p&gt;
+&lt;p&gt;incorrect LRT&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# correct LRT
+m1 &amp;lt;- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Cycle) + (1|Donor), data=mouse)
+m2 &amp;lt;- lmer(OFT_Distance ~ Gender + (1|Cycle) + (1|Donor), data=mouse)
+lrtest(m2, m1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Likelihood ratio test
+## 
+## Model 1: OFT_Distance ~ Gender + (1 | Cycle) + (1 | Donor)
+## Model 2: OFT_Distance ~ Gender + ASD_diagnosis + (1 | Cycle) + (1 | Donor)
+##   #Df  LogLik Df  Chisq Pr(&amp;gt;Chisq)    
+## 1   5 -1694.9                         
+## 2   6 -1687.6  1 14.663  0.0001286 ***
+## ---
+## Signif. codes:  0 &amp;#39;***&amp;#39; 0.001 &amp;#39;**&amp;#39; 0.01 &amp;#39;*&amp;#39; 0.05 &amp;#39;.&amp;#39; 0.1 &amp;#39; &amp;#39; 1&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Basically the same results&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
     </item>
     
   </channel>

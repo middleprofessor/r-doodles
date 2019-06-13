@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Thu, 30 May 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/non-parametric/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/tags/non-parametric/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -17,7 +17,363 @@
       <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/</guid>
-      <description>Update to the earlier post, which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough – or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R.</description>
+      <description>
+
+
+&lt;p&gt;&lt;a href=&#34;../../../2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/&#34;&gt;Update to the earlier post&lt;/a&gt;, which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough – or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R. “For testing the significance of regression coefficients, go ahead and log‐transform count data.” Methods in Ecology and Evolution 6, no. 7 (2015): 828-835) or &lt;a href=&#34;Warton,%20D.I.,%20Lyons,%20M.,%20Stoklosa,%20J.%20and%20Ives,%20A.R.,%202016.%20Three%20points%20to%20consider%20when%20choosing%20a%20LM%20or%20GLM%20test%20for%20count%20data.%20Methods%20in%20Ecology%20and%20Evolution,%207(8),%20pp.882-890&#34;&gt;Warton et al.&lt;/a&gt;. With hindsight, I do vaguely recall Ives, and my previous results support his conclusions, but I was unaware of Warton.&lt;/p&gt;
+&lt;p&gt;Warton et al is a fabulous paper. A must read. A question that I have is, &lt;em&gt;under the null&lt;/em&gt; isn’t the response itself exchangeable, so that residuals are unnecessary? Regardless, the implementation in the mvabund package is way faster than my own R-scripted permutation. So here is my earlier simulation in light of Warton et al.&lt;/p&gt;
+&lt;p&gt;TL;DR – If we live and die by NHST, then we want to choose a test with good Type I error control but has high power. The quasi-poisson both estimates an interpretable effect (unlike a t-test of log(y +1)) and has good Type I control with high power.&lt;/p&gt;
+&lt;p&gt;A bit longer: The quasi-poisson LRT and the permutation NB have good Type I control and high power. The NB Wald and LRT have too liberal Type I control. The t-test of log response has good Type I control and high power at low &lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt; but is slightly inferior to the glm with increased &lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt;. The t-test, Welch, and Wilcoxan have conservative Type I control. Of these, the Wilcoxan has higher power than the t-test and Welch but not as high as the GLMs or log-transformed response.&lt;/p&gt;
+&lt;div id=&#34;load-libraries&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;load libraries&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(ggplot2)
+library(ggpubr)
+library(MASS)
+library(mvabund)
+library(lmtest)
+library(nlme)
+library(data.table)
+library(cowplot)&lt;/code&gt;&lt;/pre&gt;
+&lt;div id=&#34;the-simulation&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;The simulation&lt;/h2&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;Single factor with two levels and a count (negative binomial) response.&lt;/li&gt;
+&lt;li&gt;Relative effect sizes of 0%, 100%, and 200%&lt;/li&gt;
+&lt;li&gt;Ref count of 4&lt;/li&gt;
+&lt;li&gt;&lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt; of 5 and 10&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;em&gt;p&lt;/em&gt;-values computed from&lt;/p&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;t-test on raw response&lt;/li&gt;
+&lt;li&gt;Welch t-test on raw response&lt;/li&gt;
+&lt;li&gt;t-test on log transformed response&lt;/li&gt;
+&lt;li&gt;Wilcoxan test&lt;/li&gt;
+&lt;li&gt;glm with negative binomial family and log-link using Wald test&lt;/li&gt;
+&lt;li&gt;glm with negative binomial family and log-link using LRT&lt;/li&gt;
+&lt;li&gt;glm with negative binomial family and permutation test (using PIT residuals)&lt;a href=&#34;#fn1&#34; class=&#34;footnoteRef&#34; id=&#34;fnref1&#34;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;glm with quasi-poisson family and log-link using LRT&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;do_sim &amp;lt;- function(sim_space=NULL, niter=1000, nperm=1000, algebra=FALSE){
+  # the function was run with n=1000 and the data saved. on subsequent runs
+  # the data are loaded from a file
+  # the function creates three different objects to return, the object
+  # return is specified by &amp;quot;return_object&amp;quot; = NULL, plot_data1, plot_data2
+  
+  set.seed(1)
+  
+  methods &amp;lt;- c(&amp;quot;t&amp;quot;, &amp;quot;Welch&amp;quot;, &amp;quot;log&amp;quot;, &amp;quot;Wilcoxan&amp;quot;, &amp;quot;nb&amp;quot;, &amp;quot;nb.x2&amp;quot;, &amp;quot;nb.perm&amp;quot;, &amp;quot;qp&amp;quot;)
+  p_table &amp;lt;- data.table(NULL)
+  
+  if(is.null(sim_space)){
+    mu_0_list &amp;lt;- c(4) # control count
+    theta_list &amp;lt;- c(0.5) # dispersion
+    effect_list &amp;lt;- c(1) # effect size will be 1X, 1.5X, 2X, 3X
+    n_list &amp;lt;- c(10) # sample size
+    sim_space &amp;lt;- data.table(expand.grid(theta=theta_list, mu_0=mu_0_list, effect=effect_list, n=n_list))
+  }
+  
+  res_table &amp;lt;- data.table(NULL)
+  i &amp;lt;- 1 # this is just for debugging
+  for(i in 1:nrow(sim_space)){
+    # construct clean results table 
+    p_table_part &amp;lt;- matrix(NA, nrow=niter, ncol=length(methods))
+    colnames(p_table_part) &amp;lt;- methods
+    
+    # parameters of simulation
+    theta_i &amp;lt;- sim_space[i, theta]
+    mu_0_i &amp;lt;- sim_space[i, mu_0]
+    effect_i &amp;lt;- sim_space[i, effect]
+    n_i &amp;lt;- sim_space[i, n]
+    treatment &amp;lt;- rep(c(&amp;quot;Cn&amp;quot;, &amp;quot;Trt&amp;quot;), each=n_i)
+    fd &amp;lt;- data.table(treatment=treatment)
+    
+    # mu (using algebra)
+    if(algebra==TRUE){
+      X &amp;lt;- model.matrix(~treatment)
+      beta_0 &amp;lt;- log(mu_0_i)
+      beta_1 &amp;lt;- log(effect_i*mu_0_i) - beta_0
+      beta &amp;lt;- c(beta_0, beta_1)
+      mu_i &amp;lt;- exp((X%*%beta)[,1])
+    }else{ #  using R
+      mu_vec &amp;lt;- c(mu_0_i, mu_0_i*effect_i)
+      mu_i &amp;lt;- rep(mu_vec, each=n_i)
+    }
+    nb.error &amp;lt;- numeric(niter)
+    
+    for(iter in 1:niter){
+      set.seed(niter*(i-1) + iter)
+      fd[, y:=rnegbin(n=n_i*2, mu=mu_i, theta=theta_i)]
+      fd[, log_yp1:=log10(y+1)]
+      
+      p.t &amp;lt;- t.test(y~treatment, data=fd, var.equal=TRUE)$p.value
+      p.welch &amp;lt;- t.test(y~treatment, data=fd, var.equal=FALSE)$p.value
+      p.log &amp;lt;- t.test(log_yp1~treatment, data=fd, var.equal=TRUE)$p.value
+      p.wilcox &amp;lt;- wilcox.test(y~treatment, data=fd, exact=FALSE)$p.value
+      
+      # weighted lm, this will be ~same as welch for k=2 groups
+      # fit &amp;lt;- gls(y~treatment, data=fd, weights = varIdent(form=~1|treatment), method=&amp;quot;ML&amp;quot;)
+      # p.wls &amp;lt;- coef(summary(fit))[&amp;quot;treatmentTrt&amp;quot;, &amp;quot;p-value&amp;quot;]
+      
+      # negative binomial
+      # default test using summary is Wald.
+      # anova(fit) uses chisq of sequential fit, but using same estimate of theta
+      # anova(fit2, fit1), uses chisq but with different estimate of theta
+      # lrtest(fit) same as anova(fit2, fit1)
+      
+      # m1 &amp;lt;- glm.nb(y~treatment, data=fd)
+      # m0 &amp;lt;- glm.nb(y~1, data=fd)
+      # p.nb.x2 &amp;lt;- anova(m0, m1)[2, &amp;quot;Pr(Chi)&amp;quot;]
+      # lr &amp;lt;- 2*(logLik(m1) - logLik(m0))
+      # df.x2 = m0$df.residual-m1$df.residual
+      # p.nb.x2 &amp;lt;- pchisq(lr, df=df.x2, lower.tail = F)
+                
+      m1 &amp;lt;- manyglm(y~treatment, data=fd) # default theta estimation &amp;quot;PHI&amp;quot;
+      m0 &amp;lt;- manyglm(y~1, data=fd)
+      lr &amp;lt;- 2*(logLik(m1) - logLik(m0))
+      df.x2 = m0$df.residual-m1$df.residual
+      p.nb &amp;lt;- coef(summary(m1))[&amp;quot;treatmentTrt&amp;quot;, &amp;quot;Pr(&amp;gt;wald)&amp;quot;] # Wald
+      p.nb.x2 &amp;lt;- as.numeric(pchisq(lr, df=df.x2, lower.tail = F))
+      p.nb.perm &amp;lt;- (anova(m0, m1, nBoot=nperm, show.time=&amp;#39;none&amp;#39;, p.uni=&amp;quot;unadjusted&amp;quot;)$uni.p)[2,1]
+
+      # p.nb.x2 &amp;lt;- lrtest(fit)[2, &amp;quot;Pr(&amp;gt;Chisq)&amp;quot;] # doesn&amp;#39;t work with a data.table
+      
+      # quasipoisson
+      fit &amp;lt;- glm(y~treatment, data=fd, family=quasipoisson)
+      p.qp &amp;lt;- coeftest(fit)[2, &amp;quot;Pr(&amp;gt;|z|)&amp;quot;]
+      
+      p_table_part[iter,] &amp;lt;- c(p.t, p.welch, p.log, p.wilcox, p.nb, p.nb.x2, p.nb.perm, p.qp)
+      
+    } # niter
+    p_table &amp;lt;- rbind(p_table, data.table(combo=i,
+                                         mu_0=mu_0_i,
+                                         effect=effect_i,
+                                         n=n_i,
+                                         theta=theta_i,
+                                         nb.error=nb.error,
+                                         p_table_part))
+    
+  } # combos
+  
+  return(p_table)
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Algebra is slower (duh!)
+# start_time &amp;lt;- Sys.time()
+# do_sim(niter=niter, algebra=FALSE)
+# end_time &amp;lt;- Sys.time()
+# end_time - start_time
+# 
+# start_time &amp;lt;- Sys.time()
+# do_sim(niter=niter, algebra=TRUE)
+# end_time &amp;lt;- Sys.time()
+# end_time - start_time
+
+n_iter &amp;lt;- 2000
+n_perm &amp;lt;- 2000
+mu_0_list &amp;lt;- c(4) # control count
+theta_list &amp;lt;- c(0.5) # dispersion
+effect_list &amp;lt;- c(1, 2, 4) # effect size will be 1X, 1.5X, 2X, 3X
+n_list &amp;lt;- c(5, 10) # sample size
+sim_space &amp;lt;- data.table(expand.grid(theta=theta_list, mu_0=mu_0_list, effect=effect_list, n=n_list))
+
+do_it &amp;lt;- FALSE # if FALSE the results are available as a file
+if(do_it==TRUE){
+  p_table &amp;lt;- do_sim(sim_space, niter=n_iter, nperm=n_perm)
+  write.table(p_table, &amp;quot;../output/glm-v-lm.0004.txt&amp;quot;, row.names = FALSE, quote=FALSE)
+}else{
+  p_table &amp;lt;- fread(&amp;quot;../output/glm-v-lm.0001.txt&amp;quot;)
+  p_table[, combo:=paste(effect, n, sep=&amp;quot;-&amp;quot;)]
+  ycols &amp;lt;- setdiff(colnames(p_table), c(&amp;quot;combo&amp;quot;, &amp;quot;mu_0&amp;quot;, &amp;quot;effect&amp;quot;, &amp;quot;n&amp;quot;, &amp;quot;theta&amp;quot;))
+  res_table &amp;lt;- data.table(NULL)
+  for(i in p_table[, unique(combo)]){
+    p_table_part &amp;lt;- p_table[combo==i, ]
+    mu_0_i &amp;lt;- p_table_part[1, mu_0]
+    effect_i &amp;lt;- p_table_part[1, effect]
+    n_i &amp;lt;- p_table_part[1, n]
+    theta_i &amp;lt;- p_table_part[1, theta]
+    n_iter_i &amp;lt;- nrow(p_table_part)
+    p_sum &amp;lt;- apply(p_table_part[, .SD, .SDcols=ycols], 2, function(x) length(which(x &amp;lt;= 0.05))/n_iter_i)
+    res_table &amp;lt;- rbind(res_table, data.table(mu_0 = mu_0_i,
+                                             effect = effect_i,
+                                             n = n_i,
+                                             theta = theta_i,
+                                             t(p_sum)))    
+  }
+  res_table[, n:=factor(n)]
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;type-i-error&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Type I error&lt;/h1&gt;
+&lt;p&gt;Key: 1. “nb” uses the Wald test of negative binomial model. 2. “nb.x2” uses the LRT of negative binomial model. 3. “nb.perm” uses a permutation test on PIT residuals of negative binomial model 4. qp uses a LRT of quasi-poisson model&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;knitr::kable(res_table[effect==1,],
+             caption = &amp;quot;Type 1 error as a function of n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;caption&gt;&lt;span id=&#34;tab:type-1-table&#34;&gt;Table 1: &lt;/span&gt;Type 1 error as a function of n&lt;/caption&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;right&#34;&gt;mu_0&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;effect&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;n&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;theta&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;nb.error&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;t&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Welch&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;log&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Wilcoxan&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;nb&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;nb.x2&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;nb.perm&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;qp&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.032&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0175&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0475&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0270&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1280&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1015&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0515&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.054&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;10&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.036&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0295&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0505&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0435&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0675&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0695&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0460&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.053&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;div id=&#34;power&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Power&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;knitr::kable(res_table[effect!=1,],
+             caption = &amp;quot;Power as a function of n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;caption&gt;&lt;span id=&#34;tab:unnamed-chunk-1&#34;&gt;Table 2: &lt;/span&gt;Power as a function of n&lt;/caption&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;right&#34;&gt;mu_0&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;effect&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;n&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;theta&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;nb.error&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;t&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Welch&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;log&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Wilcoxan&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;nb&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;nb.x2&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;nb.perm&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;qp&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0465&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0240&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0845&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0540&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1710&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1565&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0825&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0960&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1055&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0475&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1950&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1310&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.3310&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.3295&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1860&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1800&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;10&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0900&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0750&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1150&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1025&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1730&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1850&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1285&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1480&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;10&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.3120&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.2600&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.3780&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.3235&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5255&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5345&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.4190&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.4405&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;div id=&#34;plot&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;plot&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;res &amp;lt;- melt(res_table, 
+            id.vars=c(&amp;quot;mu_0&amp;quot;, &amp;quot;effect&amp;quot;, &amp;quot;n&amp;quot;, &amp;quot;theta&amp;quot;, &amp;quot;nb.error&amp;quot;),
+            measure.vars=c(&amp;quot;t&amp;quot;, &amp;quot;Welch&amp;quot;, &amp;quot;log&amp;quot;, &amp;quot;Wilcoxan&amp;quot;, &amp;quot;nb&amp;quot;, &amp;quot;nb.x2&amp;quot;, &amp;quot;nb.perm&amp;quot;, &amp;quot;qp&amp;quot;),
+            variable.name=&amp;quot;model&amp;quot;,
+            value.name=&amp;quot;frequency&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;gg &amp;lt;- ggplot(data=res[effect==1,], aes(x=n, y=frequency, group=model, color=model)) +
+  geom_line() +
+  facet_grid(. ~ effect, labeller=label_both) +
+  NULL
+gg&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-05-30-glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update_files/figure-html/type-1-plot-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;gg &amp;lt;- ggplot(data=res[effect!=1,], aes(x=n, y=frequency, group=model, color=model)) +
+  geom_line() +
+  facet_grid(. ~ effect, labeller=label_both) +
+  NULL
+gg&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-05-30-glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update_files/figure-html/plower-plot-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&#34;footnotes&#34;&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn1&#34;&gt;&lt;p&gt;Warton, D.I., Thibaut, L., Wang, Y.A., 2017. The PIT-trap—A “model-free” bootstrap procedure for inference about regression models with discrete, multivariate responses. PLOS ONE 12, e0181790. &lt;a href=&#34;https://doi.org/10.1371/journal.pone.0181790&#34; class=&#34;uri&#34;&gt;https://doi.org/10.1371/journal.pone.0181790&lt;/a&gt;&lt;a href=&#34;#fnref1&#34;&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+</description>
     </item>
     
     <item>
@@ -26,9 +382,234 @@
       <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/</guid>
-      <description>This post has been updated.
-A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicable effect”).
-tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.</description>
+      <description>
+
+
+&lt;p&gt;&lt;a href=&#34;../../../2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/&#34;&gt;This post has been updated&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicable effect”).&lt;/p&gt;
+&lt;p&gt;tl;dr - At least for Type I error at small &lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt;, log(response) and Wilcoxan have the best performance over the simulation space. T-test is a bit conservative. Welch is even more conservative. glm-nb is too liberal.&lt;/p&gt;
+&lt;div id=&#34;load-libraries&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;load libraries&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(ggplot2)
+library(ggpubr)
+library(MASS)
+library(data.table)
+library(cowplot)&lt;/code&gt;&lt;/pre&gt;
+&lt;div id=&#34;the-simulation&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;The simulation&lt;/h2&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;Single factor with two levels and a count (negative binomial) response.&lt;/li&gt;
+&lt;li&gt;Relative effect sizes of 0%, 50%, 100%, and 200%&lt;/li&gt;
+&lt;li&gt;Ref count of 4, 10, 100&lt;/li&gt;
+&lt;li&gt;&lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt; of 5, 10, 20, 40&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;em&gt;p&lt;/em&gt;-values computed from&lt;/p&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;t-test on raw response&lt;/li&gt;
+&lt;li&gt;Welch t-test on raw response&lt;/li&gt;
+&lt;li&gt;t-test on log transformed response&lt;/li&gt;
+&lt;li&gt;Wilcoxan test&lt;/li&gt;
+&lt;li&gt;glm with negative binomial family and log-link&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;do_sim &amp;lt;- function(niter=1, return_object=NULL){
+  # the function was run with n=1000 and the data saved. on subsequent runs
+  # the data are loaded from a file
+  # the function creates three different objects to return, the object
+  # return is specified by &amp;quot;return_object&amp;quot; = NULL, plot_data1, plot_data2
+  methods &amp;lt;- c(&amp;quot;t&amp;quot;, &amp;quot;Welch&amp;quot;, &amp;quot;log&amp;quot;, &amp;quot;Wilcoxan&amp;quot;, &amp;quot;nb&amp;quot;)
+  p_table_part &amp;lt;- matrix(NA, nrow=niter, ncol=length(methods))
+  colnames(p_table_part) &amp;lt;- methods
+  p_table &amp;lt;- data.table(NULL)
+  
+  res_table &amp;lt;- data.table(NULL)
+  beta_0_list &amp;lt;- c(4, 10, 100) # control count
+  theta_list &amp;lt;- c(0.5, 1, 100) # dispersion
+  effect_list &amp;lt;- c(1:3, 5) # relative effect size will be 0%, 50%, 100%, 200%
+  n_list &amp;lt;- c(5, 10, 20, 40) # sample size
+  n_rows &amp;lt;- length(beta_0_list)*length(theta_list)*length(effect_list)*length(n_list)*niter
+  sim_space &amp;lt;- expand.grid(theta_list, beta_0_list, effect_list, n_list)
+  plot_data1 &amp;lt;- data.table(NULL)
+  plot_data2 &amp;lt;- data.table(NULL)
+  debug_table &amp;lt;- data.table(matrix(NA, nrow=niter, ncol=2))
+  setnames(debug_table, old=colnames(debug_table), new=c(&amp;quot;seed&amp;quot;,&amp;quot;model&amp;quot;))
+  debug_table[, seed:=as.integer(seed)]
+  debug_table[, model:=as.character(model)]
+  i &amp;lt;- 0
+  for(theta_i in theta_list){
+    for(beta_0 in beta_0_list){
+      # first get plots of distributions given parameters
+      y &amp;lt;- rnegbin(n=10^4, mu=beta_0, theta=theta_i)
+      x_i &amp;lt;- seq(min(y), max(y), by=1)
+      prob_x_i &amp;lt;- dnbinom(x_i, size=theta_i, mu=beta_0)
+      plot_data1 &amp;lt;- rbind(plot_data1, data.table(
+        theta=theta_i,
+        mu=beta_0,
+        x=x_i,
+        prob_x=prob_x_i
+      ))
+      # the simulation
+      for(effect in effect_list){
+        for(n in n_list){
+          beta_1 &amp;lt;- (effect-1)*beta_0/2 # 0% 50% 100%
+
+          do_manual &amp;lt;- FALSE
+          if(do_manual==TRUE){
+            theta_i &amp;lt;- res_table[row, theta]
+            beta_0 &amp;lt;- res_table[row, beta_0]
+            beta_1 &amp;lt;- res_table[row, beta_1]
+            n &amp;lt;- res_table[row, n]
+          }
+          
+          beta &amp;lt;- c(beta_0, beta_1)
+          treatment &amp;lt;- rep(c(&amp;quot;Cn&amp;quot;, &amp;quot;Trt&amp;quot;), each=n)
+          X &amp;lt;- model.matrix(~treatment)
+          mu &amp;lt;- (X%*%beta)[,1]
+          fd &amp;lt;- data.table(treatment=treatment, y=NA)
+          for(iter in 1:niter){
+            i &amp;lt;- i+1
+            set.seed(i)
+            fd[, y:=rnegbin(n=n*2, mu=mu, theta=theta_i)]
+            fd[, log_yp1:=log10(y+1)]
+            p.t &amp;lt;- t.test(y~treatment, data=fd, var.equal=TRUE)$p.value
+            p.welch &amp;lt;- t.test(y~treatment, data=fd, var.equal=FALSE)$p.value
+            p.log &amp;lt;- t.test(log_yp1~treatment, data=fd, var.equal=TRUE)$p.value
+            p.wilcox &amp;lt;- wilcox.test(y~treatment, data=fd, exact=FALSE)$p.value
+            fit &amp;lt;- glm.nb(y~treatment, data=fd)
+            debug_table[iter, seed:=i]
+            debug_table[iter, model:=&amp;quot;glm.nb&amp;quot;]
+            #if(fit$th.warn == &amp;quot;iteration limit reached&amp;quot;){
+            if(!is.null(fit$th.warn)){
+              fit &amp;lt;- glm(y~treatment, data=fd, family=poisson)
+              debug_table[iter, model:=&amp;quot;poisson&amp;quot;]
+            }
+            p.nb &amp;lt;- coef(summary(fit))[&amp;quot;treatmentTrt&amp;quot;, &amp;quot;Pr(&amp;gt;|z|)&amp;quot;]
+            p_table_part[iter,] &amp;lt;- c(p.t, p.welch, p.log, p.wilcox, p.nb)
+          }
+          p_table &amp;lt;- rbind(p_table, data.table(p_table_part, debug_table))
+          p_sum &amp;lt;- apply(p_table_part, 2, function(x) length(which(x &amp;lt;= 0.05))/niter)
+          res_table &amp;lt;- rbind(res_table, data.table(beta_0=beta_0,
+                                                   beta_1=beta_1,
+                                                   n=n,
+                                                   theta=theta_i,
+                                                   t(p_sum)))
+        } # n
+      } # effect
+      plot_data2 &amp;lt;- rbind(plot_data2, data.table(
+        theta=theta_i,
+        mu=beta_0,
+        n_i=n,
+        beta1=beta_1,
+        x=treatment,
+        y=fd[, y]
+      ))
+    }
+  }
+  if(is.null(return_object)){return(res_table)}else{
+    if(return_object==&amp;quot;plot_data1&amp;quot;){return(plot_data1)}
+    if(return_object==&amp;quot;plot_data2&amp;quot;){return(plot_data2)}
+    
+  }
+  
+}
+
+do_it &amp;lt;- FALSE # if FALSE the results are available as a file
+if(do_it==TRUE){
+  res_table &amp;lt;- do_sim(niter=1000)
+  write.table(res_table, &amp;quot;../output/glm-t-wilcoxon.txt&amp;quot;, row.names = FALSE, quote=FALSE)
+}else{
+  plot_data &amp;lt;- do_sim(niter=1, return_object=&amp;quot;plot_data2&amp;quot;)
+  res_table &amp;lt;- fread(&amp;quot;../output/glm-t-wilcoxon.txt&amp;quot;)
+  res_table[, n:=factor(n)]
+}
+#res_table&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Distribution of the response for the 3 x 3 simulation space&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# extreme inelegance
+mu_levels &amp;lt;- unique(plot_data[, mu])
+theta_levels &amp;lt;- unique(plot_data[, theta])
+show_function &amp;lt;- FALSE
+show_violin &amp;lt;- TRUE
+
+if(show_function==TRUE){
+  gg1 &amp;lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[1] &amp;amp; theta==theta_levels[1],], geom=&amp;quot;line&amp;quot;)
+  gg2 &amp;lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[2] &amp;amp; theta==theta_levels[1],], geom=&amp;quot;line&amp;quot;)
+  gg3 &amp;lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[3] &amp;amp; theta==theta_levels[1],], geom=&amp;quot;line&amp;quot;)
+  gg4 &amp;lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[1] &amp;amp; theta==theta_levels[2],], geom=&amp;quot;line&amp;quot;)
+  gg5 &amp;lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[2] &amp;amp; theta==theta_levels[2],], geom=&amp;quot;line&amp;quot;)
+  gg6 &amp;lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[3] &amp;amp; theta==theta_levels[2],], geom=&amp;quot;line&amp;quot;)
+  gg7 &amp;lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[1] &amp;amp; theta==theta_levels[3],], geom=&amp;quot;line&amp;quot;)
+  gg8 &amp;lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[2] &amp;amp; theta==theta_levels[3],], geom=&amp;quot;line&amp;quot;)
+  gg9 &amp;lt;- qplot(x=x, y=prob_x, data=plot_data[mu==mu_levels[3] &amp;amp; theta==theta_levels[3],], geom=&amp;quot;line&amp;quot;)
+}
+
+if(show_violin==TRUE){
+  gg1 &amp;lt;- ggviolin(x=&amp;quot;x&amp;quot;, y=&amp;quot;y&amp;quot;, data=plot_data[mu==mu_levels[1] &amp;amp; theta==theta_levels[1],], add=&amp;quot;jitter&amp;quot;)
+  gg2 &amp;lt;- ggviolin(x=&amp;quot;x&amp;quot;, y=&amp;quot;y&amp;quot;, data=plot_data[mu==mu_levels[2] &amp;amp; theta==theta_levels[1],], add=&amp;quot;jitter&amp;quot;)
+  gg3 &amp;lt;- ggviolin(x=&amp;quot;x&amp;quot;, y=&amp;quot;y&amp;quot;, data=plot_data[mu==mu_levels[3] &amp;amp; theta==theta_levels[1],], add=&amp;quot;jitter&amp;quot;)
+  gg4 &amp;lt;- ggviolin(x=&amp;quot;x&amp;quot;, y=&amp;quot;y&amp;quot;, data=plot_data[mu==mu_levels[1] &amp;amp; theta==theta_levels[2],], add=&amp;quot;jitter&amp;quot;)
+  gg5 &amp;lt;- ggviolin(x=&amp;quot;x&amp;quot;, y=&amp;quot;y&amp;quot;, data=plot_data[mu==mu_levels[2] &amp;amp; theta==theta_levels[2],], add=&amp;quot;jitter&amp;quot;)
+  gg6 &amp;lt;- ggviolin(x=&amp;quot;x&amp;quot;, y=&amp;quot;y&amp;quot;, data=plot_data[mu==mu_levels[3] &amp;amp; theta==theta_levels[2],], add=&amp;quot;jitter&amp;quot;)
+  gg7 &amp;lt;- ggviolin(x=&amp;quot;x&amp;quot;, y=&amp;quot;y&amp;quot;, data=plot_data[mu==mu_levels[1] &amp;amp; theta==theta_levels[3],], add=&amp;quot;jitter&amp;quot;)
+  gg8 &amp;lt;- ggviolin(x=&amp;quot;x&amp;quot;, y=&amp;quot;y&amp;quot;, data=plot_data[mu==mu_levels[2] &amp;amp; theta==theta_levels[3],], add=&amp;quot;jitter&amp;quot;)
+  gg9 &amp;lt;- ggviolin(x=&amp;quot;x&amp;quot;, y=&amp;quot;y&amp;quot;, data=plot_data[mu==mu_levels[3] &amp;amp; theta==theta_levels[3],], add=&amp;quot;jitter&amp;quot;)
+}
+
+gg_example &amp;lt;- plot_grid(gg1, gg2, gg3, gg4, gg5, gg6, gg7, gg8, gg9, 
+          nrow=3,
+          labels=c(paste0(&amp;quot;mu=&amp;quot;, mu_levels[1], &amp;quot;; theta=&amp;quot;, theta_levels[1]),
+                   paste0(&amp;quot;mu=&amp;quot;, mu_levels[2], &amp;quot;; theta=&amp;quot;, theta_levels[1]),
+                   paste0(&amp;quot;mu=&amp;quot;, mu_levels[3], &amp;quot;; theta=&amp;quot;, theta_levels[1]),
+                   paste0(&amp;quot;mu=&amp;quot;, mu_levels[1], &amp;quot;; theta=&amp;quot;, theta_levels[2]),
+                   paste0(&amp;quot;mu=&amp;quot;, mu_levels[2], &amp;quot;; theta=&amp;quot;, theta_levels[2]),
+                   paste0(&amp;quot;mu=&amp;quot;, mu_levels[3], &amp;quot;; theta=&amp;quot;, theta_levels[2]),
+                   paste0(&amp;quot;mu=&amp;quot;, mu_levels[1], &amp;quot;; theta=&amp;quot;, theta_levels[3]),
+                   paste0(&amp;quot;mu=&amp;quot;, mu_levels[2], &amp;quot;; theta=&amp;quot;, theta_levels[3]),
+                   paste0(&amp;quot;mu=&amp;quot;, mu_levels[3], &amp;quot;; theta=&amp;quot;, theta_levels[3])),
+          label_size = 10, label_x=0.1)
+gg_example&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/unnamed-chunk-1-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;type-i-error&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Type I error&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;res &amp;lt;- melt(res_table, 
+            id.vars=c(&amp;quot;beta_0&amp;quot;, &amp;quot;beta_1&amp;quot;, &amp;quot;n&amp;quot;, &amp;quot;theta&amp;quot;),
+            measure.vars=c(&amp;quot;t&amp;quot;, &amp;quot;Welch&amp;quot;, &amp;quot;log&amp;quot;, &amp;quot;Wilcoxan&amp;quot;, &amp;quot;nb&amp;quot;),
+            variable.name=&amp;quot;model&amp;quot;,
+            value.name=&amp;quot;frequency&amp;quot;)
+# res[, beta_0:=factor(beta_0)]
+# res[, beta_1:=factor(beta_1)]
+# res[, theta:=factor(theta)]
+# res[, n:=factor(n)]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;gg &amp;lt;- ggplot(data=res[beta_1==0], aes(x=n, y=frequency, group=model, color=model)) +
+  geom_line() +
+  facet_grid(beta_0 ~ theta, labeller=label_both) +
+  NULL
+gg&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/type%20I-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Ouch. glm-nb with hih error rates especially when n is small and the scale parameter is small&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;power&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Power&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;b0_levels &amp;lt;- unique(res$beta_0)
+# small count
+gg1 &amp;lt;- ggplot(data=res[beta_0==b0_levels[1] &amp;amp; beta_1 &amp;gt; 0], aes(x=n, y=frequency, group=model, color=model)) +
+  geom_line() +
+  facet_grid(beta_1 ~ theta, labeller=label_both) +
+  NULL
+
+# large count
+gg2 &amp;lt;- ggplot(data=res[beta_0==b0_levels[3] &amp;amp; beta_1 &amp;gt; 0], aes(x=n, y=frequency, group=model, color=model)) +
+  geom_line() +
+  facet_grid(beta_1 ~ theta, labeller=label_both) +
+  NULL
+
+gg1&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/power-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;gg2&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-01-07-glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst_files/figure-html/power-2.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;glm-nb has higher power, especially at small n, but at a type I cost.&lt;/p&gt;
+&lt;/div&gt;
+</description>
     </item>
     
   </channel>

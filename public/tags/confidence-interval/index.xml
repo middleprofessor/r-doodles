@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Wed, 14 Nov 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/confidence-interval/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/tags/confidence-interval/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -17,10 +17,18 @@
       <pubDate>Wed, 14 Nov 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/</guid>
-      <description>Researchers frequently report results as relative effects, for example,
-“Male flies from selected lines had 50% larger upwind flight ability than male flies from control lines (Control mean: 117.5 cm/s; Selected mean 176.5 cm/s).”
-where a relative effect is
-\[\begin{equation} 100 \frac{\bar{y}_B - \bar{y}_A}{\bar{y}_A} \end{equation}\] If we are to follow best practices, we should present this effect with a measure of uncertainty, such as a confidence interval. The absolute effect is 59.</description>
+      <description>
+
+
+&lt;p&gt;Researchers frequently report results as relative effects, for example,&lt;/p&gt;
+&lt;p&gt;“Male flies from selected lines had 50% larger upwind flight ability than male flies from control lines (Control mean: 117.5 cm/s; Selected mean 176.5 cm/s).”&lt;/p&gt;
+&lt;p&gt;where a relative effect is&lt;/p&gt;
+&lt;span class=&#34;math display&#34;&gt;\[\begin{equation}
+100 \frac{\bar{y}_B - \bar{y}_A}{\bar{y}_A}
+\end{equation}\]&lt;/span&gt;
+&lt;p&gt;If we are to follow best practices, we should present this effect with a measure of uncertainty, such as a confidence interval. The absolute effect is 59.0 cm/s and the 95% CI of this effect is (48.7, 69.3 cm/s). But if we present the result as a relative effect, or percent difference from some reference value, how do we compute a “relative CI”?&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;/notebooks/relative_standard_errors.nb.html&#34;&gt;Read the whole post here&lt;/a&gt;&lt;/p&gt;
+</description>
     </item>
     
   </channel>

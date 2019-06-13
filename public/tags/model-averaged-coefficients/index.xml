@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Thu, 10 May 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/model-averaged-coefficients/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/tags/model-averaged-coefficients/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -17,9 +17,50 @@
       <pubDate>Thu, 10 May 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/05/on-model-averaging-regression-coefficients/</guid>
-      <description>a shorter argument based on a specific example is here
-“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
-This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.</description>
+      <description>
+
+
+&lt;p&gt;&lt;a href=&#34;/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/&#34;&gt;a shorter argument based on a specific example is here&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from &lt;a href=&#34;http://xcelab.net/rm/statistical-rethinking/&#34; target=&#34;_blank&#34;&gt;Statistical Rethinking&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging. I have heard from reviewers of a manuscript that it is infrequent only because it is &lt;em&gt;probably&lt;/em&gt; common knowledge among statisticians – I’m not aware of actual data. In most sources, the criticism is like McElreath’s, one sentence without any further explanation. Three recent papers in the ecology literature have expanded explanations (&lt;a href=&#34;https://scholar.google.com/scholar?q=Considerations+for+assessing+model+averaging+of+regression+coefficients&amp;amp;hl=en&amp;amp;as_sdt=0&amp;amp;as_vis=1&amp;amp;oi=scholart&amp;amp;sa=X&amp;amp;ved=0ahUKEwjEkdHjh_TaAhWhwVkKHV21DEwQgQMIJTAA&#34; target=&#34;_blank&#34;&gt;Banner and Higgs 2017&lt;/a&gt;, &lt;a href=&#34;https://scholar.google.com/scholar?hl=en&amp;amp;as_sdt=0%2C20&amp;amp;q=Model+averaging+and+muddled+multimodel+inferences&amp;amp;btnG=&#34; target=&#34;_blank&#34;&gt;Cade 2015&lt;/a&gt;, &lt;a href=&#34;https://scholar.google.com/scholar?hl=en&amp;amp;as_sdt=0%2C20&amp;amp;q=Model+averaging+in+ecology%3A+a+review+of+Bayesian%2C+information‐theoretic+and+tactical+approaches+for+predictive+inference&amp;amp;btnG=&#34; target=&#34;_blank&#34;&gt;Dormann et al. 2018&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;McElreath doesn’t give any hints what a “special case” looks like and I am not aware of any defense of model-averaged coefficients more generally, other than the extremely brief response to Draper’s equally brief comment in &lt;a href=&#34;https://scholar.google.com/scholar?cluster=4093301480813393179&amp;amp;hl=en&amp;amp;as_sdt=0,20&#34; target=&#34;_blank&#34;&gt;Hoeting et al. 1999&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Regardless, I think the “different meanings” criticism is wrong, and even obviously wrong, but the recognition of this has been masked by confused thinking about the parameters of a linear model. The confusion arises because of incorrectly equating the definition of the coefficients of a linear model and the definition of the parameters of a linear model.&lt;/p&gt;
+&lt;p&gt;A coefficient of a linear model is the difference in the modeled value given a one unit difference in the predictor,&lt;/p&gt;
+&lt;span class=&#34;math display&#34;&gt;\[\begin{equation}
+b_j.k = (\hat{Y}|X_j=x+1, X_k=x_k) - (\hat{Y}|X_j=x, X_k=x_k)
+\end{equation}\]&lt;/span&gt;
+&lt;p&gt;For generalized linear models, the modeled values are on the link scale. Because the modeled value of a linear model is a conditional mean, the coefficient is a difference in conditional means and therefore, is conditional on the additional covariates in the model (&lt;span class=&#34;math inline&#34;&gt;\(X_k\)&lt;/span&gt;).&lt;/p&gt;
+&lt;p&gt;Here is where the confusion arises – &lt;strong&gt;A linear model coefficient estimates two different parameters&lt;/strong&gt;&lt;/p&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;Regression parameter, which is a function of probablistic conditioning
+&lt;span class=&#34;math display&#34;&gt;\[\begin{equation}
+\theta_{j.k} = E[Y|X_j=x+1, X_k=x_k] - E[Y|X_j=x, X_k=x_k]
+\end{equation}\]&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Effect parameter, which is a function of causal conditioning
+&lt;span class=&#34;math display&#34;&gt;\[\begin{equation}
+\beta_j = E((Y_i | {X_j=x+1}) - (Y_i | {X_j=x}))
+\end {equation}\]&lt;/span&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;span class=&#34;math display&#34;&gt;\[\begin{equation}
+\beta_j = E(Y | do(X_j=x+1)) - E(Y | do(X_j=x))
+\end{equation}\]&lt;/span&gt;
+&lt;p&gt;Confusion arises when the definition of the linear model coefficient is thought to be the defintion of the parameter that is estimated. This is only true for the regression parameter.&lt;/p&gt;
+&lt;p&gt;The regression parameter &lt;span class=&#34;math inline&#34;&gt;\(\theta_{j.k}\)&lt;/span&gt; is conditional on the covariates &lt;span class=&#34;math inline&#34;&gt;\(X_k\)&lt;/span&gt;. The “true” model is the model specified by the researcher – there is no “generating” model. The model, and the model parameters, change as the researcher adds or deletes independent variables. Shalizi refers to this as “probabalistic conditioning” (&lt;a href=&#34;http://www.stat.cmu.edu/~cshalizi/ADAfaEPoV/&#34; target=&#34;_blank&#34;&gt;p. 505 of 01/30/2017 edition&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;I give two, equivalent definitions of the effect parameter. The first is the counterfactual definition, developed by Rubin. It is the average of individual causal effects, where an individual causal effect is a &lt;em&gt;potential outcome&lt;/em&gt; – what would happen if we could measure the response in individual &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt; under two conditions (&lt;span class=&#34;math inline&#34;&gt;\(x\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(x + 1\)&lt;/span&gt;) with only &lt;span class=&#34;math inline&#34;&gt;\(X_j\)&lt;/span&gt; having changed. The second is an interventional definition based on the &lt;span class=&#34;math inline&#34;&gt;\(do\)&lt;/span&gt; operator, developed by Pearl. The &lt;span class=&#34;math inline&#34;&gt;\(do\)&lt;/span&gt; operator represents what would happen in a hypothetical intervention that modifies &lt;span class=&#34;math inline&#34;&gt;\(X_j\)&lt;/span&gt; but leaves all other variables unchanged.&lt;/p&gt;
+&lt;p&gt;The effect parameter &lt;span class=&#34;math inline&#34;&gt;\(\beta_j\)&lt;/span&gt; is the “generating” effect and, consequently, it is not conditional on other variables that also generate (or causally effect) the response. Shalizi refers to this as “causal conditioning.” The true model includes all of the variables that causally effect &lt;span class=&#34;math inline&#34;&gt;\(Y\)&lt;/span&gt;. Causal graphs identify different sources of bias in the estimation of effect parameters and can be used to reduce the true model down to the set of variables necessary to estimate an effect without bias.&lt;/p&gt;
+&lt;p&gt;If our goal is mere description of the relationships among variables, the coefficients are estimating the regression parameter &lt;span class=&#34;math inline&#34;&gt;\(\theta_{j.k}\)&lt;/span&gt;. Parameters from different models truly have different meanings because each specifically describes the relationship between &lt;span class=&#34;math inline&#34;&gt;\(Y\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(X_j\)&lt;/span&gt; conditional on a specific set of covariates. Averaging coefficients from different models would be averaging apples and oranges. Indeed, any sort of model selection would be comparing apples and oranges. Omitted variable bias and confounding are irrelevant or meaningless in the context of linear models as mere description, an important point that is missing from most statistics textbooks &lt;a href=&#34;https://scholar.google.com/scholar?cluster=12625276465843289889&amp;amp;hl=en&amp;amp;as_sdt=0,20&#34; target=&#34;_blank&#34;&gt;although see Gelman and Hill&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If our goal is to understand a system at a level that allows intervention (manipulation of variables) to generate a specific outcome, the &lt;span class=&#34;math inline&#34;&gt;\(b^[m]_j\)&lt;/span&gt; from each of the &lt;span class=&#34;math inline&#34;&gt;\(m\)&lt;/span&gt; nested submodels estimates the same effect parameter &lt;span class=&#34;math inline&#34;&gt;\(\beta_j\)&lt;/span&gt; and so have the same meaning. In any observational study, all of the models are wrong and each of the estimates &lt;span class=&#34;math inline&#34;&gt;\(b^[m]_j\)&lt;/span&gt; is biased by some unknown amount because of ommitted confounders. Model averaging the coefficients is a reasonable method for combining information from these models, all of which we know are wrong.&lt;/p&gt;
+&lt;p&gt;If our goal is prediction, the issue is moot, because in prediction we are generally not interested in the coefficients, unless we want to quantify something like variable importance. Parameters simply serve the purpose of mapping data to a prediction, they don’t have any meaning beyond this. If model-averaging the coefficients improves predictive performance, then model-average. And, for linear models, including generalized linear models, model-averaged predictions computed by averaging the predictions or averaging the coefficients &lt;a href=&#34;/post/2018-05-04-model-averaged-coefficients-of-a-glm/&#34;&gt;are equivalent as long as the averaging is on the link scale&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This rebuttal to the claim that coefficients from linear models cannot be meaningfully averaged is not a defense of model averaging more generally. I am not advocating model averaging over alternative methods for causal modeling, I am simply arguing that coefficients from nested submodels can have the same meaning across models and, therefore, can be meaningfully averaged.&lt;/p&gt;
+&lt;p&gt;I am looking for a strong argument to my rebuttal. That means…&lt;/p&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;&lt;p&gt;Arguing that the shrinkage property of model averaging is &lt;em&gt;ad hoc&lt;/em&gt; and there are better methods (such as the family of penalized regression methods that include the lasso and ridge regression) that explicitly model the shrinkage parameter is not a argument against my rebuttal, only an argument for alternatives to model averaging.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Arguing that model selection and model averaging is mindless and careful selection of covariates is superior is not an argument against my rebuttal, only an argument against model selection and averaging more generally.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Arguing that model selection and model averaging is mindless and careful construction of a strucutural model based on prior knowledge is superior is not an argument against this rebuttal, only an argument against model selection and averaging more generally.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Arguing that model averaging was developed for model-averaged predictions or that most of the theory applies to model-averaged predictions is not an argument against this rebuttal, only an argument that we need better theoretical and empirical work on model-averaged coefficients.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Arguing that coefficients from non-linear models cannot be meaningfully averaged is not an argument against my rebuttal, only an argument on the limitation of model averaging coefficients (and again, contrary to &lt;a href=&#34;https://scholar.google.com/scholar?hl=en&amp;amp;as_sdt=0%2C20&amp;amp;q=Model+averaging+and+muddled+multimodel+inferences&amp;amp;btnG=&#34; target=&#34;_blank&#34;&gt;Cade 2015&lt;/a&gt; and &lt;a href=&#34;https://scholar.google.com/scholar?hl=en&amp;amp;as_sdt=0%2C20&amp;amp;q=Model+averaging+in+ecology%3A+a+review+of+Bayesian%2C+information‐theoretic+and+tactical+approaches+for+predictive+inference&amp;amp;btnG=&#34; target=&#34;_blank&#34;&gt;Dormann et al. 2018&lt;/a&gt;, coefficients of nested submodels from generalized linear models, which are &lt;em&gt;linear&lt;/em&gt; models, can be meaningfully averaged).&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
     </item>
     
     <item>
@@ -28,9 +69,23 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
       <pubDate>Mon, 07 May 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/</guid>
-      <description>a longer, more detailed argument is here
-The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
-David Draper suggested this example from the textbook by Freedman, Pisani and Purves.</description>
+      <description>
+
+
+&lt;p&gt;&lt;a href=&#34;/2018/05/on-model-averaging-regression-coefficients/&#34;&gt;a longer, more detailed argument is here&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on &lt;a href=&#34;https://scholar.google.com/scholar?cluster=4093301480813393179&amp;amp;hl=en&amp;amp;as_sdt=0,20&#34; target=&#34;_blank&#34;&gt;Hoeting et al. 1999&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;David Draper suggested this example from the textbook by Freedman, Pisani and Purves. The treatment is not randomized so this is an observational design.&lt;/p&gt;
+&lt;span class=&#34;math display&#34;&gt;\[\begin{equation}
+BP_i = \beta_0 + \beta_1 Treatment_i  +  e_i
+\end{equation}\]&lt;/span&gt;
+&lt;span class=&#34;math display&#34;&gt;\[\begin{equation}
+BP_i = \gamma_0 + \gamma_1 Treatment_i + \gamma_2 Age_i + \varepsilon_i
+\end{equation}\]&lt;/span&gt;
+&lt;p&gt;the population of interest is adult women in the year 1960. BP is blood pressure. The treatment is a binary factor (1 = takes the contraceptive pill, 0 = doesn’t). Age is a confound: as age goes up, blood pressure goes up and pill use goes down.&lt;/p&gt;
+&lt;p&gt;The “different parameters” argument of Draper and McElreath is that &lt;span class=&#34;math inline&#34;&gt;\(\beta_1\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(\gamma_1\)&lt;/span&gt; estimate different parameters and are not meaningfully averaged. Specifically, &lt;span class=&#34;math inline&#34;&gt;\(\beta_1\)&lt;/span&gt; estimates an unconditional parameter and &lt;span class=&#34;math inline&#34;&gt;\(\gamma_1\)&lt;/span&gt; estimates a parameter conditional on &lt;span class=&#34;math inline&#34;&gt;\(Age\)&lt;/span&gt;. Shalizi refers to this as probabilistic conditioning (&lt;a href=&#34;http://www.stat.cmu.edu/~cshalizi/ADAfaEPoV/&#34; target=&#34;_blank&#34;&gt;p. 505 of 01/30/2017 edition&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;My argument (following Pearl and Shalizi) is that the pill researchers are not interested in description but in causal modeling. In this case, &lt;span class=&#34;math inline&#34;&gt;\(\beta_1\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(\gamma_1\)&lt;/span&gt; both estimate the effect parameter (the true causal effect of the pill on BP), each with some unknown bias due to omitted confounders. &lt;span class=&#34;math inline&#34;&gt;\(\beta_1\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(\gamma_1\)&lt;/span&gt; can therefore be meaningfully averaged. A causal effect is not conditional on other factors that also causally effect the response. Shalizi refers to this as “causal conditioning”&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://scholar.google.com/scholar?cluster=12625276465843289889&amp;amp;hl=en&amp;amp;as_sdt=0,20&#34;&gt;Gelman and Hill 2006&lt;/a&gt; did not explicitly define both kinds of parameters but did recognize that regression does estimate two kinds of parameters when they state that the formula for ommitted variable bias “is commonly presented in regression texts as a way of describing the bias that can be incurred if a model is specified incorrectly. However, this term has little meaning outside of a context in which one is attempting to make causal inferences.”&lt;/p&gt;
+</description>
     </item>
     
     <item>
@@ -39,9 +94,127 @@ David Draper suggested this example from the textbook by Freedman, Pisani and Pu
       <pubDate>Fri, 04 May 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/05/model-averaged-coefficients-of-a-glm/</guid>
-      <description>This is a very quick post as a comment to the statement
-“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)1, such coefficient averaging is not equivalent to prediction averaging.”
-from the supplement of Dormann et al. Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference.</description>
+      <description>
+
+
+&lt;p&gt;This is a very quick post as a comment to the statement&lt;/p&gt;
+&lt;p&gt;“For linear models, predicting from a parameter-averaged model is mathematically identical to averaging predictions, but this is not the case for non-linear models…For non-linear models, such as GLMs with log or logit link functions g(x)&lt;a href=&#34;#fn1&#34; class=&#34;footnoteRef&#34; id=&#34;fnref1&#34;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;, such coefficient averaging is not equivalent to prediction averaging.”&lt;/p&gt;
+&lt;p&gt;from the supplement of Dormann et al. &lt;a href=&#34;https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/ecm.1309&#34; target=&#34;_blank&#34;&gt;Model averaging in ecology: a review of Bayesian, information‐theoretic and tactical approaches for predictive inference&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This is within the context of problems with model-averaged coefficients. I think the authors are arguing that for GLMs, we cannot use model-averaged predictions to justify interpreting model-averaged coefficients since modeled-averaged coefficients are not the same thing that produced the model-averaged predictions. I think this is wrong, model-averaged coefficients &lt;em&gt;are&lt;/em&gt; the same thing that produced the model-averaged predictions &lt;em&gt;if&lt;/em&gt; both are averaged on the link scale.&lt;/p&gt;
+&lt;p&gt;Here is their equation S2&lt;/p&gt;
+&lt;span class=&#34;math display&#34;&gt;\[\begin{equation}
+\frac{1}{m} \sum_{i=1}^m{g^{-1}(Xb_i)} \ne g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
+\end{equation}\]&lt;/span&gt;
+&lt;p&gt;This equation is true but, I think, irrelevant. The LHS averages predictions, but the average is on the response scale. The RHS averages the coefficients, but the average is on the link scale. I would agree with the statement &lt;em&gt;if&lt;/em&gt; this is the way researchers are averaging (although I would think naive researchers would be averaging coefficients on the response scale and predictions on the link scale)&lt;/p&gt;
+&lt;p&gt;I would think the LHS is the incorrect method for computing predictions on the response scale. With all averaging on the link scale, equation S2 becomes&lt;/p&gt;
+&lt;span class=&#34;math display&#34;&gt;\[\begin{equation}
+g^{-1}(\frac{1}{m} \sum_{i=1}^m{(Xb_i)}) = g^{-1}(X \frac{\sum_{i=1}^m{b_i}}{m})
+\end{equation}\]&lt;/span&gt;
+&lt;p&gt;The RHS is the same as their S2. The LHS computes the prediction for each model on the link scale, then averages over these on the link scale, and then back-transforms to the response scale. Both LHS and RHS are correct ways to get the model-averaged predictions on the response scale. And, both the LHS and RHS are equivalent and show that “predicting from a parameter-averaged model [RHS] is mathematically identical to averaging predictions [LHS].”&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;In short.&lt;/strong&gt; Model-averaged coefficients should be averaged on the link scale. It would indeed be not “correct” to interpret coefficients that are model-averaged on the response scale, although as Dormann et al state, “In practice, however, both log and logit are sufficiently linear, making coefficient averaging an acceptable approximation.” If the issue is that researchers are model averaging coefficients on the response scale, this isn’t an issue with model averaging coefficients in general, but only of model-averaging coefficients on a response scale.&lt;/p&gt;
+&lt;p&gt;Here is a short R-doodle showing that “predicting from a parameter-averaged model is mathematically identical to averaging predictions” for a GLM, as long as one is doing all the averaging on the link scale&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(MuMIn)
+library(ggplot2)
+library(data.table)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;expit &amp;lt;- function(x) {exp(x)/(1+exp(x))} # the inverse logit function. This generates the probability of the event p
+logit &amp;lt;- function(p) {log(p/(1-p))} # the log of the odds or &amp;quot;logodds&amp;quot; given the probability of an event p. This is NOT the odds ratio, which is the ratio of two odds.
+p2odd &amp;lt;- function(p) {p/(1-p)} # the odds of the probability of an event
+odd2p &amp;lt;- function(x) {x/(1+x)} # the probability associated with an odds&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;n &amp;lt;- 100
+z &amp;lt;- rnorm(n)
+# create two correlated variables, x1 and x2, with E[cor] = zeta^2
+zeta &amp;lt;- 0.7
+sigma &amp;lt;- 0.3
+x1 &amp;lt;- zeta*z + sqrt(1-zeta^2)*rnorm(n)
+x2 &amp;lt;- zeta*z + sqrt(1-zeta^2)*rnorm(n)
+
+# create a performance measure as function of x1 and x2
+perf &amp;lt;- x1 + x2 + rnorm(n)*sigma # coefficients both = 1
+
+# transform performance to probability of survival
+
+# create fake data
+p.survival &amp;lt;- expit(perf)
+y &amp;lt;- rbinom(n, 1, p.survival)
+dt &amp;lt;- data.table(y=y,x1=x1,x2=x2)
+
+# fit
+fit &amp;lt;- glm(y ~ x1 + x2, data=dt, family=binomial(link=&amp;#39;logit&amp;#39;), na.action=na.fail)
+
+# all subsets regression and model average using MuMIn
+fit.all &amp;lt;- dredge(fit)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Fixed term is &amp;quot;(Intercept)&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;fit.avg &amp;lt;- model.avg(fit.all, fit=TRUE) # coeffcients are on link scale
+
+model_set &amp;lt;- get.models(fit.all, subset=TRUE) # all models
+X &amp;lt;- model.matrix(fit)
+
+# (0) MuMIn predict
+yhat0.response_scale &amp;lt;- predict(fit.avg, backtransform=TRUE)
+
+# RHS eq. S2
+# verify &amp;quot;by hand&amp;quot; by predicting on link scale then back transforming to response scale
+yhat0.link_scale &amp;lt;- predict(fit.avg, backtransform=FALSE)
+yhat0.response_scale2 &amp;lt;- expit(yhat0.link_scale) 
+head(data.table(yhat0.response_scale, yhat0.response_scale2)) # these should be equal&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##    yhat0.response_scale yhat0.response_scale2
+## 1:            0.1958144             0.1958144
+## 2:            0.6747000             0.6747000
+## 3:            0.2327797             0.2327797
+## 4:            0.2047924             0.2047924
+## 5:            0.5043722             0.5043722
+## 6:            0.8114121             0.8114121&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;yhat0 &amp;lt;- yhat0.response_scale # predictions using MuMIn package
+
+
+# (1) use model averaged B to get prediction on link scale. back-transform to response scale
+# this is RHS eq. S2 RHS of appendix
+# I use MuMIn model.avg function to model average coefficients on link scale
+# then I compute predictions on link scale
+# then I back-transform predictions to response scale 
+# This should equal yhat0 from above
+b &amp;lt;- model.avg(model_set)$coefficients[&amp;#39;full&amp;#39;,][colnames(X)]
+yhat1.link_scale &amp;lt;- X%*%b
+yhat1 &amp;lt;- expit(yhat1.link_scale)
+MSE1 &amp;lt;- sqrt(mean((yhat1 - dt[, y])^2))
+
+# (2) a variant of yhat1 and yhat0 - I am &amp;quot;by hand&amp;quot; computing the average prediction on the link scale
+# then back-transforming to response scale
+# this can be thought of as the corrected LHS of S2
+w &amp;lt;- fit.all$weight
+yhat2.each_model.link_scale &amp;lt;- sapply(model_set, predict)
+yhat2.link_scale &amp;lt;- yhat2.each_model.link_scale%*%w
+yhat2 &amp;lt;- expit(yhat2.link_scale)
+MSE2 &amp;lt;- sqrt(mean((yhat2 - dt[, y])^2))
+
+# (3) Thisis the &amp;quot;incorrect&amp;quot; method of model averaging&amp;quot;
+# LHS of S2
+# model average predictions on response scale (i.e. back-transform each prediction to response scale and then model average)
+# I need the first two calculations from #(2) above to get yhat2.each_model.link_scale
+yhat3.each_model.response_scale &amp;lt;- expit(yhat2.each_model.link_scale)
+yhat3 &amp;lt;- yhat3.each_model.response_scale%*%w
+MSE3 &amp;lt;- sqrt(mean((yhat3-dt[, y])^2))
+
+# Predicted values computed 4 different ways
+head(data.table(yhat0=yhat0, yhat1=yhat1[,1], yhat2=yhat2[,1], yhat3=yhat3[,1]))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##        yhat0     yhat1     yhat2     yhat3
+## 1: 0.1958144 0.1958144 0.1958144 0.1966351
+## 2: 0.6747000 0.6747000 0.6747000 0.6729130
+## 3: 0.2327797 0.2327797 0.2327797 0.2334907
+## 4: 0.2047924 0.2047924 0.2047924 0.2088204
+## 5: 0.5043722 0.5043722 0.5043722 0.5043093
+## 6: 0.8114121 0.8114121 0.8114121 0.8105789&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;#yhat0 = MuMIn model averaged predictions (correct method)
+#yhat1 = RHS of equation s2 in appendix (correct method)
+#yhat2 = Corrected LHS of s2 in appendix (correct method)
+#yhat3 = LHS of s2 in appendix (incorrect?)&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&#34;footnotes&#34;&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn1&#34;&gt;&lt;p&gt;understood but awkward and confusing. It is unconventional to call a GLM a non-linear model, especially given the name “General Linear Model”&lt;a href=&#34;#fnref1&#34;&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+</description>
     </item>
     
   </channel>

@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Sat, 27 Apr 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/ancova/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/tags/ancova/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -17,7 +17,79 @@
       <pubDate>Sat, 27 Apr 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/04/blocking-vs-covariate-adjustment/</guid>
-      <description>HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</description>
+      <description>
+
+
+
+
+HUGOMORE42
+
+&lt;p&gt;“A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group. Each rat in a pair is expected to eat a similar amount of food during the experiment because they have been matched on their baseline food consumption. By removing this source of variation, the comparison between rats in a pair will be mostly unaffected by the amount of food they eat, allowing treatment effects to be more easily detected.” – Lazic, Stanley E.. Experimental Design for Laboratory Biologists: Maximising Information and Improving Reproducibility . Cambridge University Press. Kindle Edition.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(ggplot2)
+library(data.table)
+library(doBy)
+library(lmerTest)
+library(nlme)
+
+odd &amp;lt;- function(x) x%%2 != 0
+even  &amp;lt;- function(x) x%%2 == 0&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Simulate data in which the response is a function of baseline_food consumption:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;n &amp;lt;- 10^1
+niter &amp;lt;- 1000
+# create the response y as a function of baseline_food
+out_cols &amp;lt;- c(&amp;quot;adj&amp;quot;, &amp;quot;block.rand&amp;quot;, &amp;quot;block.fix&amp;quot;, &amp;quot;block.adj&amp;quot;)
+b_mat &amp;lt;- p_mat &amp;lt;- matrix(NA, nrow=niter, ncol=length(out_cols))
+colnames(b_mat) &amp;lt;-colnames(p_mat) &amp;lt;- out_cols
+for(iter in 1:niter){
+  baseline_food &amp;lt;- rnorm(n*2)
+  beta_baseline_food &amp;lt;- 0.6
+  y &amp;lt;- beta_baseline_food*baseline_food + sqrt(1-beta_baseline_food^2)*rnorm(n*2)
+  
+  # covariate adjustment
+  # add treatment effect to half
+  treatment &amp;lt;- as.factor(rep(c(&amp;quot;tr&amp;quot;, &amp;quot;cn&amp;quot;), each=n))
+  beta_1 &amp;lt;- 1
+  y[1:n] &amp;lt;- y[1:n] + beta_1
+  fit1 &amp;lt;- lm(y ~ baseline_food + treatment)
+  b_mat[iter, &amp;quot;adj&amp;quot;] &amp;lt;- coef(summary(fit1))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Estimate&amp;quot;]
+  p_mat[iter, &amp;quot;adj&amp;quot;] &amp;lt;- coef(summary(fit1))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Pr(&amp;gt;|t|)&amp;quot;]
+  
+  # block
+  treatment &amp;lt;- NULL
+  for(i in 1:n){
+    treatment &amp;lt;- c(treatment, sample(c(&amp;quot;tr&amp;quot;, &amp;quot;cn&amp;quot;), 2))
+  }
+  fake_data &amp;lt;- data.table(y=y, baseline_food=baseline_food)
+  setorder(fake_data, baseline_food)
+  fake_data[, treatment:=factor(treatment)]
+  fake_data[, block:=factor(rep(1:n, each=2))]
+  fake_data[, y_exp:=ifelse(treatment==&amp;quot;tr&amp;quot;, y+1, y)]
+  # fit2 &amp;lt;- lmer(y_exp ~ treatment + (1|block), data=fake_data)
+  # b_mat[iter, &amp;quot;block&amp;quot;] &amp;lt;- coef(summary(fit2))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Estimate&amp;quot;]
+  fit2 &amp;lt;- lme(y_exp ~ treatment, random= ~1|block, data=fake_data)
+  b_mat[iter, &amp;quot;block.rand&amp;quot;] &amp;lt;- coef(summary(fit2))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Value&amp;quot;]
+  p_mat[iter, &amp;quot;block.rand&amp;quot;] &amp;lt;- coef(summary(fit2))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;p-value&amp;quot;]
+
+  fit2b &amp;lt;- lm(y_exp ~ block + treatment, data=fake_data)
+  b_mat[iter, &amp;quot;block.fix&amp;quot;] &amp;lt;- coef(summary(fit2b))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Estimate&amp;quot;]
+  p_mat[iter, &amp;quot;block.fix&amp;quot;] &amp;lt;- coef(summary(fit2b))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Pr(&amp;gt;|t|)&amp;quot;]
+
+  fit3 &amp;lt;- lm(y_exp ~ baseline_food + treatment, data=fake_data)
+  b_mat[iter, &amp;quot;block.adj&amp;quot;] &amp;lt;- coef(summary(fit3))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Estimate&amp;quot;]
+  p_mat[iter, &amp;quot;block.adj&amp;quot;] &amp;lt;- coef(summary(fit3))[&amp;quot;treatmenttr&amp;quot;, &amp;quot;Pr(&amp;gt;|t|)&amp;quot;]
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Estimates&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;apply(b_mat, 2, quantile, probs=c(0.025, 0.5, 0.975))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##             adj block.rand block.fix block.adj
+## 2.5%  0.2797401  0.1476697 0.1476697 0.1528887
+## 50%   1.0076974  1.0161665 1.0161665 1.0165686
+## 97.5% 1.7149816  1.8121259 1.8121259 1.7995946&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Power&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;apply(p_mat, 2, function(x) sum(x &amp;lt; 0.05)/niter)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##        adj block.rand  block.fix  block.adj 
+##      0.732      0.576      0.558      0.619&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Conclusion: over this model space, simply adjusting for baseline food consumption is more powerful than creating blocks using baseline food consumption.&lt;/p&gt;
+</description>
     </item>
     
     <item>
@@ -26,8 +98,211 @@
       <pubDate>Fri, 12 Apr 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/04/covariate-adjustment-in-randomized-experiments/</guid>
-      <description>The post motivated by a tweetorial from Darren Dahly
-In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &amp;lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?</description>
+      <description>
+
+
+&lt;p&gt;&lt;a href=&#34;https://twitter.com/statsepi/status/1115902270888128514&#34;&gt;The post motivated by a tweetorial from Darren Dahly&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &amp;lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?&lt;/p&gt;
+&lt;p&gt;The original tweet focussed on Randomized Clinical Trials, which typically have large sample size. Here I simulate experimental biology, which typically has much smaller n.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(ggplot2)
+library(GGally)
+library(data.table)
+
+source(&amp;quot;../R/fake_x.R&amp;quot;) # bookdown&lt;/code&gt;&lt;/pre&gt;
+&lt;div id=&#34;fake-data&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Fake data&lt;/h1&gt;
+&lt;p&gt;Generate &lt;span class=&#34;math inline&#34;&gt;\(p\)&lt;/span&gt; correlated variables and assign the first to the response (&lt;span class=&#34;math inline&#34;&gt;\(\mathbf{y}\)&lt;/span&gt;) and the rest to the covariates (&lt;span class=&#34;math inline&#34;&gt;\(\mathbf{X}\)&lt;/span&gt;). Construct a treatment variable and effect and add this to the response.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;n &amp;lt;- 100 # per treatment level - this is modified below
+p &amp;lt;- 3 # number of covariates (columns of the data)
+pp1 &amp;lt;- p+1
+beta_0 &amp;lt;- 0 # intercept
+
+niter &amp;lt;- 2000 # modified below
+measure_cols &amp;lt;- c(&amp;quot;no_adjust&amp;quot;, &amp;quot;imbalance&amp;quot;, &amp;quot;all_covariates&amp;quot;, &amp;quot;weak_covariates&amp;quot;, &amp;quot;strong_covariates&amp;quot;)
+
+xcols &amp;lt;- paste0(&amp;quot;X&amp;quot;, 1:p)
+build_ycols &amp;lt;- c(&amp;quot;Y_o&amp;quot;, xcols)
+cor_ycols &amp;lt;- c(&amp;quot;Y&amp;quot;, xcols)
+
+b_mat &amp;lt;- data.table(NULL)
+se_mat &amp;lt;- data.table(NULL)
+p_mat &amp;lt;- data.table(NULL)
+ci_mat &amp;lt;- data.table(NULL)
+
+for(beta_1 in c(0, 0.2, 0.8)){ # treatment effect on standardized scale
+  beta &amp;lt;- c(beta_0, beta_1)
+  for(n in c(6, 10, 50)){
+    # larger iterations with smaller n
+    niter &amp;lt;- round((3*10^4)/sqrt(n), 0)
+    niter &amp;lt;- 2000
+    
+    # repopulate with NA each n
+    b &amp;lt;- se &amp;lt;- pval &amp;lt;- ci &amp;lt;- matrix(NA, nrow=niter, ncol=length(measure_cols))
+    colnames(b) &amp;lt;- colnames(se) &amp;lt;- colnames(pval) &amp;lt;- colnames(ci) &amp;lt;- measure_cols
+    
+    Treatment &amp;lt;- rep(c(&amp;quot;Cn&amp;quot;, &amp;quot;Tr&amp;quot;), each=n)
+    X &amp;lt;- model.matrix(formula(&amp;quot;~ Treatment&amp;quot;))
+    
+    for(iter in 1:niter){
+      # generate p random, correlated variables. The first is assigned to Y
+      fake_data &amp;lt;- fake.X(n*2, pp1, fake.eigenvectors(pp1), fake.eigenvalues(pp1))
+      colnames(fake_data) &amp;lt;- build_ycols
+      
+      # resacale so that var(Y) = 1, where Y is the first column
+      fake_data &amp;lt;- fake_data/sd(fake_data[,1])
+      
+      fake_data &amp;lt;- data.table(fake_data)
+      
+      # view the scatterplots
+      #gg &amp;lt;- ggpairs(X,progress = ggmatrix_progress(clear = FALSE))
+      show_it &amp;lt;- FALSE
+      if(show_it ==TRUE){
+        gg &amp;lt;- ggpairs(fake_data)
+        print(gg, progress = F)
+      }
+      
+      # add the treatment effect
+      fake_data[, Y:=Y_o + X%*%beta]
+      fake_data[, Treatment:=Treatment]
+      
+      # model 1 - just the treatment
+      fit1 &amp;lt;- lm(Y ~ Treatment, data=fake_data)
+      res &amp;lt;- coef(summary(fit1))[&amp;quot;TreatmentTr&amp;quot;, ]
+      b[iter, 1] &amp;lt;- res[&amp;quot;Estimate&amp;quot;]
+      se[iter, 1] &amp;lt;- res[&amp;quot;Std. Error&amp;quot;]
+      pval[iter, 1] &amp;lt;-res[&amp;quot;Pr(&amp;gt;|t|)&amp;quot;]
+      ci_i &amp;lt;- confint(fit1)[&amp;quot;TreatmentTr&amp;quot;,]
+      ci[iter, 1] &amp;lt;- ifelse(beta_1 &amp;gt;= ci_i[1] &amp;amp; beta_1 &amp;lt;= ci_i[2], 1, 0)
+      res1 &amp;lt;- copy(res)
+      
+      # model 2 - adjust for imablance
+      inc_xcols &amp;lt;- NULL
+      for(i in 1:p){
+        formula &amp;lt;- paste0(xcols[i], &amp;quot; ~ Treatment&amp;quot;)
+        fit2a &amp;lt;- lm(formula, data=fake_data)
+        if(coef(summary(fit2a))[&amp;quot;TreatmentTr&amp;quot;, &amp;quot;Pr(&amp;gt;|t|)&amp;quot;] &amp;lt; 0.05){
+          inc_xcols &amp;lt;- c(inc_xcols, xcols[i])
+        }
+      }
+      if(length(inc_xcols) &amp;gt; 0){ # if any signifianct effects refit, otherwise use old fit
+        formula &amp;lt;- paste0(&amp;quot;Y ~ Treatment + &amp;quot;, paste(inc_xcols, collapse=&amp;quot; + &amp;quot;))
+        fit2b &amp;lt;- lm(formula, data=fake_data)
+        res &amp;lt;- coef(summary(fit2b))[&amp;quot;TreatmentTr&amp;quot;, ]
+        ci_i &amp;lt;- confint(fit2b)[&amp;quot;TreatmentTr&amp;quot;,]
+      }else{
+        res &amp;lt;- res1
+      }
+      b[iter, 2] &amp;lt;- res[&amp;quot;Estimate&amp;quot;]
+      se[iter, 2] &amp;lt;- res[&amp;quot;Std. Error&amp;quot;]
+      pval[iter, 2] &amp;lt;-res[&amp;quot;Pr(&amp;gt;|t|)&amp;quot;]
+      ci[iter, 2] &amp;lt;- ifelse(beta_1 &amp;gt;= ci_i[1] &amp;amp; beta_1 &amp;lt;= ci_i[2], 1, 0)
+      
+      
+      # model 3- adjust for covariates
+      (ycor &amp;lt;- abs(cor(fake_data[, .SD, .SDcols=cor_ycols])[2:pp1, 1]))
+      mean(ycor)
+      
+      j &amp;lt;- 2
+      for(target_cor in c(0, .2, .4)){
+        j &amp;lt;- j+1
+        if(target_cor == 0.2){
+          inc &amp;lt;- which(ycor &amp;lt; target_cor) # include only weak covariates
+        }else{
+          inc &amp;lt;- which(ycor &amp;gt; target_cor) # include all OR strong covariates
+        }
+        if(length(inc) &amp;gt; 0){  # if matches refit, otherwise use old fit
+          inc_xcols &amp;lt;- xcols[inc]
+          formula &amp;lt;- paste0(&amp;quot;Y ~ Treatment + &amp;quot;, paste(inc_xcols, collapse=&amp;quot; + &amp;quot;))
+          fit3 &amp;lt;- lm(formula, data=fake_data)
+          res &amp;lt;- coef(summary(fit3))[&amp;quot;TreatmentTr&amp;quot;, ]
+          ci_i &amp;lt;- confint(fit3)[&amp;quot;TreatmentTr&amp;quot;,]
+        }else{
+          res &amp;lt;- res1
+        }
+        b[iter, j] &amp;lt;- res[&amp;quot;Estimate&amp;quot;]
+        se[iter, j] &amp;lt;- res[&amp;quot;Std. Error&amp;quot;]
+        pval[iter, j] &amp;lt;-res[&amp;quot;Pr(&amp;gt;|t|)&amp;quot;]
+        ci[iter, j] &amp;lt;- ifelse(beta_1 &amp;gt;= ci_i[1] &amp;amp; beta_1 &amp;lt;= ci_i[2], 1, 0)
+      }
+    }  
+    b_mat &amp;lt;- rbind(b_mat, data.table(n=n, beta_1=beta_1, b))
+    se_mat &amp;lt;- rbind(se_mat, data.table(n=n, beta_1=beta_1, se))
+    p_mat &amp;lt;- rbind(p_mat, data.table(n=n, beta_1=beta_1, pval))
+    ci_mat &amp;lt;- rbind(ci_mat, data.table(n=n, beta_1=beta_1, ci))
+  }
+}
+
+p_long &amp;lt;- melt(p_mat, measure.vars=measure_cols, variable.name=&amp;quot;method&amp;quot;, value.name=&amp;quot;p&amp;quot;)
+ci_long &amp;lt;- melt(ci_mat, measure.vars=measure_cols, variable.name=&amp;quot;method&amp;quot;, value.name=&amp;quot;covers&amp;quot;)
+b_long &amp;lt;- melt(b_mat, measure.vars=measure_cols, variable.name=&amp;quot;method&amp;quot;, value.name=&amp;quot;b&amp;quot;)
+se_long &amp;lt;- melt(se_mat, measure.vars=measure_cols, variable.name=&amp;quot;method&amp;quot;, value.name=&amp;quot;se&amp;quot;)
+
+
+#ci_long[, .(coverage=sum(covers)/niter), by=.(method, n, beta_1)]&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;distribution-of-estimates&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Distribution of estimates&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;pd &amp;lt;- position_dodge(0.8)
+gg &amp;lt;- ggplot(data=b_long, aes(x=factor(n), y=b, fill=method)) +
+  geom_boxplot(position=pd) +
+  xlab(&amp;quot;sample size (per treatment level)&amp;quot;) +
+  NULL
+gg&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;distribution-of-se-of-estimate&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Distribution of SE of estimate&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;pd &amp;lt;- position_dodge(0.8)
+gg &amp;lt;- ggplot(data=se_long, aes(x=factor(n), y=se, fill=method)) +
+  geom_boxplot(position=pd) +
+  xlab(&amp;quot;sample size (per treatment level)&amp;quot;) +
+  NULL
+gg&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;type-i-error&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Type I error&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# type I
+p_sum &amp;lt;- p_long[, .(error=sum(p &amp;lt; 0.05)/niter), by=.(method, n, beta_1)]
+pd &amp;lt;- position_dodge(0.8)
+gg &amp;lt;- ggplot(data=p_sum[beta_1==0], aes(x=factor(n), y=error, color=method, group=method)) +
+  geom_point(position=pd) +
+  geom_line(position=pd) + 
+  xlab(&amp;quot;sample size (per treatment level)&amp;quot;) +
+  ylab(&amp;quot;Type I error&amp;quot;) +
+  # facet_grid(.~beta_1) +
+  NULL
+gg&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;power&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Power&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# power
+# need p_sum from above
+gg &amp;lt;- ggplot(data=p_sum[beta_1!=0], aes(x=factor(n), y=error, color=method)) +
+  geom_point(position=pd) +
+  xlab(&amp;quot;sample size (per treatment level)&amp;quot;) +
+  ylab(&amp;quot;Power&amp;quot;) +
+  facet_grid(.~beta_1) +
+  NULL
+gg&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;sign-error&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Sign error&lt;/h1&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# sign error
+p_long2 &amp;lt;- cbind(p_long, b=b_long[, b])
+sign_error &amp;lt;- p_long2[beta_1 &amp;gt; 0, .(error=sum(p &amp;lt; 0.1 &amp;amp; b &amp;lt; 0)/niter), by=.(method, n, beta_1)]
+gg &amp;lt;- ggplot(data=sign_error, aes(x=factor(n), y=error, color=method)) +
+  geom_point(position=pd) +
+  xlab(&amp;quot;sample size (per treatment level)&amp;quot;) +
+  ylab(&amp;quot;Sign error&amp;quot;) +
+  facet_grid(.~beta_1) +
+  NULL
+gg&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-04-12-covariate-adjustment-in-randomized-experiments_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+</description>
     </item>
     
     <item>
@@ -36,7 +311,16 @@ In an experiment, do we adjust for covariates that differ between treatment leve
       <pubDate>Thu, 08 Mar 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/</guid>
-      <description>This post is motivated by a twitter link to a recent blog post critical of the old but influential study An obesity-associated gut microbiome with increased capacity for energy harvest with impressive citation metrics. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.</description>
+      <description>
+
+
+&lt;p&gt;This post is motivated by a twitter link to a &lt;a href=&#34;https://honey-guide.com/2018/02/13/graphic-faecal-transplants-and-obesity/&#34; target=&#34;_blank&#34;&gt;recent blog post&lt;/a&gt; critical of the old but influential study &lt;a href=&#34;https://scholar.google.co.uk/scholar?hl=en&amp;amp;as_sdt=0%2C5&amp;amp;q=An+obesity-associated+gut+microbiome+with+increased+capacity+for+energy+harvest.&amp;amp;btnG=&#34;&gt;An obesity-associated gut microbiome with increased capacity for energy harvest&lt;/a&gt; with &lt;a href=&#34;https://www.nature.com/articles/nature05414/metrics&#34; target=&#34;_blank&#34;&gt;impressive citation metrics&lt;/a&gt;. In the post, Matthew Dalby smartly used the available data to reconstruct the final weights of the two groups. He showed these final weights were nearly the same, which is not good evidence for a treatment effect, given that the treatment was randomized among groups.&lt;/p&gt;
+&lt;p&gt;This is true, but doesn’t quite capture the essence of the major problem with the analysis: a simple &lt;em&gt;t&lt;/em&gt;-test of differences in percent weight change fails to condition on initial weight. And, in pre-post designs, groups with smaller initial measures are expected to have more change due to &lt;a href=&#34;https://en.wikipedia.org/wiki/Regression_toward_the_mean&#34; target=&#34;_blank&#34;&gt;regression to the mean&lt;/a&gt;. This is exactly what was observed. In the fecal transplant study, the initial mean weight of the rats infected with &lt;em&gt;ob/ob&lt;/em&gt; feces was smaller (by 1.2SD) than that of the rats infected with &lt;em&gt;+/+&lt;/em&gt; feces and, consequently, the expected difference in the change in weight is not zero but positive (this is the expected difference &lt;em&gt;conditional on an inital difference&lt;/em&gt;). More generally, a difference in percent change &lt;em&gt;as an estimate of the parametric difference in percent change&lt;/em&gt; is not biased, but it is also not an estimate of the treatment effect, except under very limited conditions explained below. If these conditions are not met, a difference in percent change &lt;em&gt;as an estimate of the treatment effect&lt;/em&gt; is biased, unless estimated conditional on (or “adusted for”) the initial weight.&lt;/p&gt;
+&lt;p&gt;Regression to the mean also has consequences on the hypothesis testing approach taken by the authors. Somewhat perplexingly, a simple &lt;em&gt;t&lt;/em&gt;-test of the post-treatment weights or of pre-post difference in weight, or of percent change in weight does not have elevated Type I error. This is demonstrated using simulation below. The explaination is, in short, the Type I error rate is also a function of the initial difference in weight. If the initial difference is near zero, the Type I error is much less than the nominal alpha (say, 0.05). But as the intial difference moves away from zero, the Type I error is much greater than the nominal alpha. Over the space of the initial difference, these rates average to the nominal alpha.&lt;/p&gt;
+&lt;div id=&#34;continue-reading-the-whole-post&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;&lt;a href=&#34;https://www.middleprofessor.com/files/quasipubs/change_scores.html&#34;&gt;continue reading the whole post&lt;/a&gt;&lt;/h2&gt;
+&lt;/div&gt;
+</description>
     </item>
     
   </channel>
