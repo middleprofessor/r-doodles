@@ -14,6 +14,7 @@ description: "A very skeletal analysis of 'Human Gut Microbiota from Autism Spec
 
 
 
+<p><strong>Update</strong> - This post has been updated</p>
 <p>A very skeletal analysis of</p>
 <p>Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.</p>
 <p><a href="https://pubpeer.com/publications/B521D325772244D8F656F1ED193ACA#">which got some attention on pubpeer</a>.</p>
@@ -22,7 +23,9 @@ description: "A very skeletal analysis of 'Human Gut Microbiota from Autism Spec
 <h1>Caveats</h1>
 <p>Failure to reproduce or partial reproducibility might be an error in my coding, or my misunderstanding of the author’s methods, or my lack of knowledge of statistics generally or the R functions that I use more specifically.</p>
 <pre class="r"><code>library(ggplot2)
+library(nlme)
 library(lmerTest)
+library(car)
 library(emmeans)
 library(lmtest)
 library(data.table)</code></pre>
@@ -31,7 +34,10 @@ library(data.table)</code></pre>
 <pre class="r"><code>fn &lt;- &quot;Fig1EFGH_subset8.csv&quot;
 file_path &lt;- paste(data_path, fn, sep=&quot;/&quot;)
 mouse &lt;- fread(file_path)
-mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c(&quot;NT&quot;, &quot;ASD&quot;))]</code></pre>
+mouse[, Gender:=factor(Gender)]
+mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c(&quot;NT&quot;, &quot;ASD&quot;))]
+mouse[, MouseID:=factor(MouseID)]
+mouse[, Round:=factor(Round)]</code></pre>
 </div>
 <div id="figure-1g" class="section level1">
 <h1>Figure 1G</h1>
@@ -55,7 +61,7 @@ mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c(&quot;NT&quot;, &quot;ASD&quot;))
 ## Results are averaged over the levels of: Gender 
 ## Degrees-of-freedom method: kenward-roger 
 ## Confidence level used: 0.95</code></pre>
-<p>and effect, standardized to cohen’s D using residual standard deviation from model: (NT - ASD)/sigma</p>
+<p>The effect, standardized to cohen’s D using residual standard deviation from model: (NT - ASD)/sigma</p>
 <pre class="r"><code>coef(summary(m1))[&quot;ASD_diagnosisASD&quot;, &quot;Estimate&quot;]/sigma(m1)</code></pre>
 <pre><code>## [1] -0.3928202</code></pre>
 <pre class="r"><code>summary(contrast(m2.emm, method=&quot;revpairwise&quot;))[1, &quot;estimate&quot;]/sigma(m2)</code></pre>
@@ -129,5 +135,233 @@ lrtest(m2, m1)</code></pre>
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>Basically the same results</p>
+</div>
+</div>
+<div id="update" class="section level1">
+<h1>Update</h1>
+<ol style="list-style-type: decimal">
+<li><a href="https://notstatschat.rbind.io/2019/06/16/analysing-the-mouse-autism-data/">Thomas Lumley also explored statistical models based on the author’s two descriptions</a>. The first set are similar to mine above, but using Satterthwaite or Kenward-Rogers ddf on F-test instead of a LRT. I punted on the “diagonal covariance matrices” of method 2, but Lumley ran with it and, with a bit of SPSS manual description, figured out that the result can be reproduced using a GLS that weights the error variances using levels of Donor. This isn’t a mixed model with Donor as a random effect, as stated in the methods. Most importantly, since donor isn’t a random effect, the model uses complete pooling, which ignores the correlated error arising from the clustered design (mice recieving microbes from the same donor). The consequence is a super liberal denominator df for the test, and overly optimistic p-values.</li>
+</ol>
+<pre class="r"><code>type3 &lt;- list(Gender=contr.sum, ASD_diagnosis=contr.sum) # change the contrasts coding for the model matrix
+m2a &lt;- lm(OFT_Distance ~ Gender*ASD_diagnosis, data=mouse, contrasts=type3)
+Anova(m2a, type=&quot;3&quot;)</code></pre>
+<pre><code>## Anova Table (Type III tests)
+## 
+## Response: OFT_Distance
+##                          Sum Sq  Df   F value  Pr(&gt;F)    
+## (Intercept)          3863414020   1 3828.6270 &lt; 2e-16 ***
+## Gender                  1795588   1    1.7794 0.18372    
+## ASD_diagnosis           4676457   1    4.6343 0.03252 *  
+## Gender:ASD_diagnosis     722345   1    0.7158 0.39851    
+## Residuals             203835380 202                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code># contrasts statement doesn&#39;t work with gls so change variable in data.table
+mouse[, Gender.sum := C(Gender, contr.sum)]
+mouse[, ASD_diagnosis.sum := C(ASD_diagnosis, contr.sum)]
+m2b &lt;- gls(OFT_Distance ~ Gender.sum*ASD_diagnosis.sum, weights=varIdent(form=~1|Donor), data=mouse)
+anova(m2b, type=&quot;marginal&quot;)</code></pre>
+<pre><code>## Denom. DF: 202 
+##                              numDF  F-value p-value
+## (Intercept)                      1 4336.040  &lt;.0001
+## Gender.sum                       1    2.378  0.1246
+## ASD_diagnosis.sum                1   15.345  0.0001
+## Gender.sum:ASD_diagnosis.sum     1    1.871  0.1729</code></pre>
+<div id="some-checks" class="section level2">
+<h2>some checks</h2>
+<div id="what-is-mouseid" class="section level3">
+<h3>What is MouseID?</h3>
+<p>In the pubpeer response, Sharon states “specify linear mixed effects modeling of individual mice, nested within donor, and round of testing”. I assume individual mice is referenced by MouseID. But…</p>
+<p>Number of Mice</p>
+<pre class="r"><code>length(levels(mouse$MouseID))</code></pre>
+<pre><code>## [1] 75</code></pre>
+<p>Explore a single mouse</p>
+<pre class="r"><code>mouse[MouseID==1, 1:10]</code></pre>
+<pre><code>##     V1 Round Cycle MouseID Gender Donor ASD_diagnosis OFT_Distance
+## 1:   0     1     1       1 Female    C1            NT      2763.60
+## 2: 566     9     3       1   Male    C1            NT      4565.92
+## 3: 632    10     3       1   Male    C4            NT      4615.37
+##    OFT_velocity OFT_LrgCntr_freq
+## 1:      5.08254              113
+## 2:      7.60987              101
+## 3:      7.84499              128</code></pre>
+<pre class="r"><code># mouse ID=1 is both female and male? So MouseID cannot be the mouse tested behaviorally</code></pre>
+<p>Hmm. MouseID=1 is both male and female? Is this true of some/all MouseID?</p>
+<pre class="r"><code># check number of mouseID:Gender combinations
+unique(paste(mouse$MouseID, mouse$Gender,sep=&quot;:&quot;))</code></pre>
+<pre><code>##   [1] &quot;1:Female&quot;  &quot;2:Female&quot;  &quot;3:Female&quot;  &quot;4:Female&quot;  &quot;5:Male&quot;   
+##   [6] &quot;6:Male&quot;    &quot;7:Male&quot;    &quot;8:Male&quot;    &quot;9:Female&quot;  &quot;22:Male&quot;  
+##  [11] &quot;23:Male&quot;   &quot;24:Female&quot; &quot;25:Female&quot; &quot;26:Female&quot; &quot;27:Female&quot;
+##  [16] &quot;28:Male&quot;   &quot;29:Male&quot;   &quot;30:Female&quot; &quot;31:Female&quot; &quot;32:Female&quot;
+##  [21] &quot;33:Female&quot; &quot;35:Female&quot; &quot;35:Male&quot;   &quot;36:Female&quot; &quot;37:Female&quot;
+##  [26] &quot;38:Female&quot; &quot;39:Female&quot; &quot;40:Male&quot;   &quot;41:Male&quot;   &quot;42:Male&quot;  
+##  [31] &quot;43:Male&quot;   &quot;44:Male&quot;   &quot;46:Female&quot; &quot;46:Male&quot;   &quot;47:Female&quot;
+##  [36] &quot;48:Female&quot; &quot;49:Female&quot; &quot;45:Male&quot;   &quot;47:Male&quot;   &quot;48:Male&quot;  
+##  [41] &quot;49:Male&quot;   &quot;50:Male&quot;   &quot;51:Male&quot;   &quot;52:Male&quot;   &quot;53:Male&quot;  
+##  [46] &quot;54:Male&quot;   &quot;55:Female&quot; &quot;56:Female&quot; &quot;57:Female&quot; &quot;58:Female&quot;
+##  [51] &quot;59:Female&quot; &quot;60:Female&quot; &quot;61:Female&quot; &quot;62:Female&quot; &quot;30:Male&quot;  
+##  [56] &quot;31:Male&quot;   &quot;32:Male&quot;   &quot;33:Male&quot;   &quot;34:Male&quot;   &quot;64:Female&quot;
+##  [61] &quot;65:Female&quot; &quot;66:Female&quot; &quot;67:Female&quot; &quot;68:Female&quot; &quot;69:Female&quot;
+##  [66] &quot;70:Female&quot; &quot;71:Female&quot; &quot;72:Female&quot; &quot;73:Female&quot; &quot;74:Female&quot;
+##  [71] &quot;75:Female&quot; &quot;1:Male&quot;    &quot;2:Male&quot;    &quot;3:Male&quot;    &quot;4:Male&quot;   
+##  [76] &quot;9:Male&quot;    &quot;10:Male&quot;   &quot;11:Male&quot;   &quot;12:Male&quot;   &quot;13:Male&quot;  
+##  [81] &quot;14:Male&quot;   &quot;15:Male&quot;   &quot;16:Male&quot;   &quot;17:Male&quot;   &quot;18:Male&quot;  
+##  [86] &quot;19:Male&quot;   &quot;20:Male&quot;   &quot;21:Male&quot;   &quot;24:Male&quot;   &quot;25:Male&quot;  
+##  [91] &quot;26:Male&quot;   &quot;27:Male&quot;   &quot;36:Male&quot;   &quot;41:Female&quot; &quot;42:Female&quot;
+##  [96] &quot;43:Female&quot; &quot;44:Female&quot; &quot;45:Female&quot; &quot;50:Female&quot; &quot;51:Female&quot;
+## [101] &quot;53:Female&quot; &quot;54:Female&quot; &quot;63:Female&quot; &quot;34:Female&quot; &quot;40:Female&quot;
+## [106] &quot;52:Female&quot;</code></pre>
+<p>So 75 “individual mice” (identified by MouseID) but 106 combinations of MouseID:Gender. So I’m not sure what MouseID identifies – maybe litter (see below). Certainly not an individual mouse that were tested.</p>
+</div>
+<div id="what-is-a-cycle-v-round" class="section level3">
+<h3>What is a cycle v round?</h3>
+<p>Again, in the pubpeer response, Sharon states “specify linear mixed effects modeling of individual mice, nested within donor, and round of testing</p>
+<pre class="r"><code>dim(mouse)</code></pre>
+<pre><code>## [1] 206  50</code></pre>
+<pre class="r"><code>length(unique(paste(mouse$MouseID, mouse$Round,sep=&quot;:&quot;)))</code></pre>
+<pre><code>## [1] 204</code></pre>
+<p>206 data points (consistant with results) but 204 combinations of MouseID and Round. Which have &gt; 1</p>
+<pre class="r"><code>mouse[, ID_x_Round:=paste(MouseID, Round, sep=&quot;_x_&quot;)]
+dt &lt;- mouse[, .(N=.N), by=ID_x_Round]
+dt[N&gt;1,] # 35 x 1 and 46 x 1</code></pre>
+<pre><code>##    ID_x_Round N
+## 1:     35_x_1 2
+## 2:     46_x_1 2</code></pre>
+<pre class="r"><code>mouse[MouseID==&quot;35&quot;, ]</code></pre>
+<pre><code>##     V1 Round Cycle MouseID Gender   Donor ASD_diagnosis OFT_Distance
+## 1:  32     1     1      35 Female A24-new           ASD      4089.96
+## 2:  33     1     1      35   Male A24-new           ASD      3855.53
+## 3: 167     3     1      35   Male      N5            NT      5201.08
+## 4: 600     9     3      35   Male      C1            NT      2687.43
+## 5: 666    10     3      35 Female      C4            NT      4974.22
+##    OFT_velocity OFT_LrgCntr_freq OFT_LrgCntr_duration OFT_LrgCntr_latency
+## 1:      7.42706              102              78.6119            0.467133
+## 2:      6.84133              115              78.3450            0.867534
+## 3:      8.79415              159              88.3217           36.269600
+## 4:      4.51749               75              44.5779            6.473140
+## 5:      8.42008              138              82.7161            7.507510
+##    OFT_SmlCntr_freq OFT_SmlCntr_duration OFT_SmlCntr_latency OFT_Movement
+## 1:               45              74.8081             0.00000      62.1817
+## 2:               66              88.0214             1.33467      66.0698
+## 3:               66             101.5350            45.44540      56.5645
+## 4:               31              68.0681             6.84017      36.3844
+## 5:               63             147.0140             7.67434      58.0771
+##    MB_visible MB_buried MB_percentBuried DSI_Agrsn_freq DSI_Agrsn_duration
+## 1:         15         5               25             NA                 NA
+## 2:          7        13               65             NA                 NA
+## 3:         18         2               10             NA                 NA
+## 4:         11         9               45             11             61.295
+## 5:         19         1                5              0              0.000
+##    DSI_Social_freq DSI_Social_duration DSI_Groom_freq DSI_Groom_Duration
+## 1:              NA                  NA             NA                 NA
+## 2:              NA                  NA             NA                 NA
+## 3:              NA                  NA             NA                 NA
+## 4:              12              51.995              6             14.505
+## 5:              11              15.110              3              6.040
+##    SI_Habit_Social SI_Habit_Cntr SI_Habit_NonSocial SI_Sociability_Social
+## 1:        234.1680       181.648            126.793               251.185
+## 2:        256.3900       175.175            154.621               225.292
+## 3:        205.5390       192.259            181.949               310.410
+## 4:         92.8262       151.518            310.344               325.392
+## 5:        102.8360       179.980            293.460               235.002
+##    SI_Sociability_Cntr SI_Sociability_NonSocial Unnamed: 30 Unnamed: 31
+## 1:             70.8709                  257.391          NA          NA
+## 2:            116.4500                  245.112          NA          NA
+## 3:             52.7194                  219.186          NA          NA
+## 4:             33.4001                  210.677          NA          NA
+## 5:             79.0457                  218.986          NA          NA
+##    Unnamed: 32 USV_freq USV_Duration DSI_USV_median DSI_USV_StdDev
+## 1:          NA       NA           NA             NA             NA
+## 2:          NA     1063      47.8241             NA             NA
+## 3:          NA      519      22.9990             NA             NA
+## 4:          NA       NA           NA        0.04745        0.07175
+## 5:          NA       NA           NA        0.00620        0.01302
+##    DSI_USV_Freq DSI_USV_Duration DSI_USV_Slbl_num DSI_USV_Slbl_Duration
+## 1:           NA               NA               NA                    NA
+## 2:           NA               NA               NA                    NA
+## 3:           NA               NA               NA                    NA
+## 4:          154           7.3079               44                    85
+## 5:           77           0.4778               42                     5
+##    DSI_USV_Slbl_Gap_Length DSI_USV_Slbl_Bout_freq DSI_USV_Slbl_Bout_gap
+## 1:                      NA                     NA                    NA
+## 2:                      NA                     NA                    NA
+## 3:                      NA                     NA                    NA
+## 4:                    8079                     28                   501
+## 5:                    3170                     26                   501
+##    DSI_USV_Slbl_SlblPerBout Unnamed: 45  SI_index Gender.sum
+## 1:                       NA          NA -0.610135     Female
+## 2:                       NA          NA -2.106700       Male
+## 3:                       NA          NA  8.612603       Male
+## 4:                        2          NA 10.699649       Male
+## 5:                        2          NA  1.763923     Female
+##    ASD_diagnosis.sum ID_x_Round
+## 1:               ASD     35_x_1
+## 2:               ASD     35_x_1
+## 3:                NT     35_x_3
+## 4:                NT     35_x_9
+## 5:                NT    35_x_10</code></pre>
+<pre class="r"><code>mouse[MouseID==&quot;46&quot;, ]</code></pre>
+<pre><code>##     V1 Round Cycle MouseID Gender   Donor ASD_diagnosis OFT_Distance
+## 1:  43     1     1      46 Female A24-new           ASD      3622.66
+## 2:  44     1     1      46   Male A24-new           ASD      3300.87
+## 3: 609     9     3      46 Female A24-new           ASD      4195.94
+## 4: 677    10     3      46 Female A11-old           ASD      4029.45
+##    OFT_velocity OFT_LrgCntr_freq OFT_LrgCntr_duration OFT_LrgCntr_latency
+## 1:      6.57209               81              62.9296            25.42540
+## 2:      5.63688              105              91.2246             6.27294
+## 3:      7.01313              154             112.3120            12.94630
+## 4:      6.87479              101              59.4928             1.56823
+##    OFT_SmlCntr_freq OFT_SmlCntr_duration OFT_SmlCntr_latency OFT_Movement
+## 1:               27              89.4895            25.89260      61.4769
+## 2:               43             148.6820             7.34067      58.4853
+## 3:               57              59.6263            13.24660      49.4967
+## 4:               36              31.4648             8.44177      48.5347
+##    MB_visible MB_buried MB_percentBuried DSI_Agrsn_freq DSI_Agrsn_duration
+## 1:         18         2               10             NA                 NA
+## 2:         16         4               20             NA                 NA
+## 3:         14         6               30              0                  0
+## 4:         15         5               25              0                  0
+##    DSI_Social_freq DSI_Social_duration DSI_Groom_freq DSI_Groom_Duration
+## 1:              NA                  NA             NA                 NA
+## 2:              NA                  NA             NA                 NA
+## 3:              14              22.945              1              7.855
+## 4:              15              25.230              2             10.105
+##    SI_Habit_Social SI_Habit_Cntr SI_Habit_NonSocial SI_Sociability_Social
+## 1:         93.1598       212.346           253.7200               331.798
+## 2:        261.5280       199.666           128.3280               323.323
+## 3:        158.0580       196.964            94.4611               365.265
+## 4:        111.3450       229.096           183.6500               303.804
+##    SI_Sociability_Cntr SI_Sociability_NonSocial Unnamed: 30 Unnamed: 31
+## 1:             48.3150                  191.458          NA          NA
+## 2:             80.0801                  173.040          NA          NA
+## 3:             47.9813                  113.113          NA          NA
+## 4:             80.0133                  179.613          NA          NA
+##    Unnamed: 32 USV_freq USV_Duration DSI_USV_median DSI_USV_StdDev
+## 1:          NA       NA           NA             NA             NA
+## 2:          NA       69       0.3854             NA             NA
+## 3:          NA       NA           NA        0.00550        0.01227
+## 4:          NA       NA           NA        0.00677        0.01244
+##    DSI_USV_Freq DSI_USV_Duration DSI_USV_Slbl_num DSI_USV_Slbl_Duration
+## 1:           NA               NA               NA                    NA
+## 2:           NA               NA               NA                    NA
+## 3:          154           0.8478               43                    16
+## 4:          193           1.3078              154                    18
+##    DSI_USV_Slbl_Gap_Length DSI_USV_Slbl_Bout_freq DSI_USV_Slbl_Bout_gap
+## 1:                      NA                     NA                    NA
+## 2:                      NA                     NA                    NA
+## 3:                    7564                     26                   158
+## 4:                    2315                     51                   200
+##    DSI_USV_Slbl_SlblPerBout Unnamed: 45 SI_index Gender.sum
+## 1:                       NA          NA 13.41026     Female
+## 2:                       NA          NA 15.13842       Male
+## 3:                        2          NA 26.35489     Female
+## 4:                        3          NA 12.84512     Female
+##    ASD_diagnosis.sum ID_x_Round
+## 1:               ASD     46_x_1
+## 2:               ASD     46_x_1
+## 3:               ASD     46_x_9
+## 4:               ASD    46_x_10</code></pre>
+<p>In addition to two 35 x 1 (mouse ID x Round), this same MouseID is used for mice of different sex and different donors. Does MouseID=litter?</p>
+</div>
 </div>
 </div>

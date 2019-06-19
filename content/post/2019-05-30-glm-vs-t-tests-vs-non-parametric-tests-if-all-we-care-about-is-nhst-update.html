@@ -1,18 +1,17 @@
 ---
-title: GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update
-author: Jeff Walker
+title: "GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update"
+author: "Jeff Walker"
 date: '2019-05-30'
-slug: glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update
-categories:
-  - stats 101
-tags:
-  - generalized linear models
-  - NHST
-  - non-parametric
-  - p-values
-  - power
-  - fake data
 description: "TL;DR -- If we live and die by NHST, then we want to choose a test with good Type I error control but has high power. The quasi-poisson both estimates an interpretable effect (unlike a t-test of log(y +1)) and has good Type I control with high power. A bit longer: The quasi-poisson LRT and the permutation NB have good Type I control and high power. The NB Wald and LRT have too liberal Type I control. The t-test of log response has good Type I control and high power at low $n$ but is slightly inferior to the glm with increased $n$. The t-test, Welch, and Wilcoxan have conservative Type I control. Of these, the Wilcoxan has higher power than the t-test and Welch but not as high as the GLMs or log-transformed response."
+slug: glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update
+tags:
+- generalized linear models
+- NHST
+- non-parametric
+- p-values
+- power
+- fake data
+categories: stats 101
 ---
 
 
@@ -35,6 +34,7 @@ library(cowplot)</code></pre>
 <h2>The simulation</h2>
 <ol style="list-style-type: decimal">
 <li>Single factor with two levels and a count (negative binomial) response.</li>
+<li>theta (shape parameter of NB) = 0.5</li>
 <li>Relative effect sizes of 0%, 100%, and 200%</li>
 <li>Ref count of 4</li>
 <li><span class="math inline">\(n\)</span> of 5 and 10</li>

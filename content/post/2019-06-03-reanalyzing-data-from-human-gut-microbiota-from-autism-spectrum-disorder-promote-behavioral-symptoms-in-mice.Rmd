@@ -11,6 +11,7 @@ tags:
   - microbiome
 description: "A very skeletal analysis of 'Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice', which got some attention on pubpeer. Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless if means and some kind of error bar is presented. A much better plot for inferring differences is an effects plot with the CI of the effect. That said, I'll try to reproduce the resulting p-value."
 ---
+**Update** - This post has been updated
 
 A very skeletal analysis of
 
@@ -25,7 +26,9 @@ Failure to reproduce or partial reproducibility might be an error in my coding, 
 
 ```{r, warning=FALSE, message=FALSE}
 library(ggplot2)
+library(nlme)
 library(lmerTest)
+library(car)
 library(emmeans)
 library(lmtest)
 library(data.table)
@@ -40,7 +43,10 @@ data_path <- "../data/Data from Human Gut Microbiota from Autism Spectrum Disord
 fn <- "Fig1EFGH_subset8.csv"
 file_path <- paste(data_path, fn, sep="/")
 mouse <- fread(file_path)
+mouse[, Gender:=factor(Gender)]
 mouse[, ASD_diagnosis:=factor(ASD_diagnosis, c("NT", "ASD"))]
+mouse[, MouseID:=factor(MouseID)]
+mouse[, Round:=factor(Round)]
 ```
 
 # Figure 1G
@@ -57,7 +63,7 @@ m2 <- lmer(OFT_Distance ~ Gender + ASD_diagnosis + (1|Donor), data=mouse)
 
 ```
 
-and effect, standardized to cohen's D using residual standard deviation from model: (NT - ASD)/sigma 
+The effect, standardized to cohen's D using residual standard deviation from model: (NT - ASD)/sigma 
 
 ```{r}
 coef(summary(m1))["ASD_diagnosisASD", "Estimate"]/sigma(m1)
@@ -122,3 +128,67 @@ lrtest(m2, m1)
 ```
 
 Basically the same results
+
+# Update
+
+1. [Thomas Lumley also explored statistical models based on the author's two descriptions](https://notstatschat.rbind.io/2019/06/16/analysing-the-mouse-autism-data/). The first set are similar to mine above, but using Satterthwaite or Kenward-Rogers ddf on F-test instead of a LRT. I punted on the "diagonal covariance matrices" of method 2, but Lumley ran with it and, with a bit of SPSS manual description, figured out that the result can be reproduced using a GLS that weights the error variances using levels of Donor. This isn't a mixed model with Donor as a random effect, as stated in the methods. Most importantly, since donor isn't a random effect, the model uses complete pooling, which ignores the correlated error arising from the clustered design (mice recieving microbes from the same donor). The consequence is a super liberal denominator df for the test, and overly optimistic p-values.
+
+```{r}
+
+type3 <- list(Gender=contr.sum, ASD_diagnosis=contr.sum) # change the contrasts coding for the model matrix
+m2a <- lm(OFT_Distance ~ Gender*ASD_diagnosis, data=mouse, contrasts=type3)
+Anova(m2a, type="3")
+# contrasts statement doesn't work with gls so change variable in data.table
+mouse[, Gender.sum := C(Gender, contr.sum)]
+mouse[, ASD_diagnosis.sum := C(ASD_diagnosis, contr.sum)]
+m2b <- gls(OFT_Distance ~ Gender.sum*ASD_diagnosis.sum, weights=varIdent(form=~1|Donor), data=mouse)
+anova(m2b, type="marginal")
+
+```
+
+
+## some checks
+### What is MouseID?
+
+In the pubpeer response, Sharon states "specify linear mixed effects modeling of individual mice, nested within donor, and round of testing". I assume individual mice is referenced by MouseID. But...
+
+Number of Mice
+```{r}
+length(levels(mouse$MouseID))
+```
+
+Explore a single mouse
+```{r}
+mouse[MouseID==1, 1:10]
+# mouse ID=1 is both female and male? So MouseID cannot be the mouse tested behaviorally
+```
+
+Hmm. MouseID=1 is both male and female? Is this true of some/all MouseID?
+
+```{r}
+# check number of mouseID:Gender combinations
+unique(paste(mouse$MouseID, mouse$Gender,sep=":"))
+
+```
+
+So 75 "individual mice" (identified by MouseID) but 106 combinations of MouseID:Gender. So I'm not sure what MouseID identifies -- maybe litter (see below). Certainly not an individual mouse that were tested.
+
+### What is a cycle v round?
+Again, in the pubpeer response, Sharon states "specify linear mixed effects modeling of individual mice, nested within donor, and round of testing
+
+```{r}
+dim(mouse)
+length(unique(paste(mouse$MouseID, mouse$Round,sep=":")))
+```
+
+206 data points (consistant with results) but 204 combinations of MouseID and Round. Which have > 1
+```{r}
+mouse[, ID_x_Round:=paste(MouseID, Round, sep="_x_")]
+dt <- mouse[, .(N=.N), by=ID_x_Round]
+dt[N>1,] # 35 x 1 and 46 x 1
+mouse[MouseID=="35", ]
+mouse[MouseID=="46", ]
+
+```
+
+In addition to two 35 x 1 (mouse ID x Round), this same MouseID is used for mice of different sex and different donors. Does MouseID=litter?

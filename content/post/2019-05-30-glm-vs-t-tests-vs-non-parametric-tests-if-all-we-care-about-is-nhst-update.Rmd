@@ -1,18 +1,17 @@
 ---
-title: GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update
-author: Jeff Walker
+title: "GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update"
+author: "Jeff Walker"
 date: '2019-05-30'
-slug: glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update
-categories:
-  - stats 101
-tags:
-  - generalized linear models
-  - NHST
-  - non-parametric
-  - p-values
-  - power
-  - fake data
 description: "TL;DR -- If we live and die by NHST, then we want to choose a test with good Type I error control but has high power. The quasi-poisson both estimates an interpretable effect (unlike a t-test of log(y +1)) and has good Type I control with high power. A bit longer: The quasi-poisson LRT and the permutation NB have good Type I control and high power. The NB Wald and LRT have too liberal Type I control. The t-test of log response has good Type I control and high power at low $n$ but is slightly inferior to the glm with increased $n$. The t-test, Welch, and Wilcoxan have conservative Type I control. Of these, the Wilcoxan has higher power than the t-test and Welch but not as high as the GLMs or log-transformed response."
+slug: glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update
+tags:
+- generalized linear models
+- NHST
+- non-parametric
+- p-values
+- power
+- fake data
+categories: stats 101
 ---
 
 [Update to the earlier post](../../../2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/), which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough -- or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R. "For testing the significance of regression coefficients, go ahead and log‐transform count data." Methods in Ecology and Evolution 6, no. 7 (2015): 828-835) or [Warton et al.](Warton, D.I., Lyons, M., Stoklosa, J. and Ives, A.R., 2016. Three points to consider when choosing a LM or GLM test for count data. Methods in Ecology and Evolution, 7(8), pp.882-890). With hindsight, I do vaguely recall Ives, and my previous results support his conclusions, but I was unaware of Warton.
@@ -38,9 +37,10 @@ library(cowplot)
 ## The simulation
 
 1. Single factor with two levels and a count (negative binomial) response.
-2. Relative effect sizes of 0%, 100%, and 200%
-3. Ref count of 4
-4. $n$ of 5 and 10
+2. theta (shape parameter of NB) = 0.5
+3. Relative effect sizes of 0%, 100%, and 200%
+4. Ref count of 4
+5. $n$ of 5 and 10
 
 *p*-values computed from
 

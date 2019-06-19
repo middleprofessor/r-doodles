@@ -29,9 +29,10 @@ library(cowplot)
 ## The simulation
 
 1. Single factor with two levels and a count (negative binomial) response.
-2. Relative effect sizes of 0%, 50%, 100%, and 200%
-3. Ref count of 4, 10, 100
-4. $n$ of 5, 10, 20, 40
+2. theta (shape parameter) set to 0.5, 1, 100
+3. Relative effect sizes of 0%, 50%, 100%, and 200%
+4. Ref count of 4, 10, 100
+5. $n$ of 5, 10, 20, 40
 
 *p*-values computed from
 
