@@ -7,30 +7,30 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
-<meta name="keywords" content="">
-<meta name="description" content="Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
- I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.">
+<meta name="keywords" content="tech">
+<meta name="description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.
+library(ggplot2) library(readxl) library(data.">
 
 
-<meta property="og:description" content="Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
- I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.">
+<meta property="og:description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.
+library(ggplot2) library(readxl) library(data.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="What is the range of reasonable P-values given a two standard error difference in means?">
-<meta name="twitter:title" content="What is the range of reasonable P-values given a two standard error difference in means?">
-<meta property="og:url" content="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
-<meta property="twitter:url" content="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+<meta property="og:title" content="paried t-test as a special case of linear model and hierarchical (linear mixed) model">
+<meta name="twitter:title" content="paried t-test as a special case of linear model and hierarchical (linear mixed) model">
+<meta property="og:url" content="/2019/06/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
+<meta property="twitter:url" content="/2019/06/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
 <meta property="og:site_name" content="R Doodles">
-<meta property="og:description" content="Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
- I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.">
-<meta name="twitter:description" content="Here is the motivating quote for this post, from Andrew Gelman’s blog post “Five ways to fix statistics”
- I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible.">
+<meta property="og:description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.
+library(ggplot2) library(readxl) library(data.">
+<meta name="twitter:description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.
+library(ggplot2) library(readxl) library(data.">
 <meta property="og:locale" content="en-us">
 
   
-    <meta property="article:published_time" content="2018-03-18T00:00:00">
+    <meta property="article:published_time" content="2019-06-25T00:00:00">
   
   
-    <meta property="article:modified_time" content="2018-03-18T00:00:00">
+    <meta property="article:modified_time" content="2019-06-25T00:00:00">
   
   
   
@@ -40,9 +40,11 @@
   
   
     
-      <meta property="article:tag" content="gelman">
+      <meta property="article:tag" content="linear mixed model">
     
-      <meta property="article:tag" content="p-values">
+      <meta property="article:tag" content="microbiome">
+    
+      <meta property="article:tag" content="reanalysis">
     
   
 
@@ -67,14 +69,14 @@
   <meta property="twitter:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
 
 
-    <title>What is the range of reasonable P-values given a two standard error difference in means?</title>
+    <title>paried t-test as a special case of linear model and hierarchical (linear mixed) model</title>
 
     <link rel="icon" href="/favicon.png">
     
 
     
 
-    <link rel="canonical" href="/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+    <link rel="canonical" href="/2019/06/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
@@ -277,15 +279,15 @@ if (!doNotTrack) {
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      What is the range of reasonable P-values given a two standard error difference in means?
+      paried t-test as a special case of linear model and hierarchical (linear mixed) model
     </h1>
   
   
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2018-03-18T00:00:00Z">
+      <time itemprop="datePublished" datetime="2019-06-25T00:00:00Z">
         
-  March 18, 2018
+  June 25, 2019
 
       </time>
     
@@ -307,75 +309,84 @@ if (!doNotTrack) {
               
 
 
-<p>Here is the motivating quote for this post, from Andrew Gelman’s blog post <a href="http://andrewgelman.com/2017/11/28/five-ways-fix-statistics/">“Five ways to fix statistics”</a></p>
-<blockquote>
-<p>I agree with just about everything in Leek’s article except for this statement: “It’s also impractical to say that statistical metrics such as P values should not be used to make decisions. Sometimes a decision (editorial or funding, say) must be made, and clear guidelines are useful.” Yes, decisions need to be made, but to suggest that p-values be used to make editorial or funding decisions—that’s just horrible. That’s what’s landed us in the current mess. As my colleagues and I have discussed, we strongly feel that editorial and funding decisions should be based on theory, statistical evidence, and cost-benefit analyses—not on a noisy measure such as a p-value. <em>Remember that if you’re in a setting where the true effect is two standard errors away from zero, that the p-value could easily be anywhere from 0.00006 and 1. That is, in such a setting, the 95% predictive interval for the z-score is (0, 4), which corresponds to a 95% predictive interval for the p-value of (1.0, 0.00006)</em>. That’s how noisy the p-value is. So, no, don’t use it to make editorial and funding decisions.</p>
-</blockquote>
-<p>I’m not sure how Gelman computed these numbers, but the statement seems worthy of exploring with an R-doodle. Here is the way I’d frame the question for exploration: given a true, two SED (standard error of the difference in means) effect, what is the interval containing 95% of future <span class="math inline">\(p\)</span>-values? Here is the R-doodle, which also explores the interval given 1, 3, and 4 SED effects.</p>
-<pre class="r"><code># doodle to see 95% CI of p-value (range of p-values consistent with data) given
-# a 2SE effect size (i.e. just at 0.05 for large n)
-# motivating quote:
-# &quot;Remember that if you’re in a setting where the true effect is two standard errors away from zero, that the p-value could easily be anywhere from 0.00006 and 1. That is, in such a setting, the 95% predictive interval for the z-score is (0, 4), which corresponds to a 95% predictive interval for the p-value of (1.0, 0.00006). That’s how noisy the p-value is.&quot;
-# source: http://andrewgelman.com/2017/11/28/five-ways-fix-statistics/
-# Jeffrey Walker
-# November 29, 2017
-
-library(ggplot2)
+<p>Figure 2A of the paper <a href="https://www.nature.com/articles/s41591-019-0485-4">Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism</a> uses a paired t-test to compare endurance performance in mice treated with a control microbe (<em>Lactobacillus bulgaricus</em>) and a test microbe (<em>Veillonella atypica</em>) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.</p>
+<pre class="r"><code>library(ggplot2)
+library(readxl)
 library(data.table)
-set.seed(1)
-n &lt;- 30
-niter &lt;- 5*10^3
-sigma &lt;- 1
-x &lt;- rep(c(0,1),each=n)
-p &lt;- numeric(niter)
-d &lt;- numeric(niter)
-res &lt;- data.table(NULL)
-# initialize in SED units
-for(sed_effect in 1:4){
-  # the effect in SEM units
-  se_effect &lt;- sqrt(2*sed_effect^2) # 
-  # the effect in SD units
-  sd_effect &lt;- se_effect/sqrt(n)
-  power &lt;- power.t.test(n, sd_effect, sigma)$power
-  y1 &lt;- matrix(rnorm(n*niter,mean=0.0, sd=sigma), nrow=n)
-  y2 &lt;- matrix(rnorm(n*niter, mean=sd_effect, sd=sigma),nrow=n)
-  for(i in 1:niter){
-    p[i] &lt;- t.test(y1[,i],y2[,i])$p.value
+library(lmerTest)
+library(emmeans)
+
+bookdown_it &lt;- TRUE
+if(bookdown_it==TRUE){
+  data_path &lt;- &quot;../data&quot;
+  source(&quot;../../../R/clean_labels.R&quot;)
+}else{
+  data_path &lt;- &quot;../content/data&quot;
+  source(&quot;../../R/clean_labels.R&quot;)
+}</code></pre>
+<pre class="r"><code>folder &lt;- &quot;Data from Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism&quot;
+file_i &lt;- &quot;41591_2019_485_MOESM2_ESM.xlsx&quot;
+file_path &lt;- paste(data_path, folder, file_i, sep=&quot;/&quot;)
+sheet_i &lt;- &quot;ST3 Veillonella run times&quot;
+range_vec &lt;- c(&quot;a5:d21&quot;, &quot;f5:i21&quot;, &quot;a24:d40&quot;, &quot;f24:i40&quot;)
+fig2a &lt;- data.table(NULL)
+poop &lt;- c(&quot;Lb&quot;, &quot;Va&quot;)
+for(week_i in 1:4){
+  range_i &lt;- range_vec[week_i]
+  if(week_i %in% c(1, 3)){
+    treatment &lt;- rep(c(poop[1], poop[2]), each=8)
+  }else{
+    treatment &lt;- rep(c(poop[2], poop[1]), each=8)
   }
-  ci &lt;- quantile(p, c(0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975))
-  res &lt;- rbind(res, data.table(n=n,
-                          d.sed=sed_effect,
-                          d.sem=se_effect, d.sd=round(sd_effect, 2),
-                          power=round(power,2),
-                          data.table(t(ci))))
+  fig2a &lt;- rbind(fig2a, data.table(week=week_i, treatment=treatment, data.table(
+    read_excel(file_path, sheet=sheet_i, range=range_i))))
 }
-res</code></pre>
-<pre><code>##     n d.sed    d.sem d.sd power         2.5%           5%          25%
-## 1: 30     1 1.414214 0.26  0.16 3.347471e-03 9.251045e-03 9.726431e-02
-## 2: 30     2 2.828427 0.52  0.50 1.307935e-04 4.364955e-04 9.216022e-03
-## 3: 30     3 4.242641 0.77  0.84 4.042272e-06 1.242138e-05 4.220133e-04
-## 4: 30     4 5.656854 1.03  0.98 4.570080e-08 2.297983e-07 1.471134e-05
-##             50%         75%        95%      97.5%
-## 1: 0.2936458989 0.611365558 0.91934854 0.95630882
-## 2: 0.0499891796 0.189903833 0.69030016 0.84298129
-## 3: 0.0036464345 0.023343898 0.17671907 0.29660133
-## 4: 0.0001906092 0.001769547 0.02642579 0.05377549</code></pre>
-<pre class="r"><code>old_names &lt;- c(&#39;2.5%&#39;, &#39;5%&#39;, &#39;25%&#39;, &#39;50%&#39;, &#39;75%&#39;, &#39;95%&#39;, &#39;97.5%&#39;)
-new_names &lt;- c(&#39;lo3&#39;, &#39;lo2&#39;, &#39;lo1&#39;, &#39;med&#39;, &#39;up1&#39;, &#39;up2&#39;, &#39;up3&#39;)
-setnames(res, old=old_names, new=new_names)
-gg &lt;- ggplot(data=res, aes(x=d.sed, y=med)) +
-  geom_linerange(aes(ymin=lo3, ymax=up3)) +
-  geom_linerange(aes(ymin=lo1, ymax=up1), size=4, color=&#39;darkgray&#39;) +
-  geom_point() +
-  geom_hline(yintercept=0.05, linetype=&#39;dashed&#39;) +
-#  geom_hline(yintercept=0.05, aes(linetype=&#39;dashed&#39;, color=&#39;darkgray&#39;))
-#  geom_hline(yintercept=0.05, mapping=aes(linetype=&#39;dashed&#39;, color=&#39;red&#39;))
-  labs(x=&#39;Difference in means (SED)&#39;, y=&#39;p-value&#39;) +
-  theme_minimal()
-gg</code></pre>
-<p><img src="/post/2018-03-18-what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means_files/figure-html/simulation-1.png" width="672" /></p>
-<p>A 2 SED effect has an expected <span class="math inline">\(p\)</span>-value near 0.05 given a reasonable sample size. My 95% interval for <span class="math inline">\(p\)</span>-values for a 2 SED effect is (0.0001, .83), which is narrower than Gelman’s. I’m not sure we’re computing the same thing. I’ve explored the question, what is the <em>confidence interval</em> of the SED and <span class="math inline">\(p\)</span>-value if the true effect, in SED units, is 2?</p>
-<p>Regardless, the larger point remains intact. The larger point, of course, is that <span class="math inline">\(p\)</span>-values are noisy. If an effect is just statistically significant, future <span class="math inline">\(p\)</span>-values from the experiment would reasonably range from very small to very large (and this assumes that the only difference in future experiments is sampling variation).</p>
+
+# clean column names
+setnames(fig2a, old=&quot;...1&quot;, new=&quot;ID&quot;)
+setnames(fig2a, old=colnames(fig2a), new=clean_label(colnames(fig2a)))
+
+# wide to long
+fig2a &lt;- melt(fig2a, id.vars=c(&quot;week&quot;, &quot;ID&quot;, &quot;treatment&quot;),
+              variable.name=&quot;day&quot;,
+              value.name=&quot;time&quot;)</code></pre>
+<p>paired t-test as linear model and as linear mixed model. Because of the cross-over design, the ID is not in order within each level of treatment. Make a wide data table with new treatment columns matched by ID.</p>
+<pre class="r"><code># get max for each week x ID x treatment combo
+fig2a.max &lt;- fig2a[, .(time_max=max(time)), by=.(week, ID, treatment)]
+
+# match the two treatments applied to each ID
+va &lt;- fig2a.max[treatment==&quot;Va&quot;, ]
+lb &lt;- fig2a.max[treatment==&quot;Lb&quot;, ]
+fig2a_wide &lt;- merge(va, lb, by=&quot;ID&quot;)</code></pre>
+<p>paired t-test</p>
+<pre class="r"><code># paired t
+res.t &lt;- t.test(fig2a_wide[, time_max.x], fig2a_wide[, time_max.y], paired=TRUE)
+res.t</code></pre>
+<pre><code>## 
+##  Paired t-test
+## 
+## data:  fig2a_wide[, time_max.x] and fig2a_wide[, time_max.y]
+## t = 2.4117, df = 31, p-value = 0.02199
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##   20.47859 244.89641
+## sample estimates:
+## mean of the differences 
+##                132.6875</code></pre>
+<p>linear model</p>
+<pre class="r"><code># as a linear model
+y &lt;- fig2a_wide[, time_max.x] - fig2a_wide[, time_max.y] # Va - Lb
+res.lm &lt;- lm(y ~ 1)
+coef(summary(res.lm))</code></pre>
+<pre><code>##             Estimate Std. Error  t value   Pr(&gt;|t|)
+## (Intercept) 132.6875   55.01749 2.411733 0.02198912</code></pre>
+<p>hierarchical (linear mixed) model with random slope for comparison</p>
+<pre class="r"><code># as multi-level model with random intercept
+res.lmer &lt;- lmer(time_max ~ treatment + (1|ID), data=fig2a.max)
+coef(summary(res.lmer))</code></pre>
+<pre><code>##              Estimate Std. Error       df   t value     Pr(&gt;|t|)
+## (Intercept) 1023.7187   43.37421 59.71689 23.602014 5.703668e-32
+## treatmentVa  132.6875   55.01752 30.99995  2.411732 2.198920e-02</code></pre>
 
               
             </div>
@@ -388,9 +399,11 @@ gg</code></pre>
                   <div class="post-footer-tags">
                     <span class="text-color-light text-small">TAGGED IN</span><br/>
                     
-  <a class="tag tag--primary tag--small" href="/tags/gelman/">gelman</a>
+  <a class="tag tag--primary tag--small" href="/tags/linear-mixed-model/">linear mixed model</a>
 
-  <a class="tag tag--primary tag--small" href="/tags/p-values/">p-values</a>
+  <a class="tag tag--primary tag--small" href="/tags/microbiome/">microbiome</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/reanalysis/">reanalysis</a>
 
                   </div>
                 
@@ -403,7 +416,7 @@ gg</code></pre>
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/03/combining-data-distribution-summary-model-effects-and-uncertainty-in-a-single-plot/" data-tooltip="Combining data, distribution summary, model effects, and uncertainty in a single plot">
+                <a class="post-action-btn btn btn--disabled">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -411,7 +424,7 @@ gg</code></pre>
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/" data-tooltip="Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/06/what-does-cell-biology-data-look-like/" data-tooltip="What does cell biology data look like?">
               
                   <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                   <i class="fa fa-angle-right"></i>
@@ -429,19 +442,19 @@ gg</code></pre>
         </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/06/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
               <i class="fa fa-facebook-official"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/06/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
               <i class="fa fa-twitter"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/06/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
               <i class="fa fa-google-plus"></i>
             </a>
           </li>
@@ -489,7 +502,7 @@ gg</code></pre>
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/03/combining-data-distribution-summary-model-effects-and-uncertainty-in-a-single-plot/" data-tooltip="Combining data, distribution summary, model effects, and uncertainty in a single plot">
+                <a class="post-action-btn btn btn--disabled">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -497,7 +510,7 @@ gg</code></pre>
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2018/03/bias-in-pre-post-designs-an-example-from-the-turnbaugh-et-al-2006-mouse-fecal-transplant-study/" data-tooltip="Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/06/what-does-cell-biology-data-look-like/" data-tooltip="What does cell biology data look like?">
               
                   <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                   <i class="fa fa-angle-right"></i>
@@ -515,19 +528,19 @@ gg</code></pre>
         </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/06/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
               <i class="fa fa-facebook-official"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/06/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
               <i class="fa fa-twitter"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2018/03/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/06/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
               <i class="fa fa-google-plus"></i>
             </a>
           </li>
@@ -557,19 +570,19 @@ gg</code></pre>
   <ul class="share-options">
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2018%2F03%2Fwhat-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means%2F">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F06%2Fparied-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model%2F">
           <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
         </a>
       </li>
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2018%2F03%2Fwhat-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means%2F">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F06%2Fparied-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model%2F">
           <i class="fa fa-twitter"></i><span>Share on Twitter</span>
         </a>
       </li>
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2018%2F03%2Fwhat-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means%2F">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F06%2Fparied-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model%2F">
           <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
         </a>
       </li>
@@ -869,9 +882,9 @@ $(document).ready(function() {
     
       <script>
         var disqus_config = function () {
-          this.page.url = '\/2018\/03\/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means\/';
+          this.page.url = '\/2019\/06\/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model\/';
           
-            this.page.identifier = '\/2018\/03\/what-is-the-range-of-reasonable-p-values-given-a-two-standard-error-difference-in-means\/'
+            this.page.identifier = '\/2019\/06\/paried-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model\/'
           
         };
         (function() {

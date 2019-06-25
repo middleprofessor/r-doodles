@@ -1,0 +1,87 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+library(ggplot2)
+library(readxl)
+library(data.table)
+library(lmerTest)
+library(emmeans)
+
+if(bookdown_it==TRUE){
+  data_path <- "../data"
+
+}else{
+  data_path <- "../content/data"
+  source("../../R/clean_labels.R")
+}
+```
+
+```{r, message=FALSE}
+folder <- "Data from Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism"
+file_i <- "41591_2019_485_MOESM2_ESM.xlsx"
+file_path <- paste(data_path, folder, file_i, sep="/")
+sheet_i <- "ST3 Veillonella run times"
+range_vec <- c("a5:d21", "f5:i21", "a24:d40", "f24:i40")
+fig2a <- data.table(NULL)
+poop <- c("Lb", "Va")
+for(week_i in 1:4){
+  range_i <- range_vec[week_i]
+  if(week_i %in% c(1, 3)){
+    treatment <- rep(c(poop[1], poop[2]), each=8)
+  }else{
+    treatment <- rep(c(poop[2], poop[1]), each=8)
+  }
+  fig2a <- rbind(fig2a, data.table(week=week_i, treatment=treatment, data.table(
+    read_excel(file_path, sheet=sheet_i, range=range_i))))
+}
+
+# clean column names
+setnames(fig2a, old="...1", new="ID")
+setnames(fig2a, old=colnames(fig2a), new=clean_label(colnames(fig2a)))
+
+# wide to long
+fig2a <- melt(fig2a, id.vars=c("week", "ID", "treatment"),
+              variable.name="day",
+              value.name="time")
+
+```
+
+paired t-test as linear model and as linear mixed model. Because of the cross-over design, the ID is not in order within each level of treatment.
+```{r}
+# get max for each week x ID x treatment combo
+fig2a.max <- fig2a[, .(time_max=max(time)), by=.(week, ID, treatment)]
+
+# match the two treatments applied to each ID
+va <- fig2a.max[treatment=="Va", ]
+lb <- fig2a.max[treatment=="Lb", ]
+fig2a_wide <- merge(va, lb, by="ID")
+
+```
+
+paired t-test
+```{r}
+# paired t
+res.t <- t.test(fig2a_wide[, time_max.x], fig2a_wide[, time_max.y], paired=TRUE)
+res.t
+```
+
+linear model
+```{r}
+# as a linear model
+y <- fig2a_wide[, time_max.x] - fig2a_wide[, time_max.y] # Va - Lb
+res.lm <- lm(y ~ 1)
+coef(summary(res.lm))
+
+```
+
+hierarchical (linear mixed) model with random slope for comparison
+```{r}
+# as multi-level model with random intercept
+res.lmer <- lmer(time_max ~ treatment + (1|ID), data=fig2a.max)
+coef(summary(res.lmer))
+
+```
+
