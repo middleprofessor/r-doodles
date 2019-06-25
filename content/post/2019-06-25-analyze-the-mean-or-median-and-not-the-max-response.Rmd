@@ -258,7 +258,7 @@ gg <- ggplot(data=sim_table_long, aes(x=method, y=estimate)) +
 gg
 ```
 
-Using the statistical significance filter. The mean effect, of those that are significant, estimated using the max response, the mean response, and a hierarchical model
+Run through a statistical significance filter, the mean effects, of those that are significant, estimated using the max response, the mean response, and a hierarchical model, are:
 
 ```{r}
 p_table_long <- melt(sim_table, id.vars=c("effect"), 
