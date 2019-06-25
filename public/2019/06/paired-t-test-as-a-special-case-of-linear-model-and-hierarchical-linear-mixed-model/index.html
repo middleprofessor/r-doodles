@@ -8,22 +8,18 @@
 <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
 <meta name="keywords" content="tech">
-<meta name="description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.
-library(ggplot2) library(readxl) library(data.">
+<meta name="description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are in the “Supplementary Tables” Excel file, which includes the raw data for the main paper.">
 
 
-<meta property="og:description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.
-library(ggplot2) library(readxl) library(data.">
+<meta property="og:description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are in the “Supplementary Tables” Excel file, which includes the raw data for the main paper.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Paired t-test as a special case of linear model and hierarchical (linear mixed) model">
 <meta name="twitter:title" content="Paired t-test as a special case of linear model and hierarchical (linear mixed) model">
 <meta property="og:url" content="/2019/06/paired-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
 <meta property="twitter:url" content="/2019/06/paired-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
 <meta property="og:site_name" content="R Doodles">
-<meta property="og:description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.
-library(ggplot2) library(readxl) library(data.">
-<meta name="twitter:description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.
-library(ggplot2) library(readxl) library(data.">
+<meta property="og:description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are in the “Supplementary Tables” Excel file, which includes the raw data for the main paper.">
+<meta name="twitter:description" content="Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are in the “Supplementary Tables” Excel file, which includes the raw data for the main paper.">
 <meta property="og:locale" content="en-us">
 
   
@@ -309,7 +305,9 @@ if (!doNotTrack) {
               
 
 
-<p>Figure 2A of the paper <a href="https://www.nature.com/articles/s41591-019-0485-4">Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism</a> uses a paired t-test to compare endurance performance in mice treated with a control microbe (<em>Lactobacillus bulgaricus</em>) and a test microbe (<em>Veillonella atypica</em>) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.</p>
+<p>Figure 2A of the paper <a href="https://www.nature.com/articles/s41591-019-0485-4">Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism</a> uses a paired t-test to compare endurance performance in mice treated with a control microbe (<em>Lactobacillus bulgaricus</em>) and a test microbe (<em>Veillonella atypica</em>) in a cross-over design (so each mouse was treated with both bacteria). The data are in the “Supplementary Tables” Excel file, which includes the raw data for the main paper.</p>
+<div id="setup" class="section level3">
+<h3>Setup</h3>
 <pre class="r"><code>library(ggplot2)
 library(readxl)
 library(data.table)
@@ -324,6 +322,9 @@ if(bookdown_it==TRUE){
   data_path &lt;- &quot;../content/data&quot;
   source(&quot;../../R/clean_labels.R&quot;)
 }</code></pre>
+</div>
+<div id="import" class="section level3">
+<h3>Import</h3>
 <pre class="r"><code>folder &lt;- &quot;Data from Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism&quot;
 file_i &lt;- &quot;41591_2019_485_MOESM2_ESM.xlsx&quot;
 file_path &lt;- paste(data_path, folder, file_i, sep=&quot;/&quot;)
@@ -350,7 +351,7 @@ setnames(fig2a, old=colnames(fig2a), new=clean_label(colnames(fig2a)))
 fig2a &lt;- melt(fig2a, id.vars=c(&quot;week&quot;, &quot;ID&quot;, &quot;treatment&quot;),
               variable.name=&quot;day&quot;,
               value.name=&quot;time&quot;)</code></pre>
-<p>paired t-test as linear model and as linear mixed model. Because of the cross-over design, the ID is not in order within each level of treatment. Make a wide data table with new treatment columns matched by ID.</p>
+<p>Because of the cross-over design, the ID is not in order within each level of treatment. Make a wide data table with new treatment columns matched by ID.</p>
 <pre class="r"><code># get max for each week x ID x treatment combo
 fig2a.max &lt;- fig2a[, .(time_max=max(time)), by=.(week, ID, treatment)]
 
@@ -358,7 +359,11 @@ fig2a.max &lt;- fig2a[, .(time_max=max(time)), by=.(week, ID, treatment)]
 va &lt;- fig2a.max[treatment==&quot;Va&quot;, ]
 lb &lt;- fig2a.max[treatment==&quot;Lb&quot;, ]
 fig2a_wide &lt;- merge(va, lb, by=&quot;ID&quot;)</code></pre>
-<p>paired t-test</p>
+</div>
+<div id="comparison" class="section level3">
+<h3>Comparison</h3>
+<div id="paired-t-test" class="section level4">
+<h4>paired t-test</h4>
 <pre class="r"><code># paired t
 res.t &lt;- t.test(fig2a_wide[, time_max.x], fig2a_wide[, time_max.y], paired=TRUE)
 res.t</code></pre>
@@ -373,20 +378,26 @@ res.t</code></pre>
 ## sample estimates:
 ## mean of the differences 
 ##                132.6875</code></pre>
-<p>linear model</p>
+</div>
+<div id="linear-model" class="section level4">
+<h4>linear model</h4>
 <pre class="r"><code># as a linear model
 y &lt;- fig2a_wide[, time_max.x] - fig2a_wide[, time_max.y] # Va - Lb
 res.lm &lt;- lm(y ~ 1)
 coef(summary(res.lm))</code></pre>
 <pre><code>##             Estimate Std. Error  t value   Pr(&gt;|t|)
 ## (Intercept) 132.6875   55.01749 2.411733 0.02198912</code></pre>
-<p>hierarchical (linear mixed) model with random slope for comparison</p>
+</div>
+<div id="hierarchical-linear-mixed-model-with-random-intercept" class="section level4">
+<h4>hierarchical (linear mixed) model with random intercept</h4>
 <pre class="r"><code># as multi-level model with random intercept
 res.lmer &lt;- lmer(time_max ~ treatment + (1|ID), data=fig2a.max)
 coef(summary(res.lmer))</code></pre>
 <pre><code>##              Estimate Std. Error       df   t value     Pr(&gt;|t|)
 ## (Intercept) 1023.7187   43.37421 59.71689 23.602014 5.703668e-32
 ## treatmentVa  132.6875   55.01752 30.99995  2.411732 2.198920e-02</code></pre>
+</div>
+</div>
 
               
             </div>
@@ -651,8 +662,7 @@ coef(summary(res.lmer))</code></pre>
                   Jun 6, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.
-library(ggplot2) library(readxl) library(data.</div>
+              <div class="media-content hide-xs font-merryweather">Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are in the “Supplementary Tables” Excel file, which includes the raw data for the main paper.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

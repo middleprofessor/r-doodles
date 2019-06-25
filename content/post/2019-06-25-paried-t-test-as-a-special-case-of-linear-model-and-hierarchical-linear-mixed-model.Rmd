@@ -14,7 +14,9 @@ keywords:
   - tech
 ---
 
-Figure 2A of the paper [Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism](https://www.nature.com/articles/s41591-019-0485-4) uses a paired t-test to compare endurance performance in mice treated with a control microbe (*Lactobacillus bulgaricus*) and a test microbe (*Veillonella atypica*) in a cross-over design (so each mouse was treated with both bacteria). The data are "Supplementary Tables", which includes the raw data for the main paper.
+Figure 2A of the paper [Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism](https://www.nature.com/articles/s41591-019-0485-4) uses a paired t-test to compare endurance performance in mice treated with a control microbe (*Lactobacillus bulgaricus*) and a test microbe (*Veillonella atypica*) in a cross-over design (so each mouse was treated with both bacteria). The data are in the "Supplementary Tables" Excel file, which includes the raw data for the main paper.
+
+### Setup
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -33,6 +35,7 @@ if(bookdown_it==TRUE){
 }
 ```
 
+### Import
 ```{r, message=FALSE}
 folder <- "Data from Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism"
 file_i <- "41591_2019_485_MOESM2_ESM.xlsx"
@@ -63,7 +66,7 @@ fig2a <- melt(fig2a, id.vars=c("week", "ID", "treatment"),
 
 ```
 
-paired t-test as linear model and as linear mixed model. Because of the cross-over design, the ID is not in order within each level of treatment. Make a wide data table with new treatment columns matched by ID.
+Because of the cross-over design, the ID is not in order within each level of treatment. Make a wide data table with new treatment columns matched by ID.
 
 ```{r}
 # get max for each week x ID x treatment combo
@@ -76,14 +79,15 @@ fig2a_wide <- merge(va, lb, by="ID")
 
 ```
 
-paired t-test
+### Comparison
+#### paired t-test
 ```{r}
 # paired t
 res.t <- t.test(fig2a_wide[, time_max.x], fig2a_wide[, time_max.y], paired=TRUE)
 res.t
 ```
 
-linear model
+#### linear model
 ```{r}
 # as a linear model
 y <- fig2a_wide[, time_max.x] - fig2a_wide[, time_max.y] # Va - Lb
@@ -92,7 +96,7 @@ coef(summary(res.lm))
 
 ```
 
-hierarchical (linear mixed) model with random slope for comparison
+#### hierarchical (linear mixed) model with random intercept
 ```{r}
 # as multi-level model with random intercept
 res.lmer <- lmer(time_max ~ treatment + (1|ID), data=fig2a.max)

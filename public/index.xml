@@ -17,8 +17,7 @@
       <pubDate>Tue, 25 Jun 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/06/paired-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/</guid>
-      <description>Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are “Supplementary Tables”, which includes the raw data for the main paper.
-library(ggplot2) library(readxl) library(data.</description>
+      <description>Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria). The data are in the “Supplementary Tables” Excel file, which includes the raw data for the main paper.</description>
     </item>
     
     <item>
