@@ -33,17 +33,17 @@ summary(fit)</code></pre>
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -4.4908 -0.6749 -0.0011  0.6736  4.2441 
+## -5.0500 -0.6750  0.0003  0.6730  4.8276 
 ## 
 ## Coefficients:
 ##              Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) -0.006924   0.003165  -2.188   0.0287 *  
-## XX1          0.016228   0.003642   4.456 8.35e-06 ***
-## XX2         -0.019160   0.003641  -5.263 1.42e-07 ***
+## (Intercept)  0.002480   0.003158   0.785  0.43232    
+## XX1          0.011213   0.003651   3.071  0.00213 ** 
+## XX2         -0.019416   0.003651  -5.319 1.05e-07 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 1.001 on 99997 degrees of freedom
-## Multiple R-squared:  0.0003215,  Adjusted R-squared:  0.0003015 
-## F-statistic: 16.08 on 2 and 99997 DF,  p-value: 1.04e-07</code></pre>
+## Residual standard error: 0.9987 on 99997 degrees of freedom
+## Multiple R-squared:  0.0002849,  Adjusted R-squared:  0.0002649 
+## F-statistic: 14.25 on 2 and 99997 DF,  p-value: 6.489e-07</code></pre>
 <p>A p-value is not a measure of the predictive capacity of a model because the p-value is a function of 1) signal, 2) noise (unmodeled error), and 3) sample size while predictive capacity is a function of the signal:noise ratio. If the signal:noise ratio is tiny, the predictive capacity is small but the p-value can be tiny if the sample size is large.</p>

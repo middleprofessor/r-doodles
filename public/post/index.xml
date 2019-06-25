@@ -27,7 +27,8 @@ Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library
       <pubDate>Mon, 03 Jun 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/06/reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/</guid>
-      <description>A very skeletal analysis of
+      <description>Update - This post has been updated
+A very skeletal analysis of
 Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
 which got some attention on pubpeer.
 Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.</description>
@@ -58,7 +59,7 @@ A thought: our belief in the magnitude of an observed effect should be based on 
       <pubDate>Sat, 27 Apr 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/04/blocking-vs-covariate-adjustment/</guid>
-      <description>HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</description>
+      <description>“A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</description>
     </item>
     
     <item>
@@ -118,7 +119,7 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
       
       <guid>/2019/01/expected-covariances-in-a-causal-network/</guid>
       <description>This is a skeleton post
-Standardized variables (Wright’s rules) n &amp;lt;- 10^5 # z is the common cause of g1 and g2 z &amp;lt;- rnorm(n) # effects of z on g1 and g2 b1 &amp;lt;- 0.7 b2 &amp;lt;- 0.7 r12 &amp;lt;- b1*b2 g1 &amp;lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &amp;lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.007478 var(g2) # E(VAR(g2)) = 1 ## [1] 1.004495 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</description>
+Standardized variables (Wright’s rules) n &amp;lt;- 10^5 # z is the common cause of g1 and g2 z &amp;lt;- rnorm(n) # effects of z on g1 and g2 b1 &amp;lt;- 0.7 b2 &amp;lt;- 0.7 r12 &amp;lt;- b1*b2 g1 &amp;lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &amp;lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.001849 var(g2) # E(VAR(g2)) = 1 ## [1] 1.006102 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.</description>
     </item>
     
     <item>

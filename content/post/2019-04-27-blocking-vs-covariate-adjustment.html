@@ -8,13 +8,10 @@ categories:
 tags:
   - blocking
   - ancova
-keywords:
-  - tech
 ---
 
 
 
-<!--more-->
 <p>“A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group. Each rat in a pair is expected to eat a similar amount of food during the experiment because they have been matched on their baseline food consumption. By removing this source of variation, the comparison between rats in a pair will be mostly unaffected by the amount of food they eat, allowing treatment effects to be more easily detected.” – Lazic, Stanley E.. Experimental Design for Laboratory Biologists: Maximising Information and Improving Reproducibility . Cambridge University Press. Kindle Edition.</p>
 <pre class="r"><code>library(ggplot2)
 library(data.table)
@@ -72,11 +69,11 @@ for(iter in 1:niter){
 <p>Estimates</p>
 <pre class="r"><code>apply(b_mat, 2, quantile, probs=c(0.025, 0.5, 0.975))</code></pre>
 <pre><code>##             adj block.rand block.fix block.adj
-## 2.5%  0.3132018  0.1810287 0.1810287 0.1892231
-## 50%   1.0092889  0.9948879 0.9948879 0.9857162
-## 97.5% 1.6694994  1.8773969 1.8773969 1.8941577</code></pre>
+## 2.5%  0.2477085   0.196368  0.196368 0.1924568
+## 50%   1.0007202   1.016430  1.016430 1.0146775
+## 97.5% 1.7449915   1.800058  1.800058 1.7891515</code></pre>
 <p>Power</p>
 <pre class="r"><code>apply(p_mat, 2, function(x) sum(x &lt; 0.05)/niter)</code></pre>
 <pre><code>##        adj block.rand  block.fix  block.adj 
-##      0.731      0.552      0.535      0.584</code></pre>
+##      0.720      0.555      0.541      0.590</code></pre>
 <p>Conclusion: over this model space, simply adjusting for baseline food consumption is more powerful than creating blocks using baseline food consumption.</p>

@@ -1,64 +1,80 @@
-
-
-  
-    
-  
-
-
-  
-
-
-
-
-  
-
-
-  
-
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
     
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-BETA">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
+<meta name="keywords" content="">
+<meta name="description" content="This is a skeleton post
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.001849 var(g2) # E(VAR(g2)) = 1 ## [1] 1.006102 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
+
+
+<meta property="og:description" content="This is a skeleton post
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.001849 var(g2) # E(VAR(g2)) = 1 ## [1] 1.006102 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Expected covariances in a causal network">
+<meta name="twitter:title" content="Expected covariances in a causal network">
+<meta property="og:url" content="/2019/01/expected-covariances-in-a-causal-network/">
+<meta property="twitter:url" content="/2019/01/expected-covariances-in-a-causal-network/">
+<meta property="og:site_name" content="R Doodles">
+<meta property="og:description" content="This is a skeleton post
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.001849 var(g2) # E(VAR(g2)) = 1 ## [1] 1.006102 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
+<meta name="twitter:description" content="This is a skeleton post
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.001849 var(g2) # E(VAR(g2)) = 1 ## [1] 1.006102 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2019-01-03T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2019-01-03T00:00:00">
+  
+  
+  
+  
+    
+      <meta property="article:tag" content="causal graph">
+    
+      <meta property="article:tag" content="covariance">
+    
+      <meta property="article:tag" content="correlation">
+    
+      <meta property="article:tag" content="Wright style path analysis">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@jwalkrunski">
+
+
+  <meta name="twitter:creator" content="@jwalkrunski">
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+
+
     <title>Expected covariances in a causal network</title>
-    <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
-    <meta name="keywords" content="">
 
     <link rel="icon" href="/favicon.png">
     
 
     
-    <meta name="description" content="This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.007478 var(g2) # E(VAR(g2)) = 1 ## [1] 1.004495 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
-    <meta property="og:description" content="This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.007478 var(g2) # E(VAR(g2)) = 1 ## [1] 1.004495 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
-    <meta property="og:type" content="blog">
-    <meta property="og:title" content="Expected covariances in a causal network">
-    <meta property="og:url" content="/2019/01/expected-covariances-in-a-causal-network/">
-    <meta property="og:site_name" content="R Doodles">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="R Doodles">
-    <meta name="twitter:description" content="This is a skeleton post
-Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z &#43; sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z &#43; sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.007478 var(g2) # E(VAR(g2)) = 1 ## [1] 1.004495 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.">
-    
-      <meta name="twitter:creator" content="@jwalkrunski">
-    
-    
 
-    
-    
-
-    
-      <meta property="og:image" content="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
-    
-
-    
-    
-    
-
-    
+    <link rel="canonical" href="/2019/01/expected-covariances-in-a-causal-network/">
 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
@@ -66,7 +82,7 @@ Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause o
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
     
     
-    <link rel="stylesheet" href="/css/style-jsjn0006wyhpyzivf6yceb31gvpjatbcs3qzjvlumobfnugccvobqwxnnaj8.min.css" />
+    <link rel="stylesheet" href="/css/style-nnm2spxvve8onlujjlegkkytaehyadd4ksxc1hyzzq9a2wvtrgbljqyulomn.min.css" />
     
     
 
@@ -104,7 +120,7 @@ if (!doNotTrack) {
     
     
       
-        <img class="header-picture" src="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=90" alt="Author&#39;s picture" />
+        <img class="header-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=90" alt="Author&#39;s picture" />
       
     
     </a>
@@ -116,11 +132,11 @@ if (!doNotTrack) {
     
       <div class="sidebar-profile">
         <a href="/#about">
-          <img class="sidebar-profile-picture" src="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
         </a>
         <h4 class="sidebar-profile-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
         
-          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors. <a href="https://www.r-bloggers.com">Re-blogged at R-bloggers</a></h5>
+          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</h5>
         
       </div>
     
@@ -298,11 +314,11 @@ r12 &lt;- b1*b2
 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n)
 g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n)
 var(g1) # E(VAR(g1)) = 1</code></pre>
-<pre><code>## [1] 1.007478</code></pre>
+<pre><code>## [1] 1.001849</code></pre>
 <pre class="r"><code>var(g2) # E(VAR(g2)) = 1</code></pre>
-<pre><code>## [1] 1.004495</code></pre>
+<pre><code>## [1] 1.006102</code></pre>
 <pre class="r"><code>cor(g1, g2) # E(COR(g1,g2)) = b1*b2</code></pre>
-<pre><code>## [1] 0.4940367</code></pre>
+<pre><code>## [1] 0.4892741</code></pre>
 <pre class="r"><code>b1*b2</code></pre>
 <pre><code>## [1] 0.49</code></pre>
 <pre class="r"><code># effects of g1 and g2 on y1 and y2
@@ -315,11 +331,11 @@ r2.2 &lt;- a12^2 + a22^2 + 2*a12*a22*b1*b2 # systematic variance of y1
 y1 &lt;- a11*g1 + a21*g2 + sqrt(1-r2.1)*rnorm(n)
 y2 &lt;- a12*g1 + a22*g2 + sqrt(1-r2.2)*rnorm(n)
 var(y1) # E() = 1</code></pre>
-<pre><code>## [1] 1.010452</code></pre>
+<pre><code>## [1] 0.9997248</code></pre>
 <pre class="r"><code>var(y2) # E() = 1</code></pre>
-<pre><code>## [1] 1.008915</code></pre>
+<pre><code>## [1] 1.001052</code></pre>
 <pre class="r"><code>cor(y1, y2) # E() = a11*a12 + a21*a22 + a11*r12*a22 + a21*r12*a12</code></pre>
-<pre><code>## [1] 0.7475318</code></pre>
+<pre><code>## [1] 0.7468488</code></pre>
 <pre class="r"><code>a11*a12 + a21*a22 + a11*r12*a22 + a21*r12*a12 # sum of all paths</code></pre>
 <pre><code>## [1] 0.745</code></pre>
 </div>
@@ -348,15 +364,15 @@ sigma_g2 &lt;- sqrt(sigma.sq_g2)
 g1 &lt;- b1*z + sqrt(sigma.sq_g1 - sigma.sq_g1.sys)*rnorm(n)
 g2 &lt;- b2*z + sqrt(sigma.sq_g2 - sigma.sq_g2.sys)*rnorm(n)
 var(g1) # E(VAR(g1)) = sigma.sq_g1</code></pre>
-<pre><code>## [1] 6.403093</code></pre>
+<pre><code>## [1] 6.397673</code></pre>
 <pre class="r"><code>var(g2) # E(VAR(g2)) = sigma.sq_g2</code></pre>
-<pre><code>## [1] 6.410138</code></pre>
+<pre><code>## [1] 6.406897</code></pre>
 <pre class="r"><code>sigma.sq_g1</code></pre>
 <pre><code>## [1] 6.4</code></pre>
 <pre class="r"><code>sigma.sq_g2</code></pre>
 <pre><code>## [1] 6.4</code></pre>
 <pre class="r"><code>cov(g1,g2) # E() = b1*b2*sigma_z^2</code></pre>
-<pre><code>## [1] 5.767158</code></pre>
+<pre><code>## [1] 5.760453</code></pre>
 <pre class="r"><code>s12 # b1*b2*sigma_z^2</code></pre>
 <pre><code>## [1] 5.76</code></pre>
 <pre class="r"><code># effects of g1 and g2 on y1 and y2
@@ -375,9 +391,9 @@ sigma_y2 &lt;- sqrt(sigma.sq_y2)
 y1 &lt;- a11*g1 + a21*g2 + sqrt(sigma.sq_y1 - sigma.sq_y1.sys)*rnorm(n)
 y2 &lt;- a12*g1 + a22*g2 + sqrt(sigma.sq_y2 - sigma.sq_y2.sys)*rnorm(n)
 var(y1) # E() = sigma.sq_y1</code></pre>
-<pre><code>## [1] 137.7647</code></pre>
+<pre><code>## [1] 137.721</code></pre>
 <pre class="r"><code>var(y2) # E() = sigma.sq_y1</code></pre>
-<pre><code>## [1] 60.8176</code></pre>
+<pre><code>## [1] 60.808</code></pre>
 <pre class="r"><code>sigma.sq_y1</code></pre>
 <pre><code>## [1] 137.6</code></pre>
 <pre class="r"><code>sigma.sq_y2</code></pre>
@@ -390,10 +406,10 @@ r12 &lt;- s12/sigma_g1/sigma_g2
 r12 # expected correlation between g1 and g2</code></pre>
 <pre><code>## [1] 0.9</code></pre>
 <pre class="r"><code>cor(g1, g2) # actual correlation between g1 and g2</code></pre>
-<pre><code>## [1] 0.900188</code></pre>
+<pre><code>## [1] 0.8997498</code></pre>
 <pre class="r"><code># covariance y1 and y2
 cov(y1, y2) #</code></pre>
-<pre><code>## [1] 82.16849</code></pre>
+<pre><code>## [1] 82.12391</code></pre>
 <pre class="r"><code>(a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s)*sigma_y1*sigma_y2 # expected cov(y1, y2)</code></pre>
 <pre><code>## [1] 82.08</code></pre>
 <pre class="r"><code># more compact and not using the standardized parameters
@@ -402,24 +418,24 @@ a11*a12*sigma.sq_g1 + a21*a22*sigma.sq_g2 + a11*s12*a22 + a21*s12*a12</code></pr
 <pre><code>## [1] 82.08</code></pre>
 <pre class="r"><code># correlation y1 and y2
 cor(y1, y2)</code></pre>
-<pre><code>## [1] 0.8976801</code></pre>
+<pre><code>## [1] 0.8974064</code></pre>
 <pre class="r"><code>a11.s*a12.s + a21.s*a22.s + a11.s*r12*a22.s + a21.s*r12*a12.s</code></pre>
 <pre><code>## [1] 0.8973799</code></pre>
 </div>
 <div id="expected-value-of-b-with-missing-covariate" class="section level2">
 <h2>Expected value of b with missing covariate</h2>
 <pre class="r"><code>coef(summary(lm(y1 ~ g1 + g2)))</code></pre>
-<pre><code>##                 Estimate  Std. Error    t value  Pr(&gt;|t|)
-## (Intercept) -0.003236911 0.003706074  -0.873407 0.3824415
-## g1           1.505002692 0.003363021 447.515059 0.0000000
-## g2           2.995658785 0.003361173 891.254067 0.0000000</code></pre>
+<pre><code>##                  Estimate  Std. Error      t value  Pr(&gt;|t|)
+## (Intercept) -0.0001228728 0.003701744  -0.03319322 0.9735205
+## g1           1.5023148063 0.003353549 447.97754641 0.0000000
+## g2           2.9998699773 0.003351134 895.18045136 0.0000000</code></pre>
 <pre class="r"><code>coef(summary(lm(y1 ~ g1)))</code></pre>
-<pre><code>##                 Estimate  Std. Error      t value  Pr(&gt;|t|)
-## (Intercept) -0.004949166 0.004964388   -0.9969338 0.3187969
-## g1           4.203142030 0.001961873 2142.4126174 0.0000000</code></pre>
+<pre><code>##                Estimate  Std. Error      t value Pr(&gt;|t|)
+## (Intercept) 0.000198208 0.004968271 3.989476e-02 0.968177
+## g1          4.203392309 0.001964239 2.139959e+03 0.000000</code></pre>
 <pre class="r"><code># expected = direct + cor*indirect using cor
 a11 + cor(g1,g2)*a21</code></pre>
-<pre><code>## [1] 4.200564</code></pre>
+<pre><code>## [1] 4.199249</code></pre>
 <pre class="r"><code># expected = direct + cor*indirect, using cov as model param
 a11 + (s12/sigma_g1/sigma_g2)*a21</code></pre>
 <pre><code>## [1] 4.2</code></pre>
@@ -457,8 +473,8 @@ a11 + s12/sigma_g1^2*a21</code></pre>
                 
               
             
-            
-  <div class="post-actions-wrap">
+            <div class="post-actions-wrap">
+  
       <nav >
         <ul class="post-actions post-action-nav">
           
@@ -523,8 +539,8 @@ a11 + s12/sigma_g1^2*a21</code></pre>
         </a>
       </li>
     </ul>
-  </div>
-
+  
+</div>
 
             
               
@@ -539,228 +555,12 @@ a11 + s12/sigma_g1^2*a21</code></pre>
   <span class="copyrights">
     &copy; 2019 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
   </span>
-    <script src="//yihui.name/js/math-code.js"></script>
-<script async
-src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
-    <div id="algolia-search-modal" class="modal-container">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="close-button"><i class="fa fa-close"></i></span>
-      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
-        <span class="searchby-algolia-text text-color-light text-small">by</span>
-        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
-      </a>
-      <i class="search-icon fa fa-search"></i>
-      <form id="algolia-search-form">
-        <input type="text" id="algolia-search-input" name="search"
-          class="form-control input--large search-input" placeholder="Search" />
-      </form>
-    </div>
-    <div class="modal-body">
-      <div class="no-result text-color-light text-center">no post found</div>
-      <div class="results">
-        
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/06/what-does-cell-biology-data-look-like/">
-                <h3 class="media-heading">What does cell biology data look like?</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Jun 6, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
-Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/06/reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/">
-                <h3 class="media-heading">Reanalyzing data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Jun 6, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">Update - This post has been updated
-A very skeletal analysis of
-Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
-which got some attention on pubpeer.
-Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/">
-                <h3 class="media-heading">GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">Update to the earlier post, which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough – or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/05/should-we-be-skeptical-of-a-large-effect-size-if-p-0-05/">
-                <h3 class="media-heading">Should we be skeptical of a &#34;large&#34; effect size if p &gt; 0.05?</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  May 5, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”1 2
-A thought: our belief in the magnitude of an observed effect should be based on our priors, which, hopefully, are formed from good mechanistic models and not sample size“.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/04/blocking-vs-covariate-adjustment/">
-                <h3 class="media-heading">Blocking vs. covariate adjustment</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Apr 4, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/04/the-statistical-significance-filter/">
-                <h3 class="media-heading">The statistical significance filter</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Apr 4, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">1 Why reported effect sizes are inflated 2 Setup 3 Exploration 1 4 Unconditional means, power, and sign error 5 Conditional means 5.1 filter = 0.05 5.2 filter = 0.2    1 Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
-When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/04/covariate-adjustment-in-randomized-experiments/">
-                <h3 class="media-heading">Covariate adjustment in randomized experiments</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Apr 4, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">The post motivated by a tweetorial from Darren Dahly
-In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/01/what-to-write-and-not-write-in-a-results-section-an-ever-growing-list/">
-                <h3 class="media-heading">What to write, and not write, in a results section — an ever-growing list</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Jan 1, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">“GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” – Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/01/paired-line-plots/">
-                <h3 class="media-heading">Paired line plots</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Jan 1, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">load libraries make some fake data make a plot with ggplot   ggplot scripts to draw figures like those in the Dynamic Ecology post Paired line plots (a.k.a. “reaction norms”) to visualize Likert data
-load libraries library(ggplot2) library(ggpubr) library(data.table)  make some fake data set.seed(3) n &lt;- 40 self &lt;- rbinom(n, 5, 0.25) + 1 others &lt;- self + rbinom(n, 3, 0.5) fd &lt;- data.table(id=factor(rep(1:n, 2)), who=factor(rep(c(&quot;self&quot;, &quot;others&quot;), each=n)), stigma &lt;- c(self, others))  make a plot with ggplot The students are identified by the column “id”.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/">
-                <h3 class="media-heading">GLM vs. t-tests vs. non-parametric tests if all we care about is NHST</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Jan 1, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">This post has been updated.
-A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicable effect”).
-tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-      </div>
-    </div>
-    <div class="modal-footer">
-      <p class="results-count text-medium"
-         data-message-zero="no post found"
-         data-message-one="1 post found"
-         data-message-other="{n} posts found">
-         25 posts found
-      </p>
-    </div>
-  </div>
-</div>
 </footer>
 
       </div>
       <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
-        
-  <div class="post-actions-wrap">
+        <div class="post-actions-wrap">
+  
       <nav >
         <ul class="post-actions post-action-nav">
           
@@ -825,8 +625,8 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
         </a>
       </li>
     </ul>
-  </div>
-
+  
+</div>
 
       </div>
       <div id="share-options-bar" class="share-options-bar" data-behavior="4">
@@ -862,11 +662,11 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
       <i class="fa fa-remove"></i>
     </div>
     
-      <img id="about-card-picture" src="//www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
     
     <h4 id="about-card-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
     
-      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors. <a href="https://www.r-bloggers.com">Re-blogged at R-bloggers</a></div>
+      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</div>
     
     
       <div id="about-card-job">
@@ -989,7 +789,7 @@ A thought: our belief in the magnitude of an observed effect should be based on 
                   Apr 4, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">HUGOMORE42 “A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</div>
+              <div class="media-content hide-xs font-merryweather">“A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -1115,6 +915,20 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
 <script src="/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
 
 
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
 
 <script>
 $(document).ready(function() {
@@ -1154,6 +968,7 @@ $(document).ready(function() {
       </script>
     
   
+
 
 
 

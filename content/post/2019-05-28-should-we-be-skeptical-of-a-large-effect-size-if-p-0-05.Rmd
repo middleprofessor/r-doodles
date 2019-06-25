@@ -10,8 +10,6 @@ tags:
   - NHST
   - p-values
   - power
-keywords:
-  - tech
 ---
 
 Motivator: A twitter comment "Isn't the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller."^[The original question, and the motivating tweet, raise the question of what a "large" effect is. There is large in the absolute since, which would require subject level expertise to identify, and large relative to noise.] ^[Note that the original post was not about the [statistical significance filter](https://rdoodles.rbind.io/2019/04/the-statistical-significance-filter/) but about the ethics of a RCT in which the observed effect was "large" but there was not enough power to get a statistically significant p-value.]

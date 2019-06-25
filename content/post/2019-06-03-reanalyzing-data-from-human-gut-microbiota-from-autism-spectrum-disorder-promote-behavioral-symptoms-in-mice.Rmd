@@ -9,8 +9,8 @@ categories:
 tags:
   - linear mixed model
   - microbiome
-description: "A very skeletal analysis of 'Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice', which got some attention on pubpeer. Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless if means and some kind of error bar is presented. A much better plot for inferring differences is an effects plot with the CI of the effect. That said, I'll try to reproduce the resulting p-value."
 ---
+
 **Update** - This post has been updated
 
 A very skeletal analysis of
