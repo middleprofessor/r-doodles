@@ -16,10 +16,12 @@ keywords:
 
 
 
+<p><strong>Update</strong> – Fig. 2A is an analysis of the maximum endurance over three trials. <a href="../analyze-the-mean-or-median-and-not-the-max-response/">This has consequences.</a></p>
 <p>Figure 2A of the paper <a href="https://www.nature.com/articles/s41591-019-0485-4">Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism</a> uses a paired t-test to compare endurance performance in mice treated with a control microbe (<em>Lactobacillus bulgaricus</em>) and a test microbe (<em>Veillonella atypica</em>) in a cross-over design (so each mouse was treated with both bacteria). The data are in the “Supplementary Tables” Excel file, which includes the raw data for the main paper.</p>
 <div id="setup" class="section level3">
 <h3>Setup</h3>
 <pre class="r"><code>library(ggplot2)
+library(ggpubr)
 library(readxl)
 library(data.table)
 library(lmerTest)

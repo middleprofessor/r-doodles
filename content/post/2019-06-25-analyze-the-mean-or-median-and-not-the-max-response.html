@@ -1,0 +1,319 @@
+---
+title: Analyze the mean (or median) and not the max response
+author: Jeff Walker
+date: '2019-06-25'
+slug: analyze-the-mean-or-median-and-not-the-max-response
+categories:
+  - stats 101
+tags:
+  - linear mixed model
+  - microbiome
+  - Type M error
+  - Type S error
+keywords:
+  - tech
+---
+
+
+
+<p>This is an update of <a href="../paired-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">Paired t-test as a special case of linear model and hierarchical model</a></p>
+<p>Figure 2A of the paper <a href="https://www.nature.com/articles/s41591-019-0485-4">Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism</a> uses a paired t-test to compare endurance performance in mice treated with a control microbe (<em>Lactobacillus bulgaricus</em>) and a test microbe (<em>Veillonella atypica</em>) in a cross-over design (so each mouse was treated with both bacteria). The data are in the “Supplementary Tables” Excel file, which includes the raw data for the main paper.</p>
+<p>Endurance performance of each mouse was measured three times under each treatment level. The authors used two different analyses of the data: 1) a paired t-test between the treatments using the maximum performance over the three trials, 2) a linear mixed model with mouse ID as a random intercept (and sequence and day as covariates). A problem with the estimation of a treatment effect using the maximum response (the authors used the maximum of three endurance trials) is that the variance of the estimate of a maximum is bigger than the variance of the estimate of a mean. Consequently, the variance of the effect will be bigger, with more inflated large effects (Type M error) and more effects with the wrong sign (Type S error).</p>
+<p>Here I repeat the analysis from the earlier post (which focussed on the paired t-test as a special case of a linear model) but add the analysis of the means and a simulation to show the effect on the variance of the estimated treatment effect.</p>
+<div id="setup" class="section level3">
+<h3>Setup</h3>
+<pre class="r"><code>library(ggplot2)
+library(ggpubr)
+library(readxl)
+library(data.table)
+library(lmerTest)
+library(emmeans)
+library(mvtnorm)
+
+bookdown_it &lt;- TRUE
+if(bookdown_it==TRUE){
+  data_path &lt;- &quot;../data&quot;
+  out_path &lt;- &quot;../output&quot;
+  source(&quot;../../../R/clean_labels.R&quot;)
+}else{
+  data_path &lt;- &quot;../content/data&quot;
+  out_path &lt;- &quot;../content/output&quot;
+  source(&quot;../../R/clean_labels.R&quot;)
+}</code></pre>
+</div>
+<div id="import" class="section level3">
+<h3>Import</h3>
+<pre class="r"><code>folder &lt;- &quot;Data from Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism&quot;
+file_i &lt;- &quot;41591_2019_485_MOESM2_ESM.xlsx&quot;
+file_path &lt;- paste(data_path, folder, file_i, sep=&quot;/&quot;)
+sheet_i &lt;- &quot;ST3 Veillonella run times&quot;
+range_vec &lt;- c(&quot;a5:d21&quot;, &quot;f5:i21&quot;, &quot;a24:d40&quot;, &quot;f24:i40&quot;)
+fig2a.orig &lt;- data.table(NULL)
+poop &lt;- c(&quot;Lb&quot;, &quot;Va&quot;)
+for(week_i in 1:4){
+  range_i &lt;- range_vec[week_i]
+  if(week_i %in% c(1, 3)){
+    treatment &lt;- rep(c(poop[1], poop[2]), each=8)
+  }else{
+    treatment &lt;- rep(c(poop[2], poop[1]), each=8)
+  }
+  fig2a.orig &lt;- rbind(fig2a.orig, data.table(week=week_i, treatment=treatment, data.table(
+    read_excel(file_path, sheet=sheet_i, range=range_i))))
+}
+
+# clean column names
+setnames(fig2a.orig, old=&quot;...1&quot;, new=&quot;ID&quot;)
+setnames(fig2a.orig, old=colnames(fig2a.orig), new=clean_label(colnames(fig2a.orig)))
+
+# add treatment sequence
+fig2a.orig[, sequence:=rep(rep(rep(c(&quot;LLLVVV&quot;, &quot;VVVLLL&quot;), each=8), 2), 2)]
+
+# wide to long
+fig2a &lt;- melt(fig2a.orig, id.vars=c(&quot;week&quot;, &quot;ID&quot;, &quot;treatment&quot;, &quot;sequence&quot;),
+              variable.name=&quot;day&quot;,
+              value.name=&quot;time&quot;)</code></pre>
+<p>Because of the cross-over design, the ID is not in order within each level of treatment. Make a wide data table with new treatment columns matched by ID.</p>
+<pre class="r"><code># get max for each week x ID x treatment combo
+fig2a.max &lt;- fig2a[, .(time_max=max(time)), by=.(week, ID, treatment)]
+
+# match the two treatments applied to each ID
+va &lt;- fig2a.max[treatment==&quot;Va&quot;, ]
+lb &lt;- fig2a.max[treatment==&quot;Lb&quot;, ]
+fig2a_wide &lt;- merge(va, lb, by=&quot;ID&quot;)</code></pre>
+</div>
+<div id="comparison" class="section level3">
+<h3>Comparison</h3>
+<div id="paired-t-test" class="section level4">
+<h4>paired t-test</h4>
+<pre class="r"><code># paired t
+res.t &lt;- t.test(fig2a_wide[, time_max.x], fig2a_wide[, time_max.y], paired=TRUE)
+res.t</code></pre>
+<pre><code>## 
+##  Paired t-test
+## 
+## data:  fig2a_wide[, time_max.x] and fig2a_wide[, time_max.y]
+## t = 2.4117, df = 31, p-value = 0.02199
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##   20.47859 244.89641
+## sample estimates:
+## mean of the differences 
+##                132.6875</code></pre>
+</div>
+<div id="linear-model" class="section level4">
+<h4>linear model</h4>
+<pre class="r"><code># as a linear model
+y &lt;- fig2a_wide[, time_max.x] - fig2a_wide[, time_max.y] # Va - Lb
+res.lm &lt;- lm(y ~ 1)
+coef(summary(res.lm))</code></pre>
+<pre><code>##             Estimate Std. Error  t value   Pr(&gt;|t|)
+## (Intercept) 132.6875   55.01749 2.411733 0.02198912</code></pre>
+</div>
+<div id="hierarchical-linear-mixed-model-with-random-intercept" class="section level4">
+<h4>hierarchical (linear mixed) model with random intercept</h4>
+<pre class="r"><code># as multi-level model with random intercept
+res.lmer &lt;- lmer(time_max ~ treatment + (1|ID), data=fig2a.max)
+coef(summary(res.lmer))</code></pre>
+<pre><code>##              Estimate Std. Error       df   t value     Pr(&gt;|t|)
+## (Intercept) 1023.7187   43.37421 59.71689 23.602014 5.703668e-32
+## treatmentVa  132.6875   55.01752 30.99995  2.411732 2.198920e-02</code></pre>
+</div>
+</div>
+<div id="re-analysis-what-about-the-mean-and-not-max-response" class="section level3">
+<h3>Re-analysis – What about the mean and not max response?</h3>
+<div id="paired-t-test-of-means" class="section level4">
+<h4>Paired t-test of means</h4>
+<pre class="r"><code># t test
+# get mean for each week x ID x treatment combo
+fig2a.mean &lt;- fig2a[, .(time_mean=mean(time)), by=.(week, ID, treatment)]
+va &lt;- fig2a.mean[treatment==&quot;Va&quot;, ]
+lb &lt;- fig2a.mean[treatment==&quot;Lb&quot;, ]
+fig2a_wide &lt;- merge(va, lb, by=&quot;ID&quot;)
+res.t &lt;- t.test(fig2a_wide[, time_mean.x], fig2a_wide[, time_mean.y], paired=TRUE)
+res.t</code></pre>
+<pre><code>## 
+##  Paired t-test
+## 
+## data:  fig2a_wide[, time_mean.x] and fig2a_wide[, time_mean.y]
+## t = 1.7521, df = 31, p-value = 0.08964
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -12.38639 163.40722
+## sample estimates:
+## mean of the differences 
+##                75.51042</code></pre>
+<p>The p-value of the t-test using max performance was 0.02 and that using mean performance is 0.09. These aren’t too different (do not be distracted by the fact that they fall on opposite sides of 0.05) but neither inspires much confidence that the effect will reproduce.</p>
+</div>
+<div id="hierarchical-model" class="section level4">
+<h4>Hierarchical model</h4>
+<pre class="r"><code># hierarchical model
+res2.lmer &lt;- lmer(time ~ treatment + (1|ID), data=fig2a)
+coef(summary(res2.lmer))</code></pre>
+<pre><code>##              Estimate Std. Error        df   t value     Pr(&gt;|t|)
+## (Intercept) 848.25000   32.09252  65.82282 26.431394 9.129879e-37
+## treatmentVa  75.51042   36.83330 159.00005  2.050059 4.200108e-02</code></pre>
+<p>The p-value is 0.04, which differs from that for the t-test because this model is fit to all the data and not just the mean values.</p>
+</div>
+</div>
+<div id="simulation" class="section level3">
+<h3>Simulation</h3>
+<p>A simulation of Type I, II, M and S error that arises when estimating the treatment effect from differences in the maximum response.</p>
+<pre class="r"><code>set.seed(1)
+do_sim &lt;- FALSE
+if(do_sim==TRUE){
+  n &lt;- 32
+  p &lt;- 3 # number of trials
+  mu &lt;- coef(summary(res2.lmer))[1, &quot;Estimate&quot;]
+  beta &lt;- coef(summary(res2.lmer))[2, &quot;Estimate&quot;]
+  sigma &lt;- as.data.frame(VarCorr(res2.lmer))[2, &quot;sdcor&quot;]
+  sigma_id &lt;- as.data.frame(VarCorr(res2.lmer))[1, &quot;sdcor&quot;]
+  icc &lt;- sigma_id^2/(sigma_id^2 + sigma^2)
+  icov &lt;- matrix(icc*sigma_id^2, nrow=3, ncol=3) # covariance
+  diag(icov) &lt;- sigma^2
+  
+  niter &lt;- 5000
+  b.max &lt;- numeric(niter)
+  b.mean &lt;- numeric(niter)
+  b.lmer &lt;- numeric(niter)
+  p.max &lt;- numeric(niter)
+  p.mean &lt;- numeric(niter)
+  p.lmer &lt;- numeric(niter)
+  mean.max &lt;- numeric(niter)
+  mean.mean &lt;- numeric(niter)
+  sim_table &lt;- data.table(NULL)
+  
+  mu_i &lt;- rnorm(n, mean=mu, sd=sigma_id) # true performance in treatment A
+  
+  for(b1 in c(0, beta)){
+    for(iter in 1:niter){
+      # performance_A &lt;- matrix(rnorm(n*p, mean=mu, sd=sqrt(sigma^2 + sigma_id^2)), nrow=n)
+      # performance_B &lt;- matrix(rnorm(n*p, mean=mu, sd=sqrt(sigma^2 + sigma_id^2)), nrow=n) + b1
+      
+      # performance_A &lt;- matrix(rnorm(n*p, mean=mu_i, sd=sigma), nrow=n)
+      # performance_B &lt;- matrix(rnorm(n*p, mean=mu_i, sd=sigma), nrow=n) + b1
+      # 
+      performance_A &lt;- rmvnorm(n, mean=rep(0, p), sigma=icov) + matrix(mu_i, nrow=n, ncol=p)
+      performance_B &lt;- rmvnorm(n, mean=rep(0, p), sigma=icov) + matrix(mu_i, nrow=n, ncol=p) + b1
+      
+      # t test of max
+      A &lt;- apply(performance_A, 1, max)
+      B &lt;- apply(performance_B, 1, max)
+      mean.max[iter] &lt;- mean(A)
+      t_res &lt;- t.test(B, A, paired=TRUE)
+      b.max[iter] &lt;- t_res$estimate
+      p.max[iter] &lt;- t_res$p.value
+      
+      # t test of mean
+      A &lt;- apply(performance_A, 1, mean)
+      B &lt;- apply(performance_B, 1, mean)
+      mean.mean[iter] &lt;- mean(A)
+      t_res &lt;- t.test(B, A, paired=TRUE)
+      b.mean[iter] &lt;- t_res$estimate
+      p.mean[iter] &lt;- t_res$p.value
+      
+      # # hierarchical model
+      performance &lt;- rbind(data.table(treatment=&quot;A&quot;, ID=1:n, performance_A),
+                           data.table(treatment=&quot;B&quot;, ID=1:n, performance_B))
+      performance &lt;- melt(performance, id.vars=c(&quot;ID&quot;, &quot;treatment&quot;),
+                          variable.name=&quot;day&quot;,
+                          value.name=&quot;time&quot;)
+      sim.lmer &lt;- lmer(time ~ treatment + (1|ID), data=performance)
+      b.lmer[iter] &lt;- coef(summary(sim.lmer))[2, &quot;Estimate&quot;]
+      p.lmer[iter] &lt;- coef(summary(sim.lmer))[2, &quot;Pr(&gt;|t|)&quot;]
+    }
+    sim_table &lt;- rbind(sim_table, data.table(effect = b1,
+                                             b_max = b.max,
+                                             b_mean = b.mean,
+                                             b_lmer = b.lmer,
+                                             p_max = p.max,
+                                             p_mean = p.mean,
+                                             p_lmer = p.lmer,
+                                             mean_max = mean.max,
+                                             mean_mean = mean.mean))
+  }
+  write.table(sim_table, paste(out_path,&quot;june-25-2019.txt&quot;,sep=&quot;/&quot;), 
+              row.names = FALSE, quote=FALSE, sep=&quot;\t&quot;)
+}else{ # read file from simulation
+  sim_table &lt;- fread(paste(out_path,&quot;june-25-2019.txt&quot;,sep=&quot;/&quot;))
+}</code></pre>
+<p>The SD among times using max performance is 34.1 and using mean performance is 26.5.</p>
+<p>The increased variance of estimating the treatment using the maximum performance decreases power. The hierarchical model, which uses all the data, has the most power (at some cost to Type I?).</p>
+<pre class="r"><code>niter &lt;- nrow(sim_table)/2
+error_table &lt;- data.table(Method=c(&quot;max&quot;, &quot;mean&quot;, &quot;lmm&quot;),
+                     &quot;Type 1&quot; = c(sum(sim_table[effect==0, p_max &lt; 0.05])/niter,
+                     sum(sim_table[effect==0, p_mean &lt; 0.05])/niter,
+                     sum(sim_table[effect==0, p_lmer &lt; 0.05])/niter),
+                     &quot;Power&quot; = c(sum(sim_table[effect!=0, p_max &lt; 0.05])/niter,
+                     sum(sim_table[effect!=0, p_mean &lt; 0.05])/niter,
+                     sum(sim_table[effect!=0, p_lmer &lt; 0.05])/niter))
+knitr::kable(error_table, digits=c(NA, 3, 3))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Method</th>
+<th align="right">Type 1</th>
+<th align="right">Power</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">max</td>
+<td align="right">0.050</td>
+<td align="right">0.323</td>
+</tr>
+<tr class="even">
+<td align="left">mean</td>
+<td align="right">0.048</td>
+<td align="right">0.489</td>
+</tr>
+<tr class="odd">
+<td align="left">lmm</td>
+<td align="right">0.057</td>
+<td align="right">0.530</td>
+</tr>
+</tbody>
+</table>
+<p>Type S and M error can be seen by looking at the distribution of effects (more inflated effects, and more sign effects)</p>
+<pre class="r"><code>sim_table_long &lt;- melt(sim_table, id.vars=c(&quot;effect&quot;), 
+                       measure.vars=c(&quot;b_max&quot;, &quot;b_mean&quot;, &quot;b_lmer&quot;),
+                       variable.name=&quot;method&quot;,
+                       value.name=&quot;estimate&quot;
+                       )
+gg &lt;- ggplot(data=sim_table_long, aes(x=method, y=estimate)) +
+  geom_boxplot() +
+  facet_grid(.~effect, labeller = &quot;label_both&quot;) +
+  NULL
+gg</code></pre>
+<p><img src="/post/2019-06-25-analyze-the-mean-or-median-and-not-the-max-response_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Using the statistical significance filter. The mean effect, of those that are significant, estimated using the max response, the mean response, and a hierarchical model</p>
+<pre class="r"><code>p_table_long &lt;- melt(sim_table, id.vars=c(&quot;effect&quot;), 
+                       measure.vars=c(&quot;p_max&quot;, &quot;p_mean&quot;, &quot;p_lmer&quot;),
+                       variable.name=&quot;method&quot;,
+                       value.name=&quot;p&quot;
+                       )
+knitr::kable(sim_table_long[effect!=0 &amp; estimate &gt; 0 &amp; p_table_long[, p] &lt; 0.05, 
+               .(effect=mean(estimate)), by=method], digits=c(NA, 1))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="right">effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">b_max</td>
+<td align="right">126.8</td>
+</tr>
+<tr class="even">
+<td align="left">b_mean</td>
+<td align="right">105.4</td>
+</tr>
+<tr class="odd">
+<td align="left">b_lmer</td>
+<td align="right">103.7</td>
+</tr>
+</tbody>
+</table>
+<p>which is inflated for all three (the true effect is 75.5) but most inflated using maximum performance.</p>
+</div>

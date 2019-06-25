@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Type M Error on R Doodles</title>
+    <link>/tags/type-m-error/</link>
+    <description>Recent content in Type M Error on R Doodles</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 25 Jun 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/type-m-error/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Analyze the mean (or median) and not the max response</title>
+      <link>/2019/06/analyze-the-mean-or-median-and-not-the-max-response/</link>
+      <pubDate>Tue, 25 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/06/analyze-the-mean-or-median-and-not-the-max-response/</guid>
+      <description>This is an update of Paired t-test as a special case of linear model and hierarchical model
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</description>
+    </item>
+    
+  </channel>
+</rss>
