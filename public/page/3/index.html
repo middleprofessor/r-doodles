@@ -269,6 +269,57 @@ if (!doNotTrack) {
     
     <div class="postShorten-header">
       <h1 class="postShorten-title" itemprop="headline">
+        <a class="link-unstyled" href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
+          Compute a random data matrix (fake data) without rmvnorm
+        </a>
+      </h1>
+      
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2018-12-20T00:00:00Z">
+        
+  December 20, 2018
+
+      </time>
+    
+    
+  </div>
+
+    </div>
+    <div class="postShorten-excerpt" itemprop="articleBody">
+      
+        This is a skeleton post until I have time to flesh it out. The post is motivated by a question on twitter about creating fake data that has a covariance matrix that simulates a known (given) covariance matrix that has one or more negative (or zero) eigenvalues.
+First, some libraries
+library(data.table) library(mvtnorm) library(MASS) Second, some functions…
+random.sign &lt;- function(u){ # this is fastest of three out &lt;- sign(runif(u)-0.5) #randomly draws from {-1,1} with probability of each = 0.
+      
+      <p>
+        <a href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/" class="postShorten-excerpt_link link">Continue reading</a>
+        
+      </p>
+    </div>
+  </div>
+  
+</article>
+
+          
+            
+  
+    
+      
+        
+      
+    
+  
+
+
+  
+
+<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
+  <div class="postShorten-wrap">
+    
+    <div class="postShorten-header">
+      <h1 class="postShorten-title" itemprop="headline">
         <a class="link-unstyled" href="/2018/11/reporting-effects-as-relative-differences-with-a-confidence-interval/">
           Reporting effects as relative differences...with a confidence interval
         </a>
@@ -581,56 +632,6 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
 </article>
 
           
-            
-  
-    
-      
-        
-      
-    
-  
-
-
-  
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/">
-          An even more compact defense of coefficient model averaging
-        </a>
-      </h1>
-      
-  <div class="postShorten-meta post-meta">
-    
-      <time itemprop="datePublished" datetime="2018-05-07T00:00:00Z">
-        
-  May 7, 2018
-
-      </time>
-    
-    
-  </div>
-
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      
-        a longer, more detailed argument is here
-The parameter that is averaged “needs to have the same meaning in all “models” for the equations to be straightforwardly interpretable; the coefficient of x1 in a regression of y on x1 is a different beast than the coefficient of x1 in a regression of y on x1 and x2.” – David Draper in a comment on Hoeting et al. 1999.
-David Draper suggested this example from the textbook by Freedman, Pisani and Purves.
-      
-      <p>
-        <a href="/2018/05/an-even-more-compact-defense-of-coefficient-model-averaging/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
-  
-</article>
-
-          
           
   <div class="pagination-bar">
     <ul class="pagination">
@@ -714,6 +715,23 @@ David Draper suggested this example from the textbook by Freedman, Pisani and Pu
       <div class="no-result text-color-light text-center">no post found</div>
       <div class="results">
         
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+                <h3 class="media-heading">Is the power to test an interaction effect less than that for a main effect?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
         
           <div class="media">
             
@@ -878,23 +896,6 @@ In an experiment, do we adjust for covariates that differ between treatment leve
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/01/what-to-write-and-not-write-in-a-results-section-an-ever-growing-list/">
-                <h3 class="media-heading">What to write, and not write, in a results section — an ever-growing list</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Jan 1, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">“GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” – Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -902,7 +903,7 @@ In an experiment, do we adjust for covariates that differ between treatment leve
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         27 posts found
+         28 posts found
       </p>
     </div>
   </div>

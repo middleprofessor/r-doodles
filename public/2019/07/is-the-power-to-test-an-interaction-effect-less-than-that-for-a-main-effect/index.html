@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
+<meta name="keywords" content="tech">
+<meta name="description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.">
+
+
+<meta property="og:description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Is the power to test an interaction effect less than that for a main effect?">
+<meta name="twitter:title" content="Is the power to test an interaction effect less than that for a main effect?">
+<meta property="og:url" content="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+<meta property="twitter:url" content="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+<meta property="og:site_name" content="R Doodles">
+<meta property="og:description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.">
+<meta name="twitter:description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2019-07-02T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2019-07-02T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="stats 101">
+    
+  
+  
+    
+      <meta property="article:tag" content="categorical X">
+    
+      <meta property="article:tag" content="NHST">
+    
+      <meta property="article:tag" content="power">
+    
+      <meta property="article:tag" content="p-values">
+    
+      <meta property="article:tag" content="anova">
+    
+      <meta property="article:tag" content="interaction">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@jwalkrunski">
+
+
+  <meta name="twitter:creator" content="@jwalkrunski">
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+
+
+    <title>Is the power to test an interaction effect less than that for a main effect?</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-nnm2spxvve8onlujjlegkkytaehyadd4ksxc1hyzzq9a2wvtrgbljqyulomn.min.css" />
+    
+    
+
+    
+      
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-118821125-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">R Doodles</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+        
+          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="//github.com/middleprofessor">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://stats.stackexchange.com/users/119435/jwalker">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-stack-exchange"></i>
+      
+      <span class="sidebar-button-desc">CrossValidated</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://scholar.google.com/citations?user=W58TmakAAAAJ&amp;hl">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-google"></i>
+      
+      <span class="sidebar-button-desc">Google Scholar</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.researchgate.net/profile/Jeffrey_Walker4/contributions">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Research Gate</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.middleprofessor.com">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-university"></i>
+      
+      <span class="sidebar-button-desc">Research/Teaching</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Is the power to test an interaction effect less than that for a main effect?
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-07-02T00:00:00Z">
+        
+  July 2, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+
+<p>I was googling around and somehow landed on a page that stated <a href="https://www.methodology.psu.edu/ra/most/femiscon/">“When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”</a>. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.</p>
+<p>TL;DR It depends on how one defines “main” effect. If defined as the coefficient of a factor from a dummy-coded model, the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states).</p>
+<div id="some-definitions" class="section level2">
+<h2>Some definitions</h2>
+<p>Consider a <span class="math inline">\(2 \times 2\)</span> factorial experiment, factor A has two levels (-, +), factor B has two levels (-, +), and the means of the combinations are</p>
+<pre class="r"><code>means_table &lt;- data.frame(c(&quot;$\\mu_{11}$&quot;, &quot;$\\mu_{21}$&quot;), c(&quot;$\\mu_{12}$&quot;, &quot;$\\mu_{22}$&quot;))
+row.names(means_table) &lt;- c(&quot;A-&quot;, &quot;A+&quot;)
+colnames(means_table) &lt;- c(&quot;B-&quot;, &quot;B+&quot;)
+kable(means_table, escape = FALSE)</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+B-
+</th>
+<th style="text-align:left;">
+B+
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A-
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{11}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{12}\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A+
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{21}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{22}\)</span>
+</td>
+</tr>
+</tbody>
+</table>
+<p>then the coefficients are</p>
+<pre class="r"><code>coef_table &lt;- data.frame(dummy=c(
+  &quot;$\\mu_{11}$&quot;,
+  &quot;$\\mu_{21} - \\mu_{11}$&quot;,
+  &quot;$\\mu_{12} - \\mu_{11}$&quot;,
+  &quot;$\\mu_{22} - (intercept + \\beta_A + \\beta_B)$&quot;
+), effects=c(
+  &quot;$(\\mu_{11} + \\mu_{21} + \\mu_{12} + \\mu_{22})/4$&quot;,
+  &quot;$((\\mu_{21} - \\mu_{11}) + (\\mu_{22} - \\mu_{12}))/2$&quot;,
+  &quot;$((\\mu_{12} - \\mu_{11}) + (\\mu_{22} - \\mu_{21}))/2$&quot;,
+  &quot;$\\mu_{22} - (intercept + \\beta_A + \\beta_B)$&quot;
+)  
+)
+row.names(coef_table) &lt;- c(&quot;intercept&quot;, &quot;$\\beta_A$&quot;, &quot;$\\beta_B$&quot;, &quot;$\\beta_{AB}$&quot;)
+kable(coef_table, escape = FALSE)</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+dummy
+</th>
+<th style="text-align:left;">
+effects
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+intercept
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{11}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\((\mu_{11} + \mu_{21} + \mu_{12} + \mu_{22})/4\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span class="math inline">\(\beta_A\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{21} - \mu_{11}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(((\mu_{21} - \mu_{11}) + (\mu_{22} - \mu_{12}))/2\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span class="math inline">\(\beta_B\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{12} - \mu_{11}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(((\mu_{12} - \mu_{11}) + (\mu_{22} - \mu_{21}))/2\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span class="math inline">\(\beta_{AB}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{22} - (intercept + \beta_A + \beta_B)\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{22} - (intercept + \beta_A + \beta_B)\)</span>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Or, in words, with dummy coding</p>
+<ol style="list-style-type: decimal">
+<li>the intercept is the mean of the group with no added treatment in either A or B (it is the control)</li>
+<li><span class="math inline">\(\beta_A\)</span> is the effect of treatment A when no treatment has been added to B</li>
+<li><span class="math inline">\(\beta_B\)</span> is the effect of treatment B when no treatment has been added to A</li>
+<li><span class="math inline">\(\beta_{AB}\)</span> is the non-additive effect, it is the difference between the mean of the group in which both A and B treatments are added and the expected mean of this group if A and B act additively (that is, if we add the A and B effects).</li>
+</ol>
+<p>and, with effects coding</p>
+<ol style="list-style-type: decimal">
+<li>the intercept is the grand mean</li>
+<li><span class="math inline">\(\beta_A\)</span> is <em>half</em> the average of the simple effects of A, where the simple effects of A are the effects of A within each level of B</li>
+<li><span class="math inline">\(\beta_B\)</span> is <em>half</em> the average of the simple effects of B, where the simple effects of B are the effects of B within each level of A</li>
+<li><span class="math inline">\(\beta_{AB}\)</span> is the non-additive effect, it is the difference between the mean of the group in which both A and B treatments are added and the expected mean of this group if A and B act additively.</li>
+</ol>
+<p><span class="math inline">\(\beta_A\)</span> and <span class="math inline">\(\beta_B\)</span> are often called the “main” effects and <span class="math inline">\(\beta_{AB}\)</span> the “interaction” effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to <span class="math inline">\(\beta_A\)</span> and <span class="math inline">\(\beta_B\)</span> in dummy-coding as “simple” effects. Also note that while the interaction effect in dummy and effects coding have the same verbal meaning, they have a different numerical value because the “main” effect differs between the codings.</p>
+</div>
+<div id="the-interaction-effect-computed-using-treatment-dummy-coding-does-not-equal-the-interaction-effect-computed-using-effect-coding." class="section level2">
+<h2>The interaction effect computed using treatment (dummy) coding does not equal the interaction effect computed using effect coding.</h2>
+<p>Many researchers look only at ANOVA tables (and not a coefficients table) where the p-value of the interaction term is the same regardless of the sum-of-squares computation (sequential SS using dummy coding or Type III SS using effects coding). By focussing on the p-value, it’s easy to miss that the interaction coefficient and SE differ between the two types of coding.</p>
+<div id="script-to-compare-dummy-and-effect-coding-with-small-n-to-show-different-estimates-of-interaction-coefficient-but-same-p-value." class="section level3">
+<h3>Script to compare dummy and effect coding with small n to show different estimates of interaction coefficient but same p-value.</h3>
+<pre class="r"><code>set.seed(1)
+# paramters to generate data using dummy coding generating model
+beta1 &lt;- c(0, 0.5, 0.5, 0.5)
+a_levels &lt;- c(&quot;-&quot;, &quot;+&quot;)
+b_levels &lt;- c(&quot;-&quot;, &quot;+&quot;)
+
+n &lt;- 10
+N &lt;- n * length(a_levels) * length(b_levels)
+x_cat &lt;- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat &lt;- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X &lt;- model.matrix(~A*B, data=x_cat)
+y &lt;- (X%*%beta1)[,1] + rnorm(N)
+m1 &lt;- lm(y ~ A*B, data=x_cat)
+con3 &lt;- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+m2 &lt;- lm(y ~ A*B, contrasts=con3, data=x_cat)
+
+knitr::kable(coef(summary(m1)), digits=c(2,4,1,4))</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Estimate
+</th>
+<th style="text-align:right;">
+Std. Error
+</th>
+<th style="text-align:right;">
+t value
+</th>
+<th style="text-align:right;">
+Pr(&gt;|t|)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+0.13
+</td>
+<td style="text-align:right;">
+0.2881
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+0.6491
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A+
+</td>
+<td style="text-align:right;">
+0.62
+</td>
+<td style="text-align:right;">
+0.4074
+</td>
+<td style="text-align:right;">
+1.5
+</td>
+<td style="text-align:right;">
+0.1389
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B+
+</td>
+<td style="text-align:right;">
+0.23
+</td>
+<td style="text-align:right;">
+0.4074
+</td>
+<td style="text-align:right;">
+0.6
+</td>
+<td style="text-align:right;">
+0.5691
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A+:B+
+</td>
+<td style="text-align:right;">
+0.64
+</td>
+<td style="text-align:right;">
+0.5762
+</td>
+<td style="text-align:right;">
+1.1
+</td>
+<td style="text-align:right;">
+0.2757
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(coef(summary(m2)), digits=c(2,4,1,4))</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Estimate
+</th>
+<th style="text-align:right;">
+Std. Error
+</th>
+<th style="text-align:right;">
+t value
+</th>
+<th style="text-align:right;">
+Pr(&gt;|t|)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+0.72
+</td>
+<td style="text-align:right;">
+0.1441
+</td>
+<td style="text-align:right;">
+5.0
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A1
+</td>
+<td style="text-align:right;">
+-0.47
+</td>
+<td style="text-align:right;">
+0.1441
+</td>
+<td style="text-align:right;">
+-3.2
+</td>
+<td style="text-align:right;">
+0.0025
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B1
+</td>
+<td style="text-align:right;">
+-0.28
+</td>
+<td style="text-align:right;">
+0.1441
+</td>
+<td style="text-align:right;">
+-1.9
+</td>
+<td style="text-align:right;">
+0.0629
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A1:B1
+</td>
+<td style="text-align:right;">
+0.16
+</td>
+<td style="text-align:right;">
+0.1441
+</td>
+<td style="text-align:right;">
+1.1
+</td>
+<td style="text-align:right;">
+0.2757
+</td>
+</tr>
+</tbody>
+</table>
+<p>Note that</p>
+<ol style="list-style-type: decimal">
+<li>the “main” effect coefficients in the two tables are not estimating the same thing. In the dummy coded table, the coefficients are not “main” effect coefficients but “simple” effect coefficients. They are the difference between the two levels of one factor when the other factor is set to it’s reference level. In the effects coded table, the coefficients are “main” effect coefficients – these coefficients are equal to half the average of the two simple effects of one factor (each simple effect is within one level of the other factor).</li>
+<li>The interaction coefficient in the two tables is not estimating the same thing. This is less obvious, since the p-value is the same.</li>
+<li>the SEs differ among the in the table from the dummy coded fit but are the same in the table from the effect coded fit. The SE in the dummy coded fit is due to the number of means computed to estimate the effect: the intercept is a function of one mean, the simple effect coefficients (Aa and Bb) are functions of two means, and the interaction is a function of 4 means. Consequently, there is less power to test the main coefficients and even less to test the inrteraction coefficient. By contrast in the effect coded fit, all four coefficients are function of all four means, so all four coefficients have the same SE. That is, there is equal power to estimate the interaction as a main effect.</li>
+</ol>
+</div>
+<div id="script-to-compare-dummy-and-effect-coding-using-data-with-big-n-to-show-different-models-really-are-estimating-different-coefficients." class="section level3">
+<h3>Script to compare dummy and effect coding using data with big n to show different models really are estimating different coefficients.</h3>
+<pre class="r"><code>set.seed(2)
+# paramters to generate data using dummy coding generating model
+beta1 &lt;- c(0, 1, 1, 1)
+a_levels &lt;- c(&quot;-&quot;, &quot;+&quot;)
+b_levels &lt;- c(&quot;-&quot;, &quot;+&quot;)
+n &lt;- 10^5
+N &lt;- n * length(a_levels) * length(b_levels)
+x_cat &lt;- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat &lt;- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X &lt;- model.matrix(~A*B, data=x_cat)
+y &lt;- (X%*%beta1)[,1] + rnorm(N)
+m1 &lt;- lm(y ~ A*B, data=x_cat)
+con3 &lt;- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+m2 &lt;- lm(y ~ A*B, contrasts=con3, data=x_cat)
+
+knitr::kable(coef(summary(m1)), digits=c(2,4,1,4))</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Estimate
+</th>
+<th style="text-align:right;">
+Std. Error
+</th>
+<th style="text-align:right;">
+t value
+</th>
+<th style="text-align:right;">
+Pr(&gt;|t|)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+0.0032
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+0.3303
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A+
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+0.0045
+</td>
+<td style="text-align:right;">
+223.3
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B+
+</td>
+<td style="text-align:right;">
+0.99
+</td>
+<td style="text-align:right;">
+0.0045
+</td>
+<td style="text-align:right;">
+221.6
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A+:B+
+</td>
+<td style="text-align:right;">
+1.01
+</td>
+<td style="text-align:right;">
+0.0063
+</td>
+<td style="text-align:right;">
+159.9
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(coef(summary(m2)), digits=c(2,4,1,4))</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Estimate
+</th>
+<th style="text-align:right;">
+Std. Error
+</th>
+<th style="text-align:right;">
+t value
+</th>
+<th style="text-align:right;">
+Pr(&gt;|t|)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+1.25
+</td>
+<td style="text-align:right;">
+0.0016
+</td>
+<td style="text-align:right;">
+791.0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A1
+</td>
+<td style="text-align:right;">
+-0.75
+</td>
+<td style="text-align:right;">
+0.0016
+</td>
+<td style="text-align:right;">
+-475.6
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B1
+</td>
+<td style="text-align:right;">
+-0.75
+</td>
+<td style="text-align:right;">
+0.0016
+</td>
+<td style="text-align:right;">
+-473.3
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A1:B1
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+<td style="text-align:right;">
+0.0016
+</td>
+<td style="text-align:right;">
+159.9
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the coefficients generating the data using dummy coding are the same for the simple (Aa and Bb) effects, and for the interaction effect. The model fit using dummy coding recovers these, so the interaction coefficient is the same as the Aa or Bb coefficient. By contrast the interaction coefficient estimated using effects coding is 1/3 the magnitude of the main effect (A1 or B1) coefficients.</p>
+<p>The above is the explainer for the claim that there is less power to estimate an interaction effect. There are two ways to think about this: 1. Fitting a dummy coded model to the data, the SE of the interaction effect is <span class="math inline">\(2\sqrt(2)\)</span> times the SE of the simple effects, so for coefficients of the same magnitude, there is less power. Also remember that the simple effect coefficients are not “main” effects! So there really is less power to estimate an interaction effect than a <em>simple</em> effect of the same magnitude. 2. Fitting an effects coded model to the data, <em>but thinking about the interaction effect as if it were generated using a dummy coded generating model</em>, the interaction effect is 1/3 the size of the main effect coefficients, so there is less power because this magnitude difference – the SEs of the coefficients are the same.</p>
+</div>
+</div>
+<div id="a-simulation-to-show-that-the-power-to-test-an-interaction-effect-equals-that-to-test-a-main-effect-if-they-have-the-same-magnitude." class="section level2">
+<h2>A simulation to show that the power to test an interaction effect equals that to test a main effect if they have the same magnitude.</h2>
+<pre class="r"><code>niter &lt;- 10*10^3
+con3 &lt;- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+
+# parameters for data generated using dummy coding
+# interaction and simple effects equal if using dummy coded model
+beta1 &lt;- c(0, 0.5, 0.5, 0.5)
+Beta1 &lt;- matrix(beta1, nrow=4, ncol=niter)
+
+# parameters for data generated using effects coding - 
+# interaction and main effects equal if fit using effects coded model
+beta3 &lt;- c(0, 0.5, 0.5, 0.5)
+Beta3 &lt;- matrix(beta3, nrow=4, ncol=niter)
+
+a_levels &lt;- c(&quot;-&quot;, &quot;+&quot;)
+b_levels &lt;- c(&quot;-&quot;, &quot;+&quot;)
+n &lt;- 10
+N &lt;- n * length(a_levels) * length(b_levels)
+x_cat &lt;- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat &lt;- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X1 &lt;- model.matrix(~A*B, data=x_cat)
+X3 &lt;- model.matrix(~A*B, contrasts=con3, data=x_cat)
+
+fd1 &lt;- X1%*%Beta1 + matrix(rnorm(niter*N), nrow=N, ncol=niter)
+fd3 &lt;- X3%*%Beta3 + matrix(rnorm(niter*N), nrow=N, ncol=niter)
+
+p_labels &lt;- c(&quot;A1&quot;, &quot;AB1&quot;, &quot;A3&quot;, &quot;AB3&quot;)
+p &lt;- matrix(nrow=niter, ncol=length(p_labels))
+colnames(p) &lt;- p_labels
+
+j &lt;- 1
+
+for(j in 1:niter){
+  # dummy coding
+  m1 &lt;- lm(fd1[,j] ~ A*B, data=x_cat)
+  m3 &lt;- lm(fd3[,j] ~ A*B, contrasts=con3, data=x_cat)
+  p[j, 1:2] &lt;- coef(summary(m1))[c(2,4), &quot;Pr(&gt;|t|)&quot;]
+  p[j, 3:4] &lt;- coef(summary(m3))[c(2,4), &quot;Pr(&gt;|t|)&quot;]
+}
+
+power_res &lt;- apply(p, 2, function(x) sum(x&lt;0.05)/niter)
+power_table &lt;- data.frame(power=power_res)
+row.names(power_table) &lt;- c(&quot;dummy: simple A&quot;,
+                            &quot;dummy: interaction&quot;,
+                             &quot;effects: main A&quot;,
+                            &quot;effects: interaction&quot;
+                           )
+kable(power_table)</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+power
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+dummy: simple A
+</td>
+<td style="text-align:right;">
+0.1982
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dummy: interaction
+</td>
+<td style="text-align:right;">
+0.1218
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+effects: main A
+</td>
+<td style="text-align:right;">
+0.8706
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+effects: interaction
+</td>
+<td style="text-align:right;">
+0.8672
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/categorical-x/">categorical X</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/nhst/">NHST</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/power/">power</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/p-values/">p-values</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/anova/">anova</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/interaction/">interaction</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/06/analyze-the-mean-or-median-and-not-the-max-response/" data-tooltip="Analyze the mean (or median) and not the max response">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/06/analyze-the-mean-or-median-and-not-the-max-response/" data-tooltip="Analyze the mean (or median) and not the max response">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F07%2Fis-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F07%2Fis-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F07%2Fis-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+    
+      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Jeff Walker, Professor of Biological Sciences
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        University of Southern Maine, Portland, Maine, United States
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+                <h3 class="media-heading">Is the power to test an interaction effect less than that for a main effect?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/analyze-the-mean-or-median-and-not-the-max-response/">
+                <h3 class="media-heading">Analyze the mean (or median) and not the max response</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is an update of Paired t-test as a special case of linear model and hierarchical model
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/paired-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
+                <h3 class="media-heading">Paired t-test as a special case of linear model and hierarchical (linear mixed) model</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update – Fig. 2A is an analysis of the maximum endurance over three trials. This has consequences.
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/what-does-cell-biology-data-look-like/">
+                <h3 class="media-heading">What does cell biology data look like?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/">
+                <h3 class="media-heading">Reanalyzing data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update - This post has been updated
+A very skeletal analysis of
+Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
+which got some attention on pubpeer.
+Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/">
+                <h3 class="media-heading">GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update to the earlier post, which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough – or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/05/should-we-be-skeptical-of-a-large-effect-size-if-p-0-05/">
+                <h3 class="media-heading">Should we be skeptical of a &#34;large&#34; effect size if p &gt; 0.05?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”1 2
+A thought: our belief in the magnitude of an observed effect should be based on our priors, which, hopefully, are formed from good mechanistic models and not sample size“.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/04/blocking-vs-covariate-adjustment/">
+                <h3 class="media-heading">Blocking vs. covariate adjustment</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">“A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/04/the-statistical-significance-filter/">
+                <h3 class="media-heading">The statistical significance filter</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">1 Why reported effect sizes are inflated 2 Setup 3 Exploration 1 4 Unconditional means, power, and sign error 5 Conditional means 5.1 filter = 0.05 5.2 filter = 0.2    1 Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/04/covariate-adjustment-in-randomized-experiments/">
+                <h3 class="media-heading">Covariate adjustment in randomized experiments</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">The post motivated by a tweetorial from Darren Dahly
+In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         28 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('/images/Jackson%20copy%202.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2019\/07\/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect\/';
+          
+            this.page.identifier = '\/2019\/07\/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

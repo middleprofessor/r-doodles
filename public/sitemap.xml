@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/</loc>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/06/analyze-the-mean-or-median-and-not-the-max-response/</loc>
     <lastmod>2019-06-25T00:00:00+00:00</lastmod>
   </url>
@@ -148,6 +153,12 @@
   </url>
   
   <url>
+    <loc>/tags/anova/</loc>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/archives/</loc>
     <priority>0</priority>
   </url>
@@ -166,7 +177,7 @@
   
   <url>
     <loc>/tags/categorical-x/</loc>
-    <lastmod>2019-04-12T00:00:00+00:00</lastmod>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -248,7 +259,7 @@
   
   <url>
     <loc>/tags/interaction/</loc>
-    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -290,7 +301,7 @@
   
   <url>
     <loc>/tags/nhst/</loc>
-    <lastmod>2019-06-09T00:00:00+00:00</lastmod>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -302,7 +313,7 @@
   
   <url>
     <loc>/tags/p-values/</loc>
-    <lastmod>2019-05-30T00:00:00+00:00</lastmod>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -314,13 +325,13 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2019-06-25T00:00:00+00:00</lastmod>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/power/</loc>
-    <lastmod>2019-05-30T00:00:00+00:00</lastmod>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -332,7 +343,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-06-25T00:00:00+00:00</lastmod>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -362,7 +373,7 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2019-06-25T00:00:00+00:00</lastmod>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

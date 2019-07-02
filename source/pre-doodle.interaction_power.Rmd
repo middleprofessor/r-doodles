@@ -1,0 +1,215 @@
+---
+title: "interaction power"
+author: "Jeff Walker"
+date: "6/28/2019"
+output: html_document
+---
+I was googling around and somehow landed on a page that stated ["When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction"](https://www.methodology.psu.edu/ra/most/femiscon/). Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.
+
+TL;DR It depends on how one defines "main" effect. If defined as the coefficient of a factor from a dummy-coded model, the power to test the interaction is less than that for a main effect, even if the effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states).
+
+```{r setup, include=FALSE}
+library(data.table)
+library(kableExtra)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Some definitions
+
+Consider a $2 \times 2$ factorial experiment, factor A has two levels (-, +), factor B has two levels (-, +), and the means of the combinations are
+
+```{r}
+A <- c("-", "+")
+B <- c("-", "+")
+AB <- expand.grid(A=A, B=B)
+AB_square <- data.frame(matrix(paste0(AB[,"A"], AB[,"B"]), nrow=2))
+row.names(AB_square) <- c("A-", "A+")
+colnames(AB_square) <- c("B-", "B+")
+# kable_styling(knitr::kable(AB_square))
+
+means_table <- data.frame(c("$\\mu_{11}$", "$\\mu_{21}$"), c("$\\mu_{12}$", "$\\mu_{22}$"))
+row.names(means_table) <- c("A-", "A+")
+colnames(means_table) <- c("B-", "B+")
+kable(means_table, escape = FALSE)
+```
+
+then the coefficients are
+
+```{r}
+coef_table <- data.frame(dummy=c(
+  "$\\mu_{11}$",
+  "$\\mu_{21} - \\mu_{11}$",
+  "$\\mu_{12} - \\mu_{11}$",
+  "$\\mu_{22} - (intercept + \\beta_A + \\beta_B)$"
+), effects=c(
+  "$(\\mu_{11} + \\mu_{21} + \\mu_{12} + \\mu_{22})/4$",
+  "$((\\mu_{21} - \\mu_{11}) + (\\mu_{22} - \\mu_{12}))/2$",
+  "$((\\mu_{12} - \\mu_{11}) + (\\mu_{22} - \\mu_{21}))/2$",
+  "$\\mu_{22} - (intercept + \\beta_A + \\beta_B)$"
+)  
+)
+row.names(coef_table) <- c("intercept", "$\\beta_A$", "$\\beta_B$", "$\\beta_{AB}$")
+kable(coef_table, escape = FALSE)
+```
+Or, in words, with dummy coding
+
+1. the intercept is the mean of the group with no added treatment in either A or B (it is the control)
+2. $\beta_A$ is the effect of treatment A when no treatment has been added to B
+3. $\beta_B$ is the effect of treatment B when no treatment has been added to A
+4. $\beta_{AB}$ is the non-additive effect, it is the difference between the mean of the group in which both A and B treatments are added and the expected mean of this group if A and B act additively (that is, if we add the A and B effects).
+
+and, with effects coding
+
+1. the intercept is the grand mean
+2. $\beta_A$ is *half* the average of the simple effects of A, where the simple effects of A are the effects of A within each level of B 
+3. $\beta_B$ is *half* the average of the simple effects of B, where the simple effects of B are the effects of B within each level of A 
+4. $\beta_{AB}$ is the non-additive effect, it is the difference between the mean of the group in which both A and B treatments are added and the expected mean of this group if A and B act additively.
+
+$\beta_A$ and $\beta_B$ are often called the "main" effects and $\beta_{AB}$ the "interaction" effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to $\beta_A$ and $\beta_B$ in dummy-coding as "simple" effects. Also note that while the interaction effect in dummy and effects coding have the same verbal meaning, they have a different numerical value because the "main" effect differs between the codings.
+
+## The interaction effect computed using treatment (dummy) coding does not equal the interaction effect computed using effect coding.
+
+Many researchers look only at ANOVA tables (and not a coefficients table) where the p-value of the interaction term is the same regardless of the sum-of-squares computation (sequential SS using dummy coding or Type III SS using effects coding). By focussing on the p-value, it's easy to miss that the interaction coefficient and SE differ between the two types of coding.
+
+### Script to compare dummy and effect coding with small n to show different estimates of interaction coefficient but same p-value.
+```{r}
+set.seed(1)
+# paramters to generate data using dummy coding generating model
+beta1 <- c(0, 0.5, 0.5, 0.5)
+a_levels <- c("A", "a")
+b_levels <- c("B", "b")
+n <- 10
+N <- n * length(a_levels) * length(b_levels)
+x_cat <- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat <- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X <- model.matrix(~A*B, data=x_cat)
+y <- (X%*%beta1)[,1] + rnorm(N)
+m1 <- lm(y ~ A*B, data=x_cat)
+con3 <- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+m2 <- lm(y ~ A*B, contrasts=con3, data=x_cat)
+
+knitr::kable(coef(summary(m1)), digits=c(2,4,1,4))
+knitr::kable(coef(summary(m2)), digits=c(2,4,1,4))
+
+
+```
+ 
+Note that
+
+1. the "main" effect coefficients in the two tables are not estimating the same thing. In the dummy coded table, the coefficients are not "main" effect coefficients but "simple" effect coefficients. They are the difference between the two levels of one factor when the other factor is set to it's reference level. In the effects coded table, the coefficients are "main" effect coefficients -- these coefficients are equal to half the average of the two simple effects of one factor (each simple effect is within one level of the other factor).
+2. The interaction coefficient in the two tables is not estimating the same thing. This is less obvious, since the p-value is the same.
+3. the SEs differ among the in the table from the dummy coded fit but are the same in the table from the effect coded fit. The SE in the dummy coded fit is due to the number of means computed to estimate the effect: the intercept is a function of one mean, the simple effect coefficients (Aa and Bb) are functions of two means, and the interaction is a function of 4 means. Consequently, there is less power to test the main coefficients and even less to test the inrteraction coefficient. By contrast in the effect coded fit, all four coefficients are function of all four means, so all four coefficients have the same SE. That is, there is equal power to estimate the interaction as a main effect.
+
+### Script to compare dummy and effect coding using data with big n to show different models really are estimating different coefficients.
+
+```{r}
+set.seed(2)
+# paramters to generate data using dummy coding generating model
+beta1 <- c(0, 1, 1, 1)
+a_levels <- c("A", "a")
+b_levels <- c("B", "b")
+n <- 10^5
+N <- n * length(a_levels) * length(b_levels)
+x_cat <- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat <- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X <- model.matrix(~A*B, data=x_cat)
+y <- (X%*%beta1)[,1] + rnorm(N)
+m1 <- lm(y ~ A*B, data=x_cat)
+con3 <- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+m2 <- lm(y ~ A*B, contrasts=con3, data=x_cat)
+
+knitr::kable(coef(summary(m1)), digits=c(2,4,1,4))
+knitr::kable(coef(summary(m2)), digits=c(2,4,1,4))
+```
+
+Note that the coefficients generating the data using dummy coding are the same for the simple (Aa and Bb) effects, and for the interaction effect. The model fit using dummy coding recovers these, so the interaction coefficient is the same as the Aa or Bb coefficient. By contrast the interaction coefficient estimated using effects coding is 1/3 the magnitude of the main effect (A1 or B1) coefficients.
+
+The above is the explainer for the claim that there is less power to estimate an interaction effect. There are two ways to think about this:
+1. Fitting a dummy coded model to the data, the SE of the interaction effect is $2\sqrt(2)$ times the SE of the simple effects, so for coefficients of the same magnitude, there is less power. Also remember that the simple effect coefficients are not "main" effects! So there really is less power to estimate an interaction effect than a *simple* effect of the same magnitude. 
+2. Fitting an effects coded model to the data, *but thinking about the interaction effect as if it were generated using a dummy coded generating model*, the interaction effect is 1/3 the size of the main effect coefficients, so there is less power because this magnitude difference -- the SEs of the coefficients are the same.
+
+## A simulation to show that the power to test an interaction effect equals that to test a main effect if they have the same magnitude.
+
+```{r}
+niter <- 10*10^3
+con3 <- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+
+# parameters for data generated using dummy coding
+# interaction and simple effects equal if using dummy coded model
+beta1 <- c(0, 0.5, 0.5, 0.5)
+Beta1 <- matrix(beta1, nrow=4, ncol=niter)
+
+# parameters for data generated using effects coding - 
+# interaction and main effects equal if fit using effects coded model
+beta3 <- c(0, 0.5, 0.5, 0.5)
+Beta3 <- matrix(beta3, nrow=4, ncol=niter)
+
+n <- 10
+N <- n * length(a_levels) * length(b_levels)
+x_cat <- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat <- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X1 <- model.matrix(~A*B, data=x_cat)
+X3 <- model.matrix(~A*B, contrasts=con3, data=x_cat)
+
+fd1 <- X1%*%Beta1 + matrix(rnorm(niter*N), nrow=N, ncol=niter)
+fd3 <- X3%*%Beta3 + matrix(rnorm(niter*N), nrow=N, ncol=niter)
+
+p_labels <- c("A1", "AB1", "A2", "A3", "AB3")
+p <- matrix(nrow=niter, ncol=length(p_labels))
+colnames(p) <- p_labels
+
+j <- 1
+
+for(j in 1:niter){
+  # dummy coding
+  m1 <- lm(fd1[,j] ~ A*B, data=x_cat)
+  m3 <- lm(fd3[,j] ~ A*B, contrasts=con3, data=x_cat)
+  p[j, 1:2] <- coef(summary(m1))[c(2,4), "Pr(>|t|)"]
+  p[j, 3] <- coef(summary(m2))[2, "Pr(>|t|)"]
+  p[j, 4:5] <- coef(summary(m3))[c(2,4), "Pr(>|t|)"]
+}
+
+apply(p, 2, function(x) sum(x<0.05)/niter)
+```
+
+```{r echo=FALSE, eval=FALSE}
+# common effect via effect coding vs. pooled effect using emmeans
+library(emmeans)
+n <- 10
+
+con3 <- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+
+# so make a model with main effect this big but no interaction
+beta2 <- c(0, 0.5, 0, 0.0)
+Beta2 <- matrix(beta2, nrow=4, ncol=niter)
+
+# and make a model with main effect A and interaction effect this big
+beta3 <- c(0, 0.5, 0, 0.5)
+Beta3 <- matrix(beta3, nrow=4, ncol=niter)
+
+# quick test
+a_levels <- c("A", "a")
+b_levels <- c("B", "b")
+N <- n * length(a_levels) * length(b_levels)
+x_cat <- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat <- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X2 <- model.matrix(~A*B, contrasts=con3, data=x_cat)
+X3 <- model.matrix(~A*B, contrasts=con3, data=x_cat)
+
+y2 <- (X2%*%beta2)[,1] + rnorm(N)
+y3 <- (X3%*%beta3)[,1] + rnorm(N)
+
+  m1 <- lm(y3 ~ A*B, data=x_cat)
+  m2 <- lm(y3 ~ A*B, contrasts=con3, data=x_cat)
+  m3 <- lm(y3 ~ A+B, data=x_cat)
+  m4 <- lm(y3 ~ A+B, contrasts=con3, data=x_cat)
+coef(summary(m1))["Aa",] # treatment factorial
+coef(summary(m2))["A1",] # effect factorial
+coef(summary(m3))["Aa",] # treatment additive
+coef(summary(m4))["A1",] # effect additive
+contrast(emmeans(m1, specs="A"), adjust="none")
+contrast(emmeans(m3, specs="A"), adjust="none")
+
+```
+
+
