@@ -16,12 +16,17 @@ keywords:
   - tech
 ---
 
-I was googling around and somehow landed on a page that stated ["When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction"](https://www.methodology.psu.edu/ra/most/femiscon/). Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.
+I was googling around and somehow landed on a page that stated ["When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction"](https://www.methodology.psu.edu/ra/most/femiscon/). Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R's default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.
 
-TL;DR It depends on how one defines "main" effect. If defined as the coefficient of a factor from a dummy-coded model, the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states).
+**TL;DR** It depends on how one defines "main" effect. If defined as the coefficient of a factor from a dummy-coded model, the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states). Regardless, thinking about the coefficients computed from an effects coded model makes my head spin.
+
+**Updated** Andrew Gelman has a highly relevant blog post [You need 16 times the sample size to estimate an interaction than to estimate a main effect](https://statmodeling.stat.columbia.edu/2018/03/15/need-16-times-sample-size-estimate-interaction-estimate-main-effect/) that is really minimal in that it focusses entirely on the standard error. Gelman effectively used a -0.5, +0.5 contrast coding but added an update with -1, +1 (effects) coding.
 
 ```{r setup, include=FALSE}
 library(data.table)
+library(ggplot2)
+library(ggpubr)
+library(cowplot)
 library(kableExtra)
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -47,9 +52,9 @@ coef_table <- data.frame(dummy=c(
   "$\\mu_{22} - (intercept + \\beta_A + \\beta_B)$"
 ), effects=c(
   "$(\\mu_{11} + \\mu_{21} + \\mu_{12} + \\mu_{22})/4$",
-  "$((\\mu_{21} - \\mu_{11}) + (\\mu_{22} - \\mu_{12}))/2$",
-  "$((\\mu_{12} - \\mu_{11}) + (\\mu_{22} - \\mu_{21}))/2$",
-  "$\\mu_{22} - (intercept + \\beta_A + \\beta_B)$"
+  "$-((\\mu_{21} - \\mu_{11}) + (\\mu_{22} - \\mu_{12}))/2$",
+  "$-((\\mu_{12} - \\mu_{11}) + (\\mu_{22} - \\mu_{21}))/2$",
+  "$\\mu_{11} - (intercept + \\beta_A + \\beta_B)$"
 )  
 )
 row.names(coef_table) <- c("intercept", "$\\beta_A$", "$\\beta_B$", "$\\beta_{AB}$")
@@ -60,16 +65,59 @@ Or, in words, with dummy coding
 1. the intercept is the mean of the group with no added treatment in either A or B (it is the control)
 2. $\beta_A$ is the effect of treatment A when no treatment has been added to B
 3. $\beta_B$ is the effect of treatment B when no treatment has been added to A
-4. $\beta_{AB}$ is the non-additive effect, it is the difference between the mean of the group in which both A and B treatments are added and the expected mean of this group if A and B act additively (that is, if we add the A and B effects).
+4. $\beta_{AB}$ is "the leftovers", that is, the non-additive effect. It is the difference between the mean of the group in which both A and B treatments are added and the expected mean of this group if A and B act additively (that is, if we add the A and B effects).
 
 and, with effects coding
 
 1. the intercept is the grand mean
-2. $\beta_A$ is *half* the average of the simple effects of A, where the simple effects of A are the effects of A within each level of B 
-3. $\beta_B$ is *half* the average of the simple effects of B, where the simple effects of B are the effects of B within each level of A 
-4. $\beta_{AB}$ is the non-additive effect, it is the difference between the mean of the group in which both A and B treatments are added and the expected mean of this group if A and B act additively.
+2. $\beta_A$ is -1 times *half* the average of the simple effects of A, where the simple effects of A are the effects of A within each level of B 
+3. $\beta_B$ is -1 times *half* the average of the simple effects of B, where the simple effects of B are the effects of B within each level of A 
+4. $\beta_{AB}$ is "the leftovers", that is, the non-additive effect, it is the difference between the mean of a group (any group!) and the expected mean of this group if A and B act additively (note that the sign of the effect depends on which group).
 
-$\beta_A$ and $\beta_B$ are often called the "main" effects and $\beta_{AB}$ the "interaction" effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to $\beta_A$ and $\beta_B$ in dummy-coding as "simple" effects. Also note that while the interaction effect in dummy and effects coding have the same verbal meaning, they have a different numerical value because the "main" effect differs between the codings.
+$\beta_A$ and $\beta_B$ are often called the "main" effects and $\beta_{AB}$ the "interaction" effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to $\beta_A$ and $\beta_B$ in dummy-coding as "simple" effects. There are as many simple facts as levels of the other factor. And the simple effect coefficinet for the dummy-coded model depends on which level of the factor is set as the "reference".
+
+Finally, note that while the interaction effect in dummy and effects coding have the same verbal meaning, they have a different numerical value because the "main" effect differs between the codings.
+
+## Visualizing interaction effects
+
+```{r, fig.cap="illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the measured means. Red dots are the expected means given only additive effects. The interaction effect is 'what is left' to get from the expectation using only additive effects to the measured mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects -- all have the same magnitude but the sign varies by group."}
+# quick test
+con3 <- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+n <- 1
+a_levels <- c("+", "-")
+b_levels <- c("+", "-")
+N <- n * length(a_levels) * length(b_levels)
+x_cat <- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat <- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X3 <- model.matrix(~A*B, contrasts=con3, data=x_cat)
+
+beta1 <- c(0, -1, -1, 0)
+beta3 <- c(0, -1, -1, 0.5)
+y1 <- (X3%*%beta1)[,1]
+y3 <- (X3%*%beta3)[,1]
+
+fd <- cbind(x_cat, y1=y1, y3=y3)
+gg1 <- ggplot(data=fd, aes(x=A, y=y3, shape=B)) +
+  geom_point(size=3, color="black") +
+  geom_point(aes(y=y1), size=3, color="red") + 
+  geom_segment(aes(x=1, y=fd[1, y1], xend=1, yend=fd[1, y3]-0.1), arrow=arrow(length = unit(0.2,"cm"))) +
+  geom_segment(aes(x=2, y=fd[2, y1], xend=2, yend=fd[2, y3]+0.1), arrow=arrow(length = unit(0.2,"cm"))) +
+  geom_segment(aes(x=1, y=fd[3, y1], xend=1, yend=fd[3, y3]+0.1), arrow=arrow(length = unit(0.2,"cm"))) +
+  geom_segment(aes(x=2, y=fd[4, y1], xend=2, yend=fd[4, y3]-0.1), arrow=arrow(length = unit(0.2,"cm"))) +
+ scale_y_continuous(limits=c(-2.25, 2.75)) +
+  ylab("y") +
+  NULL
+
+gg2 <- ggplot(data=fd, aes(x=A, y=y3, shape=B)) +
+  geom_point(size=3, color="black") +
+  geom_point(aes(x=2, y=0.5), size=3, color="red") +
+  geom_segment(aes(x=2, y=0.5, xend=2, yend=fd[4, y3]-0.1), arrow=arrow(length = unit(0.2,"cm"))) +
+  scale_y_continuous(limits=c(-2.25, 2.75)) +
+  ylab("y") +
+  NULL
+
+plot_grid(gg2, gg1, ncol=2, labels=c("A. Dummy coding", "B. Effects coding"))
+```
 
 ## The interaction effect computed using treatment (dummy) coding does not equal the interaction effect computed using effect coding.
 
@@ -185,6 +233,45 @@ row.names(power_table) <- c("dummy: simple A",
 kable(power_table)
 ```
 
+
+```{r, eval=FALSE, echo=FALSE}
+con3 <- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+# parameters for data generated using effects coding - 
+# interaction and main effects equal if fit using effects coded model
+beta3 <- c(0, 0.5, 0, 0.5)
+
+a_levels <- c("-", "+")
+b_levels <- c("-", "+")
+n <- 10^5
+N <- n * length(a_levels) * length(b_levels)
+x_cat <- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat <- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X3 <- model.matrix(~A*B, contrasts=con3, data=x_cat)
+y <- (X3%*%beta3)[,1] + rnorm(N)
+fd <- cbind(x_cat, y=y)
+mu11 <- mean(fd[A=="-" & B=="-", y])
+mu21 <- mean(fd[A=="+" & B=="-", y])
+mu12 <- mean(fd[A=="-" & B=="+", y])
+mu22 <- mean(fd[A=="+" & B=="+", y])
+(b0 <- (mu11 + mu21 + mu12 + mu22)/4) # grand mean
+(b1 <- -(((mu21-mu11) + (mu22-mu12))/2)/2) # average difference /2
+(b2 <- -(((mu12-mu11) + (mu22-mu21))/2)/2) # average difference /2
+(b3 = mu11 - (b0 + b1 + b2)) 
+m1 <- lm(y ~ A*B, data=fd)
+coef(summary(m1))
+
+m3 <- lm(y ~ A*B, contrasts=con3, data=fd)
+coef(summary(m3))
+
+```
+
+
+```{r, echo=FALSE, eval=FALSE}
+(mu22-mu12) - (mu21-mu11)
+(mu22-mu21) - (mu12-mu11)
+
+```
+
 ```{r echo=FALSE, eval=FALSE}
 # common effect via effect coding vs. pooled effect using emmeans
 library(emmeans)
@@ -224,4 +311,45 @@ contrast(emmeans(m1, specs="A"), adjust="none")
 contrast(emmeans(m3, specs="A"), adjust="none")
 
 ```
+
+```{r, echo=FALSE, eval=FALSE}
+
+
+# Gelman code
+N <- 10^5
+y <- rnorm(N, 0, sigma)
+x1 <- sample(c(-0.5,0.5), N, replace=TRUE)
+x2 <- sample(c(-0.5,0.5), N, replace=TRUE)
+X1 <- model.matrix(~x1 + x2 + x1:x2)
+
+beta <- c(0, 1, 1, 1)
+y <- X1%*%beta + rnorm(N, 0, sigma)
+m1 <- lm(y ~ x1 + x2 + x1:x2)
+coef(summary(m1))
+y11 <- mean(y[x1==-0.5 & x2==-0.5])
+y21 <- mean(y[x1==0.5 & x2==-0.5])
+y12 <- mean(y[x1==-0.5 & x2==0.5])
+y22 <- mean(y[x1==0.5 & x2==0.5])
+(b0 <- (y11 + y21 + y12 + y22)/4) # grand mean
+(b1 <- -(((y21-y11) + (y22-y12))/2)/2) # average difference /2
+(b2 <- -(((y12-y11) + (y22-y21))/2)/2) # average difference /2
+(b3 = y11 - (b0 + b1 + b2)) 
+(b3 = (b0 - b1 + b2)) - y21 # another way
+# check
+b0 + b1 + b2 + b3 # should be y11
+y11
+b0 - b1 + b2 - b3 # should be y21
+y21
+b0 + b1 - b2 - b3 # should be y12
+y12
+b0 - b1 - b2 + b3 # should be y22
+y22
+# main effects
+-b1*2
+-b2*2
+# interaction effect
+(y22-y12) - (y21-y11)
+(y22-y21) - (y12-y11)
+```
+
 

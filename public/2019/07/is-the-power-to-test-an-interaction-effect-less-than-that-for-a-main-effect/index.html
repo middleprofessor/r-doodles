@@ -8,18 +8,18 @@
 <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
 <meta name="keywords" content="tech">
-<meta name="description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.">
+<meta name="description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.">
 
 
-<meta property="og:description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.">
+<meta property="og:description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Is the power to test an interaction effect less than that for a main effect?">
 <meta name="twitter:title" content="Is the power to test an interaction effect less than that for a main effect?">
 <meta property="og:url" content="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
 <meta property="twitter:url" content="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
 <meta property="og:site_name" content="R Doodles">
-<meta property="og:description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.">
-<meta name="twitter:description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.">
+<meta property="og:description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.">
+<meta name="twitter:description" content="I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.">
 <meta property="og:locale" content="en-us">
 
   
@@ -311,8 +311,9 @@ if (!doNotTrack) {
               
 
 
-<p>I was googling around and somehow landed on a page that stated <a href="https://www.methodology.psu.edu/ra/most/femiscon/">“When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”</a>. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.</p>
-<p>TL;DR It depends on how one defines “main” effect. If defined as the coefficient of a factor from a dummy-coded model, the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states).</p>
+<p>I was googling around and somehow landed on a page that stated <a href="https://www.methodology.psu.edu/ra/most/femiscon/">“When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”</a>. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.</p>
+<p><strong>TL;DR</strong> It depends on how one defines “main” effect. If defined as the coefficient of a factor from a dummy-coded model, the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states). Regardless, thinking about the coefficients computed from an effects coded model makes my head spin.</p>
+<p><strong>Updated</strong> Andrew Gelman has a highly relevant blog post <a href="https://statmodeling.stat.columbia.edu/2018/03/15/need-16-times-sample-size-estimate-interaction-estimate-main-effect/">You need 16 times the sample size to estimate an interaction than to estimate a main effect</a> that is really minimal in that it focusses entirely on the standard error. Gelman effectively used a -0.5, +0.5 contrast coding but added an update with -1, +1 (effects) coding.</p>
 <div id="some-definitions" class="section level2">
 <h2>Some definitions</h2>
 <p>Consider a <span class="math inline">\(2 \times 2\)</span> factorial experiment, factor A has two levels (-, +), factor B has two levels (-, +), and the means of the combinations are</p>
@@ -366,9 +367,9 @@ A+
   &quot;$\\mu_{22} - (intercept + \\beta_A + \\beta_B)$&quot;
 ), effects=c(
   &quot;$(\\mu_{11} + \\mu_{21} + \\mu_{12} + \\mu_{22})/4$&quot;,
-  &quot;$((\\mu_{21} - \\mu_{11}) + (\\mu_{22} - \\mu_{12}))/2$&quot;,
-  &quot;$((\\mu_{12} - \\mu_{11}) + (\\mu_{22} - \\mu_{21}))/2$&quot;,
-  &quot;$\\mu_{22} - (intercept + \\beta_A + \\beta_B)$&quot;
+  &quot;$-((\\mu_{21} - \\mu_{11}) + (\\mu_{22} - \\mu_{12}))/2$&quot;,
+  &quot;$-((\\mu_{12} - \\mu_{11}) + (\\mu_{22} - \\mu_{21}))/2$&quot;,
+  &quot;$\\mu_{11} - (intercept + \\beta_A + \\beta_B)$&quot;
 )  
 )
 row.names(coef_table) &lt;- c(&quot;intercept&quot;, &quot;$\\beta_A$&quot;, &quot;$\\beta_B$&quot;, &quot;$\\beta_{AB}$&quot;)
@@ -406,7 +407,7 @@ intercept
 <span class="math inline">\(\mu_{21} - \mu_{11}\)</span>
 </td>
 <td style="text-align:left;">
-<span class="math inline">\(((\mu_{21} - \mu_{11}) + (\mu_{22} - \mu_{12}))/2\)</span>
+<span class="math inline">\(-((\mu_{21} - \mu_{11}) + (\mu_{22} - \mu_{12}))/2\)</span>
 </td>
 </tr>
 <tr>
@@ -417,7 +418,7 @@ intercept
 <span class="math inline">\(\mu_{12} - \mu_{11}\)</span>
 </td>
 <td style="text-align:left;">
-<span class="math inline">\(((\mu_{12} - \mu_{11}) + (\mu_{22} - \mu_{21}))/2\)</span>
+<span class="math inline">\(-((\mu_{12} - \mu_{11}) + (\mu_{22} - \mu_{21}))/2\)</span>
 </td>
 </tr>
 <tr>
@@ -428,7 +429,7 @@ intercept
 <span class="math inline">\(\mu_{22} - (intercept + \beta_A + \beta_B)\)</span>
 </td>
 <td style="text-align:left;">
-<span class="math inline">\(\mu_{22} - (intercept + \beta_A + \beta_B)\)</span>
+<span class="math inline">\(\mu_{11} - (intercept + \beta_A + \beta_B)\)</span>
 </td>
 </tr>
 </tbody>
@@ -438,16 +439,62 @@ intercept
 <li>the intercept is the mean of the group with no added treatment in either A or B (it is the control)</li>
 <li><span class="math inline">\(\beta_A\)</span> is the effect of treatment A when no treatment has been added to B</li>
 <li><span class="math inline">\(\beta_B\)</span> is the effect of treatment B when no treatment has been added to A</li>
-<li><span class="math inline">\(\beta_{AB}\)</span> is the non-additive effect, it is the difference between the mean of the group in which both A and B treatments are added and the expected mean of this group if A and B act additively (that is, if we add the A and B effects).</li>
+<li><span class="math inline">\(\beta_{AB}\)</span> is “the leftovers”, that is, the non-additive effect. It is the difference between the mean of the group in which both A and B treatments are added and the expected mean of this group if A and B act additively (that is, if we add the A and B effects).</li>
 </ol>
 <p>and, with effects coding</p>
 <ol style="list-style-type: decimal">
 <li>the intercept is the grand mean</li>
-<li><span class="math inline">\(\beta_A\)</span> is <em>half</em> the average of the simple effects of A, where the simple effects of A are the effects of A within each level of B</li>
-<li><span class="math inline">\(\beta_B\)</span> is <em>half</em> the average of the simple effects of B, where the simple effects of B are the effects of B within each level of A</li>
-<li><span class="math inline">\(\beta_{AB}\)</span> is the non-additive effect, it is the difference between the mean of the group in which both A and B treatments are added and the expected mean of this group if A and B act additively.</li>
+<li><span class="math inline">\(\beta_A\)</span> is -1 times <em>half</em> the average of the simple effects of A, where the simple effects of A are the effects of A within each level of B</li>
+<li><span class="math inline">\(\beta_B\)</span> is -1 times <em>half</em> the average of the simple effects of B, where the simple effects of B are the effects of B within each level of A</li>
+<li><span class="math inline">\(\beta_{AB}\)</span> is “the leftovers”, that is, the non-additive effect, it is the difference between the mean of a group (any group!) and the expected mean of this group if A and B act additively (note that the sign of the effect depends on which group).</li>
 </ol>
-<p><span class="math inline">\(\beta_A\)</span> and <span class="math inline">\(\beta_B\)</span> are often called the “main” effects and <span class="math inline">\(\beta_{AB}\)</span> the “interaction” effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to <span class="math inline">\(\beta_A\)</span> and <span class="math inline">\(\beta_B\)</span> in dummy-coding as “simple” effects. Also note that while the interaction effect in dummy and effects coding have the same verbal meaning, they have a different numerical value because the “main” effect differs between the codings.</p>
+<p><span class="math inline">\(\beta_A\)</span> and <span class="math inline">\(\beta_B\)</span> are often called the “main” effects and <span class="math inline">\(\beta_{AB}\)</span> the “interaction” effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to <span class="math inline">\(\beta_A\)</span> and <span class="math inline">\(\beta_B\)</span> in dummy-coding as “simple” effects. There are as many simple facts as levels of the other factor. And the simple effect coefficinet for the dummy-coded model depends on which level of the factor is set as the “reference”.</p>
+<p>Finally, note that while the interaction effect in dummy and effects coding have the same verbal meaning, they have a different numerical value because the “main” effect differs between the codings.</p>
+</div>
+<div id="visualizing-interaction-effects" class="section level2">
+<h2>Visualizing interaction effects</h2>
+<pre class="r"><code># quick test
+con3 &lt;- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+n &lt;- 1
+a_levels &lt;- c(&quot;+&quot;, &quot;-&quot;)
+b_levels &lt;- c(&quot;+&quot;, &quot;-&quot;)
+N &lt;- n * length(a_levels) * length(b_levels)
+x_cat &lt;- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat &lt;- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X3 &lt;- model.matrix(~A*B, contrasts=con3, data=x_cat)
+
+beta1 &lt;- c(0, -1, -1, 0)
+beta3 &lt;- c(0, -1, -1, 0.5)
+y1 &lt;- (X3%*%beta1)[,1]
+y3 &lt;- (X3%*%beta3)[,1]
+
+fd &lt;- cbind(x_cat, y1=y1, y3=y3)
+gg1 &lt;- ggplot(data=fd, aes(x=A, y=y3, shape=B)) +
+  geom_point(size=3, color=&quot;black&quot;) +
+  geom_point(aes(y=y1), size=3, color=&quot;red&quot;) + 
+  geom_segment(aes(x=1, y=fd[1, y1], xend=1, yend=fd[1, y3]-0.1), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  geom_segment(aes(x=2, y=fd[2, y1], xend=2, yend=fd[2, y3]+0.1), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  geom_segment(aes(x=1, y=fd[3, y1], xend=1, yend=fd[3, y3]+0.1), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  geom_segment(aes(x=2, y=fd[4, y1], xend=2, yend=fd[4, y3]-0.1), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+ scale_y_continuous(limits=c(-2.25, 2.75)) +
+  ylab(&quot;y&quot;) +
+  NULL
+
+gg2 &lt;- ggplot(data=fd, aes(x=A, y=y3, shape=B)) +
+  geom_point(size=3, color=&quot;black&quot;) +
+  geom_point(aes(x=2, y=0.5), size=3, color=&quot;red&quot;) +
+  geom_segment(aes(x=2, y=0.5, xend=2, yend=fd[4, y3]-0.1), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  scale_y_continuous(limits=c(-2.25, 2.75)) +
+  ylab(&quot;y&quot;) +
+  NULL
+
+plot_grid(gg2, gg1, ncol=2, labels=c(&quot;A. Dummy coding&quot;, &quot;B. Effects coding&quot;))</code></pre>
+<div class="figure"><span id="fig:unnamed-chunk-3"></span>
+<img src="/post/2019-07-02-is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect_files/figure-html/unnamed-chunk-3-1.png" alt="illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the measured means. Red dots are the expected means given only additive effects. The interaction effect is 'what is left' to get from the expectation using only additive effects to the measured mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects -- all have the same magnitude but the sign varies by group." width="672" />
+<p class="caption">
+Figure 1: illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the measured means. Red dots are the expected means given only additive effects. The interaction effect is ‘what is left’ to get from the expectation using only additive effects to the measured mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects – all have the same magnitude but the sign varies by group.
+</p>
+</div>
 </div>
 <div id="the-interaction-effect-computed-using-treatment-dummy-coding-does-not-equal-the-interaction-effect-computed-using-effect-coding." class="section level2">
 <h2>The interaction effect computed using treatment (dummy) coding does not equal the interaction effect computed using effect coding.</h2>
@@ -1227,7 +1274,7 @@ effects: interaction
                   Jul 7, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and the power of the interaction effect is less than that of the main effects even if they have the same magnitude, so my intuition said this statement must be wrong.</div>
+              <div class="media-content hide-xs font-merryweather">I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
