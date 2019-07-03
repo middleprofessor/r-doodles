@@ -222,9 +222,10 @@ X &lt;- model.matrix(~A*B, data=x_cat)
 y &lt;- (X%*%beta1)[,1] + rnorm(N)
 m1 &lt;- lm(y ~ A*B, data=x_cat)
 con3 &lt;- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
-m2 &lt;- lm(y ~ A*B, contrasts=con3, data=x_cat)
-
-knitr::kable(coef(summary(m1)), digits=c(2,4,1,4))</code></pre>
+m2 &lt;- lm(y ~ A*B, contrasts=con3, data=x_cat)</code></pre>
+<p>The generating coefficients (using a dummy-coding generating model) are 0, 0.5, 0.5, 0.5</p>
+<p>The coefficients of the dummy-coded model fit to the data are:</p>
+<pre class="r"><code>knitr::kable(coef(summary(m1)), digits=c(2,4,1,4))</code></pre>
 <table>
 <thead>
 <tr>
@@ -315,6 +316,7 @@ A+:B+
 </tr>
 </tbody>
 </table>
+<p>And the coefficients of the effects-coded model fit to the same data are:</p>
 <pre class="r"><code>knitr::kable(coef(summary(m2)), digits=c(2,4,1,4))</code></pre>
 <table>
 <thead>
@@ -428,9 +430,10 @@ X &lt;- model.matrix(~A*B, data=x_cat)
 y &lt;- (X%*%beta1)[,1] + rnorm(N)
 m1 &lt;- lm(y ~ A*B, data=x_cat)
 con3 &lt;- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
-m2 &lt;- lm(y ~ A*B, contrasts=con3, data=x_cat)
-
-knitr::kable(coef(summary(m1)), digits=c(2,4,1,4))</code></pre>
+m2 &lt;- lm(y ~ A*B, contrasts=con3, data=x_cat)</code></pre>
+<p>The generating coefficients (using a dummy-coding generating model) are 0, 1, 1, 1</p>
+<p>The coefficients of the dummy-coded model fit to the data are:</p>
+<pre class="r"><code>knitr::kable(coef(summary(m1)), digits=c(2,4,1,4))</code></pre>
 <table>
 <thead>
 <tr>
@@ -521,6 +524,7 @@ A+:B+
 </tr>
 </tbody>
 </table>
+<p>And the coefficients of the effects-coded model fit to the same data are:</p>
 <pre class="r"><code>knitr::kable(coef(summary(m2)), digits=c(2,4,1,4))</code></pre>
 <table>
 <thead>
@@ -613,7 +617,11 @@ A1:B1
 </tbody>
 </table>
 <p>Note that the coefficients generating the data using dummy coding are the same for the simple (Aa and Bb) effects, and for the interaction effect. The model fit using dummy coding recovers these, so the interaction coefficient is the same as the Aa or Bb coefficient. By contrast the interaction coefficient estimated using effects coding is 1/3 the magnitude of the main effect (A1 or B1) coefficients.</p>
-<p>The above is the explainer for the claim that there is less power to estimate an interaction effect. There are two ways to think about this: 1. Fitting a dummy coded model to the data, the SE of the interaction effect is <span class="math inline">\(2\sqrt(2)\)</span> times the SE of the simple effects, so for coefficients of the same magnitude, there is less power. Also remember that the simple effect coefficients are not “main” effects! So there really is less power to estimate an interaction effect than a <em>simple</em> effect of the same magnitude. 2. Fitting an effects coded model to the data, <em>but thinking about the interaction effect as if it were generated using a dummy coded generating model</em>, the interaction effect is 1/3 the size of the main effect coefficients, so there is less power because this magnitude difference – the SEs of the coefficients are the same.</p>
+<p>The above is the explainer for the claim that there is less power to estimate an interaction effect. There are two ways to think about this:</p>
+<ol style="list-style-type: decimal">
+<li>Fitting a dummy coded model to the data, the SE of the interaction effect is <span class="math inline">\(2\sqrt(2)\)</span> times the SE of the simple effects, so for coefficients of the same magnitude, there is less power. Also remember that the simple effect coefficients are not “main” effects! So there is less power to estimate an interaction effect than a <em>simple</em> effect of the same magnitude, but this doesn’t address the motivating point.</li>
+<li>Fitting an effects coded model to the data, <em>but thinking about the interaction effect as if it were generated using a dummy coded generating model</em>, the interaction effect is 1/3 the size of the main effect coefficients, so there is less power because this magnitude difference – the SEs of the coefficients are the same, <em>which means that if the interaction and main effects had the same magnitude, they would have the same power</em>.</li>
+</ol>
 </div>
 </div>
 <div id="a-simulation-to-show-that-the-power-to-test-an-interaction-effect-equals-that-to-test-a-main-effect-if-they-have-the-same-magnitude." class="section level2">
