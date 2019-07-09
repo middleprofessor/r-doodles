@@ -19,8 +19,8 @@ keywords:
 
 
 <p>I was googling around and somehow landed on a page that stated <a href="https://www.methodology.psu.edu/ra/most/femiscon/">“When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”</a>. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.</p>
-<p><strong>TL;DR</strong> It depends on how one defines “main” effect. If defined as the coefficient of a factor from a dummy-coded model, the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states). A question is, <strong>is the coefficient of the interaction as a measure of “effect” using dummy coding misleading since the interaction is entirely allocated to one mean?</strong>. Effects coding divides this magntiude and distributes it among all four means, which makes sense.</p>
-<p><strong>Updated</strong> Andrew Gelman has a highly relevant blog post <a href="https://statmodeling.stat.columbia.edu/2018/03/15/need-16-times-sample-size-estimate-interaction-estimate-main-effect/">You need 16 times the sample size to estimate an interaction than to estimate a main effect</a> that is really minimal in that it focusses entirely on the standard error. Gelman effectively used a -0.5, +0.5 contrast coding but added an update with -1, +1 (effects) coding. This coding is interesting and explored below.</p>
+<p><strong>TL;DR</strong> It depends on how one defines “main” effect or how one parameterizes the model. If “main” effect is defined as the coefficient of a factor from a dummy-coded model (that is, the added effect due to treatment), the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states). A question is, <strong>is the coefficient of the interaction as a measure of “effect” using dummy coding misleading since the interaction is entirely allocated to one mean?</strong>. Or, does it make sense, at least for experiments where we think of the effect of the non-reference (or non “control”) levels as “what happens” when we add stuff to the control.</p>
+<p><strong>Updated</strong> I read this when it was posted but forgot about it when I startede this doodle: Andrew Gelman has a highly relevant blog post <a href="https://statmodeling.stat.columbia.edu/2018/03/15/need-16-times-sample-size-estimate-interaction-estimate-main-effect/">You need 16 times the sample size to estimate an interaction than to estimate a main effect</a> that is really minimal in that it focusses entirely on the standard error. Gelman effectively used a -0.5, +0.5 contrast coding but added an update with -1, +1 (effects) coding. This coding is interesting and explored below.</p>
 <div id="some-definitions" class="section level2">
 <h2>Some definitions</h2>
 <p>Consider a <span class="math inline">\(2 \times 2\)</span> factorial experiment, factor A has two levels (-, +), factor B has two levels (-, +), and the means of the combinations are</p>
@@ -160,9 +160,53 @@ intercept
 </div>
 <div id="visualizing-interaction-effects" class="section level2">
 <h2>Visualizing interaction effects</h2>
-<p>In (A) the coefficients of the model are (0, 0.5, 0.5, 0.5) and if we interpret the coefficients as “effects” then the interaction effect is the same as the “main” effects. The interaction effect is shown by the single arrow and it is applied to <span class="math inline">\(\mu_{22}\)</span> only</p>
-<p>In (B), the data are precisely the same as in (A) but interaction is visualized using a model fit using effects coding. The cofficients of the model using effects coding are (0.625, -0.375, -0.375, 0.125) and if we interpret the coefficients as the effects the interaction is 1/3 the magnitude of the main effects. Again, this is the same data as in (A). The interaction is applied to all four means – there isn’t “an” interaction effect but four. And note that the sum of the four interaction effects equals the sum of the one effect in (A).</p>
-<p>So, how we think about the “magnitude” of the interaction depends on how we parameterize the model. I’m coming around to thinking that the interaction “effect” using the interaction coefficient in the dummy coded model (that in A) is an illusion – that is, a better way to think about this is “spreading” it out among all means as in B.</p>
+<p>Given a set of means</p>
+<pre class="r"><code>means_table &lt;- data.frame(c(&quot;$\\mu_{11}=0$&quot;, &quot;$\\mu_{21}=0.5$&quot;), c(&quot;$\\mu_{12}=0.5$&quot;, &quot;$\\mu_{22}=1.5$&quot;))
+row.names(means_table) &lt;- c(&quot;A-&quot;, &quot;A+&quot;)
+colnames(means_table) &lt;- c(&quot;B-&quot;, &quot;B+&quot;)
+kable(means_table, escape = FALSE)</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+B-
+</th>
+<th style="text-align:left;">
+B+
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A-
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{11}=0\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{12}=0.5\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A+
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{21}=0.5\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\mu_{22}=1.5\)</span>
+</td>
+</tr>
+</tbody>
+</table>
+<p>To generate these data using dummy coding, the coefficients are (0, .5, .5, .5) and using effects coding the coefficients are (.625, -.375, -.375, .125). The interaction coefficient is illustrated below.</p>
+<p>In the dummy coded paramterization (A), if we interpret the coefficients as “effects” then the interaction effect is the same as the “main” effects. The interaction effect is shown by the single arrow and it is applied to <span class="math inline">\(\mu_{22}\)</span> only</p>
+<p>In the effects coded paramterization (B), the means are precisely the same as in (A), and if we interpret the coefficients as the effects, then the interaction effect is 1/3 the magnitude of the main effects. Again, these are the same means as in (A). The difference with A is that the interaction is applied to all four means – there isn’t “an” interaction effect but four. And note that the sum of the four interaction effects equals the sum of the one effect in (A).</p>
+<p>So, how we think about the “magnitude” of the interaction depends on how we parameterize the model or how we think about the effects. If we think of the non-reference (“treated”) levels of Factors A and B (CO2 and Temp) as “adding” something to the control’s value, then, thinking about an interaction using dummy coding makes sense. But if we think about the levels of a factor as simply being variable about a mean, then the interaction using effects coding makes sense, though I might be inclined to model this using a hierarchical rather than fixed effects model.</p>
 <pre class="r"><code>dummy_2_effects &lt;- function(b){
 
   b3 &lt;- numeric(4)
@@ -215,8 +259,8 @@ gg.effects &lt;- ggplot(data=fd, aes(x=CO2, y=y3.a, shape=Temp)) +
   NULL
 
 plot_grid(gg.dummy, gg.effects, ncol=2, labels=c(&quot;A. Dummy coding&quot;, &quot;B. Effects coding&quot;))</code></pre>
-<div class="figure"><span id="fig:unnamed-chunk-3"></span>
-<img src="/post/2019-07-02-is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect_files/figure-html/unnamed-chunk-3-1.png" alt="illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the true means. Red dots are the expected means given only additive effects. The interaction effect is 'what is left' to get from the expectation using only additive effects to the true mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects -- all have the same magnitude but the sign varies by group." width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-4"></span>
+<img src="/post/2019-07-02-is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect_files/figure-html/unnamed-chunk-4-1.png" alt="illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the true means. Red dots are the expected means given only additive effects. The interaction effect is 'what is left' to get from the expectation using only additive effects to the true mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects -- all have the same magnitude but the sign varies by group." width="672" />
 <p class="caption">
 Figure 1: illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the true means. Red dots are the expected means given only additive effects. The interaction effect is ‘what is left’ to get from the expectation using only additive effects to the true mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects – all have the same magnitude but the sign varies by group.
 </p>
@@ -258,7 +302,7 @@ gg.gelman &lt;- ggplot(data=fd, aes(x=CO2, y=yg.a, shape=Temp)) +
   NULL
 
 plot_grid(gg.effects, gg.gelman, ncol=2, labels=c(&quot;A. Effects coding&quot;, &quot;B. Gelman coding&quot;))</code></pre>
-<p><img src="/post/2019-07-02-is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="/post/2019-07-02-is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
 <div id="the-interaction-effect-computed-using-treatment-dummy-coding-does-not-equal-the-interaction-effect-computed-using-effect-coding." class="section level2">
 <h2>The interaction effect computed using treatment (dummy) coding does not equal the interaction effect computed using effect coding.</h2>
