@@ -149,9 +149,9 @@ gg.effects <- ggplot(data=fd, aes(x=CO2, y=y3.a, shape=Temp)) +
 plot_grid(gg.dummy, gg.effects, ncol=2, labels=c("A. Dummy coding", "B. Effects coding"))
 ```
 
-In the dummy coded paramterization (A), if we interpret the coefficients as "effects" then the interaction effect is the same as the "main" effects. The interaction effect is shown by the single arrow and it is applied to $\mu_{22}$ only
+In the dummy coded parameterization (A), if we interpret the coefficients as "effects" then the interaction effect is the same as the "main" effects. The interaction effect is shown by the single arrow and it is applied to $\mu_{22}$ only
 
-In the effects coded paramterization (B), the means are precisely the same as in (A), and if we interpret the coefficients as the effects, then the interaction effect is 1/3 the magnitude of the main effects. Again, these are the same means as in (A). The difference with A is that the interaction is applied to all four means -- there isn't "an" interaction effect but four. And note that the sum of the four interaction effects equals the sum of the one effect in (A).
+In the effects coded parameterization (B), the means are precisely the same as in (A), and if we interpret the coefficients as the effects, then the interaction effect is 1/3 the magnitude of the main effects. Again, these are the same means as in (A). The difference with A is that the interaction is applied to all four means -- there isn't "an" interaction effect but four. And note that the sum of the four interaction effects equals the sum of the one effect in (A).
 
 So, how we think about the "magnitude" of the interaction depends on how we parameterize the model or how we think about the effects. If we think of the non-reference ("treated") levels of Factors A and B (CO2 and Temp) as "adding" something to the control's value, then, thinking about an interaction using dummy coding makes sense. But if we think about the levels of a factor as simply being variable about a mean, then the interaction using effects coding makes sense, though I might be inclined to model this using a hierarchical rather than fixed effects model.
 
@@ -205,7 +205,7 @@ Many researchers look only at ANOVA tables (and not a coefficients table) where 
 ### Script to compare dummy and effect coding with small n to show different estimates of interaction coefficient but same p-value.
 ```{r}
 set.seed(1)
-# paramters to generate data using dummy coding generating model
+# parameters to generate data using dummy coding generating model
 beta1 <- c(0, 0.5, 0.5, 0.5)
 a_levels <- c("-", "+")
 b_levels <- c("-", "+")
@@ -245,7 +245,7 @@ Note that
 
 ```{r}
 set.seed(2)
-# paramters to generate data using dummy coding generating model
+# parameters to generate data using dummy coding generating model
 beta1 <- c(0, 1, 1, 1)
 a_levels <- c("-", "+")
 b_levels <- c("-", "+")
