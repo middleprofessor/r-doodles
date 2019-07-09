@@ -24,9 +24,11 @@ I was googling around and somehow landed on a page that stated ["When effect cod
 
 ```{r setup, include=FALSE}
 library(data.table)
+library(emmeans)
 library(ggplot2)
 library(ggpubr)
 library(cowplot)
+library(arm)
 library(kableExtra)
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -80,43 +82,109 @@ Finally, note that while the interaction effect in dummy and effects coding have
 
 ## Visualizing interaction effects
 
-```{r, fig.cap="illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the measured means. Red dots are the expected means given only additive effects. The interaction effect is 'what is left' to get from the expectation using only additive effects to the measured mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects -- all have the same magnitude but the sign varies by group."}
-# quick test
-con3 <- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+In (A) the coefficients of the model are (0, 0.5, 0.5, 0.5) and if we interpret the coefficients as "effects" then the interaction effect is the same as the "main" effects. The interaction effect is shown by the single arrow and it is applied to $\mu_{22}$ only
+
+In (B), the data are precisely the same as in (A) but interaction is visualized using a model fit using effects coding. The cofficients of the model using effects coding are (0.625, -0.375, -0.375, 0.125) and if we interpret the coefficients as the effects the interaction is 1/3 the magnitude of the main effects. Again, this is the same data as in (A). The interaction is applied to all four means -- there isn't "an" interaction effect but four. And note that the sum of the four interaction effects equals the sum of the one effect in (A).
+
+So, how we think about the "magnitude" of the interaction depends on how we parameterize the model. I'm coming around to thinking that the interaction "effect" using the interaction coefficient in the dummy coded model (that in A) is an illusion -- that is, a better way to think about this is "spreading" it out among all means as in B.
+
+```{r, fig.cap="illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the true means. Red dots are the expected means given only additive effects. The interaction effect is 'what is left' to get from the expectation using only additive effects to the true mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects -- all have the same magnitude but the sign varies by group."}
+
+dummy_2_effects <- function(b){
+
+  b3 <- numeric(4)
+  b3[1] <- (b[1] + (b[1] + b[2]) + (b[1] + b[3]) + (b[1] + b[2] + b[3] + b[4]))/4
+  b3[2] <- -(b[2] + (b[2] + b[4]))/2/2
+  b3[3] <- -(b[3] + (b[3] + b[4]))/2/2
+  b3[4] <- b[1] - (b3[1] + b3[2] + b3[3])
+  return(b3)
+}
+
+con3 <- list(CO2=contr.sum, Temp=contr.sum) # change the contrasts coding for the model matrix
 n <- 1
-a_levels <- c("+", "-")
-b_levels <- c("+", "-")
+a_levels <- c("current", "high")
+b_levels <- c("current", "high")
 N <- n * length(a_levels) * length(b_levels)
-x_cat <- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat <- data.table(expand.grid(CO2=a_levels, Temp=b_levels))
 x_cat <- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
-X3 <- model.matrix(~A*B, contrasts=con3, data=x_cat)
+X1 <- model.matrix(~CO2*Temp, data=x_cat)
+X3 <- model.matrix(~CO2*Temp, contrasts=con3, data=x_cat)
 
-beta1 <- c(0, -1, -1, 0)
-beta3 <- c(0, -1, -1, 0.5)
-y1 <- (X3%*%beta1)[,1]
-y3 <- (X3%*%beta3)[,1]
+beta1 <- c(0, 0.5, 0.5, 0.5)
+beta3 <- dummy_2_effects(beta1)
 
-fd <- cbind(x_cat, y1=y1, y3=y3)
-gg1 <- ggplot(data=fd, aes(x=A, y=y3, shape=B)) +
-  geom_point(size=3, color="black") +
-  geom_point(aes(y=y1), size=3, color="red") + 
-  geom_segment(aes(x=1, y=fd[1, y1], xend=1, yend=fd[1, y3]-0.1), arrow=arrow(length = unit(0.2,"cm"))) +
-  geom_segment(aes(x=2, y=fd[2, y1], xend=2, yend=fd[2, y3]+0.1), arrow=arrow(length = unit(0.2,"cm"))) +
-  geom_segment(aes(x=1, y=fd[3, y1], xend=1, yend=fd[3, y3]+0.1), arrow=arrow(length = unit(0.2,"cm"))) +
-  geom_segment(aes(x=2, y=fd[4, y1], xend=2, yend=fd[4, y3]-0.1), arrow=arrow(length = unit(0.2,"cm"))) +
- scale_y_continuous(limits=c(-2.25, 2.75)) +
+y1 <- (X1%*%beta1)[,1]
+y1.a <- (X1[,1:3]%*%beta1[1:3])[,1]
+y3 <- (X3%*%beta3)[,1] # should = y1
+y3.a <- (X3[,1:3]%*%beta3[1:3])[,1]
+
+fd <- cbind(x_cat, y1.a=y1.a, y1=y1, y3=y3, y3.a=y3.a)
+
+gg.dummy <- ggplot(data=fd, aes(x=CO2, y=y1.a, shape=Temp)) +
+  geom_point(size=3, color="red") +
+  geom_point(aes(y=y1, shape=Temp), size=3, color="black") +
+  geom_segment(aes(x=2, y=fd[4, y1.a], xend=2, yend=fd[4, y1]-0.02), arrow=arrow(length = unit(0.2,"cm"))) +
+  scale_y_continuous(limits=c(-0.15, 1.75)) +
   ylab("y") +
+  theme(legend.position="bottom") +
   NULL
 
-gg2 <- ggplot(data=fd, aes(x=A, y=y3, shape=B)) +
-  geom_point(size=3, color="black") +
-  geom_point(aes(x=2, y=0.5), size=3, color="red") +
-  geom_segment(aes(x=2, y=0.5, xend=2, yend=fd[4, y3]-0.1), arrow=arrow(length = unit(0.2,"cm"))) +
-  scale_y_continuous(limits=c(-2.25, 2.75)) +
+gg.effects <- ggplot(data=fd, aes(x=CO2, y=y3.a, shape=Temp)) +
+  geom_point(size=3, color="red") +
+  geom_point(aes(y=y3), size=3, color="black") + 
+  geom_segment(aes(x=1, y=fd[1, y3.a], xend=1, yend=fd[1, y3]-0.02), arrow=arrow(length = unit(0.2,"cm"))) +
+  geom_segment(aes(x=2, y=fd[2, y3.a], xend=2, yend=fd[2, y3]+0.02), arrow=arrow(length = unit(0.2,"cm"))) +
+  geom_segment(aes(x=1, y=fd[3, y3.a], xend=1, yend=fd[3, y3]+0.02), arrow=arrow(length = unit(0.2,"cm"))) +
+  geom_segment(aes(x=2, y=fd[4, y3.a], xend=2, yend=fd[4, y3]-0.02), arrow=arrow(length = unit(0.2,"cm"))) +
+  scale_y_continuous(limits=c(-0.15, 1.75)) +
   ylab("y") +
+  theme(legend.position="bottom") +
   NULL
 
-plot_grid(gg2, gg1, ncol=2, labels=c("A. Dummy coding", "B. Effects coding"))
+plot_grid(gg.dummy, gg.effects, ncol=2, labels=c("A. Dummy coding", "B. Effects coding"))
+```
+
+## What about Gelman coded contrasts?
+
+Andrew Gelman uses a (-0.5, .5) contrast instead of the (1, -1) contrast used in effects coding. The consequence of this is that a main effect coefficient is the average treatment effect (the difference averaged over each level of the other factor) instead of half the average treatment effect. And the interaction is a "difference in differences" ($(\mu_{22}-\mu_{12}) - (\mu_{21}-\mu_{11})$) but is not "what is leftover" as in both dummy coding and effects coding. The interaction coefficient has the same magnitude as that using dummy coding but unlike in dummy coding, the interaction effect is smaller than the main effect coefficients because the main effect coefficients are the average of the small (0.5) and big (1.5) simple effects.
+
+And, unlike the dummy coded interaction coefficient and the effects coded interaction coefficient, it's hard to know how to "visualize" it, since it's magnitude is not what is "left over". That is, the coefficients from the Gelman coded model don't just add up to get the means as in dummy coding and treatment coding but instead, the coefficients in the sum have to be weighted by 0.5 for the main effects and 0.25 for the interaction effect. So I'm not even sure how to visualize this. Below, I've illustrated the Gelman-coded interaction effect as what is left-over, using the weighted sum to get the expectation of the means using only additive effects, and it looks exactly like the illustration of the interaction effect using effects coding, but the length of each arrow is the magnitude of the interaction coefficient using effects coding but only 1/4 the magnitude of the interaction coefficient using Gelman coding.
+
+
+```{r}
+dummy_2_gelman <- function(b){
+
+  b3 <- numeric(4)
+  b3[1] <- (b[1] + (b[1] + b[2]) + (b[1] + b[3]) + (b[1] + b[2] + b[3] + b[4]))/4
+  b3[2] <- (b[2] + (b[2] + b[4]))/2
+  b3[3] <- (b[3] + (b[3] + b[4]))/2
+  b3[4] <- b[1] - (-b3[1]/2 - b3[2]/2 + b3[3]/4)
+  return(b3)
+}
+
+beta.g <- dummy_2_gelman(beta1)
+con.gelman <- list(CO2=c(-0.5, .5), Temp=c(-0.5, .5)) # change the contrasts coding for the model matrix
+Xg <- model.matrix(~CO2*Temp, contrasts=con.gelman, data=x_cat)
+
+yg <- (Xg%*%beta.g)[,1] # should = y1
+yg.a <- (Xg[,1:3]%*%beta.g[1:3])[,1]
+
+fd <- cbind(fd, yg=yg, yg.a=yg.a)
+
+gg.gelman <- ggplot(data=fd, aes(x=CO2, y=yg.a, shape=Temp)) +
+  geom_point(size=3, color="red") +
+  geom_point(aes(y=yg), size=3, color="black") + 
+  geom_segment(aes(x=1, y=fd[1, yg.a], xend=1, yend=fd[1, yg]-0.02), arrow=arrow(length = unit(0.2,"cm"))) +
+  geom_segment(aes(x=2, y=fd[2, yg.a], xend=2, yend=fd[2, yg]+0.02), arrow=arrow(length = unit(0.2,"cm"))) +
+  geom_segment(aes(x=1, y=fd[3, yg.a], xend=1, yend=fd[3, yg]+0.02), arrow=arrow(length = unit(0.2,"cm"))) +
+  geom_segment(aes(x=2, y=fd[4, yg.a], xend=2, yend=fd[4, yg]-0.02), arrow=arrow(length = unit(0.2,"cm"))) +
+  scale_y_continuous(limits=c(-0.15, 1.75)) +
+  ylab("y") +
+  theme(legend.position="bottom") +
+  NULL
+
+plot_grid(gg.effects, gg.gelman, ncol=2, labels=c("A. Effects coding", "B. Gelman coding"))
+
 ```
 
 ## The interaction effect computed using treatment (dummy) coding does not equal the interaction effect computed using effect coding.
@@ -154,6 +222,7 @@ And the coefficients of the effects-coded model fit to the same data are:
 ```{r}
 knitr::kable(coef(summary(m2)), digits=c(2,4,1,4))
 ```
+
 
 Note that
 
@@ -200,11 +269,18 @@ The above is the explainer for the claim that there is less power to estimate an
 1. Fitting a dummy coded model to the data, the SE of the interaction effect is $2\sqrt(2)$ times the SE of the simple effects, so for coefficients of the same magnitude, there is less power. Also remember that the simple effect coefficients are not "main" effects! So there is less power to estimate an interaction effect than a *simple* effect of the same magnitude, but this doesn't address the motivating point. 
 2. Fitting an effects coded model to the data, *but thinking about the interaction effect as if it were generated using a dummy coded generating model*, the interaction effect is 1/3 the size of the main effect coefficients, so there is less power because this magnitude difference -- the SEs of the coefficients are the same, *which means that if the interaction and main effects had the same magnitude, they would have the same power*.
 
+```{r, echo=FALSE, eval=FALSE}
+coef(m1)
+coef(m2)
+dummy_2_effects(coef(m1))
+```
+
 ## A simulation to show that the power to test an interaction effect equals that to test a main effect if they have the same magnitude.
 
 ```{r}
 niter <- 10*10^3
 con3 <- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+con.gelman <- list(A=c(-0.5, .5), B=c(-0.5, .5)) # change the contrasts coding for the model matrix
 
 # parameters for data generated using dummy coding
 # interaction and simple effects equal if using dummy coded model
@@ -252,6 +328,67 @@ row.names(power_table) <- c("dummy: simple A",
 kable(power_table)
 ```
 
+
+## Hidden scripts
+
+```{r, echo=FALSE, eval=FALSE}
+# compare expected mean given additive effects using additive model vs. not including interaction effect
+con3 <- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+
+# parameters to generate data using dummy coding generating model
+beta0 <- c(0, 0.5, 0.5)
+beta1 <- c(0, 0.5, 0.5, 0.5)
+a_levels <- c("-", "+")
+b_levels <- c("-", "+")
+
+n <- 10^5
+N <- n * length(a_levels) * length(b_levels)
+x_cat <- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat <- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
+X0 <- model.matrix(~A+B, data=x_cat)
+X1 <- model.matrix(~A*B, data=x_cat)
+e <- rnorm(N)
+y0 <- (X0%*%beta0)[,1] + e
+y1 <- (X1%*%beta1)[,1] + e
+
+m.add <- lm(y0 ~ A + B, data=x_cat)
+m.int <- lm(y1 ~ A*B, data=x_cat)
+emmeans(m.add, specs=c("A", "B"))
+emmeans(m.int, specs=c("A", "B"))
+```
+
+Estimates of effects using dummy coding
+```{r, echo=FALSE, eval=FALSE}
+m.add <- lm(y0 ~ A + B, data=x_cat)
+m.int <- lm(y1 ~ A*B, data=x_cat)
+display(m.add)
+display(m.int)
+
+```
+
+Estimates of effects using effects coding
+```{r, echo=FALSE, eval=FALSE}
+# fit using effects coding
+m.effects.add <- lm(y0 ~ A + B, contrasts=con3, data=x_cat)
+m.effects.int <- lm(y1 ~ A*B, contrasts=con3, data=x_cat)
+display(m.effects.add)
+display(m.effects.int)
+
+```
+
+Estimates of effects using gelman coding
+```{r, echo=FALSE, eval=FALSE}
+# fit using gelman coding
+con.gelman <- list(A=c(-0.5, .5), B=c(-0.5, .5)) # change the contrasts coding for the model matrix
+# check
+# X0 <- model.matrix(~A+B, contrasts=con.gelman, data=x_cat)
+# X1 <- model.matrix(~A*B, contrasts=con.gelman, data=x_cat)
+m.gelman.add <- lm(y0 ~ A + B, contrasts=con.gelman, data=x_cat)
+m.gelman.int <- lm(y1 ~ A*B, contrasts=con.gelman, data=x_cat)
+display((m.gelman.add))
+display(m.gelman.int)
+
+```
 
 ```{r, eval=FALSE, echo=FALSE}
 con3 <- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
@@ -385,31 +522,5 @@ c(y11, y21, y12, y22)
 # interaction effect
 (y22-y12) - (y21-y11)
 (y22-y21) - (y12-y11)
-```
-
-```{r echo=FALSE, eval=FALSE}
-# compare expected mean given additive effecs using additive model vs. not including interaction effect
-
-# paramters to generate data using dummy coding generating model
-beta0 <- c(0, 0.5, 0.5)
-beta1 <- c(0, 0.5, 0.5, 0.5)
-a_levels <- c("-", "+")
-b_levels <- c("-", "+")
-
-n <- 10^5
-N <- n * length(a_levels) * length(b_levels)
-x_cat <- data.table(expand.grid(A=a_levels, B=b_levels))
-x_cat <- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
-X0 <- model.matrix(~A+B, data=x_cat)
-X1 <- model.matrix(~A*B, data=x_cat)
-e <- rnorm(N)
-y0 <- (X0%*%beta0)[,1] + e
-y1 <- (X1%*%beta1)[,1] + e
-m0 <- lm(y0 ~ A + B, data=x_cat)
-m1 <- lm(y1 ~ A*B, data=x_cat)
-emmeans(m0, specs=c("A", "B"))
-emmeans(m1, specs=c("A", "B"))
-coef(m0)
-coef(m1)
 ```
 

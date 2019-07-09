@@ -453,48 +453,105 @@ intercept
 </div>
 <div id="visualizing-interaction-effects" class="section level2">
 <h2>Visualizing interaction effects</h2>
-<pre class="r"><code># quick test
-con3 &lt;- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+<p>In (A) the coefficients of the model are (0, 0.5, 0.5, 0.5) and if we interpret the coefficients as “effects” then the interaction effect is the same as the “main” effects. The interaction effect is shown by the single arrow and it is applied to <span class="math inline">\(\mu_{22}\)</span> only</p>
+<p>In (B), the data are precisely the same as in (A) but interaction is visualized using a model fit using effects coding. The cofficients of the model using effects coding are (0.625, -0.375, -0.375, 0.125) and if we interpret the coefficients as the effects the interaction is 1/3 the magnitude of the main effects. Again, this is the same data as in (A). The interaction is applied to all four means – there isn’t “an” interaction effect but four. And note that the sum of the four interaction effects equals the sum of the one effect in (A).</p>
+<p>So, how we think about the “magnitude” of the interaction depends on how we parameterize the model. I’m coming around to thinking that the interaction “effect” using the interaction coefficient in the dummy coded model (that in A) is an illusion – that is, a better way to think about this is “spreading” it out among all means as in B.</p>
+<pre class="r"><code>dummy_2_effects &lt;- function(b){
+
+  b3 &lt;- numeric(4)
+  b3[1] &lt;- (b[1] + (b[1] + b[2]) + (b[1] + b[3]) + (b[1] + b[2] + b[3] + b[4]))/4
+  b3[2] &lt;- -(b[2] + (b[2] + b[4]))/2/2
+  b3[3] &lt;- -(b[3] + (b[3] + b[4]))/2/2
+  b3[4] &lt;- b[1] - (b3[1] + b3[2] + b3[3])
+  return(b3)
+}
+
+con3 &lt;- list(CO2=contr.sum, Temp=contr.sum) # change the contrasts coding for the model matrix
 n &lt;- 1
-a_levels &lt;- c(&quot;+&quot;, &quot;-&quot;)
-b_levels &lt;- c(&quot;+&quot;, &quot;-&quot;)
+a_levels &lt;- c(&quot;current&quot;, &quot;high&quot;)
+b_levels &lt;- c(&quot;current&quot;, &quot;high&quot;)
 N &lt;- n * length(a_levels) * length(b_levels)
-x_cat &lt;- data.table(expand.grid(A=a_levels, B=b_levels))
+x_cat &lt;- data.table(expand.grid(CO2=a_levels, Temp=b_levels))
 x_cat &lt;- x_cat[rep(seq_len(nrow(x_cat)), each=n)]
-X3 &lt;- model.matrix(~A*B, contrasts=con3, data=x_cat)
+X1 &lt;- model.matrix(~CO2*Temp, data=x_cat)
+X3 &lt;- model.matrix(~CO2*Temp, contrasts=con3, data=x_cat)
 
-beta1 &lt;- c(0, -1, -1, 0)
-beta3 &lt;- c(0, -1, -1, 0.5)
-y1 &lt;- (X3%*%beta1)[,1]
-y3 &lt;- (X3%*%beta3)[,1]
+beta1 &lt;- c(0, 0.5, 0.5, 0.5)
+beta3 &lt;- dummy_2_effects(beta1)
 
-fd &lt;- cbind(x_cat, y1=y1, y3=y3)
-gg1 &lt;- ggplot(data=fd, aes(x=A, y=y3, shape=B)) +
-  geom_point(size=3, color=&quot;black&quot;) +
-  geom_point(aes(y=y1), size=3, color=&quot;red&quot;) + 
-  geom_segment(aes(x=1, y=fd[1, y1], xend=1, yend=fd[1, y3]-0.1), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
-  geom_segment(aes(x=2, y=fd[2, y1], xend=2, yend=fd[2, y3]+0.1), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
-  geom_segment(aes(x=1, y=fd[3, y1], xend=1, yend=fd[3, y3]+0.1), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
-  geom_segment(aes(x=2, y=fd[4, y1], xend=2, yend=fd[4, y3]-0.1), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
- scale_y_continuous(limits=c(-2.25, 2.75)) +
+y1 &lt;- (X1%*%beta1)[,1]
+y1.a &lt;- (X1[,1:3]%*%beta1[1:3])[,1]
+y3 &lt;- (X3%*%beta3)[,1] # should = y1
+y3.a &lt;- (X3[,1:3]%*%beta3[1:3])[,1]
+
+fd &lt;- cbind(x_cat, y1.a=y1.a, y1=y1, y3=y3, y3.a=y3.a)
+
+gg.dummy &lt;- ggplot(data=fd, aes(x=CO2, y=y1.a, shape=Temp)) +
+  geom_point(size=3, color=&quot;red&quot;) +
+  geom_point(aes(y=y1, shape=Temp), size=3, color=&quot;black&quot;) +
+  geom_segment(aes(x=2, y=fd[4, y1.a], xend=2, yend=fd[4, y1]-0.02), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  scale_y_continuous(limits=c(-0.15, 1.75)) +
   ylab(&quot;y&quot;) +
+  theme(legend.position=&quot;bottom&quot;) +
   NULL
 
-gg2 &lt;- ggplot(data=fd, aes(x=A, y=y3, shape=B)) +
-  geom_point(size=3, color=&quot;black&quot;) +
-  geom_point(aes(x=2, y=0.5), size=3, color=&quot;red&quot;) +
-  geom_segment(aes(x=2, y=0.5, xend=2, yend=fd[4, y3]-0.1), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
-  scale_y_continuous(limits=c(-2.25, 2.75)) +
+gg.effects &lt;- ggplot(data=fd, aes(x=CO2, y=y3.a, shape=Temp)) +
+  geom_point(size=3, color=&quot;red&quot;) +
+  geom_point(aes(y=y3), size=3, color=&quot;black&quot;) + 
+  geom_segment(aes(x=1, y=fd[1, y3.a], xend=1, yend=fd[1, y3]-0.02), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  geom_segment(aes(x=2, y=fd[2, y3.a], xend=2, yend=fd[2, y3]+0.02), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  geom_segment(aes(x=1, y=fd[3, y3.a], xend=1, yend=fd[3, y3]+0.02), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  geom_segment(aes(x=2, y=fd[4, y3.a], xend=2, yend=fd[4, y3]-0.02), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  scale_y_continuous(limits=c(-0.15, 1.75)) +
   ylab(&quot;y&quot;) +
+  theme(legend.position=&quot;bottom&quot;) +
   NULL
 
-plot_grid(gg2, gg1, ncol=2, labels=c(&quot;A. Dummy coding&quot;, &quot;B. Effects coding&quot;))</code></pre>
+plot_grid(gg.dummy, gg.effects, ncol=2, labels=c(&quot;A. Dummy coding&quot;, &quot;B. Effects coding&quot;))</code></pre>
 <div class="figure"><span id="fig:unnamed-chunk-3"></span>
-<img src="/post/2019-07-02-is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect_files/figure-html/unnamed-chunk-3-1.png" alt="illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the measured means. Red dots are the expected means given only additive effects. The interaction effect is 'what is left' to get from the expectation using only additive effects to the measured mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects -- all have the same magnitude but the sign varies by group." width="672" />
+<img src="/post/2019-07-02-is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect_files/figure-html/unnamed-chunk-3-1.png" alt="illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the true means. Red dots are the expected means given only additive effects. The interaction effect is 'what is left' to get from the expectation using only additive effects to the true mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects -- all have the same magnitude but the sign varies by group." width="672" />
 <p class="caption">
-Figure 1: illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the measured means. Red dots are the expected means given only additive effects. The interaction effect is ‘what is left’ to get from the expectation using only additive effects to the measured mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects – all have the same magnitude but the sign varies by group.
+Figure 1: illustration of interaction effect computed using A) dummy coding and B) effects coding. Black dots are the true means. Red dots are the expected means given only additive effects. The interaction effect is ‘what is left’ to get from the expectation using only additive effects to the true mean. With a dummy coded model, there is only one interaction effect for the 2 x 2 design. With an effects coded model, there are four interaction effects – all have the same magnitude but the sign varies by group.
 </p>
 </div>
+</div>
+<div id="what-about-gelman-coded-contrasts" class="section level2">
+<h2>What about Gelman coded contrasts?</h2>
+<p>Andrew Gelman uses a (-0.5, .5) contrast instead of the (1, -1) contrast used in effects coding. The consequence of this is that a main effect coefficient is the average treatment effect (the difference averaged over each level of the other factor) instead of half the average treatment effect. And the interaction is a “difference in differences” (<span class="math inline">\((\mu_{22}-\mu_{12}) - (\mu_{21}-\mu_{11})\)</span>) but is not “what is leftover” as in both dummy coding and effects coding. The interaction coefficient has the same magnitude as that using dummy coding but unlike in dummy coding, the interaction effect is smaller than the main effect coefficients because the main effect coefficients are the average of the small (0.5) and big (1.5) simple effects.</p>
+<p>And, unlike the dummy coded interaction coefficient and the effects coded interaction coefficient, it’s hard to know how to “visualize” it, since it’s magnitude is not what is “left over”. That is, the coefficients from the Gelman coded model don’t just add up to get the means as in dummy coding and treatment coding but instead, the coefficients in the sum have to be weighted by 0.5 for the main effects and 0.25 for the interaction effect. So I’m not even sure how to visualize this. Below, I’ve illustrated the Gelman-coded interaction effect as what is left-over, using the weighted sum to get the expectation of the means using only additive effects, and it looks exactly like the illustration of the interaction effect using effects coding, but the length of each arrow is the magnitude of the interaction coefficient using effects coding but only 1/4 the magnitude of the interaction coefficient using Gelman coding.</p>
+<pre class="r"><code>dummy_2_gelman &lt;- function(b){
+
+  b3 &lt;- numeric(4)
+  b3[1] &lt;- (b[1] + (b[1] + b[2]) + (b[1] + b[3]) + (b[1] + b[2] + b[3] + b[4]))/4
+  b3[2] &lt;- (b[2] + (b[2] + b[4]))/2
+  b3[3] &lt;- (b[3] + (b[3] + b[4]))/2
+  b3[4] &lt;- b[1] - (-b3[1]/2 - b3[2]/2 + b3[3]/4)
+  return(b3)
+}
+
+beta.g &lt;- dummy_2_gelman(beta1)
+con.gelman &lt;- list(CO2=c(-0.5, .5), Temp=c(-0.5, .5)) # change the contrasts coding for the model matrix
+Xg &lt;- model.matrix(~CO2*Temp, contrasts=con.gelman, data=x_cat)
+
+yg &lt;- (Xg%*%beta.g)[,1] # should = y1
+yg.a &lt;- (Xg[,1:3]%*%beta.g[1:3])[,1]
+
+fd &lt;- cbind(fd, yg=yg, yg.a=yg.a)
+
+gg.gelman &lt;- ggplot(data=fd, aes(x=CO2, y=yg.a, shape=Temp)) +
+  geom_point(size=3, color=&quot;red&quot;) +
+  geom_point(aes(y=yg), size=3, color=&quot;black&quot;) + 
+  geom_segment(aes(x=1, y=fd[1, yg.a], xend=1, yend=fd[1, yg]-0.02), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  geom_segment(aes(x=2, y=fd[2, yg.a], xend=2, yend=fd[2, yg]+0.02), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  geom_segment(aes(x=1, y=fd[3, yg.a], xend=1, yend=fd[3, yg]+0.02), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  geom_segment(aes(x=2, y=fd[4, yg.a], xend=2, yend=fd[4, yg]-0.02), arrow=arrow(length = unit(0.2,&quot;cm&quot;))) +
+  scale_y_continuous(limits=c(-0.15, 1.75)) +
+  ylab(&quot;y&quot;) +
+  theme(legend.position=&quot;bottom&quot;) +
+  NULL
+
+plot_grid(gg.effects, gg.gelman, ncol=2, labels=c(&quot;A. Effects coding&quot;, &quot;B. Gelman coding&quot;))</code></pre>
+<p><img src="/post/2019-07-02-is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
 <div id="the-interaction-effect-computed-using-treatment-dummy-coding-does-not-equal-the-interaction-effect-computed-using-effect-coding." class="section level2">
 <h2>The interaction effect computed using treatment (dummy) coding does not equal the interaction effect computed using effect coding.</h2>
@@ -921,6 +978,7 @@ A1:B1
 <h2>A simulation to show that the power to test an interaction effect equals that to test a main effect if they have the same magnitude.</h2>
 <pre class="r"><code>niter &lt;- 10*10^3
 con3 &lt;- list(A=contr.sum, B=contr.sum) # change the contrasts coding for the model matrix
+con.gelman &lt;- list(A=c(-0.5, .5), B=c(-0.5, .5)) # change the contrasts coding for the model matrix
 
 # parameters for data generated using dummy coding
 # interaction and simple effects equal if using dummy coded model
@@ -1011,6 +1069,12 @@ effects: interaction
 </tr>
 </tbody>
 </table>
+</div>
+<div id="hidden-scripts" class="section level2">
+<h2>Hidden scripts</h2>
+<p>Estimates of effects using dummy coding</p>
+<p>Estimates of effects using effects coding</p>
+<p>Estimates of effects using gelman coding</p>
 </div>
 
               
