@@ -1,5 +1,5 @@
 ---
-title: What is bias in the estimation of an effect given an omitted interaction term?
+title: What is the bias in the estimation of an effect given an omitted interaction term?
 author: Jeff Walker
 date: '2019-07-31'
 slug: what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term
@@ -62,7 +62,7 @@ b*beta_3</code></pre>
 <p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
 <pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
 <pre><code>##    x1TrA 
-## 1.248125</code></pre>
+## 1.248809</code></pre>
 </div>
 <div id="two-continuous-x-with-interaction" class="section level1">
 <h1>Two continuous <span class="math inline">\(X\)</span> with interaction</h1>
@@ -92,14 +92,14 @@ fd[, y:=(X%*%beta)[,1] + rnorm(n)]</code></pre>
 <p>The bias is</p>
 <pre class="r"><code>b &lt;- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
 b*beta_3</code></pre>
-<pre><code>## [1] -0.0005735653</code></pre>
+<pre><code>## [1] -0.001319163</code></pre>
 <p>huh. Is this generally the case that the regression of the interaction on the main variable is near zero?</p>
 <p>Regardless…</p>
 <p>The expected coefficient given the known true effect plus the bias is</p>
 <pre class="r"><code>beta_1 + b*beta_3</code></pre>
-<pre><code>## [1] 0.9994264</code></pre>
+<pre><code>## [1] 0.9986808</code></pre>
 <p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
 <pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
-<pre><code>##       x1 
-## 1.000549</code></pre>
+<pre><code>##        x1 
+## 0.9995452</code></pre>
 </div>
