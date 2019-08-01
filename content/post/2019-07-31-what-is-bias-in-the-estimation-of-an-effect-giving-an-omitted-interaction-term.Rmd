@@ -29,6 +29,9 @@ The total effect of $x_1$ on $y$ is $\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\ma
 
 If $x_3$ (the interaction) if missing, it's component on the total efffect is added to the coefficient of $x_1$. This added component is the bias due to the omitted interaction.
 
+# Definitions
+This computation assumes an interaction effect is defined as the "leftover" residual after adding up the intercept plus additive effects -- that is, the coefficient estimated using dummy coding (which is R's default coding). See [Is the power to test an interaction effect less than that for a main effect?](https://rdoodles.rbind.io/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/) for other definitions/parameterizations of an interaction.
+
 # Libraries
 
 I use data.table

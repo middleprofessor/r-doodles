@@ -335,6 +335,10 @@ y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3
 <p>The total effect of <span class="math inline">\(x_1\)</span> on <span class="math inline">\(y\)</span> is <span class="math inline">\(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\)</span>.</p>
 <p>If <span class="math inline">\(x_3\)</span> (the interaction) if missing, it’s component on the total efffect is added to the coefficient of <span class="math inline">\(x_1\)</span>. This added component is the bias due to the omitted interaction.</p>
 </div>
+<div id="definitions" class="section level1">
+<h1>Definitions</h1>
+<p>This computation assumes an interaction effect is defined as the “leftover” residual after adding up the intercept plus additive effects – that is, the coefficient estimated using dummy coding (which is R’s default coding). See <a href="https://rdoodles.rbind.io/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">Is the power to test an interaction effect less than that for a main effect?</a> for other definitions/parameterizations of an interaction.</p>
+</div>
 <div id="libraries" class="section level1">
 <h1>Libraries</h1>
 <p>I use data.table</p>
@@ -367,8 +371,8 @@ b*beta_3</code></pre>
 <pre><code>## [1] 1.25</code></pre>
 <p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
 <pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
-<pre><code>##    x1TrA 
-## 1.248809</code></pre>
+<pre><code>##   x1TrA 
+## 1.24894</code></pre>
 </div>
 <div id="two-continuous-x-with-interaction" class="section level1">
 <h1>Two continuous <span class="math inline">\(X\)</span> with interaction</h1>
@@ -398,16 +402,16 @@ fd[, y:=(X%*%beta)[,1] + rnorm(n)]</code></pre>
 <p>The bias is</p>
 <pre class="r"><code>b &lt;- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
 b*beta_3</code></pre>
-<pre><code>## [1] -0.001319163</code></pre>
+<pre><code>## [1] -0.001237163</code></pre>
 <p>huh. Is this generally the case that the regression of the interaction on the main variable is near zero?</p>
 <p>Regardless…</p>
 <p>The expected coefficient given the known true effect plus the bias is</p>
 <pre class="r"><code>beta_1 + b*beta_3</code></pre>
-<pre><code>## [1] 0.9986808</code></pre>
+<pre><code>## [1] 0.9987628</code></pre>
 <p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
 <pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
 <pre><code>##        x1 
-## 0.9995452</code></pre>
+## 0.9986855</code></pre>
 </div>
 
               
