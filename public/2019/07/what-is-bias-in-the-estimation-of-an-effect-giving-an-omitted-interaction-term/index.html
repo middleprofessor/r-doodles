@@ -19,8 +19,8 @@ If \(x_3\) (the interaction) if missing, it’s component on the total efffect i
 The total effect of \(x_1\) on \(y\) is \(\beta_1 &#43; \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 &#43; \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
 If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).">
 <meta property="og:type" content="article">
-<meta property="og:title" content="What is bias in the estimation of an effect giving an omitted interaction term?">
-<meta name="twitter:title" content="What is bias in the estimation of an effect giving an omitted interaction term?">
+<meta property="og:title" content="What is bias in the estimation of an effect given an omitted interaction term?">
+<meta name="twitter:title" content="What is bias in the estimation of an effect given an omitted interaction term?">
 <meta property="og:url" content="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
 <meta property="twitter:url" content="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
 <meta property="og:site_name" content="R Doodles">
@@ -85,7 +85,7 @@ If \(x_3\) (the interaction) if missing, it’s component on the total efffect i
   <meta property="twitter:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
 
 
-    <title>What is bias in the estimation of an effect giving an omitted interaction term?</title>
+    <title>What is bias in the estimation of an effect given an omitted interaction term?</title>
 
     <link rel="icon" href="/favicon.png">
     
@@ -295,7 +295,7 @@ if (!doNotTrack) {
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      What is bias in the estimation of an effect giving an omitted interaction term?
+      What is bias in the estimation of an effect given an omitted interaction term?
     </h1>
   
   
@@ -368,7 +368,7 @@ b*beta_3</code></pre>
 <p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
 <pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
 <pre><code>##    x1TrA 
-## 1.249065</code></pre>
+## 1.248125</code></pre>
 </div>
 <div id="two-continuous-x-with-interaction" class="section level1">
 <h1>Two continuous <span class="math inline">\(X\)</span> with interaction</h1>
@@ -398,16 +398,16 @@ fd[, y:=(X%*%beta)[,1] + rnorm(n)]</code></pre>
 <p>The bias is</p>
 <pre class="r"><code>b &lt;- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
 b*beta_3</code></pre>
-<pre><code>## [1] 0.0003482618</code></pre>
+<pre><code>## [1] -0.0005735653</code></pre>
 <p>huh. Is this generally the case that the regression of the interaction on the main variable is near zero?</p>
 <p>Regardless…</p>
 <p>The expected coefficient given the known true effect plus the bias is</p>
 <pre class="r"><code>beta_1 + b*beta_3</code></pre>
-<pre><code>## [1] 1.000348</code></pre>
+<pre><code>## [1] 0.9994264</code></pre>
 <p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
 <pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
-<pre><code>##        x1 
-## 0.9996835</code></pre>
+<pre><code>##       x1 
+## 1.000549</code></pre>
 </div>
 
               
@@ -674,7 +674,7 @@ b*beta_3</code></pre>
             
             <div class="media-body">
               <a class="link-unstyled" href="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
-                <h3 class="media-heading">What is bias in the estimation of an effect giving an omitted interaction term?</h3>
+                <h3 class="media-heading">What is bias in the estimation of an effect given an omitted interaction term?</h3>
               </a>
               <span class="media-meta">
                 <span class="media-date text-small">
