@@ -1,0 +1,334 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+This is a skeletal post to explore the effects of the **Normality Filter** -- using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some non-parametric alternative such as a Mann-Whitney-Wilcoxon (MWW) test. In this strategy, a t-test is used only if the SW p-value is > than some cut-off (such as 0.05), otherwise use a non-parametric (typically MWW) test.
+
+**Stuff that needs to be repeatedly stated** The failure to reject a null hypothesis does not mean the null hypothesis is true. Or, in the context of this post, we shouldn't conclude that a sample is "normal" because a SW *p*-value > 0.05. The logic of a test of normality (or homogeneity) before a t-test/ANOVA, then, isn't consistent with frequentist thinking. The idea that a SW test can filter data into "normal" and "non-normal" bins assumes that the SW test has near 100% power when the null-hypothesis is false. But, maybe we should only think of the Normality filter as an objective model check, compared to, say, inspecting a Q-Q plot.  
+
+**More stuff that needs to be repeatedly stated** It is not uncommon to hear and even read that *t*-tests assume that the response variable is normally distributed. This is not correct. It is the response *conditional on the group* that is assumed to be normal. Or, equivalently, it is the residuals from a linear model fit to the data that are assumed to be normal. "Conditional on the group" suggests to some textbook authors that normality should be tested on the response variable in each group seperately. The data pass the Normality filter only if the *p*-value of the SW test is > 0.05 on *both* tests. This way of thinking about testing the normal assumption is constraining because it doesn't allow for adjusting for covariates. A better way to think about testing normality is a single test of the residuals of the fit linear model. This way of thinking is better because it naturally leads to model checking of more complex models.
+
+The Normality filter itself raises a few questions that interest me. Given that the p-value of a *t*-test is not conditional on "passing" the Normality filter...
+
+1. What is the probability of rejecting the null conditional on only the subset of true nulls that "pass" the SW test (that is, how does the filter change the size or Type I error of the t-test)?
+
+2. What is the probability of rejecting the null conditional on only the subset of false nulls that pass the SW test (that is, how does the filter change the power of the t-test)?
+
+Rochon et al. address #1 with a simulation with data generated using normal, uniform, and exponentitial distributions. I don't know how relevant the uniform and exponential distributions are for most biological data.
+
+# Set up
+
+```{r libraries, message=FALSE}
+library(data.table)
+library(MASS)
+library(ggplot2)
+library(ggpubr)
+library(cowplot)
+```
+
+```{r functions}
+fake_data <- function(niter=10^4, n=50, location=0, scale=1, shape=1, effect=0, dist="normal"){
+
+  if(dist=="normal"){
+    cn <- matrix(rnorm(n*niter, mean=location, sd=scale), nrow=n, ncol=niter)
+    tr <- matrix(rnorm(n*niter, mean=(location + effect), sd=scale), nrow=n, ncol=niter)
+    fd <- rbind(cn, tr)
+  }
+  if(dist=="nb"){ # negative binomial for counts
+    cn <- matrix(rnegbin(niter*n, mu=location, theta=shape), nrow=n, ncol=niter)
+    tr <- matrix(rnegbin(niter*n, mu=(location + effect), theta=shape), nrow=n, ncol=niter)
+    fd <- rbind(cn, tr)
+  }
+  if(dist=="exp"){ # exponential to reproduce paper
+    rate_cn <- 1/location
+    rate_tr <- 1/(location + effect)
+    cn <- matrix(rexp(niter*n, rate=rate_cn), nrow=n, ncol=niter)
+    tr <- matrix(rexp(niter*n, rate=rate_tr), nrow=n, ncol=niter)
+    fd <- rbind(cn, tr)
+  }
+  return(fd)
+}
+
+sw_filter <- function(fd){
+  # outputs SW p for residual, group1, and group2 + unconditional t-test p
+  niter <- ncol(fd)
+  n <- nrow(fd)/2
+  x <- rep(c("a","b"), each=n)
+  sw_p_cols <- c("residual", "raw1","raw2", "p")
+  sw_p <- matrix(NA, nrow=niter, ncol=length(sw_p_cols))
+  colnames(sw_p) <- sw_p_cols
+
+  iter <- 1 # for debugging
+  for(iter in 1:niter){
+    sw_p[iter, "residual"] <- shapiro.test(residuals(lm(fd[, iter] ~ x)))$p.value # using residual
+    sw_p[iter, "raw1"] <- shapiro.test(fd[1:n, iter])$p.value # using raw variable
+    sw_p[iter, "raw2"] <- shapiro.test(fd[(n+1):(2*n), iter])$p.value # using raw variable
+    sw_p[iter, "p"] <- t.test(fd[, iter] ~ x, var.equal=TRUE)$p.value
+  }
+  return(sw_p)
+}
+
+sw_summary <- function(sw_p, alpha=0.05){
+  # note that prob of at least 1 group rejected is
+  # 1 - (1-alpha)^2
+  niter <- nrow(sw_p)
+  SW_rej_residual <- sum(sw_p$residual < alpha)/niter # SW positives using residual
+  SW_rej_raw <- sum(sw_p$raw1 < alpha | sw_p$raw2 < alpha)/niter # SW positives using raw
+  t_unconditional <- sum(sw_p$p < 0.05)/niter # unconditional type I error
+  t_pass_residual <- sum(sw_p[residual > alpha, p] < 0.05)/sum(sw_p[,residual > alpha]) # conditional on negative SW on residual
+  t_pass_raw <- sum(sw_p[raw1 > alpha & raw2 > alpha, p] < 0.05)/sum(sw_p[, raw1 > alpha & raw2 > alpha]) # conditional on negative SW on raw
+  t_rej_residual <- sum(sw_p[residual < alpha, p] < 0.05)/sum(sw_p[,residual < alpha]) # conditional on positive SW on residual
+  t_rej_raw <- sum(sw_p[raw1 < alpha | raw2 < alpha, p] < 0.05)/sum(sw_p[, raw1 < alpha | raw2 < alpha]) # conditional on positive SW on raw
+  res <- c(SW_rej.res=SW_rej_residual,
+           SW_rej.raw=SW_rej_raw,
+           t.uc=t_unconditional,
+           t_pass.res=t_pass_residual,
+           t_pass.raw=t_pass_raw,
+           t_rej.residual=t_rej_residual,
+           t_rej_raw=t_rej_raw)
+  return(res)
+}
+```
+
+# My alpha vs. Rochon et al alpha
+
+Note that the "test normality in both groups seperately"
+
+```{r}
+# rochon_alpha <- 1 - (1-alpha)^2 so use quadratic formula to solve this
+# 0 = 1 - (1-alpha)^2 - rochon_alpha
+rochon_alpha <- c(0.2, 0.1, 0.05, 0.01, 0.005) # added 0.2 to get ~ 0.1 using residuals
+residual_alpha <- 1 - sqrt(1-rochon_alpha)# the solution, giving the equivalent alpha using residual from the model
+```
+
+# Normal
+## Type I error
+
+```{r, eval=TRUE}
+niter <- 10^4
+location_i <- 0
+scale_i <- 1
+effect_i <- 0
+res_table <- data.table(NULL)
+for(n_i in (c(10))){
+  fd <- fake_data(niter=niter, n=n_i, location=location_i, scale=scale_i, effect=effect_i, dist="normal")
+  res <- data.table(sw_filter(fd))
+  for(alpha_i in rochon_alpha){
+    res_table <- rbind(res_table, data.table(
+      n = n_i,
+      alpha = alpha_i,
+      alpha_2 = 1-(1-alpha_i)^2,
+      data.table(t(sw_summary(res, alpha=alpha_i)))))
+  }
+}
+setnames(res_table, old=colnames(res_table), new=c("n", "alpha", "2-group alpha", "SW-rejection rate", "2-group SW rejection rate", "Unconditional Type I", "Cond. Type I", "2-group Type I", "Type I (SW rejects", "Type I (2-group SW rejects"))
+knitr::kable(res_table, digits=c(0,3,3,3,3,3,3,3,3,3))
+
+```
+
+## Power
+
+```{r, eval=TRUE}
+niter <- 10^4
+location_i <- 0
+scale_i <- 1
+effect_i <- 1
+res_table <- data.table(NULL)
+for(n_i in (c(10))){
+  fd <- fake_data(niter=niter, n=n_i, location=location_i, scale=scale_i, effect=effect_i, dist="normal")
+  res <- data.table(sw_filter(fd))
+  for(alpha_i in rochon_alpha){
+    res_table <- rbind(res_table, data.table(
+      n = n_i,
+      alpha = alpha_i,
+      alpha_2 = 1-(1-alpha_i)^2,
+      data.table(t(sw_summary(res, alpha=alpha_i)))))
+  }
+}
+setnames(res_table, old=colnames(res_table), new=c("n", "alpha", "2-group alpha", "SW-rejection rate", "2-group SW rejection rate", "Unconditional Power", "Cond. Power", "2-group Power", "Power (SW rejects", "Power (2-group SW rejects"))
+knitr::kable(res_table, digits=c(0,3,3,2,2,3,3,3,3,3))
+
+```
+
+# Exponential
+
+I don't think an exponential distribution is useful for modeling most biological data so doing this simply to try to replicate Rochon et al. 
+
+## Type I error
+```{r, eval=TRUE}
+niter <- 5 * 10^4
+location_i <- 1
+effect_i <- 0
+res_table <- data.table(NULL)
+for(n_i in (c(10))){
+  fd <- fake_data(niter=niter, n=n_i, location=location_i, effect=effect_i, dist="exp")
+  res <- data.table(sw_filter(fd))
+  for(alpha_i in rochon_alpha){
+    res_table <- rbind(res_table, data.table(
+      n = n_i,
+      alpha = alpha_i,
+      alpha_2 = 1-(1-alpha_i)^2,
+      data.table(t(sw_summary(res, alpha=alpha_i)))))
+  }
+}
+setnames(res_table, old=colnames(res_table), new=c("n", "alpha", "2-group alpha", "SW-rejection rate", "2-group SW rejection rate", "Unconditional Type I", "Cond. Type I", "2-group Type I", "Type I (SW rejects", "Type I (2-group SW rejects"))
+knitr::kable(res_table, digits=c(0,3,3,2,2,3,3,3,3,3))
+
+gg_fd <- data.table(x=rep(c("a","b"), each=n_i), fd[, 1:4])
+gg0 <- gghistogram(c(fd))
+gg1 <- ggboxplot(data=gg_fd, x="x", y="V1", add="jitter")
+gg2 <- ggboxplot(data=gg_fd, x="x", y="V2", add="jitter")
+gg3 <- ggboxplot(data=gg_fd, x="x", y="V3", add="jitter")
+gg4 <- ggboxplot(data=gg_fd, x="x", y="V4", add="jitter")
+plot_grid(gg0, gg1, gg2, gg3, gg4, ncol=5, rel_widths = c(2, 1, 1, 1, 1))
+```
+
+Same code but n=30
+```{r echo=FALSE}
+niter <- 5 * 10^4
+location_i <- 1
+effect_i <- 0
+res_table <- data.table(NULL)
+for(n_i in (c(30))){
+  fd <- fake_data(niter=niter, n=n_i, location=location_i, effect=effect_i, dist="exp")
+  res <- data.table(sw_filter(fd))
+  for(alpha_i in rochon_alpha){
+    res_table <- rbind(res_table, data.table(
+      n = n_i,
+      alpha = alpha_i,
+      alpha_2 = 1-(1-alpha_i)^2,
+      data.table(t(sw_summary(res, alpha=alpha_i)))))
+  }
+}
+setnames(res_table, old=colnames(res_table), new=c("n", "alpha", "2-group alpha", "SW-rejection rate", "2-group SW rejection rate", "Unconditional Type I", "Cond. Type I", "2-group Type I", "Type I (SW rejects", "Type I (2-group SW rejects"))
+knitr::kable(res_table, digits=c(0,3,3,3,3,3,3,3,3,3))
+
+```
+
+# Righ skewed continuous (lognormal)
+## Type I error
+
+# Right skewed counts (Negative Binomial)
+## Type I error
+### Smallish theta -- further from normal
+```{r, eval=TRUE, warning=FALSE, message=FALSE}
+# sw_filter <- function(niter=10^4, n=50, location=0, scale=1, shape=1, effect=0, dist="normal"){
+set.seed(1)
+niter <- 5 * 10^4
+location_i <- 10
+shape_i <- 1
+effect_i <- 0
+res_table <- data.table(NULL)
+for(n_i in (c(10))){
+  fd <- fake_data(niter=niter, n=n_i, location=location_i, shape=shape_i, effect=effect_i, dist="nb")
+  res <- data.table(sw_filter(fd))
+  for(alpha_i in rochon_alpha){
+    res_table <- rbind(res_table, data.table(
+      n = n_i,
+      alpha = alpha_i,
+      alpha_2 = 1-(1-alpha_i)^2,
+      data.table(t(sw_summary(res, alpha=alpha_i)))))
+  }
+}
+
+p <- 1000
+rej <- which(res[, residual] < 0.05)[1:p]
+y <- c(c(fd[1:n_i, rej]), c(fd[(n_i+1):(n_i*2), rej]))
+x <- rep(c("cn", "tr"), each=n_i*p)
+m1 <- glm.nb(y~x)
+m1$theta # theta of runs rejected by S-W
+
+nrej <- which(res[, residual] > 0.05)[1:p]
+y <- c(c(fd[1:n_i, nrej]), c(fd[(n_i+1):(n_i*2), nrej]))
+x <- rep(c("cn", "tr"), each=n_i*p)
+m2 <- glm.nb(y~x)
+m2$theta # theat of runs not rejected by S-W
+
+setnames(res_table, old=colnames(res_table), new=c("n", "alpha", "2-group alpha", "SW-rejection rate", "2-group SW rejection rate", "Unconditional Type I", "Cond. Type I", "2-group Type I", "Type I (SW rejects", "Type I (2-group SW rejects"))
+knitr::kable(res_table, digits=c(0,3,3,2,2,3,3,3,3,3))
+
+gg_fd <- data.table(x=rep(c("a","b"), each=n_i), fd[, 1:4])
+gg0 <- gghistogram(c(fd))
+gg1 <- ggboxplot(data=gg_fd, x="x", y="V1", add="jitter")
+gg2 <- ggboxplot(data=gg_fd, x="x", y="V2", add="jitter")
+gg3 <- ggboxplot(data=gg_fd, x="x", y="V3", add="jitter")
+gg4 <- ggboxplot(data=gg_fd, x="x", y="V4", add="jitter")
+plot_grid(gg0, gg1, gg2, gg3, gg4, ncol=5, rel_widths = c(2, 1, 1, 1, 1))
+
+
+```
+
+### Biggish theta -- closer to normal
+```{r}
+# sw_filter <- function(niter=10^4, n=50, location=0, scale=1, shape=1, effect=0, dist="normal"){
+set.seed(1)
+niter <- 5 * 10^4
+location_i <- 10
+shape_i <- 6
+effect_i <- 0
+res_table <- data.table(NULL)
+for(n_i in (c(10))){
+  fd <- fake_data(niter=niter, n=n_i, location=location_i, shape=shape_i, effect=effect_i, dist="nb")
+  res <- data.table(sw_filter(fd))
+  for(alpha_i in rochon_alpha){
+    res_table <- rbind(res_table, data.table(
+      n = n_i,
+      alpha = alpha_i,
+      alpha_2 = 1-(1-alpha_i)^2,
+      data.table(t(sw_summary(res, alpha=alpha_i)))))
+  }
+}
+
+p <- 1000
+rej <- which(res[, residual] < 0.05)[1:p]
+y <- c(c(fd[1:n_i, rej]), c(fd[(n_i+1):(n_i*2), rej]))
+x <- rep(c("cn", "tr"), each=n_i*p)
+m1 <- glm.nb(y~x)
+m1$theta # theta of runs rejected by S-W
+
+nrej <- which(res[, residual] > 0.05)[1:p]
+y <- c(c(fd[1:n_i, nrej]), c(fd[(n_i+1):(n_i*2), nrej]))
+x <- rep(c("cn", "tr"), each=n_i*p)
+m2 <- glm.nb(y~x)
+m2$theta # theat of runs not rejected by S-W
+
+setnames(res_table, old=colnames(res_table), new=c("n", "alpha", "2-group alpha", "SW-rejection rate", "2-group SW rejection rate", "Unconditional Type I", "Cond. Type I", "2-group Type I", "Type I (SW rejects", "Type I (2-group SW rejects"))
+knitr::kable(res_table, digits=c(0,3,3,2,2,3,3,3,3,3))
+
+gg_fd <- data.table(x=rep(c("a","b"), each=n_i), fd[, 1:4])
+gg0 <- gghistogram(c(fd))
+gg1 <- ggboxplot(data=gg_fd, x="x", y="V1", add="jitter")
+gg2 <- ggboxplot(data=gg_fd, x="x", y="V2", add="jitter")
+gg3 <- ggboxplot(data=gg_fd, x="x", y="V3", add="jitter")
+gg4 <- ggboxplot(data=gg_fd, x="x", y="V4", add="jitter")
+plot_grid(gg0, gg1, gg2, gg3, gg4, ncol=5, rel_widths = c(2, 1, 1, 1, 1))
+
+
+```
+
+
+```{r, eval=TRUE}
+set.seed(1)
+niter <- 1 * 10^3
+location_i <- 10
+shape_i <- 2
+effect_i <- 1
+res_table <- data.table(NULL)
+for(n_i in (c(10))){
+  fd <- fake_data(niter=niter, n=n_i, location=location_i, shape=shape_i, effect=effect_i, dist="nb")
+  res <- data.table(sw_filter(fd))
+  for(alpha_i in rochon_alpha){
+    res_table <- rbind(res_table, data.table(
+      n = n_i,
+      alpha = alpha_i,
+      alpha_2 = 1-(1-alpha_i)^2,
+      data.table(t(sw_summary(res, alpha=alpha_i)))))
+  }
+}
+setnames(res_table, old=colnames(res_table), new=c("n", "alpha", "2-group alpha", "SW-rejection rate", "2-group SW rejection rate", "Unconditional Power", "Cond. Power", "2-group Power", "Power (SW rejects", "Power (2-group SW rejects"))
+knitr::kable(res_table, digits=c(0,3,3,2,2,3,3,3,3,3))
+
+```

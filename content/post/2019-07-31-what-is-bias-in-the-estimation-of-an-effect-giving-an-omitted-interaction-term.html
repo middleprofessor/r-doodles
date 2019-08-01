@@ -1,0 +1,105 @@
+---
+title: What is bias in the estimation of an effect giving an omitted interaction term?
+author: Jeff Walker
+date: '2019-07-31'
+slug: what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term
+categories:
+  - stats 101
+tags:
+  - bias
+  - causal graph
+  - covariance
+  - categorical X
+  - effect size
+  - fake data
+  - Wright style path analysis
+keywords:
+  - tech
+---
+
+
+
+<div id="some-background-due-to-sewall-wrights-method-of-path-analysis" class="section level1">
+<h1>Some background (due to Sewall Wright’s method of path analysis)</h1>
+<p>Given a generating model:</p>
+<span class="math display">\[\begin{equation}
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3
+\end{equation}\]</span>
+<p>where <span class="math inline">\(x_3 = x_1 x_2\)</span>; that is, it is an interaction variable.</p>
+<p>The total effect of <span class="math inline">\(x_1\)</span> on <span class="math inline">\(y\)</span> is <span class="math inline">\(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\)</span>.</p>
+<p>If <span class="math inline">\(x_3\)</span> (the interaction) if missing, it’s component on the total efffect is added to the coefficient of <span class="math inline">\(x_1\)</span>. This added component is the bias due to the omitted interaction.</p>
+</div>
+<div id="libraries" class="section level1">
+<h1>Libraries</h1>
+<p>I use data.table</p>
+<pre class="r"><code>library(data.table)</code></pre>
+</div>
+<div id="factorial-design-with-ommitted-interaction" class="section level1">
+<h1>Factorial design with ommitted interaction</h1>
+<p>Let’s simulate this with a <span class="math inline">\(2 \times 2\)</span> factorial design. In a balanced fatorial design, <span class="math inline">\(\frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} = 0.5\)</span>, so the bias is <span class="math inline">\(\frac{\beta_3}{2}\)</span></p>
+<pre class="r"><code>n &lt;- 10^6 # a high n is used so that the estimate is very close to the true expected value
+beta_0 &lt;- 0
+beta_1 &lt;- 1
+beta_2 &lt;- 0.5
+beta_3 &lt;- 0.5
+beta &lt;- c(beta_0, beta_1, beta_2, beta_3)
+sigma &lt;- 1
+
+fd &lt;- data.table(
+  x1=factor(rep(c(&quot;CnA&quot;, &quot;TrA&quot;), each=2*n)),
+  x2=factor(rep(rep(c(&quot;CnB&quot;, &quot;TrB&quot;), each=n), 2))
+)
+X &lt;- model.matrix(~x1*x2, data=fd)
+cov_X &lt;- cov(X)
+fd[, y:=(X%*%beta)[,1] + rnorm(n*4)]</code></pre>
+<p>The bias is</p>
+<pre class="r"><code>b &lt;- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
+b*beta_3</code></pre>
+<pre><code>## [1] 0.25</code></pre>
+<p>The expected coefficient given the known true effect plus the bias is</p>
+<pre class="r"><code>beta_1 + b*beta_3</code></pre>
+<pre><code>## [1] 1.25</code></pre>
+<p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
+<pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
+<pre><code>##    x1TrA 
+## 1.249065</code></pre>
+</div>
+<div id="two-continuous-x-with-interaction" class="section level1">
+<h1>Two continuous <span class="math inline">\(X\)</span> with interaction</h1>
+<pre class="r"><code>n &lt;- 10^6
+# generate two correlated x
+rho &lt;- 0.6 # true correlation
+z &lt;- rnorm(n)
+sigma_x &lt;- sqrt(1-rho)
+x1 &lt;- sqrt(rho)*z + rnorm(n, sd=sigma_x) # expected variance is 1
+x2 &lt;- sqrt(rho)*z + rnorm(n, sd=sigma_x) # expected variance is 1
+x3 &lt;- x1*x2
+
+beta_0 &lt;- 0
+beta_1 &lt;- 1
+beta_2 &lt;- 0.5
+beta_3 &lt;- 0.5
+beta &lt;- c(beta_0, beta_1, beta_2, beta_3)
+sigma &lt;- 1
+
+fd &lt;- data.table(
+  x1=x1,
+  x2=x2
+)
+X &lt;- model.matrix(~x1*x2, data=fd)
+cov_X &lt;- cov(X)
+fd[, y:=(X%*%beta)[,1] + rnorm(n)]</code></pre>
+<p>The bias is</p>
+<pre class="r"><code>b &lt;- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
+b*beta_3</code></pre>
+<pre><code>## [1] 0.0003482618</code></pre>
+<p>huh. Is this generally the case that the regression of the interaction on the main variable is near zero?</p>
+<p>Regardless…</p>
+<p>The expected coefficient given the known true effect plus the bias is</p>
+<pre class="r"><code>beta_1 + b*beta_3</code></pre>
+<pre><code>## [1] 1.000348</code></pre>
+<p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
+<pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
+<pre><code>##        x1 
+## 0.9996835</code></pre>
+</div>

@@ -269,6 +269,55 @@ if (!doNotTrack) {
     
     <div class="postShorten-header">
       <h1 class="postShorten-title" itemprop="headline">
+        <a class="link-unstyled" href="/2019/01/expected-covariances-in-a-causal-network/">
+          Expected covariances in a causal network
+        </a>
+      </h1>
+      
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-01-03T00:00:00Z">
+        
+  January 3, 2019
+
+      </time>
+    
+    
+  </div>
+
+    </div>
+    <div class="postShorten-excerpt" itemprop="articleBody">
+      
+        This is a skeleton post
+Standardized variables (Wright’s rules) n &lt;- 10^5 # z is the common cause of g1 and g2 z &lt;- rnorm(n) # effects of z on g1 and g2 b1 &lt;- 0.7 b2 &lt;- 0.7 r12 &lt;- b1*b2 g1 &lt;- b1*z + sqrt(1-b1^2)*rnorm(n) g2 &lt;- b2*z + sqrt(1-b2^2)*rnorm(n) var(g1) # E(VAR(g1)) = 1 ## [1] 1.001849 var(g2) # E(VAR(g2)) = 1 ## [1] 1.006102 cor(g1, g2) # E(COR(g1,g2)) = b1*b2 ## [1] 0.
+      
+      <p>
+        <a href="/2019/01/expected-covariances-in-a-causal-network/" class="postShorten-excerpt_link link">Continue reading</a>
+        
+      </p>
+    </div>
+  </div>
+  
+</article>
+
+          
+            
+  
+    
+      
+        
+      
+    
+  
+
+
+  
+
+<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
+  <div class="postShorten-wrap">
+    
+    <div class="postShorten-header">
+      <h1 class="postShorten-title" itemprop="headline">
         <a class="link-unstyled" href="/2018/12/compute-a-random-data-matrix-fake-data-without-rmvnorm/">
           Compute a random data matrix (fake data) without rmvnorm
         </a>
@@ -582,56 +631,6 @@ This post is a follow up to my inital post, which was written as as a way for me
 </article>
 
           
-            
-  
-    
-      
-        
-      
-    
-  
-
-
-  
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2018/05/on-model-averaging-regression-coefficients/">
-          On model averaging the coefficients of linear models
-        </a>
-      </h1>
-      
-  <div class="postShorten-meta post-meta">
-    
-      <time itemprop="datePublished" datetime="2018-05-10T00:00:00Z">
-        
-  May 10, 2018
-
-      </time>
-    
-    
-  </div>
-
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      
-        a shorter argument based on a specific example is here
-“What model averaging does not mean is averaging parameter estimates, because parameters in different models have different meanings and should not be averaged, unless you are sure you are in a special case in which it is safe to do so.” – Richard McElreath, p. 196 of the textbook I wish I had learned from Statistical Rethinking
-This is an infrequent but persistent criticism of model-averaged coefficients in the applied statistics literature on model averaging.
-      
-      <p>
-        <a href="/2018/05/on-model-averaging-regression-coefficients/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
-  
-</article>
-
-          
           
   <div class="pagination-bar">
     <ul class="pagination">
@@ -653,7 +652,7 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
           </li>
         
       
-      <li class="pagination-number">page 3 of 4</li>
+      <li class="pagination-number">page 3 of 5</li>
     </ul>
   </div>
 
@@ -715,6 +714,26 @@ This is an infrequent but persistent criticism of model-averaged coefficients in
       <div class="no-result text-color-light text-center">no post found</div>
       <div class="results">
         
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+                <h3 class="media-heading">What is bias in the estimation of an effect giving an omitted interaction term?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
         
           <div class="media">
             
@@ -878,24 +897,6 @@ When we estimate an effect1, the estimate will be a little inflated or a little 
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/04/covariate-adjustment-in-randomized-experiments/">
-                <h3 class="media-heading">Covariate adjustment in randomized experiments</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Apr 4, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">The post motivated by a tweetorial from Darren Dahly
-In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -903,7 +904,7 @@ In an experiment, do we adjust for covariates that differ between treatment leve
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         28 posts found
+         29 posts found
       </p>
     </div>
   </div>

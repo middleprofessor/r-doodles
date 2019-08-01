@@ -630,6 +630,26 @@ gg</code></pre>
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+                <h3 class="media-heading">What is bias in the estimation of an effect giving an omitted interaction term?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
                 <h3 class="media-heading">Is the power to test an interaction effect less than that for a main effect?</h3>
               </a>
@@ -789,24 +809,6 @@ When we estimate an effect1, the estimate will be a little inflated or a little 
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/04/covariate-adjustment-in-randomized-experiments/">
-                <h3 class="media-heading">Covariate adjustment in randomized experiments</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Apr 4, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">The post motivated by a tweetorial from Darren Dahly
-In an experiment, do we adjust for covariates that differ between treatment levels measured pre-experiment (“imbalance” in random assignment), where a difference is inferred from a t-test with p &lt; 0.05? Or do we adjust for all covariates, regardless of differences pre-test? Or do we adjust only for covariates that have sustantial correlation with the outcome? Or do we not adjust at all?</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -814,7 +816,7 @@ In an experiment, do we adjust for covariates that differ between treatment leve
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         28 posts found
+         29 posts found
       </p>
     </div>
   </div>

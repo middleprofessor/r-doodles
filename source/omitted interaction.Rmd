@@ -1,0 +1,115 @@
+---
+title: "Omitted Interaction"
+author: "Jeff Walker"
+date: "7/31/2019"
+output: html_document
+---
+
+What is bias in the estimation of an effect giving an omitted interaction term?
+
+```{r}
+library(data.table)
+```
+
+# Some background (due to Sewall Wright's method of path analysis)
+Given a generating model:
+
+\begin{equation}
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3
+\end{equation}
+
+where $x_3 = x_1 x_2$; that is, it is an interaction variable.
+
+The total effect of $x_1$ on $y$ is $\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3$.
+
+If $x_3$ (the interaction) if missing, it's component on the total efffect is added to the coefficient of $x_1$. This added component is the bias due to the omitted interaction.
+
+# Factorial design with ommitted interaction
+
+Let's simulate this with a $2 \times 2$ factorial design. In a balanced fatorial design, $\frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} = 0.5$, so the bias is $\frac{\beta_3}{2}$
+
+```{r}
+n <- 10^6 # a high n is used so that the estimate is very close to the true expected value
+beta_0 <- 0
+beta_1 <- 1
+beta_2 <- 0.5
+beta_3 <- 0.5
+beta <- c(beta_0, beta_1, beta_2, beta_3)
+sigma <- 1
+
+fd <- data.table(
+  x1=factor(rep(c("CnA", "TrA"), each=2*n)),
+  x2=factor(rep(rep(c("CnB", "TrB"), each=n), 2))
+)
+X <- model.matrix(~x1*x2, data=fd)
+cov_X <- cov(X)
+fd[, y:=(X%*%beta)[,1] + rnorm(n*4)]
+```
+
+The bias is
+```{r}
+b <- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
+b*beta_3
+```
+
+The expected coefficient given the known true effect plus the bias is 
+```{r}
+beta_1 + b*beta_3
+```
+
+The coefficient of $x_1$ in the linear model with the missing interaction estimates this biased effect.
+
+```{r}
+coef(lm(y ~ x1 + x2, data=fd))[2]
+```
+
+# Two continuous $X$ with interaction
+
+```{r}
+n <- 10^6
+# generate two correlated x
+rho <- 0.6 # true correlation
+z <- rnorm(n)
+sigma_x <- sqrt(1-rho)
+x1 <- sqrt(rho)*z + rnorm(n, sd=sigma_x) # expected variance is 1
+x2 <- sqrt(rho)*z + rnorm(n, sd=sigma_x) # expected variance is 1
+x3 <- x1*x2
+
+beta_0 <- 0
+beta_1 <- 1
+beta_2 <- 0.5
+beta_3 <- 0.5
+beta <- c(beta_0, beta_1, beta_2, beta_3)
+sigma <- 1
+
+fd <- data.table(
+  x1=x1,
+  x2=x2
+)
+X <- model.matrix(~x1*x2, data=fd)
+cov_X <- cov(X)
+fd[, y:=(X%*%beta)[,1] + rnorm(n)]
+
+```
+
+The bias is
+```{r}
+b <- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
+b*beta_3
+```
+
+huh. Is this generally the case that the regression of the interaction on the main variable is near zero?
+
+Regardless...
+
+The expected coefficient given the known true effect plus the bias is 
+```{r}
+beta_1 + b*beta_3
+```
+
+The coefficient of $x_1$ in the linear model with the missing interaction estimates this biased effect.
+
+```{r}
+coef(lm(y ~ x1 + x2, data=fd))[2]
+```
+

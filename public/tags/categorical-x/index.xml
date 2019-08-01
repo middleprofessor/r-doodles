@@ -6,10 +6,22 @@
     <description>Recent content in Categorical X on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 02 Jul 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 31 Jul 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/categorical-x/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>What is bias in the estimation of an effect giving an omitted interaction term?</title>
+      <link>/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/</link>
+      <pubDate>Wed, 31 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/</guid>
+      <description>Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).</description>
+    </item>
     
     <item>
       <title>Is the power to test an interaction effect less than that for a main effect?</title>

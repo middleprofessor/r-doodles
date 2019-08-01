@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
+<meta name="keywords" content="tech">
+<meta name="description" content="Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 &#43; \beta_1 x_1 &#43; \beta_2 x_2 &#43; \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 &#43; \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 &#43; \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).">
+
+
+<meta property="og:description" content="Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 &#43; \beta_1 x_1 &#43; \beta_2 x_2 &#43; \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 &#43; \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 &#43; \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).">
+<meta property="og:type" content="article">
+<meta property="og:title" content="What is bias in the estimation of an effect giving an omitted interaction term?">
+<meta name="twitter:title" content="What is bias in the estimation of an effect giving an omitted interaction term?">
+<meta property="og:url" content="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+<meta property="twitter:url" content="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+<meta property="og:site_name" content="R Doodles">
+<meta property="og:description" content="Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 &#43; \beta_1 x_1 &#43; \beta_2 x_2 &#43; \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 &#43; \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 &#43; \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).">
+<meta name="twitter:description" content="Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 &#43; \beta_1 x_1 &#43; \beta_2 x_2 &#43; \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 &#43; \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 &#43; \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2019-07-31T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2019-07-31T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="stats 101">
+    
+  
+  
+    
+      <meta property="article:tag" content="bias">
+    
+      <meta property="article:tag" content="causal graph">
+    
+      <meta property="article:tag" content="covariance">
+    
+      <meta property="article:tag" content="categorical X">
+    
+      <meta property="article:tag" content="effect size">
+    
+      <meta property="article:tag" content="fake data">
+    
+      <meta property="article:tag" content="Wright style path analysis">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@jwalkrunski">
+
+
+  <meta name="twitter:creator" content="@jwalkrunski">
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+
+
+    <title>What is bias in the estimation of an effect giving an omitted interaction term?</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-nnm2spxvve8onlujjlegkkytaehyadd4ksxc1hyzzq9a2wvtrgbljqyulomn.min.css" />
+    
+    
+
+    
+      
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-118821125-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">R Doodles</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+        
+          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="//github.com/middleprofessor">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://stats.stackexchange.com/users/119435/jwalker">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-stack-exchange"></i>
+      
+      <span class="sidebar-button-desc">CrossValidated</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://scholar.google.com/citations?user=W58TmakAAAAJ&amp;hl">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-google"></i>
+      
+      <span class="sidebar-button-desc">Google Scholar</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.researchgate.net/profile/Jeffrey_Walker4/contributions">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Research Gate</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.middleprofessor.com">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-university"></i>
+      
+      <span class="sidebar-button-desc">Research/Teaching</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      What is bias in the estimation of an effect giving an omitted interaction term?
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-07-31T00:00:00Z">
+        
+  July 31, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+
+<div id="some-background-due-to-sewall-wrights-method-of-path-analysis" class="section level1">
+<h1>Some background (due to Sewall Wright’s method of path analysis)</h1>
+<p>Given a generating model:</p>
+<span class="math display">\[\begin{equation}
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3
+\end{equation}\]</span>
+<p>where <span class="math inline">\(x_3 = x_1 x_2\)</span>; that is, it is an interaction variable.</p>
+<p>The total effect of <span class="math inline">\(x_1\)</span> on <span class="math inline">\(y\)</span> is <span class="math inline">\(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\)</span>.</p>
+<p>If <span class="math inline">\(x_3\)</span> (the interaction) if missing, it’s component on the total efffect is added to the coefficient of <span class="math inline">\(x_1\)</span>. This added component is the bias due to the omitted interaction.</p>
+</div>
+<div id="libraries" class="section level1">
+<h1>Libraries</h1>
+<p>I use data.table</p>
+<pre class="r"><code>library(data.table)</code></pre>
+</div>
+<div id="factorial-design-with-ommitted-interaction" class="section level1">
+<h1>Factorial design with ommitted interaction</h1>
+<p>Let’s simulate this with a <span class="math inline">\(2 \times 2\)</span> factorial design. In a balanced fatorial design, <span class="math inline">\(\frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} = 0.5\)</span>, so the bias is <span class="math inline">\(\frac{\beta_3}{2}\)</span></p>
+<pre class="r"><code>n &lt;- 10^6 # a high n is used so that the estimate is very close to the true expected value
+beta_0 &lt;- 0
+beta_1 &lt;- 1
+beta_2 &lt;- 0.5
+beta_3 &lt;- 0.5
+beta &lt;- c(beta_0, beta_1, beta_2, beta_3)
+sigma &lt;- 1
+
+fd &lt;- data.table(
+  x1=factor(rep(c(&quot;CnA&quot;, &quot;TrA&quot;), each=2*n)),
+  x2=factor(rep(rep(c(&quot;CnB&quot;, &quot;TrB&quot;), each=n), 2))
+)
+X &lt;- model.matrix(~x1*x2, data=fd)
+cov_X &lt;- cov(X)
+fd[, y:=(X%*%beta)[,1] + rnorm(n*4)]</code></pre>
+<p>The bias is</p>
+<pre class="r"><code>b &lt;- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
+b*beta_3</code></pre>
+<pre><code>## [1] 0.25</code></pre>
+<p>The expected coefficient given the known true effect plus the bias is</p>
+<pre class="r"><code>beta_1 + b*beta_3</code></pre>
+<pre><code>## [1] 1.25</code></pre>
+<p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
+<pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
+<pre><code>##    x1TrA 
+## 1.249065</code></pre>
+</div>
+<div id="two-continuous-x-with-interaction" class="section level1">
+<h1>Two continuous <span class="math inline">\(X\)</span> with interaction</h1>
+<pre class="r"><code>n &lt;- 10^6
+# generate two correlated x
+rho &lt;- 0.6 # true correlation
+z &lt;- rnorm(n)
+sigma_x &lt;- sqrt(1-rho)
+x1 &lt;- sqrt(rho)*z + rnorm(n, sd=sigma_x) # expected variance is 1
+x2 &lt;- sqrt(rho)*z + rnorm(n, sd=sigma_x) # expected variance is 1
+x3 &lt;- x1*x2
+
+beta_0 &lt;- 0
+beta_1 &lt;- 1
+beta_2 &lt;- 0.5
+beta_3 &lt;- 0.5
+beta &lt;- c(beta_0, beta_1, beta_2, beta_3)
+sigma &lt;- 1
+
+fd &lt;- data.table(
+  x1=x1,
+  x2=x2
+)
+X &lt;- model.matrix(~x1*x2, data=fd)
+cov_X &lt;- cov(X)
+fd[, y:=(X%*%beta)[,1] + rnorm(n)]</code></pre>
+<p>The bias is</p>
+<pre class="r"><code>b &lt;- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
+b*beta_3</code></pre>
+<pre><code>## [1] 0.0003482618</code></pre>
+<p>huh. Is this generally the case that the regression of the interaction on the main variable is near zero?</p>
+<p>Regardless…</p>
+<p>The expected coefficient given the known true effect plus the bias is</p>
+<pre class="r"><code>beta_1 + b*beta_3</code></pre>
+<pre><code>## [1] 1.000348</code></pre>
+<p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
+<pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
+<pre><code>##        x1 
+## 0.9996835</code></pre>
+</div>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/bias/">bias</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/causal-graph/">causal graph</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/covariance/">covariance</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/categorical-x/">categorical X</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/effect-size/">effect size</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/fake-data/">fake data</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/wright-style-path-analysis/">Wright style path analysis</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/" data-tooltip="Is the power to test an interaction effect less than that for a main effect?">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/" data-tooltip="Is the power to test an interaction effect less than that for a main effect?">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F07%2Fwhat-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F07%2Fwhat-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F07%2Fwhat-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+    
+      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Jeff Walker, Professor of Biological Sciences
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        University of Southern Maine, Portland, Maine, United States
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+                <h3 class="media-heading">What is bias in the estimation of an effect giving an omitted interaction term?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+                <h3 class="media-heading">Is the power to test an interaction effect less than that for a main effect?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/analyze-the-mean-or-median-and-not-the-max-response/">
+                <h3 class="media-heading">Analyze the mean (or median) and not the max response</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is an update of Paired t-test as a special case of linear model and hierarchical model
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/paired-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
+                <h3 class="media-heading">Paired t-test as a special case of linear model and hierarchical (linear mixed) model</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update – Fig. 2A is an analysis of the maximum endurance over three trials. This has consequences.
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/what-does-cell-biology-data-look-like/">
+                <h3 class="media-heading">What does cell biology data look like?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/">
+                <h3 class="media-heading">Reanalyzing data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update - This post has been updated
+A very skeletal analysis of
+Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
+which got some attention on pubpeer.
+Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/">
+                <h3 class="media-heading">GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update to the earlier post, which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough – or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/05/should-we-be-skeptical-of-a-large-effect-size-if-p-0-05/">
+                <h3 class="media-heading">Should we be skeptical of a &#34;large&#34; effect size if p &gt; 0.05?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivator: A twitter comment “Isn’t the implication that the large effect size is a direct byproduct of the lack of power? i.e. that if the the study had more power, the effect size would have been found to be smaller.”1 2
+A thought: our belief in the magnitude of an observed effect should be based on our priors, which, hopefully, are formed from good mechanistic models and not sample size“.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/04/blocking-vs-covariate-adjustment/">
+                <h3 class="media-heading">Blocking vs. covariate adjustment</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">“A more efficient design would be to first group the rats into homogeneous subsets based on baseline food consumption. This could be done by ranking the rats from heaviest to lightest eaters and then grouping them into pairs by taking the first two rats (the two that ate the most during baseline), then the next two in the list, and so on. The difference from a completely randomised design is that one rat within each pair is randomised to one of the treatment groups, and the other rat is then assigned to the remaining treatment group.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/04/the-statistical-significance-filter/">
+                <h3 class="media-heading">The statistical significance filter</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">1 Why reported effect sizes are inflated 2 Setup 3 Exploration 1 4 Unconditional means, power, and sign error 5 Conditional means 5.1 filter = 0.05 5.2 filter = 0.2    1 Why reported effect sizes are inflated This post is motivated by many discussions in Gelman’s blog but start here
+When we estimate an effect1, the estimate will be a little inflated or a little diminished relative to the true effect but the expectation of the effect is the true effect.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         29 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('/images/Jackson%20copy%202.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2019\/07\/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term\/';
+          
+            this.page.identifier = '\/2019\/07\/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+<script src="//yihui.name/js/math-code.js"></script>
+<script async
+src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    
+  </body>
+</html>
+
