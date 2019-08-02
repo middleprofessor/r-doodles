@@ -11,13 +11,13 @@
 <meta name="description" content="Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
 \[\begin{equation} y = \beta_0 &#43; \beta_1 x_1 &#43; \beta_2 x_2 &#43; \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
 The total effect of \(x_1\) on \(y\) is \(\beta_1 &#43; \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 &#43; \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
-If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).">
+If \(x_3\) (the interaction) is missing, its component on the total efffect is added to the coefficient of \(x_1\).">
 
 
 <meta property="og:description" content="Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
 \[\begin{equation} y = \beta_0 &#43; \beta_1 x_1 &#43; \beta_2 x_2 &#43; \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
 The total effect of \(x_1\) on \(y\) is \(\beta_1 &#43; \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 &#43; \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
-If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).">
+If \(x_3\) (the interaction) is missing, its component on the total efffect is added to the coefficient of \(x_1\).">
 <meta property="og:type" content="article">
 <meta property="og:title" content="What is the bias in the estimation of an effect given an omitted interaction term?">
 <meta name="twitter:title" content="What is the bias in the estimation of an effect given an omitted interaction term?">
@@ -27,11 +27,11 @@ If \(x_3\) (the interaction) if missing, it’s component on the total efffect i
 <meta property="og:description" content="Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
 \[\begin{equation} y = \beta_0 &#43; \beta_1 x_1 &#43; \beta_2 x_2 &#43; \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
 The total effect of \(x_1\) on \(y\) is \(\beta_1 &#43; \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 &#43; \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
-If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).">
+If \(x_3\) (the interaction) is missing, its component on the total efffect is added to the coefficient of \(x_1\).">
 <meta name="twitter:description" content="Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
 \[\begin{equation} y = \beta_0 &#43; \beta_1 x_1 &#43; \beta_2 x_2 &#43; \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
 The total effect of \(x_1\) on \(y\) is \(\beta_1 &#43; \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 &#43; \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
-If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).">
+If \(x_3\) (the interaction) is missing, its component on the total efffect is added to the coefficient of \(x_1\).">
 <meta property="og:locale" content="en-us">
 
   
@@ -333,7 +333,7 @@ y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3
 \end{equation}\]</span>
 <p>where <span class="math inline">\(x_3 = x_1 x_2\)</span>; that is, it is an interaction variable.</p>
 <p>The total effect of <span class="math inline">\(x_1\)</span> on <span class="math inline">\(y\)</span> is <span class="math inline">\(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\)</span>.</p>
-<p>If <span class="math inline">\(x_3\)</span> (the interaction) if missing, it’s component on the total efffect is added to the coefficient of <span class="math inline">\(x_1\)</span>. This added component is the bias due to the omitted interaction.</p>
+<p>If <span class="math inline">\(x_3\)</span> (the interaction) is missing, its component on the total efffect is added to the coefficient of <span class="math inline">\(x_1\)</span>. This added component is the bias due to the omitted interaction.</p>
 </div>
 <div id="definitions" class="section level1">
 <h1>Definitions</h1>
@@ -371,14 +371,14 @@ b*beta_3</code></pre>
 <pre><code>## [1] 1.25</code></pre>
 <p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
 <pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
-<pre><code>##   x1TrA 
-## 1.24894</code></pre>
+<pre><code>##    x1TrA 
+## 1.248929</code></pre>
 </div>
 <div id="two-continuous-x-with-interaction" class="section level1">
 <h1>Two continuous <span class="math inline">\(X\)</span> with interaction</h1>
 <pre class="r"><code>n &lt;- 10^6
 # generate two correlated x
-rho &lt;- 0.6 # true correlation
+rho &lt;- 0.6 # true correlation between the two x variables
 z &lt;- rnorm(n)
 sigma_x &lt;- sqrt(1-rho)
 x1 &lt;- sqrt(rho)*z + rnorm(n, sd=sigma_x) # expected variance is 1
@@ -402,16 +402,15 @@ fd[, y:=(X%*%beta)[,1] + rnorm(n)]</code></pre>
 <p>The bias is</p>
 <pre class="r"><code>b &lt;- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
 b*beta_3</code></pre>
-<pre><code>## [1] -0.001237163</code></pre>
-<p>huh. Is this generally the case that the regression of the interaction on the main variable is near zero?</p>
-<p>Regardless…</p>
+<pre><code>## [1] -0.001261114</code></pre>
+<p>huh. Is this generally the case that the regression of the interaction on the main variable is near zero? If it is, then an omitted interaction would have little bias, as here.</p>
 <p>The expected coefficient given the known true effect plus the bias is</p>
 <pre class="r"><code>beta_1 + b*beta_3</code></pre>
-<pre><code>## [1] 0.9987628</code></pre>
+<pre><code>## [1] 0.9987389</code></pre>
 <p>The coefficient of <span class="math inline">\(x_1\)</span> in the linear model with the missing interaction estimates this biased effect.</p>
 <pre class="r"><code>coef(lm(y ~ x1 + x2, data=fd))[2]</code></pre>
 <pre><code>##        x1 
-## 0.9986855</code></pre>
+## 0.9966902</code></pre>
 </div>
 
               
@@ -688,7 +687,7 @@ b*beta_3</code></pre>
               <div class="media-content hide-xs font-merryweather">Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
 \[\begin{equation} y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
 The total effect of \(x_1\) on \(y\) is \(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
-If \(x_3\) (the interaction) if missing, it’s component on the total efffect is added to the coefficient of \(x_1\).</div>
+If \(x_3\) (the interaction) is missing, its component on the total efffect is added to the coefficient of \(x_1\).</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

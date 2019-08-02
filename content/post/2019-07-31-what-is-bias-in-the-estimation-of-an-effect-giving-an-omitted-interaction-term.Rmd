@@ -27,7 +27,7 @@ where $x_3 = x_1 x_2$; that is, it is an interaction variable.
 
 The total effect of $x_1$ on $y$ is $\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3$.
 
-If $x_3$ (the interaction) if missing, it's component on the total efffect is added to the coefficient of $x_1$. This added component is the bias due to the omitted interaction.
+If $x_3$ (the interaction) is missing, its component on the total efffect is added to the coefficient of $x_1$. This added component is the bias due to the omitted interaction.
 
 # Definitions
 This computation assumes an interaction effect is defined as the "leftover" residual after adding up the intercept plus additive effects -- that is, the coefficient estimated using dummy coding (which is R's default coding). See [Is the power to test an interaction effect less than that for a main effect?](https://rdoodles.rbind.io/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/) for other definitions/parameterizations of an interaction.
@@ -83,7 +83,7 @@ coef(lm(y ~ x1 + x2, data=fd))[2]
 ```{r}
 n <- 10^6
 # generate two correlated x
-rho <- 0.6 # true correlation
+rho <- 0.6 # true correlation between the two x variables
 z <- rnorm(n)
 sigma_x <- sqrt(1-rho)
 x1 <- sqrt(rho)*z + rnorm(n, sd=sigma_x) # expected variance is 1
@@ -113,9 +113,7 @@ b <- cov_X[4,2]/cov_X[2,2] # this will be 0.5 in balanced design
 b*beta_3
 ```
 
-huh. Is this generally the case that the regression of the interaction on the main variable is near zero?
-
-Regardless...
+huh. Is this generally the case that the regression of the interaction on the main variable is near zero? If it is, then an omitted interaction would have little bias, as here.
 
 The expected coefficient given the known true effect plus the bias is 
 ```{r}
