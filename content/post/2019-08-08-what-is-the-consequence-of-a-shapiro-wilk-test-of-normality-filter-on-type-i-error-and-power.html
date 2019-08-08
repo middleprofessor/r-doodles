@@ -1,0 +1,631 @@
+---
+title: What is the consequence of a Shapiro-Wilk test-of-normality filter on Type
+  I error and Power?
+author: Jeff Walker
+date: '2019-08-08'
+slug: what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power
+categories:
+  - stats 101
+tags:
+  - NHST
+  - power
+  - p-values
+  - non-parametric
+  - fake data
+keywords:
+  - tech
+---
+
+
+
+<p>TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.] (<a href="https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/" class="uri">https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/</a>). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.</p>
+<p>And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:</p>
+<p>“The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand.”<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<p>This is a skeletal post to explore the effects of the <strong>Normality Filter</strong> – using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response. In this strategy, a t-test is used only if the Shapiro-Wilk p-value is &gt; than some cut-off (such as 0.05), otherwise the alternative is used.</p>
+<p><strong>Stuff that needs to be repeatedly stated</strong> The failure to reject a null hypothesis does not mean the null hypothesis is true. Or, in the context of this post, we shouldn’t conclude that a sample is “normal” because a Shapiro-Wilk <em>p</em>-value &gt; 0.05. The logic of a test of normality (or homogeneity) before a t-test/ANOVA, then, isn’t consistent with frequentist thinking. But, maybe we should only think of the Normality filter as an objective model check, compared to, say, inspecting a Q-Q plot.</p>
+<p><strong>More stuff that needs to be repeatedly stated</strong> It is not uncommon to hear and even read that <em>t</em>-tests assume that the response variable is normally distributed. This is not correct. It is the response <em>conditional on the group</em> that is assumed to be normal. Or, equivalently, it is the residuals from a linear model fit to the data that are assumed to be normal. “Conditional on the group” suggests to some textbook authors that normality should be tested on the response variable in each group seperately. The data pass the Normality filter only if the <em>p</em>-value of the SW test is &gt; 0.05 on <em>both</em> tests. This way of thinking about testing the normal assumption is constraining because it doesn’t allow for adjusting for covariates. A better way to think about testing normality is a single test of the residuals of the fit linear model. This way of thinking is better because it naturally leads to model checking of more complex models.</p>
+<p>The Normality filter itself raises a few questions that interest me. Given that the p-value of a <em>t</em>-test is not conditional on “passing” the Normality filter…</p>
+<ol style="list-style-type: decimal">
+<li><p>What is the probability of rejecting the null conditional on only the subset of true nulls that “pass” the Shapiro-Wilk test (that is, how does the filter change the size or Type I error of the t-test)?</p></li>
+<li><p>What is the probability of rejecting the null conditional on only the subset of false nulls that pass the Shapiro-Wilk test (that is, how does the filter change the power of the t-test)?</p></li>
+</ol>
+<p>Rochon et al. <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> address #1 with a simulation with data generated using normal, uniform, and exponentitial distributions. I don’t know how relevant the uniform and exponential distributions are for most biological data but the exponential at least has some features in common other skewed distributions with a variance that is a function of the mean, including lognormal and gamma (for continuous responses), and a negative binomial (for count data). Rochon’s implementation used R’s “default” exponential settings but the distribution of the performance statistics (type I error and power) will certainly be conditional on the parameterization of the exponential (or gamma or neg binomial) – that is, how much the data are “approximately” normal.</p>
+<div id="set-up" class="section level1">
+<h1>Set up</h1>
+<pre class="r"><code>library(data.table)
+library(MASS)
+library(ggplot2)
+library(ggpubr)
+library(cowplot)</code></pre>
+<pre class="r"><code>fake_data &lt;- function(niter=10^4, n=50, location=0, scale=1, shape=1, effect=0, dist=&quot;normal&quot;){
+
+  if(dist==&quot;normal&quot;){
+    cn &lt;- matrix(rnorm(n*niter, mean=location, sd=scale), nrow=n, ncol=niter)
+    tr &lt;- matrix(rnorm(n*niter, mean=(location + effect), sd=scale), nrow=n, ncol=niter)
+    fd &lt;- rbind(cn, tr)
+  }
+  if(dist==&quot;nb&quot;){ # negative binomial for counts
+    cn &lt;- matrix(rnegbin(niter*n, mu=location, theta=shape), nrow=n, ncol=niter)
+    tr &lt;- matrix(rnegbin(niter*n, mu=(location + effect), theta=shape), nrow=n, ncol=niter)
+    fd &lt;- rbind(cn, tr)
+  }
+  if(dist==&quot;exp&quot;){ # exponential to reproduce paper
+    rate_cn &lt;- 1/location
+    rate_tr &lt;- 1/(location + effect)
+    cn &lt;- matrix(rexp(niter*n, rate=rate_cn), nrow=n, ncol=niter)
+    tr &lt;- matrix(rexp(niter*n, rate=rate_tr), nrow=n, ncol=niter)
+    fd &lt;- rbind(cn, tr)
+  }
+  if(dist==&quot;lnorm&quot;){ # exponential to reproduce paper
+    cn &lt;- matrix(rlnorm(niter*n, meanlog=location, sdlog=scale), nrow=n, ncol=niter)
+    tr &lt;- matrix(rlnorm(niter*n, meanlog=location, sdlog=scale), nrow=n, ncol=niter)
+    fd &lt;- rbind(cn, tr)
+  }
+  return(fd)
+}
+
+filter_stats &lt;- function(fd){
+  # outputs SW p for residual, group1, and group2 + unconditional t-test p
+  niter &lt;- ncol(fd)
+  n &lt;- nrow(fd)/2
+  x &lt;- rep(c(&quot;a&quot;,&quot;b&quot;), each=n)
+  test_stats_cols &lt;- c(&quot;residual&quot;, &quot;group1&quot;,&quot;group2&quot;, &quot;p&quot;, &quot;p.log&quot;, &quot;p.mww&quot;)
+  test_stats &lt;- matrix(NA, nrow=niter, ncol=length(test_stats_cols))
+  colnames(test_stats) &lt;- test_stats_cols
+
+  if(min(fd)==0){
+    logfd &lt;- log(fd+1)
+    } else{
+    logfd &lt;- log(fd) # exponential, gamma
+  }
+  
+  iter &lt;- 1 # for debugging
+  for(iter in 1:niter){
+    test_stats[iter, &quot;residual&quot;] &lt;- shapiro.test(residuals(lm(fd[, iter] ~ x)))$p.value # using residual
+    # test_stats[iter, &quot;group1&quot;] &lt;- shapiro.test(fd[1:n, iter])$p.value # using group variable
+    # test_stats[iter, &quot;group2&quot;] &lt;- shapiro.test(fd[(n+1):(2*n), iter])$p.value # using group variable
+    test_stats[iter, &quot;p&quot;] &lt;- t.test(fd[, iter] ~ x, var.equal=TRUE)$p.value
+    test_stats[iter, &quot;p.log&quot;] &lt;- t.test(logfd[, iter] ~ x, var.equal=TRUE)$p.value
+    test_stats[iter, &quot;p.mww&quot;] &lt;- wilcox.test(fd[, iter] ~ x, exact=FALSE)$p.value
+  }
+  return(test_stats)
+}
+
+filter_summary &lt;- function(test_stats, alpha=0.05){
+  # note that prob of at least 1 group rejected is
+  # 1 - (1-alpha)^2
+  niter &lt;- nrow(test_stats)
+  
+  ###### Shapiro Wilk test stats
+  
+  # rate of SW rejection using residual
+  SW_rej_residual &lt;- sum(test_stats$residual &lt; alpha)/niter
+  
+  # rate of SW rejection testing each group seperately
+  #SW_rej_group &lt;- sum(test_stats$group1 &lt; alpha | test_stats$group2 &lt; alpha)/niter # SW positives using group
+  
+  ##### t-test stats
+  
+  # unconditional type I error/power using t-test
+  t_unconditional &lt;- sum(test_stats$p &lt; 0.05)/niter
+  
+  # conditional type I/power of subset that &quot;pass&quot; (not rejected) shapiro wilk test using residuals
+  t_pass_residual &lt;- sum(test_stats[residual &gt; alpha, p] &lt; 0.05)/sum(test_stats[,residual &gt; alpha])
+  
+  # conditional type I/power of subset that &quot;pass&quot; (not rejected) shapiro wilk test using groupwise
+  #t_pass_group &lt;- sum(test_stats[group1 &gt; alpha &amp; group2 &gt; alpha, p] &lt; 0.05)/sum(test_stats[, group1 &gt; alpha &amp; group2 &gt; alpha])
+  
+  # conditional type I/power of subset that &quot;fail&quot; (rejected) shapiro wilk test using residuals
+  t_rej_residual &lt;- sum(test_stats[residual &lt; alpha, p] &lt; 0.05)/sum(test_stats[,residual &lt; alpha])
+  
+  # conditional type I/power of subset that &quot;fail&quot; (rejected) shapiro wilk test using groupwise
+  #t_rej_group &lt;- sum(test_stats[group1 &lt; alpha | group2 &lt; alpha, p] &lt; 0.05)/sum(test_stats[, group1 &lt; alpha | group2 &lt; alpha]) # conditional on positive SW on group
+  
+  
+  ##### Mann-Whitney-Wilcoxon test stats
+  
+  # unconditional type I error/power using MWW
+  mww_unconditional &lt;- sum(test_stats$p.mww &lt; 0.05)/niter
+  
+  # conditional type I/power of subset that &quot;fail&quot; (rejected) shapiro wilk test using residuals
+  mww_fail_residual &lt;- sum(test_stats[residual &lt; alpha, p.mww] &lt; 0.05)/sum(test_stats[,residual &lt; alpha])
+  
+  # conditional type I/power of subset that &quot;fail&quot; (rejected) shapiro wilk test using groupwise
+  #mww_fail_group &lt;- sum(test_stats[group1 &lt; alpha &amp; group2 &lt; alpha, p.mww] &lt; 0.05)/sum(test_stats[, group1 &lt; alpha &amp; group2 &lt; alpha])
+  
+  ##### combined t-test + Mann-Whitney-Wilcoxon test stats
+
+  # conditional type I/power of subset that &quot;pass&quot; (not rejected) shapiro wilk test using residuals
+  t_mww_fail_residual &lt;- (sum(test_stats[residual &gt; alpha, p] &lt; 0.05) +
+                            sum(test_stats[residual &lt; alpha, p.mww] &lt; 0.05))/niter
+  
+  # conditional type I/power of subset that &quot;pass&quot; (not rejected) shapiro wilk test using groupwise
+  #t_mww_fail_group &lt;- (sum(test_stats[group1 &gt; alpha &amp; group2 &gt; alpha, p] &lt; 0.05) +
+  #                     sum(test_stats[group1 &lt; alpha &amp; group2 &lt; alpha, p.mww] &lt; 0.05))/niter
+
+  ##### log-t test stats
+  
+  logt_unconditional &lt;- sum(test_stats$p.log &lt; 0.05)/niter
+  
+  # conditional type I/power of subset that &quot;fail&quot; (rejected) shapiro wilk test using residuals
+  logt_fail_residual &lt;- sum(test_stats[residual &lt; alpha, p.log] &lt; 0.05)/sum(test_stats[,residual &lt; alpha])
+  
+  # conditional type I/power of subset that &quot;fail&quot; (rejected) shapiro wilk test using groupwise
+  #logt_fail_group &lt;- sum(test_stats[group1 &lt; alpha &amp; group2 &lt; alpha, p.log] &lt; 0.05)/sum(test_stats[, group1 &lt; alpha &amp; group2 &lt; alpha])
+  
+  ##### combined t-test + log-t test stats
+
+  # conditional type I/power of subset that &quot;pass&quot; (not rejected) shapiro wilk test using residuals
+  t_logt_fail_residual &lt;- (sum(test_stats[residual &gt; alpha, p] &lt; 0.05) +
+                            sum(test_stats[residual &lt; alpha, p.log] &lt; 0.05))/niter
+  
+  # conditional type I/power of subset that &quot;pass&quot; (not rejected) shapiro wilk test using groupwise
+  #t_logt_fail_group &lt;- (sum(test_stats[group1 &gt; alpha &amp; group2 &gt; alpha, p] &lt; 0.05) +
+  #                     sum(test_stats[group1 &lt; alpha &amp; group2 &lt; alpha, p.log] &lt; 0.05))/niter
+ 
+
+  res &lt;- c(SW_rej.res=SW_rej_residual,
+           #SW_rej.group=SW_rej_group,
+           t.uncond=t_unconditional,
+           t_pass.res=t_pass_residual,
+           #t_pass.group=t_pass_group,
+           t_rej.residual=t_rej_residual,
+           #t_rej_group=t_rej_group,
+           
+           mww.uncond=mww_unconditional,
+           mww_fail.res=mww_fail_residual,
+           #mww_fail.group=mww_fail_group,
+           t_mww_fail.res=t_mww_fail_residual,
+           #t_mww_fail.group=t_mww_fail_group,
+
+           logt.uncond=logt_unconditional,
+           logt_fail.res=logt_fail_residual,
+           #logt_fail.group=logt_fail_group,
+           t_logt_fail.res=t_logt_fail_residual
+           #t_logt_fail.group=t_logt_fail_group
+           )
+  return(res)
+}</code></pre>
+</div>
+<div id="normal-distribution" class="section level1">
+<h1>Normal distribution</h1>
+<p>No real data are normally distributed so this parameterization of the simulation gives the behavior of the shapiro-wilk filter for data that are effectively normal.</p>
+<pre class="r"><code>set.seed(1)
+base_niter &lt;- 10^4 # target number of shapiro-wilk tests that &quot;pass&quot; (p &gt; 0.05)
+
+mu_i &lt;- 10
+sigma_set &lt;- c(1)
+alpha_set &lt;- c(0.1, 0.05, 0.01)
+n_set &lt;- c(10)
+niter_set &lt;- c(base_niter, base_niter*5, base_niter*10) # more iterations to get more samples that &quot;pass&quot; filter
+res_table &lt;- data.table(NULL)
+gg &lt;- list(NULL)
+list_i &lt;- 0
+for(effect_i in c(0, 0.8)){ # &quot;large&quot; effect
+  for(sigma_i in sigma_set){
+    list_i &lt;- list_i + 1
+    for(i in 1:length(n_set)){
+      n_i &lt;- n_set[i]
+      niter_i &lt;- niter_set[i]
+      fd &lt;- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=effect_i, dist=&quot;normal&quot;)
+      
+      res &lt;- data.table(filter_stats(fd))
+      for(alpha_i in alpha_set){
+        res_table &lt;- rbind(res_table, data.table(
+          iter = niter_i,
+          mu = mu_i,
+          sigma = sigma_i,
+          effect = effect_i,
+          cn_mean = mean(fd[1:n_i,]),
+          cn_sd = sd(fd[1:n_i,]),
+          cn_cv = sd(fd[1:n_i,])/mean(fd[1:n_i,]),
+          tr_mean = mean(fd[(n_i+1):(n_i*2),]),
+          tr_sd = sd(fd[(n_i+1):(n_i*2),]),
+          tr_cv = sd(fd[(n_i+1):(n_i*2),])/mean(fd[(n_i+1):(n_i*2),]),
+          n = n_i,
+          alpha = alpha_i,
+          data.table(t(filter_summary(res, alpha=alpha_i)))))
+      }
+    }
+  }
+}
+norm_table &lt;- t(res_table)</code></pre>
+<div id="type-i-error" class="section level2">
+<h2>Type I error</h2>
+<pre class="r"><code>type1 &lt;- norm_table[, 1:3]
+row.names(type1) &lt;- c(
+  &quot;iterations&quot;,
+  &quot;mu&quot;,
+  &quot;sigma&quot;,
+  &quot;effect&quot;,
+  &quot;Cn mean&quot;,
+  &quot;Cn sd&quot;,
+  &quot;Cn cv&quot;,
+  &quot;Tr mean&quot;,
+  &quot;Tr sd&quot;,
+  &quot;Tr cv&quot;,
+  &quot;n&quot;,
+  &quot;alpha for normality test&quot;,
+  &quot;failed normality, rate&quot;,
+  &quot;t-test: type I, unconditional&quot;,
+  &quot;t-test: type I, | pass&quot;,
+  &quot;t-test: type I, | fail&quot;,
+  &quot;MWW-test: type I, unconditional&quot;,
+  &quot;MWW-test: type I, | fail&quot;,
+  &quot;t-MWW: type I&quot;,
+  &quot;log t-test: type I, unconditional&quot;,
+  &quot;log t-test: type I, | fail&quot;,
+  &quot;t-log t: type I&quot;
+)
+round(type1, 3)</code></pre>
+<pre><code>##                                        [,1]      [,2]      [,3]
+## iterations                        10000.000 10000.000 10000.000
+## mu                                   10.000    10.000    10.000
+## sigma                                 1.000     1.000     1.000
+## effect                                0.000     0.000     0.000
+## Cn mean                               9.998     9.998     9.998
+## Cn sd                                 1.004     1.004     1.004
+## Cn cv                                 0.100     0.100     0.100
+## Tr mean                              10.001    10.001    10.001
+## Tr sd                                 1.001     1.001     1.001
+## Tr cv                                 0.100     0.100     0.100
+## n                                    10.000    10.000    10.000
+## alpha for normality test              0.100     0.050     0.010
+## failed normality, rate                0.097     0.047     0.010
+## t-test: type I, unconditional         0.048     0.048     0.048
+## t-test: type I, | pass                0.048     0.049     0.048
+## t-test: type I, | fail                0.044     0.036     0.021
+## MWW-test: type I, unconditional       0.040     0.040     0.040
+## MWW-test: type I, | fail              0.058     0.055     0.073
+## t-MWW: type I                         0.049     0.049     0.048
+## log t-test: type I, unconditional     0.048     0.048     0.048
+## log t-test: type I, | fail            0.045     0.038     0.042
+## t-log t: type I                       0.048     0.048     0.048</code></pre>
+<ol style="list-style-type: decimal">
+<li>The conditional Type I error of the t-test for the sets that pass the Shapiro-Wilk filter is effectively the nominal value (0.05), as is that for the the unconditional Type I. The conditional Type I error for the sets that fail the filter is small (the test is conservative) but this is irrelevant because these data would be analyzed by Mann-Whitney-Wilcoxon or by a t-test of log-transformed data.</li>
+<li>The conditional Type I error for MWW test for sets that fail the Shapiro-Wilk filter is very slightly liberal.</li>
+<li>The overal Type I error for the normality-test filter strategy using the Mann-Whitney-Wilcoxon as the alternative is effectively 0.05</li>
+<li>The results using the t-test of log transform are very close to nominal regardless of strategy.</li>
+</ol>
+<p>These results replicate that in Rochon et al. See also Lumley et al (both are cited above)</p>
+</div>
+<div id="power" class="section level2">
+<h2>Power</h2>
+<pre class="r"><code>type2 &lt;- norm_table[, 4:6] # really power, not type 2
+row.names(type2) &lt;- c(
+  &quot;iterations&quot;,
+  &quot;mu&quot;,
+  &quot;sigma&quot;,
+  &quot;effect&quot;,
+  &quot;Cn mean&quot;,
+  &quot;Cn sd&quot;,
+  &quot;Cn cv&quot;,
+  &quot;Tr mean&quot;,
+  &quot;Tr sd&quot;,
+  &quot;Tr cv&quot;,
+  &quot;n&quot;,
+  &quot;alpha for normality test&quot;,
+  &quot;failed normality, rate&quot;,
+  &quot;t-test: power, unconditional&quot;,
+  &quot;t-test: power, | pass&quot;,
+  &quot;t-test: power, | fail&quot;,
+  &quot;MWW-test: power, unconditional&quot;,
+  &quot;MWW-test: power, | fail&quot;,
+  &quot;t-MWW: power&quot;,
+  &quot;log t-test: power, unconditional&quot;,
+  &quot;log t-test: power, | fail&quot;,
+  &quot;t-log t: power&quot;
+)
+round(type2, 3)</code></pre>
+<pre><code>##                                       [,1]      [,2]      [,3]
+## iterations                       10000.000 10000.000 10000.000
+## mu                                  10.000    10.000    10.000
+## sigma                                1.000     1.000     1.000
+## effect                               0.800     0.800     0.800
+## Cn mean                             10.000    10.000    10.000
+## Cn sd                                0.997     0.997     0.997
+## Cn cv                                0.100     0.100     0.100
+## Tr mean                             10.799    10.799    10.799
+## Tr sd                                0.999     0.999     0.999
+## Tr cv                                0.093     0.093     0.093
+## n                                   10.000    10.000    10.000
+## alpha for normality test             0.100     0.050     0.010
+## failed normality, rate               0.104     0.051     0.008
+## t-test: power, unconditional         0.394     0.394     0.394
+## t-test: power, | pass                0.396     0.395     0.394
+## t-test: power, | fail                0.376     0.377     0.412
+## MWW-test: power, unconditional       0.354     0.354     0.354
+## MWW-test: power, | fail              0.409     0.433     0.538
+## t-MWW: power                         0.398     0.397     0.395
+## log t-test: power, unconditional     0.393     0.393     0.393
+## log t-test: power, | fail            0.377     0.383     0.388
+## t-log t: power                       0.394     0.394     0.394</code></pre>
+<ol style="list-style-type: decimal">
+<li>The unconditional Mann-Whitney-Wilcoxon has slightly reduced power relative to the unconditional t-test on either untransformed or log transformed response.</li>
+<li>The Mann-Whitney-Wilcoxon for sets that fail has slightly greater power relative to the unconditional t-test on either untransformed or log transformed response.</li>
+<li>The combination of 1 and 2 mean that the unconditional t-test, the normality-test filter strategy using Mann-Whitney-Wilcoxon as the alternative, the unconditional t-test on log-transformed responses, and the the normality-test filter strategy using log transformed response as the alternative all have effectively equivalent power.</li>
+</ol>
+</div>
+</div>
+<div id="right-skewed-continuous-lognormal" class="section level1">
+<h1>Right skewed continuous – lognormal</h1>
+<p>The lognormal distribution is explored with two parameterizations, one with larger skew and one with smaller skew, but still distinct from Normal.</p>
+<pre class="r"><code>set.seed(1)
+base_niter &lt;- 10^4 # target number of shapiro-wilk tests that &quot;pass&quot; (p &gt; 0.05)
+mean_cn &lt;- 10
+sd_cn &lt;- 2
+effect_i &lt;- 2
+
+mu_i &lt;- 0 # exp(x) = 1
+sigma_set &lt;- c(0.8, 0.4)
+alpha_set &lt;- c(0.05)
+n_set &lt;- c(6, 10, 20)
+niter_set &lt;- c(base_niter, base_niter*5, base_niter*10) # more iterations to get more samples that &quot;pass&quot; filter
+res_table &lt;- data.table(NULL)
+gg &lt;- list(NULL)
+list_i &lt;- 0
+for(effect_i in c(0, sd_cn*0.8)){ # &quot;large&quot; effect
+  for(sigma_i in sigma_set){
+    list_i &lt;- list_i + 1
+    for(i in 1:length(n_set)){
+      n_i &lt;- n_set[i]
+      niter_i &lt;- niter_set[i]
+      fd &lt;- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=0, dist=&quot;lnorm&quot;)
+      
+      # set to common CV
+      # sd = CV x Mean
+      fd &lt;- scale(fd, scale=TRUE)
+      sd_cn &lt;- 2
+      fd[1:n_i,] &lt;- fd[1:n_i,]*sd_cn + mean_cn # 2 is the sd in the CN
+      fd[(n_i+1):(n_i*2),] &lt;- fd[(n_i+1):(n_i*2),]*sd_cn*(mean_cn + effect_i)/mean_cn + mean_cn + effect_i # 2 is the sd in the CN
+      # mean(fd)
+      # sd(fd)
+      # sd(fd)/mean(fd)
+      
+      gg_fd &lt;- data.table(x=rep(c(&quot;a&quot;,&quot;b&quot;), each=n_i), fd[, 1:4])
+      gg0 &lt;- gghistogram(c(fd))
+      gg1 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V1&quot;, add=&quot;jitter&quot;)
+      gg2 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V2&quot;, add=&quot;jitter&quot;)
+      gg3 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V3&quot;, add=&quot;jitter&quot;)
+      gg4 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V4&quot;, add=&quot;jitter&quot;)
+      gg[[list_i]] &lt;- plot_grid(gg0, gg1, gg2, gg3, gg4, ncol=5, rel_widths = c(2, 1, 1, 1, 1))
+      
+      res &lt;- data.table(filter_stats(fd))
+      for(alpha_i in alpha_set){
+        res_table &lt;- rbind(res_table, data.table(
+          iter = niter_i,
+          mu = mu_i,
+          sigma = sigma_i,
+          effect = effect_i,
+          cn_mean = mean(fd[1:n_i,]),
+          cn_sd = sd(fd[1:n_i,]),
+          cn_cv = sd(fd[1:n_i,])/mean(fd[1:n_i,]),
+          tr_mean = mean(fd[(n_i+1):(n_i*2),]),
+          tr_sd = sd(fd[(n_i+1):(n_i*2),]),
+          tr_cv = sd(fd[(n_i+1):(n_i*2),])/mean(fd[(n_i+1):(n_i*2),]),
+          n = n_i,
+          alpha = alpha_i,
+        #  alpha_2 = 1-(1-alpha_i)^2,
+          data.table(t(filter_summary(res, alpha=alpha_i)))))
+      }
+    }
+  }
+}</code></pre>
+<pre><code>## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.
+
+## Warning: Using `bins = 30` by default. Pick better value with the argument
+## `bins`.</code></pre>
+<pre class="r"><code>lognorm_table &lt;- t(res_table)</code></pre>
+<div id="what-the-distributions-look-like" class="section level2">
+<h2>What the distributions look like</h2>
+<div id="larger-skew" class="section level3">
+<h3>larger skew</h3>
+<pre class="r"><code>gg[[1]]</code></pre>
+<p><img src="/post/2019-08-08-what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+</div>
+<div id="smaller-skew" class="section level3">
+<h3>smaller skew</h3>
+<pre class="r"><code>gg[[2]]</code></pre>
+<p><img src="/post/2019-08-08-what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+</div>
+<div id="type-i-error-1" class="section level2">
+<h2>Type I error</h2>
+<pre class="r"><code>type1 &lt;- lognorm_table[, 1:6]
+row.names(type1) &lt;- c(
+  &quot;iterations&quot;,
+  &quot;mu&quot;,
+  &quot;sigma&quot;,
+  &quot;effect&quot;,
+  &quot;Cn mean&quot;,
+  &quot;Cn sd&quot;,
+  &quot;Cn cv&quot;,
+  &quot;Tr mean&quot;,
+  &quot;Tr sd&quot;,
+  &quot;Tr cv&quot;,
+  &quot;n&quot;,
+  &quot;alpha for normality test&quot;,
+  &quot;failed normality, rate&quot;,
+  &quot;t-test: type I, unconditional&quot;,
+  &quot;t-test: type I, | pass&quot;,
+  &quot;t-test: type I, | fail&quot;,
+  &quot;MWW-test: type I, unconditional&quot;,
+  &quot;MWW-test: type I, | fail&quot;,
+  &quot;t-MWW: type I&quot;,
+  &quot;log t-test: type I, unconditional&quot;,
+  &quot;log t-test: type I, | fail&quot;,
+  &quot;t-log t: type I&quot;
+)
+round(type1, 3)</code></pre>
+<pre><code>##                                        [,1]      [,2]       [,3]      [,4]
+## iterations                        10000.000 50000.000 100000.000 10000.000
+## mu                                    0.000     0.000      0.000     0.000
+## sigma                                 0.800     0.800      0.800     0.400
+## effect                                0.000     0.000      0.000     0.000
+## Cn mean                               9.992     9.995     10.001     9.998
+## Cn sd                                 1.912     1.948      1.976     1.912
+## Cn cv                                 0.191     0.195      0.198     0.191
+## Tr mean                              10.008    10.005      9.999    10.002
+## Tr sd                                 1.917     1.951      1.973     1.918
+## Tr cv                                 0.192     0.195      0.197     0.192
+## n                                     6.000    10.000     20.000     6.000
+## alpha for normality test              0.050     0.050      0.050     0.050
+## failed normality, rate                0.413     0.742      0.982     0.155
+## t-test: type I, unconditional         0.035     0.038      0.044     0.045
+## t-test: type I, | pass                0.054     0.093      0.230     0.049
+## t-test: type I, | fail                0.008     0.019      0.040     0.022
+## MWW-test: type I, unconditional       0.040     0.042      0.049     0.041
+## MWW-test: type I, | fail              0.029     0.035      0.047     0.042
+## t-MWW: type I                         0.044     0.050      0.050     0.048
+## log t-test: type I, unconditional     0.039     0.043      0.047     0.048
+## log t-test: type I, | fail            0.014     0.025      0.044     0.030
+## t-log t: type I                       0.038     0.043      0.048     0.046
+##                                        [,5]       [,6]
+## iterations                        50000.000 100000.000
+## mu                                    0.000      0.000
+## sigma                                 0.400      0.400
+## effect                                0.000      0.000
+## Cn mean                               9.994     10.001
+## Cn sd                                 1.949      1.976
+## Cn cv                                 0.195      0.198
+## Tr mean                              10.006      9.999
+## Tr sd                                 1.950      1.974
+## Tr cv                                 0.195      0.197
+## n                                    10.000     20.000
+## alpha for normality test              0.050      0.050
+## failed normality, rate                0.318      0.653
+## t-test: type I, unconditional         0.046      0.049
+## t-test: type I, | pass                0.057      0.072
+## t-test: type I, | fail                0.025      0.036
+## MWW-test: type I, unconditional       0.042      0.049
+## MWW-test: type I, | fail              0.041      0.044
+## t-MWW: type I                         0.052      0.054
+## log t-test: type I, unconditional     0.048      0.049
+## log t-test: type I, | fail            0.032      0.040
+## t-log t: type I                       0.049      0.051</code></pre>
+<ol style="list-style-type: decimal">
+<li>All unconditional tests are slightly conservative (the Mann-Whitney-Wilcoxon least so)</li>
+<li>The conditional Type I error of the t-test for the sets that pass the Shapiro-Wilk filter increases with <span class="math inline">\(n\)</span> but the rate of this increase is less for the parameterization generating data that is more approximately normal (mu = 0, sigma = 0.4)</li>
+<li>The overal Type I error for the normality-test filter strategy using the Mann-Whitney-Wilcoxon as the alternative is effectively the nominal value (0.05), or maybe a bit conservative at small <span class="math inline">\(n\)</span> (0.044), regardless of the lognormal parameterization (over the small set explored)</li>
+<li>The overal Type I error for the normality-test filter strategy using the log transformed response as the alternative is effectively the nominal value (0.05), or maybe a bit conservative at small <span class="math inline">\(n\)</span> (0.038), regardless of the lognormal parameterization (over the small set explored)</li>
+</ol>
+</div>
+<div id="power-1" class="section level2">
+<h2>Power</h2>
+<pre class="r"><code>type2 &lt;- lognorm_table[, 7:12] # really power, not type 2
+row.names(type2) &lt;- c(
+  &quot;iterations&quot;,
+  &quot;mu&quot;,
+  &quot;sigma&quot;,
+  &quot;effect&quot;,
+  &quot;Cn mean&quot;,
+  &quot;Cn sd&quot;,
+  &quot;Cn cv&quot;,
+  &quot;Tr mean&quot;,
+  &quot;Tr sd&quot;,
+  &quot;Tr cv&quot;,
+  &quot;n&quot;,
+  &quot;alpha for normality test&quot;,
+  &quot;failed normality, rate&quot;,
+  &quot;t-test: power, unconditional&quot;,
+  &quot;t-test: power, | pass&quot;,
+  &quot;t-test: power, | fail&quot;,
+  &quot;MWW-test: power, unconditional&quot;,
+  &quot;MWW-test: power, | fail&quot;,
+  &quot;t-MWW: power&quot;,
+  &quot;log t-test: power, unconditional&quot;,
+  &quot;log t-test: power, | fail&quot;,
+  &quot;t-log t: power&quot;
+)
+round(type2, 3)</code></pre>
+<pre><code>##                                       [,1]      [,2]       [,3]      [,4]
+## iterations                       10000.000 50000.000 100000.000 10000.000
+## mu                                   0.000     0.000      0.000     0.000
+## sigma                                0.800     0.800      0.800     0.400
+## effect                               1.600     1.600      1.600     1.600
+## Cn mean                              9.997     9.995     10.001     9.998
+## Cn sd                                1.913     1.948      1.976     1.912
+## Cn cv                                0.191     0.195      0.198     0.191
+## Tr mean                             11.603    11.605     11.599    11.602
+## Tr sd                                2.224     2.263      2.289     2.224
+## Tr cv                                0.192     0.195      0.197     0.192
+## n                                    6.000    10.000     20.000     6.000
+## alpha for normality test             0.050     0.050      0.050     0.050
+## failed normality, rate               0.398     0.739      0.980     0.157
+## t-test: power, unconditional         0.180     0.326      0.610     0.180
+## t-test: power, | pass                0.219     0.400      0.689     0.189
+## t-test: power, | fail                0.121     0.301      0.608     0.137
+## MWW-test: power, unconditional       0.245     0.491      0.849     0.175
+## MWW-test: power, | fail              0.288     0.533      0.852     0.225
+## t-MWW: power                         0.246     0.498      0.849     0.194
+## log t-test: power, unconditional     0.225     0.392      0.728     0.199
+## log t-test: power, | fail            0.202     0.384      0.728     0.196
+## t-log t: power                       0.212     0.388      0.728     0.190
+##                                       [,5]       [,6]
+## iterations                       50000.000 100000.000
+## mu                                   0.000      0.000
+## sigma                                0.400      0.400
+## effect                               1.600      1.600
+## Cn mean                              9.994     10.001
+## Cn sd                                1.949      1.976
+## Cn cv                                0.195      0.198
+## Tr mean                             11.606     11.599
+## Tr sd                                2.262      2.290
+## Tr cv                                0.195      0.197
+## n                                   10.000     20.000
+## alpha for normality test             0.050      0.050
+## failed normality, rate               0.317      0.647
+## t-test: power, unconditional         0.321      0.612
+## t-test: power, | pass                0.333      0.614
+## t-test: power, | fail                0.295      0.611
+## MWW-test: power, unconditional       0.332      0.661
+## MWW-test: power, | fail              0.415      0.703
+## t-MWW: power                         0.359      0.672
+## log t-test: power, unconditional     0.350      0.660
+## log t-test: power, | fail            0.365      0.678
+## t-log t: power                       0.343      0.656</code></pre>
+<ol style="list-style-type: decimal">
+<li>The unconditional t-test of log transfored response and especially Mann-Whitney-Wilcoxon have more power than the unconditional t-test.</li>
+<li>The overal power of the normality-test filter strategy using the Mann-Whitney-Wilcoxon as the alternative is about the same as the unconditional MWW strategy with the more skewed parameterization but slightly higher than that for the unconditional MWW strategy with the less skewed parameterization.</li>
+<li>The overal power of the normality-test filter strategy using the log transformation as the alternative is about the same as the unconditional log transformation strategy regardless of the parameterization of the lognormal (over the space of my parameterization)</li>
+</ol>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Lumley, T., Diehr, P., Emerson, S., &amp; Chen, L. (2002). The Importance of the Normality Assumption in Large Public Health Data Sets. Annual Review of Public Health, 23(1), 151–169. <a href="https://doi.org/10.1146/annurev.publhealth.23.100901.140546" class="uri">https://doi.org/10.1146/annurev.publhealth.23.100901.140546</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Rochon, J., Gondan, M., &amp; Kieser, M. (2012). To test or not to test: Preliminary assessment of normality when comparing two independent samples. BMC Medical Research Methodology, 12(1). <a href="https://doi.org/10.1186/1471-2288-12-81" class="uri">https://doi.org/10.1186/1471-2288-12-81</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>

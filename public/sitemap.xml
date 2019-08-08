@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2019/08/what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power/</loc>
+    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/</loc>
     <lastmod>2019-07-31T00:00:00+00:00</lastmod>
   </url>
@@ -234,7 +239,7 @@
   
   <url>
     <loc>/tags/fake-data/</loc>
-    <lastmod>2019-07-31T00:00:00+00:00</lastmod>
+    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -306,19 +311,19 @@
   
   <url>
     <loc>/tags/nhst/</loc>
-    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
+    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/non-parametric/</loc>
-    <lastmod>2019-05-30T00:00:00+00:00</lastmod>
+    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/p-values/</loc>
-    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
+    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -330,13 +335,13 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2019-07-31T00:00:00+00:00</lastmod>
+    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/power/</loc>
-    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
+    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -348,7 +353,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-07-31T00:00:00+00:00</lastmod>
+    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -378,7 +383,7 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2019-07-31T00:00:00+00:00</lastmod>
+    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

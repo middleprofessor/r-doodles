@@ -6,10 +6,20 @@
     <description>Recent content in Power on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 02 Jul 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 08 Aug 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/power/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>What is the consequence of a Shapiro-Wilk test-of-normality filter on Type I error and Power?</title>
+      <link>/2019/08/what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power/</link>
+      <pubDate>Thu, 08 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/08/what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power/</guid>
+      <description>TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.] (https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
+And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:</description>
+    </item>
     
     <item>
       <title>Is the power to test an interaction effect less than that for a main effect?</title>
