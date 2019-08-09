@@ -288,7 +288,7 @@ row.names(type1) <- c(
   "log t-test: type I, | fail",
   "t-log t: type I"
 )
-knitr::kable(type1, digits=3)
+knitr::kable(type1, digits=3, caption="Type I error as a function of n for normal data")
 ```
 
 Summary:
@@ -328,7 +328,7 @@ row.names(type2) <- c(
   "log t-test: power, | fail",
   "t-log t: power"
 )
-knitr::kable(type2, digits=3)
+knitr::kable(type2, digits=3, caption="Power as a function of n for normal data")
 ```
 
 Summary:
@@ -453,7 +453,7 @@ row.names(type1) <- c(
   "log t-test: type I, | fail",
   "t-log t: type I"
 )
-knitr::kable(type1, digits=3, caption="Type I error as a function of n and sigma")
+knitr::kable(type1, digits=3, caption="Type I error as a function of n and sigma for lognormal data")
 ```
 
 Summary:
@@ -491,7 +491,7 @@ row.names(type2) <- c(
   "log t-test: power, | fail",
   "t-log t: power"
 )
-knitr::kable(type2, digits=3, caption="Power as a function of n and sigma")
+knitr::kable(type2, digits=3, caption="Power as a function of n and sigma for lognormal response")
 
 ```
 
