@@ -8,22 +8,26 @@
 <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
 <meta name="keywords" content="tech">
-<meta name="description" content="TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.] (https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
-And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:">
+<meta name="description" content="TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.. Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
+And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:
+“The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand.">
 
 
-<meta property="og:description" content="TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.] (https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
-And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:">
+<meta property="og:description" content="TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.. Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
+And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:
+“The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="What is the consequence of a Shapiro-Wilk test-of-normality filter on Type I error and Power?">
 <meta name="twitter:title" content="What is the consequence of a Shapiro-Wilk test-of-normality filter on Type I error and Power?">
 <meta property="og:url" content="/2019/08/what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power/">
 <meta property="twitter:url" content="/2019/08/what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power/">
 <meta property="og:site_name" content="R Doodles">
-<meta property="og:description" content="TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.] (https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
-And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:">
-<meta name="twitter:description" content="TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.] (https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
-And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:">
+<meta property="og:description" content="TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.. Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
+And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:
+“The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand.">
+<meta name="twitter:description" content="TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.. Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
+And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:
+“The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand.">
 <meta property="og:locale" content="en-us">
 
   
@@ -313,7 +317,7 @@ if (!doNotTrack) {
               
 
 
-<p>TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.] (<a href="https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/" class="uri">https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/</a>). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.</p>
+<p>TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, <a href="https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/">there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.</a>. Any update will include a test using a generalized linear model estimate of the effect and uncertainty.</p>
 <p>And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:</p>
 <p>“The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand.”<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 <p>This is a skeletal post to explore the effects of the <strong>Normality Filter</strong> – using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response. In this strategy, a t-test is used only if the Shapiro-Wilk p-value is &gt; than some cut-off (such as 0.05), otherwise the alternative is used.</p>
@@ -1192,8 +1196,9 @@ round(type2, 3)</code></pre>
                   Aug 8, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.] (https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
-And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:</div>
+              <div class="media-content hide-xs font-merryweather">TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.. Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
+And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:
+“The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

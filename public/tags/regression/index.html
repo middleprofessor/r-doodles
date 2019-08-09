@@ -384,8 +384,9 @@ library(data.table) library(mvtnorm) rho &lt;- 0.5 n &lt;- 10^5 Sigma &lt;- diag
                   Aug 8, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.] (https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
-And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:</div>
+              <div class="media-content hide-xs font-merryweather">TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.. Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
+And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:
+“The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
