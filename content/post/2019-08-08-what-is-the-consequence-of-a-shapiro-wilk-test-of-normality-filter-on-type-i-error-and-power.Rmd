@@ -18,13 +18,17 @@ output:
     toc: true
 ---
 
-This 1990-wants-you-back post explores the effects of a **Normality Filter** -- using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response. In this strategy, the alternative is used if the Shapiro-Wilk p-value is less than some cut-off (such as 0.05), otherwise the t-test on the untransformed data is used.
+This 1990-wants-you-back doodle explores the effects of a **Normality Filter** -- using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response. In this strategy, the alternative is used if the Shapiro-Wilk p-value is less than some cut-off (such as 0.05), otherwise the t-test on the untransformed data is used.
 
-TL;DR -- Meh. Using a Shapiro-Wilk filter isn't going to lead to either better or worse inference. That said, if one simply wants a p-value, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.](https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
+TL;DR -- Meh. Using a Shapiro-Wilk filter isn't going to lead to either better or worse inference. That said, if one simply wants a p-value, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.](https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/).
 
-And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:
+And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote from [Lumley et al is relevant](https://www.annualreviews.org/doi/full/10.1146/annurev.publhealth.23.100901.140546):
 
 "The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand."^[Lumley, T., Diehr, P., Emerson, S., & Chen, L. (2002). The Importance of the Normality Assumption in Large Public Health Data Sets. Annual Review of Public Health, 23(1), 151–169. https://doi.org/10.1146/annurev.publhealth.23.100901.140546]
+
+**Motivation** teaching applied biostatistics to experimental biologists, who learn to do the shapiro-wilks filter from either a previous course, or more likely, its what they commonly read in the literature
+
+**Other literature** [Lumley et al is relevant](https://www.annualreviews.org/doi/full/10.1146/annurev.publhealth.23.100901.140546) and [Rochon et al](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/1471-2288-12-81)
 
 **Stuff that needs to be repeatedly stated** The failure to reject a null hypothesis does not mean the null hypothesis is true. Or, in the context of this post, we shouldn't conclude that a sample is "normal" because a Shapiro-Wilk *p*-value > 0.05. The logic of a test of normality (or homogeneity) before a t-test/ANOVA, then, isn't consistent with frequentist thinking. But, maybe we should only think of the Normality filter as an objective model check, compared to, say, inspecting a Q-Q plot.  
 
