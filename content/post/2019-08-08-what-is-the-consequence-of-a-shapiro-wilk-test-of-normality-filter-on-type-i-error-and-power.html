@@ -1,6 +1,5 @@
 ---
-title: What is the consequence of a Shapiro-Wilk test-of-normality filter on Type
-  I error and Power?
+title: What is the consequence of a Shapiro-Wilk test-of-normality filter on Type I error and Power?
 author: Jeff Walker
 date: '2019-08-08'
 slug: what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power
@@ -14,12 +13,29 @@ tags:
   - fake data
 keywords:
   - tech
+output:
+  blogdown::html_page:
+    toc: true
 ---
 
 
+<div id="TOC">
+<ul>
+<li><a href="#set-up">Set up</a></li>
+<li><a href="#normal-distribution">Normal distribution</a><ul>
+<li><a href="#type-i-error">Type I error</a></li>
+<li><a href="#power">Power</a></li>
+</ul></li>
+<li><a href="#right-skewed-continuous-lognormal">Right skewed continuous – lognormal</a><ul>
+<li><a href="#what-the-parameterizations-look-like">What the parameterizations look like</a></li>
+<li><a href="#type-i-error-1">Type I error</a></li>
+<li><a href="#power-1">Power</a></li>
+</ul></li>
+</ul>
+</div>
 
-<p>This post explores the effects of the <strong>Normality Filter</strong> – using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response. In this strategy, a t-test is used only if the Shapiro-Wilk p-value is &gt; than some cut-off (such as 0.05), otherwise the alternative is used.</p>
-<p>TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, <a href="https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/">there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.</a>. Any update will include a test using a generalized linear model estimate of the effect and uncertainty.</p>
+<p>This 1990-wants-you-back post explores the effects of a <strong>Normality Filter</strong> – using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response. In this strategy, the alternative is used if the Shapiro-Wilk p-value is less than some cut-off (such as 0.05), otherwise the t-test on the untransformed data is used.</p>
+<p>TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, if one simply wants a p-value, <a href="https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/">there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.</a>. Any update will include a test using a generalized linear model estimate of the effect and uncertainty.</p>
 <p>And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:</p>
 <p>“The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand.”<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 <p><strong>Stuff that needs to be repeatedly stated</strong> The failure to reject a null hypothesis does not mean the null hypothesis is true. Or, in the context of this post, we shouldn’t conclude that a sample is “normal” because a Shapiro-Wilk <em>p</em>-value &gt; 0.05. The logic of a test of normality (or homogeneity) before a t-test/ANOVA, then, isn’t consistent with frequentist thinking. But, maybe we should only think of the Normality filter as an objective model check, compared to, say, inspecting a Q-Q plot.</p>
@@ -36,7 +52,9 @@ keywords:
 library(MASS)
 library(ggplot2)
 library(ggpubr)
-library(cowplot)</code></pre>
+library(cowplot)
+
+do_sims &lt;- FALSE # redo simulations?</code></pre>
 <pre class="r"><code>fake_data &lt;- function(niter=10^4, n=50, location=0, scale=1, shape=1, effect=0, dist=&quot;normal&quot;){
 
   if(dist==&quot;normal&quot;){
@@ -190,49 +208,56 @@ filter_summary &lt;- function(test_stats, alpha=0.05){
 <div id="normal-distribution" class="section level1">
 <h1>Normal distribution</h1>
 <p>No real data are normally distributed so this parameterization of the simulation gives the behavior of the shapiro-wilk filter for data that are effectively normal.</p>
-<pre class="r"><code>set.seed(1)
-base_niter &lt;- 10^4 # target number of shapiro-wilk tests that &quot;pass&quot; (p &gt; 0.05)
-
-mu_i &lt;- 10
-sigma_set &lt;- c(1)
-alpha_set &lt;- c(0.1, 0.05, 0.01)
-n_set &lt;- c(10)
-niter_set &lt;- c(base_niter, base_niter*5, base_niter*10) # more iterations to get more samples that &quot;pass&quot; filter
-res_table &lt;- data.table(NULL)
-gg &lt;- list(NULL)
-list_i &lt;- 0
-for(effect_i in c(0, 0.8)){ # &quot;large&quot; effect
-  for(sigma_i in sigma_set){
-    list_i &lt;- list_i + 1
-    for(i in 1:length(n_set)){
-      n_i &lt;- n_set[i]
-      niter_i &lt;- niter_set[i]
-      fd &lt;- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=effect_i, dist=&quot;normal&quot;)
-      
-      res &lt;- data.table(filter_stats(fd))
-      for(alpha_i in alpha_set){
-        res_table &lt;- rbind(res_table, data.table(
-          iter = niter_i,
-          mu = mu_i,
-          sigma = sigma_i,
-          effect = effect_i,
-          cn_mean = mean(fd[1:n_i,]),
-          cn_sd = sd(fd[1:n_i,]),
-          cn_cv = sd(fd[1:n_i,])/mean(fd[1:n_i,]),
-          tr_mean = mean(fd[(n_i+1):(n_i*2),]),
-          tr_sd = sd(fd[(n_i+1):(n_i*2),]),
-          tr_cv = sd(fd[(n_i+1):(n_i*2),])/mean(fd[(n_i+1):(n_i*2),]),
-          n = n_i,
-          alpha = alpha_i,
-          data.table(t(filter_summary(res, alpha=alpha_i)))))
+<pre class="r"><code>if(do_sims==TRUE){
+  set.seed(1)
+  base_niter &lt;- 10^4 # target number of shapiro-wilk tests that &quot;pass&quot; (p &gt; 0.05)
+  
+  mu_i &lt;- 10
+  sigma_set &lt;- c(1)
+  alpha_set &lt;- c(0.1, 0.05, 0.01)
+  n_set &lt;- c(10)
+  niter_set &lt;- c(base_niter, base_niter*5, base_niter*10) # more iterations to get more samples that &quot;pass&quot; filter
+  res_table &lt;- data.table(NULL)
+  gg &lt;- list(NULL)
+  list_i &lt;- 0
+  for(effect_i in c(0, 0.8)){ # &quot;large&quot; effect
+    for(sigma_i in sigma_set){
+      list_i &lt;- list_i + 1
+      for(i in 1:length(n_set)){
+        n_i &lt;- n_set[i]
+        niter_i &lt;- niter_set[i]
+        fd &lt;- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=effect_i, dist=&quot;normal&quot;)
+        
+        res &lt;- data.table(filter_stats(fd))
+        for(alpha_i in alpha_set){
+          res_table &lt;- rbind(res_table, data.table(
+            iter = niter_i,
+            mu = mu_i,
+            sigma = sigma_i,
+            effect = effect_i,
+            cn_mean = mean(fd[1:n_i,]),
+            cn_sd = sd(fd[1:n_i,]),
+            cn_cv = sd(fd[1:n_i,])/mean(fd[1:n_i,]),
+            tr_mean = mean(fd[(n_i+1):(n_i*2),]),
+            tr_sd = sd(fd[(n_i+1):(n_i*2),]),
+            tr_cv = sd(fd[(n_i+1):(n_i*2),])/mean(fd[(n_i+1):(n_i*2),]),
+            n = n_i,
+            alpha = alpha_i,
+            data.table(t(filter_summary(res, alpha=alpha_i)))))
+        }
       }
     }
   }
-}
-norm_table &lt;- t(res_table)</code></pre>
+  norm_table &lt;- t(res_table)
+  # write to file
+  write.table(norm_table, &quot;../output/2019-08-08-norm_table.txt&quot;,quote=FALSE, sep=&quot;\t&quot;)
+}else{ # if not true, read file
+  norm_table &lt;- read.table(&quot;../output/2019-08-08-norm_table.txt&quot;, header=TRUE, sep=&quot;\t&quot;)
+}</code></pre>
 <div id="type-i-error" class="section level2">
 <h2>Type I error</h2>
 <pre class="r"><code>type1 &lt;- norm_table[, 1:3]
+colnames(type1) &lt;- c(&quot;n=6&quot;, &quot;n=10&quot;, &quot;n=20&quot;)
 row.names(type1) &lt;- c(
   &quot;iterations&quot;,
   &quot;mu&quot;,
@@ -257,30 +282,152 @@ row.names(type1) &lt;- c(
   &quot;log t-test: type I, | fail&quot;,
   &quot;t-log t: type I&quot;
 )
-round(type1, 3)</code></pre>
-<pre><code>##                                        [,1]      [,2]      [,3]
-## iterations                        10000.000 10000.000 10000.000
-## mu                                   10.000    10.000    10.000
-## sigma                                 1.000     1.000     1.000
-## effect                                0.000     0.000     0.000
-## Cn mean                               9.998     9.998     9.998
-## Cn sd                                 1.004     1.004     1.004
-## Cn cv                                 0.100     0.100     0.100
-## Tr mean                              10.001    10.001    10.001
-## Tr sd                                 1.001     1.001     1.001
-## Tr cv                                 0.100     0.100     0.100
-## n                                    10.000    10.000    10.000
-## alpha for normality test              0.100     0.050     0.010
-## failed normality, rate                0.097     0.047     0.010
-## t-test: type I, unconditional         0.048     0.048     0.048
-## t-test: type I, | pass                0.048     0.049     0.048
-## t-test: type I, | fail                0.044     0.036     0.021
-## MWW-test: type I, unconditional       0.040     0.040     0.040
-## MWW-test: type I, | fail              0.058     0.055     0.073
-## t-MWW: type I                         0.049     0.049     0.048
-## log t-test: type I, unconditional     0.048     0.048     0.048
-## log t-test: type I, | fail            0.045     0.038     0.042
-## t-log t: type I                       0.048     0.048     0.048</code></pre>
+knitr::kable(type1, digits=3)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">n=6</th>
+<th align="right">n=10</th>
+<th align="right">n=20</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>iterations</td>
+<td align="right">10000.000</td>
+<td align="right">10000.000</td>
+<td align="right">10000.000</td>
+</tr>
+<tr class="even">
+<td>mu</td>
+<td align="right">10.000</td>
+<td align="right">10.000</td>
+<td align="right">10.000</td>
+</tr>
+<tr class="odd">
+<td>sigma</td>
+<td align="right">1.000</td>
+<td align="right">1.000</td>
+<td align="right">1.000</td>
+</tr>
+<tr class="even">
+<td>effect</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td>Cn mean</td>
+<td align="right">9.998</td>
+<td align="right">9.998</td>
+<td align="right">9.998</td>
+</tr>
+<tr class="even">
+<td>Cn sd</td>
+<td align="right">1.004</td>
+<td align="right">1.004</td>
+<td align="right">1.004</td>
+</tr>
+<tr class="odd">
+<td>Cn cv</td>
+<td align="right">0.100</td>
+<td align="right">0.100</td>
+<td align="right">0.100</td>
+</tr>
+<tr class="even">
+<td>Tr mean</td>
+<td align="right">10.001</td>
+<td align="right">10.001</td>
+<td align="right">10.001</td>
+</tr>
+<tr class="odd">
+<td>Tr sd</td>
+<td align="right">1.001</td>
+<td align="right">1.001</td>
+<td align="right">1.001</td>
+</tr>
+<tr class="even">
+<td>Tr cv</td>
+<td align="right">0.100</td>
+<td align="right">0.100</td>
+<td align="right">0.100</td>
+</tr>
+<tr class="odd">
+<td>n</td>
+<td align="right">10.000</td>
+<td align="right">10.000</td>
+<td align="right">10.000</td>
+</tr>
+<tr class="even">
+<td>alpha for normality test</td>
+<td align="right">0.100</td>
+<td align="right">0.050</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="odd">
+<td>failed normality, rate</td>
+<td align="right">0.097</td>
+<td align="right">0.047</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="even">
+<td>t-test: type I, unconditional</td>
+<td align="right">0.048</td>
+<td align="right">0.048</td>
+<td align="right">0.048</td>
+</tr>
+<tr class="odd">
+<td>t-test: type I, | pass</td>
+<td align="right">0.048</td>
+<td align="right">0.049</td>
+<td align="right">0.048</td>
+</tr>
+<tr class="even">
+<td>t-test: type I, | fail</td>
+<td align="right">0.044</td>
+<td align="right">0.036</td>
+<td align="right">0.021</td>
+</tr>
+<tr class="odd">
+<td>MWW-test: type I, unconditional</td>
+<td align="right">0.040</td>
+<td align="right">0.040</td>
+<td align="right">0.040</td>
+</tr>
+<tr class="even">
+<td>MWW-test: type I, | fail</td>
+<td align="right">0.058</td>
+<td align="right">0.055</td>
+<td align="right">0.073</td>
+</tr>
+<tr class="odd">
+<td>t-MWW: type I</td>
+<td align="right">0.049</td>
+<td align="right">0.049</td>
+<td align="right">0.048</td>
+</tr>
+<tr class="even">
+<td>log t-test: type I, unconditional</td>
+<td align="right">0.048</td>
+<td align="right">0.048</td>
+<td align="right">0.048</td>
+</tr>
+<tr class="odd">
+<td>log t-test: type I, | fail</td>
+<td align="right">0.045</td>
+<td align="right">0.038</td>
+<td align="right">0.042</td>
+</tr>
+<tr class="even">
+<td>t-log t: type I</td>
+<td align="right">0.048</td>
+<td align="right">0.048</td>
+<td align="right">0.048</td>
+</tr>
+</tbody>
+</table>
+<p>Summary:</p>
 <ol style="list-style-type: decimal">
 <li>The conditional Type I error of the t-test for the sets that pass the Shapiro-Wilk filter is effectively the nominal value (0.05), as is that for the the unconditional Type I. The conditional Type I error for the sets that fail the filter is small (the test is conservative) but this is irrelevant because these data would be analyzed by Mann-Whitney-Wilcoxon or by a t-test of log-transformed data.</li>
 <li>The conditional Type I error for MWW test for sets that fail the Shapiro-Wilk filter is very slightly liberal.</li>
@@ -292,6 +439,7 @@ round(type1, 3)</code></pre>
 <div id="power" class="section level2">
 <h2>Power</h2>
 <pre class="r"><code>type2 &lt;- norm_table[, 4:6] # really power, not type 2
+colnames(type2) &lt;- c(&quot;n=6&quot;, &quot;n=10&quot;, &quot;n=20&quot;)
 row.names(type2) &lt;- c(
   &quot;iterations&quot;,
   &quot;mu&quot;,
@@ -316,30 +464,152 @@ row.names(type2) &lt;- c(
   &quot;log t-test: power, | fail&quot;,
   &quot;t-log t: power&quot;
 )
-round(type2, 3)</code></pre>
-<pre><code>##                                       [,1]      [,2]      [,3]
-## iterations                       10000.000 10000.000 10000.000
-## mu                                  10.000    10.000    10.000
-## sigma                                1.000     1.000     1.000
-## effect                               0.800     0.800     0.800
-## Cn mean                             10.000    10.000    10.000
-## Cn sd                                0.997     0.997     0.997
-## Cn cv                                0.100     0.100     0.100
-## Tr mean                             10.799    10.799    10.799
-## Tr sd                                0.999     0.999     0.999
-## Tr cv                                0.093     0.093     0.093
-## n                                   10.000    10.000    10.000
-## alpha for normality test             0.100     0.050     0.010
-## failed normality, rate               0.104     0.051     0.008
-## t-test: power, unconditional         0.394     0.394     0.394
-## t-test: power, | pass                0.396     0.395     0.394
-## t-test: power, | fail                0.376     0.377     0.412
-## MWW-test: power, unconditional       0.354     0.354     0.354
-## MWW-test: power, | fail              0.409     0.433     0.538
-## t-MWW: power                         0.398     0.397     0.395
-## log t-test: power, unconditional     0.393     0.393     0.393
-## log t-test: power, | fail            0.377     0.383     0.388
-## t-log t: power                       0.394     0.394     0.394</code></pre>
+knitr::kable(type2, digits=3)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">n=6</th>
+<th align="right">n=10</th>
+<th align="right">n=20</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>iterations</td>
+<td align="right">10000.000</td>
+<td align="right">10000.000</td>
+<td align="right">10000.000</td>
+</tr>
+<tr class="even">
+<td>mu</td>
+<td align="right">10.000</td>
+<td align="right">10.000</td>
+<td align="right">10.000</td>
+</tr>
+<tr class="odd">
+<td>sigma</td>
+<td align="right">1.000</td>
+<td align="right">1.000</td>
+<td align="right">1.000</td>
+</tr>
+<tr class="even">
+<td>effect</td>
+<td align="right">0.800</td>
+<td align="right">0.800</td>
+<td align="right">0.800</td>
+</tr>
+<tr class="odd">
+<td>Cn mean</td>
+<td align="right">10.000</td>
+<td align="right">10.000</td>
+<td align="right">10.000</td>
+</tr>
+<tr class="even">
+<td>Cn sd</td>
+<td align="right">0.997</td>
+<td align="right">0.997</td>
+<td align="right">0.997</td>
+</tr>
+<tr class="odd">
+<td>Cn cv</td>
+<td align="right">0.100</td>
+<td align="right">0.100</td>
+<td align="right">0.100</td>
+</tr>
+<tr class="even">
+<td>Tr mean</td>
+<td align="right">10.799</td>
+<td align="right">10.799</td>
+<td align="right">10.799</td>
+</tr>
+<tr class="odd">
+<td>Tr sd</td>
+<td align="right">0.999</td>
+<td align="right">0.999</td>
+<td align="right">0.999</td>
+</tr>
+<tr class="even">
+<td>Tr cv</td>
+<td align="right">0.093</td>
+<td align="right">0.093</td>
+<td align="right">0.093</td>
+</tr>
+<tr class="odd">
+<td>n</td>
+<td align="right">10.000</td>
+<td align="right">10.000</td>
+<td align="right">10.000</td>
+</tr>
+<tr class="even">
+<td>alpha for normality test</td>
+<td align="right">0.100</td>
+<td align="right">0.050</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="odd">
+<td>failed normality, rate</td>
+<td align="right">0.104</td>
+<td align="right">0.051</td>
+<td align="right">0.008</td>
+</tr>
+<tr class="even">
+<td>t-test: power, unconditional</td>
+<td align="right">0.394</td>
+<td align="right">0.394</td>
+<td align="right">0.394</td>
+</tr>
+<tr class="odd">
+<td>t-test: power, | pass</td>
+<td align="right">0.396</td>
+<td align="right">0.395</td>
+<td align="right">0.394</td>
+</tr>
+<tr class="even">
+<td>t-test: power, | fail</td>
+<td align="right">0.376</td>
+<td align="right">0.377</td>
+<td align="right">0.412</td>
+</tr>
+<tr class="odd">
+<td>MWW-test: power, unconditional</td>
+<td align="right">0.354</td>
+<td align="right">0.354</td>
+<td align="right">0.354</td>
+</tr>
+<tr class="even">
+<td>MWW-test: power, | fail</td>
+<td align="right">0.409</td>
+<td align="right">0.433</td>
+<td align="right">0.538</td>
+</tr>
+<tr class="odd">
+<td>t-MWW: power</td>
+<td align="right">0.398</td>
+<td align="right">0.397</td>
+<td align="right">0.395</td>
+</tr>
+<tr class="even">
+<td>log t-test: power, unconditional</td>
+<td align="right">0.393</td>
+<td align="right">0.393</td>
+<td align="right">0.393</td>
+</tr>
+<tr class="odd">
+<td>log t-test: power, | fail</td>
+<td align="right">0.377</td>
+<td align="right">0.383</td>
+<td align="right">0.388</td>
+</tr>
+<tr class="even">
+<td>t-log t: power</td>
+<td align="right">0.394</td>
+<td align="right">0.394</td>
+<td align="right">0.394</td>
+</tr>
+</tbody>
+</table>
+<p>Summary:</p>
 <ol style="list-style-type: decimal">
 <li>The unconditional Mann-Whitney-Wilcoxon has slightly reduced power relative to the unconditional t-test on either untransformed or log transformed response.</li>
 <li>The Mann-Whitney-Wilcoxon for sets that fail has slightly greater power relative to the unconditional t-test on either untransformed or log transformed response.</li>
@@ -350,119 +620,94 @@ round(type2, 3)</code></pre>
 <div id="right-skewed-continuous-lognormal" class="section level1">
 <h1>Right skewed continuous – lognormal</h1>
 <p>The lognormal distribution is explored with two parameterizations, one with larger skew and one with smaller skew, but still distinct from Normal.</p>
-<pre class="r"><code>set.seed(1)
-base_niter &lt;- 10^4 # target number of shapiro-wilk tests that &quot;pass&quot; (p &gt; 0.05)
-mean_cn &lt;- 10
-sd_cn &lt;- 2
-effect_i &lt;- 2
+<pre class="r"><code>if(do_sims==TRUE){
+  set.seed(1)
+  base_niter &lt;- 10^4 # target number of shapiro-wilk tests that &quot;pass&quot; (p &gt; 0.05)
+  mean_cn &lt;- 10
+  sd_cn &lt;- 2
+  effect_i &lt;- 2
+  
+  mu_i &lt;- 0 # exp(x) = 1
+  sigma_set &lt;- c(0.8, 0.4)
+  alpha_set &lt;- c(0.05)
+  n_set &lt;- c(6, 10, 20)
+  niter_set &lt;- c(base_niter, base_niter*5, base_niter*10) # more iterations to get more samples that &quot;pass&quot; filter
+  res_table &lt;- data.table(NULL)
+  gg &lt;- list(NULL)
+  list_i &lt;- 0
+  for(effect_i in c(0, sd_cn*0.8)){ # &quot;large&quot; effect
+    for(sigma_i in sigma_set){
+      for(n_i in 1:length(n_set)){
+        list_i &lt;- list_i + 1
+        niter_i &lt;- niter_set[i]
+        fd &lt;- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=0, dist=&quot;lnorm&quot;)
+        
+        # set to common CV
+        # sd = CV x Mean
+        fd &lt;- scale(fd, scale=TRUE)
+        sd_cn &lt;- 2
+        fd[1:n_i,] &lt;- fd[1:n_i,]*sd_cn + mean_cn # 2 is the sd in the CN
+        fd[(n_i+1):(n_i*2),] &lt;- fd[(n_i+1):(n_i*2),]*sd_cn*(mean_cn + effect_i)/mean_cn + mean_cn + effect_i 
 
-mu_i &lt;- 0 # exp(x) = 1
-sigma_set &lt;- c(0.8, 0.4)
-alpha_set &lt;- c(0.05)
-n_set &lt;- c(6, 10, 20)
-niter_set &lt;- c(base_niter, base_niter*5, base_niter*10) # more iterations to get more samples that &quot;pass&quot; filter
-res_table &lt;- data.table(NULL)
-gg &lt;- list(NULL)
-list_i &lt;- 0
-for(effect_i in c(0, sd_cn*0.8)){ # &quot;large&quot; effect
-  for(sigma_i in sigma_set){
-    list_i &lt;- list_i + 1
-    for(i in 1:length(n_set)){
-      n_i &lt;- n_set[i]
-      niter_i &lt;- niter_set[i]
-      fd &lt;- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=0, dist=&quot;lnorm&quot;)
-      
-      # set to common CV
-      # sd = CV x Mean
-      fd &lt;- scale(fd, scale=TRUE)
-      sd_cn &lt;- 2
-      fd[1:n_i,] &lt;- fd[1:n_i,]*sd_cn + mean_cn # 2 is the sd in the CN
-      fd[(n_i+1):(n_i*2),] &lt;- fd[(n_i+1):(n_i*2),]*sd_cn*(mean_cn + effect_i)/mean_cn + mean_cn + effect_i # 2 is the sd in the CN
-      # mean(fd)
-      # sd(fd)
-      # sd(fd)/mean(fd)
-      
-      gg_fd &lt;- data.table(x=rep(c(&quot;a&quot;,&quot;b&quot;), each=n_i), fd[, 1:4])
-      gg0 &lt;- gghistogram(c(fd))
-      gg1 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V1&quot;, add=&quot;jitter&quot;)
-      gg2 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V2&quot;, add=&quot;jitter&quot;)
-      gg3 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V3&quot;, add=&quot;jitter&quot;)
-      gg4 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V4&quot;, add=&quot;jitter&quot;)
-      gg[[list_i]] &lt;- plot_grid(gg0, gg1, gg2, gg3, gg4, ncol=5, rel_widths = c(2, 1, 1, 1, 1))
-      
-      res &lt;- data.table(filter_stats(fd))
-      for(alpha_i in alpha_set){
-        res_table &lt;- rbind(res_table, data.table(
-          iter = niter_i,
-          mu = mu_i,
-          sigma = sigma_i,
-          effect = effect_i,
-          cn_mean = mean(fd[1:n_i,]),
-          cn_sd = sd(fd[1:n_i,]),
-          cn_cv = sd(fd[1:n_i,])/mean(fd[1:n_i,]),
-          tr_mean = mean(fd[(n_i+1):(n_i*2),]),
-          tr_sd = sd(fd[(n_i+1):(n_i*2),]),
-          tr_cv = sd(fd[(n_i+1):(n_i*2),])/mean(fd[(n_i+1):(n_i*2),]),
-          n = n_i,
-          alpha = alpha_i,
-        #  alpha_2 = 1-(1-alpha_i)^2,
-          data.table(t(filter_summary(res, alpha=alpha_i)))))
+        if(n_i == n_set[length(n_set)] &amp; effect_i==0){
+          gg_fd &lt;- data.table(x=rep(c(&quot;a&quot;,&quot;b&quot;), each=n_i), fd[, 1:3])
+          gg0 &lt;- gghistogram(c(fd))
+          gg1 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V1&quot;, add=&quot;jitter&quot;)
+          gg2 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V2&quot;, add=&quot;jitter&quot;)
+          gg3 &lt;- ggboxplot(data=gg_fd, x=&quot;x&quot;, y=&quot;V3&quot;, add=&quot;jitter&quot;)
+          gg &lt;- plot_grid(gg0, gg1, gg2, gg3, ncol=4, rel_widths = c(2, 1, 1, 1, 1))
+          plot_file_name &lt;- paste0(&quot;../images/2019-08-08-gg-s=&quot;, sigma_i, &quot;.png&quot;)
+          save_plot(plot_file_name, gg, base_height = 4, base_width=6)
+        }
+        
+        res &lt;- data.table(filter_stats(fd))
+        for(alpha_i in alpha_set){
+          res_table &lt;- rbind(res_table, data.table(
+            iter = niter_i,
+            mu = mu_i,
+            sigma = sigma_i,
+            effect = effect_i,
+            cn_mean = mean(fd[1:n_i,]),
+            cn_sd = sd(fd[1:n_i,]),
+            cn_cv = sd(fd[1:n_i,])/mean(fd[1:n_i,]),
+            tr_mean = mean(fd[(n_i+1):(n_i*2),]),
+            tr_sd = sd(fd[(n_i+1):(n_i*2),]),
+            tr_cv = sd(fd[(n_i+1):(n_i*2),])/mean(fd[(n_i+1):(n_i*2),]),
+            n = n_i,
+            alpha = alpha_i,
+            #  alpha_2 = 1-(1-alpha_i)^2,
+            data.table(t(filter_summary(res, alpha=alpha_i)))))
+        }
       }
     }
-  }
+  }  
+  lognorm_table &lt;- t(res_table)
+  # write to file
+  write.table(lognorm_table, &quot;../output/2019-08-08-lognorm_table.txt&quot;,quote=FALSE, sep=&quot;\t&quot;)
+}else{ # if not true, read file
+  lognorm_table &lt;- read.table(&quot;../output/2019-08-08-lognorm_table.txt&quot;, header=TRUE, sep=&quot;\t&quot;)
 }</code></pre>
-<pre><code>## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.
-
-## Warning: Using `bins = 30` by default. Pick better value with the argument
-## `bins`.</code></pre>
-<pre class="r"><code>lognorm_table &lt;- t(res_table)</code></pre>
-<div id="what-the-distributions-look-like" class="section level2">
-<h2>What the distributions look like</h2>
-<div id="larger-skew" class="section level3">
-<h3>larger skew</h3>
-<pre class="r"><code>gg[[1]]</code></pre>
-<p><img src="/post/2019-08-08-what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<div id="what-the-parameterizations-look-like" class="section level2">
+<h2>What the parameterizations look like</h2>
+<pre class="r"><code>knitr::include_graphics(&quot;2019-08-08-what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power_files/figure-html/2019-08-08-gg-s=0.8.png&quot;)</code></pre>
+<div class="figure"><span id="fig:lognormal-sigma-big"></span>
+<img src="/post/2019-08-08-what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power_files/figure-html/2019-08-08-gg-s=0.8.png" alt="sigma = 0.8 (less approximately normal)"  />
+<p class="caption">
+Figure 1: sigma = 0.8 (less approximately normal)
+</p>
 </div>
-<div id="smaller-skew" class="section level3">
-<h3>smaller skew</h3>
-<pre class="r"><code>gg[[2]]</code></pre>
-<p><img src="/post/2019-08-08-what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>knitr::include_graphics(&quot;2019-08-08-what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power_files/figure-html/2019-08-08-gg-s=0.4.png&quot;)</code></pre>
+<div class="figure"><span id="fig:lognormal-sigma-small"></span>
+<img src="/post/2019-08-08-what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power_files/figure-html/2019-08-08-gg-s=0.4.png" alt="sigma = 0.4 (more approximately normal)"  />
+<p class="caption">
+Figure 2: sigma = 0.4 (more approximately normal)
+</p>
 </div>
 </div>
 <div id="type-i-error-1" class="section level2">
 <h2>Type I error</h2>
-<pre class="r"><code>type1 &lt;- lognorm_table[, 1:6]
+<pre class="r"><code>type1 &lt;- lognorm_table[, 1:3]
+colnames(type1) &lt;- c(&quot;n=6&quot;, &quot;n=10&quot;, &quot;n=20&quot;)
 row.names(type1) &lt;- c(
   &quot;iterations&quot;,
   &quot;mu&quot;,
@@ -487,53 +732,325 @@ row.names(type1) &lt;- c(
   &quot;log t-test: type I, | fail&quot;,
   &quot;t-log t: type I&quot;
 )
-round(type1, 3)</code></pre>
-<pre><code>##                                        [,1]      [,2]       [,3]      [,4]
-## iterations                        10000.000 50000.000 100000.000 10000.000
-## mu                                    0.000     0.000      0.000     0.000
-## sigma                                 0.800     0.800      0.800     0.400
-## effect                                0.000     0.000      0.000     0.000
-## Cn mean                               9.992     9.995     10.001     9.998
-## Cn sd                                 1.912     1.948      1.976     1.912
-## Cn cv                                 0.191     0.195      0.198     0.191
-## Tr mean                              10.008    10.005      9.999    10.002
-## Tr sd                                 1.917     1.951      1.973     1.918
-## Tr cv                                 0.192     0.195      0.197     0.192
-## n                                     6.000    10.000     20.000     6.000
-## alpha for normality test              0.050     0.050      0.050     0.050
-## failed normality, rate                0.413     0.742      0.982     0.155
-## t-test: type I, unconditional         0.035     0.038      0.044     0.045
-## t-test: type I, | pass                0.054     0.093      0.230     0.049
-## t-test: type I, | fail                0.008     0.019      0.040     0.022
-## MWW-test: type I, unconditional       0.040     0.042      0.049     0.041
-## MWW-test: type I, | fail              0.029     0.035      0.047     0.042
-## t-MWW: type I                         0.044     0.050      0.050     0.048
-## log t-test: type I, unconditional     0.039     0.043      0.047     0.048
-## log t-test: type I, | fail            0.014     0.025      0.044     0.030
-## t-log t: type I                       0.038     0.043      0.048     0.046
-##                                        [,5]       [,6]
-## iterations                        50000.000 100000.000
-## mu                                    0.000      0.000
-## sigma                                 0.400      0.400
-## effect                                0.000      0.000
-## Cn mean                               9.994     10.001
-## Cn sd                                 1.949      1.976
-## Cn cv                                 0.195      0.198
-## Tr mean                              10.006      9.999
-## Tr sd                                 1.950      1.974
-## Tr cv                                 0.195      0.197
-## n                                    10.000     20.000
-## alpha for normality test              0.050      0.050
-## failed normality, rate                0.318      0.653
-## t-test: type I, unconditional         0.046      0.049
-## t-test: type I, | pass                0.057      0.072
-## t-test: type I, | fail                0.025      0.036
-## MWW-test: type I, unconditional       0.042      0.049
-## MWW-test: type I, | fail              0.041      0.044
-## t-MWW: type I                         0.052      0.054
-## log t-test: type I, unconditional     0.048      0.049
-## log t-test: type I, | fail            0.032      0.040
-## t-log t: type I                       0.049      0.051</code></pre>
+knitr::kable(type1, digits=3, caption=&quot;mu = 0, sigma = 0.8&quot;)</code></pre>
+<table>
+<caption><span id="tab:lognormal-type-1-a">Table 1: </span>mu = 0, sigma = 0.8</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">n=6</th>
+<th align="right">n=10</th>
+<th align="right">n=20</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>iterations</td>
+<td align="right">10000.000</td>
+<td align="right">50000.000</td>
+<td align="right">100000.000</td>
+</tr>
+<tr class="even">
+<td>mu</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td>sigma</td>
+<td align="right">0.800</td>
+<td align="right">0.800</td>
+<td align="right">0.800</td>
+</tr>
+<tr class="even">
+<td>effect</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td>Cn mean</td>
+<td align="right">9.992</td>
+<td align="right">9.995</td>
+<td align="right">10.001</td>
+</tr>
+<tr class="even">
+<td>Cn sd</td>
+<td align="right">1.912</td>
+<td align="right">1.948</td>
+<td align="right">1.976</td>
+</tr>
+<tr class="odd">
+<td>Cn cv</td>
+<td align="right">0.191</td>
+<td align="right">0.195</td>
+<td align="right">0.198</td>
+</tr>
+<tr class="even">
+<td>Tr mean</td>
+<td align="right">10.008</td>
+<td align="right">10.005</td>
+<td align="right">9.999</td>
+</tr>
+<tr class="odd">
+<td>Tr sd</td>
+<td align="right">1.917</td>
+<td align="right">1.951</td>
+<td align="right">1.973</td>
+</tr>
+<tr class="even">
+<td>Tr cv</td>
+<td align="right">0.192</td>
+<td align="right">0.195</td>
+<td align="right">0.197</td>
+</tr>
+<tr class="odd">
+<td>n</td>
+<td align="right">6.000</td>
+<td align="right">10.000</td>
+<td align="right">20.000</td>
+</tr>
+<tr class="even">
+<td>alpha for normality test</td>
+<td align="right">0.050</td>
+<td align="right">0.050</td>
+<td align="right">0.050</td>
+</tr>
+<tr class="odd">
+<td>failed normality, rate</td>
+<td align="right">0.413</td>
+<td align="right">0.742</td>
+<td align="right">0.982</td>
+</tr>
+<tr class="even">
+<td>t-test: type I, unconditional</td>
+<td align="right">0.035</td>
+<td align="right">0.038</td>
+<td align="right">0.044</td>
+</tr>
+<tr class="odd">
+<td>t-test: type I, | pass</td>
+<td align="right">0.054</td>
+<td align="right">0.093</td>
+<td align="right">0.230</td>
+</tr>
+<tr class="even">
+<td>t-test: type I, | fail</td>
+<td align="right">0.008</td>
+<td align="right">0.019</td>
+<td align="right">0.040</td>
+</tr>
+<tr class="odd">
+<td>MWW-test: type I, unconditional</td>
+<td align="right">0.040</td>
+<td align="right">0.042</td>
+<td align="right">0.049</td>
+</tr>
+<tr class="even">
+<td>MWW-test: type I, | fail</td>
+<td align="right">0.029</td>
+<td align="right">0.035</td>
+<td align="right">0.047</td>
+</tr>
+<tr class="odd">
+<td>t-MWW: type I</td>
+<td align="right">0.044</td>
+<td align="right">0.050</td>
+<td align="right">0.050</td>
+</tr>
+<tr class="even">
+<td>log t-test: type I, unconditional</td>
+<td align="right">0.039</td>
+<td align="right">0.043</td>
+<td align="right">0.047</td>
+</tr>
+<tr class="odd">
+<td>log t-test: type I, | fail</td>
+<td align="right">0.014</td>
+<td align="right">0.025</td>
+<td align="right">0.044</td>
+</tr>
+<tr class="even">
+<td>t-log t: type I</td>
+<td align="right">0.038</td>
+<td align="right">0.043</td>
+<td align="right">0.048</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>type1 &lt;- lognorm_table[, 4:6]
+colnames(type1) &lt;- c(&quot;n=6&quot;, &quot;n=10&quot;, &quot;n=20&quot;)
+row.names(type1) &lt;- c(
+  &quot;iterations&quot;,
+  &quot;mu&quot;,
+  &quot;sigma&quot;,
+  &quot;effect&quot;,
+  &quot;Cn mean&quot;,
+  &quot;Cn sd&quot;,
+  &quot;Cn cv&quot;,
+  &quot;Tr mean&quot;,
+  &quot;Tr sd&quot;,
+  &quot;Tr cv&quot;,
+  &quot;n&quot;,
+  &quot;alpha for normality test&quot;,
+  &quot;failed normality, rate&quot;,
+  &quot;t-test: type I, unconditional&quot;,
+  &quot;t-test: type I, | pass&quot;,
+  &quot;t-test: type I, | fail&quot;,
+  &quot;MWW-test: type I, unconditional&quot;,
+  &quot;MWW-test: type I, | fail&quot;,
+  &quot;t-MWW: type I&quot;,
+  &quot;log t-test: type I, unconditional&quot;,
+  &quot;log t-test: type I, | fail&quot;,
+  &quot;t-log t: type I&quot;
+)
+knitr::kable(type1, digits=3, caption=&quot;mu = 0, sigma = 0.4&quot;)</code></pre>
+<table>
+<caption><span id="tab:lognormal-type-1b">Table 2: </span>mu = 0, sigma = 0.4</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">n=6</th>
+<th align="right">n=10</th>
+<th align="right">n=20</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>iterations</td>
+<td align="right">10000.000</td>
+<td align="right">50000.000</td>
+<td align="right">100000.000</td>
+</tr>
+<tr class="even">
+<td>mu</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td>sigma</td>
+<td align="right">0.400</td>
+<td align="right">0.400</td>
+<td align="right">0.400</td>
+</tr>
+<tr class="even">
+<td>effect</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td>Cn mean</td>
+<td align="right">9.998</td>
+<td align="right">9.994</td>
+<td align="right">10.001</td>
+</tr>
+<tr class="even">
+<td>Cn sd</td>
+<td align="right">1.912</td>
+<td align="right">1.949</td>
+<td align="right">1.976</td>
+</tr>
+<tr class="odd">
+<td>Cn cv</td>
+<td align="right">0.191</td>
+<td align="right">0.195</td>
+<td align="right">0.198</td>
+</tr>
+<tr class="even">
+<td>Tr mean</td>
+<td align="right">10.002</td>
+<td align="right">10.006</td>
+<td align="right">9.999</td>
+</tr>
+<tr class="odd">
+<td>Tr sd</td>
+<td align="right">1.918</td>
+<td align="right">1.950</td>
+<td align="right">1.974</td>
+</tr>
+<tr class="even">
+<td>Tr cv</td>
+<td align="right">0.192</td>
+<td align="right">0.195</td>
+<td align="right">0.197</td>
+</tr>
+<tr class="odd">
+<td>n</td>
+<td align="right">6.000</td>
+<td align="right">10.000</td>
+<td align="right">20.000</td>
+</tr>
+<tr class="even">
+<td>alpha for normality test</td>
+<td align="right">0.050</td>
+<td align="right">0.050</td>
+<td align="right">0.050</td>
+</tr>
+<tr class="odd">
+<td>failed normality, rate</td>
+<td align="right">0.155</td>
+<td align="right">0.318</td>
+<td align="right">0.653</td>
+</tr>
+<tr class="even">
+<td>t-test: type I, unconditional</td>
+<td align="right">0.045</td>
+<td align="right">0.046</td>
+<td align="right">0.049</td>
+</tr>
+<tr class="odd">
+<td>t-test: type I, | pass</td>
+<td align="right">0.049</td>
+<td align="right">0.057</td>
+<td align="right">0.072</td>
+</tr>
+<tr class="even">
+<td>t-test: type I, | fail</td>
+<td align="right">0.022</td>
+<td align="right">0.025</td>
+<td align="right">0.036</td>
+</tr>
+<tr class="odd">
+<td>MWW-test: type I, unconditional</td>
+<td align="right">0.041</td>
+<td align="right">0.042</td>
+<td align="right">0.049</td>
+</tr>
+<tr class="even">
+<td>MWW-test: type I, | fail</td>
+<td align="right">0.042</td>
+<td align="right">0.041</td>
+<td align="right">0.044</td>
+</tr>
+<tr class="odd">
+<td>t-MWW: type I</td>
+<td align="right">0.048</td>
+<td align="right">0.052</td>
+<td align="right">0.054</td>
+</tr>
+<tr class="even">
+<td>log t-test: type I, unconditional</td>
+<td align="right">0.048</td>
+<td align="right">0.048</td>
+<td align="right">0.049</td>
+</tr>
+<tr class="odd">
+<td>log t-test: type I, | fail</td>
+<td align="right">0.030</td>
+<td align="right">0.032</td>
+<td align="right">0.040</td>
+</tr>
+<tr class="even">
+<td>t-log t: type I</td>
+<td align="right">0.046</td>
+<td align="right">0.049</td>
+<td align="right">0.051</td>
+</tr>
+</tbody>
+</table>
+<p>Summary:</p>
 <ol style="list-style-type: decimal">
 <li>All unconditional tests are slightly conservative (the Mann-Whitney-Wilcoxon least so)</li>
 <li>The conditional Type I error of the t-test for the sets that pass the Shapiro-Wilk filter increases with <span class="math inline">\(n\)</span> but the rate of this increase is less for the parameterization generating data that is more approximately normal (mu = 0, sigma = 0.4)</li>
@@ -544,6 +1061,7 @@ round(type1, 3)</code></pre>
 <div id="power-1" class="section level2">
 <h2>Power</h2>
 <pre class="r"><code>type2 &lt;- lognorm_table[, 7:12] # really power, not type 2
+colnames(type2) &lt;- c(&quot;n=6&quot;, &quot;n=10&quot;, &quot;n=20&quot;)
 row.names(type2) &lt;- c(
   &quot;iterations&quot;,
   &quot;mu&quot;,
@@ -568,53 +1086,221 @@ row.names(type2) &lt;- c(
   &quot;log t-test: power, | fail&quot;,
   &quot;t-log t: power&quot;
 )
-round(type2, 3)</code></pre>
-<pre><code>##                                       [,1]      [,2]       [,3]      [,4]
-## iterations                       10000.000 50000.000 100000.000 10000.000
-## mu                                   0.000     0.000      0.000     0.000
-## sigma                                0.800     0.800      0.800     0.400
-## effect                               1.600     1.600      1.600     1.600
-## Cn mean                              9.997     9.995     10.001     9.998
-## Cn sd                                1.913     1.948      1.976     1.912
-## Cn cv                                0.191     0.195      0.198     0.191
-## Tr mean                             11.603    11.605     11.599    11.602
-## Tr sd                                2.224     2.263      2.289     2.224
-## Tr cv                                0.192     0.195      0.197     0.192
-## n                                    6.000    10.000     20.000     6.000
-## alpha for normality test             0.050     0.050      0.050     0.050
-## failed normality, rate               0.398     0.739      0.980     0.157
-## t-test: power, unconditional         0.180     0.326      0.610     0.180
-## t-test: power, | pass                0.219     0.400      0.689     0.189
-## t-test: power, | fail                0.121     0.301      0.608     0.137
-## MWW-test: power, unconditional       0.245     0.491      0.849     0.175
-## MWW-test: power, | fail              0.288     0.533      0.852     0.225
-## t-MWW: power                         0.246     0.498      0.849     0.194
-## log t-test: power, unconditional     0.225     0.392      0.728     0.199
-## log t-test: power, | fail            0.202     0.384      0.728     0.196
-## t-log t: power                       0.212     0.388      0.728     0.190
-##                                       [,5]       [,6]
-## iterations                       50000.000 100000.000
-## mu                                   0.000      0.000
-## sigma                                0.400      0.400
-## effect                               1.600      1.600
-## Cn mean                              9.994     10.001
-## Cn sd                                1.949      1.976
-## Cn cv                                0.195      0.198
-## Tr mean                             11.606     11.599
-## Tr sd                                2.262      2.290
-## Tr cv                                0.195      0.197
-## n                                   10.000     20.000
-## alpha for normality test             0.050      0.050
-## failed normality, rate               0.317      0.647
-## t-test: power, unconditional         0.321      0.612
-## t-test: power, | pass                0.333      0.614
-## t-test: power, | fail                0.295      0.611
-## MWW-test: power, unconditional       0.332      0.661
-## MWW-test: power, | fail              0.415      0.703
-## t-MWW: power                         0.359      0.672
-## log t-test: power, unconditional     0.350      0.660
-## log t-test: power, | fail            0.365      0.678
-## t-log t: power                       0.343      0.656</code></pre>
+knitr::kable(type2, digits=3)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">n=6</th>
+<th align="right">n=10</th>
+<th align="right">n=20</th>
+<th align="right">NA</th>
+<th align="right">NA</th>
+<th align="right">NA</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>iterations</td>
+<td align="right">10000.000</td>
+<td align="right">50000.000</td>
+<td align="right">100000.000</td>
+<td align="right">10000.000</td>
+<td align="right">50000.000</td>
+<td align="right">100000.000</td>
+</tr>
+<tr class="even">
+<td>mu</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td>sigma</td>
+<td align="right">0.800</td>
+<td align="right">0.800</td>
+<td align="right">0.800</td>
+<td align="right">0.400</td>
+<td align="right">0.400</td>
+<td align="right">0.400</td>
+</tr>
+<tr class="even">
+<td>effect</td>
+<td align="right">1.600</td>
+<td align="right">1.600</td>
+<td align="right">1.600</td>
+<td align="right">1.600</td>
+<td align="right">1.600</td>
+<td align="right">1.600</td>
+</tr>
+<tr class="odd">
+<td>Cn mean</td>
+<td align="right">9.997</td>
+<td align="right">9.995</td>
+<td align="right">10.001</td>
+<td align="right">9.998</td>
+<td align="right">9.994</td>
+<td align="right">10.001</td>
+</tr>
+<tr class="even">
+<td>Cn sd</td>
+<td align="right">1.913</td>
+<td align="right">1.948</td>
+<td align="right">1.976</td>
+<td align="right">1.912</td>
+<td align="right">1.949</td>
+<td align="right">1.976</td>
+</tr>
+<tr class="odd">
+<td>Cn cv</td>
+<td align="right">0.191</td>
+<td align="right">0.195</td>
+<td align="right">0.198</td>
+<td align="right">0.191</td>
+<td align="right">0.195</td>
+<td align="right">0.198</td>
+</tr>
+<tr class="even">
+<td>Tr mean</td>
+<td align="right">11.603</td>
+<td align="right">11.605</td>
+<td align="right">11.599</td>
+<td align="right">11.602</td>
+<td align="right">11.606</td>
+<td align="right">11.599</td>
+</tr>
+<tr class="odd">
+<td>Tr sd</td>
+<td align="right">2.224</td>
+<td align="right">2.263</td>
+<td align="right">2.289</td>
+<td align="right">2.224</td>
+<td align="right">2.262</td>
+<td align="right">2.290</td>
+</tr>
+<tr class="even">
+<td>Tr cv</td>
+<td align="right">0.192</td>
+<td align="right">0.195</td>
+<td align="right">0.197</td>
+<td align="right">0.192</td>
+<td align="right">0.195</td>
+<td align="right">0.197</td>
+</tr>
+<tr class="odd">
+<td>n</td>
+<td align="right">6.000</td>
+<td align="right">10.000</td>
+<td align="right">20.000</td>
+<td align="right">6.000</td>
+<td align="right">10.000</td>
+<td align="right">20.000</td>
+</tr>
+<tr class="even">
+<td>alpha for normality test</td>
+<td align="right">0.050</td>
+<td align="right">0.050</td>
+<td align="right">0.050</td>
+<td align="right">0.050</td>
+<td align="right">0.050</td>
+<td align="right">0.050</td>
+</tr>
+<tr class="odd">
+<td>failed normality, rate</td>
+<td align="right">0.398</td>
+<td align="right">0.739</td>
+<td align="right">0.980</td>
+<td align="right">0.157</td>
+<td align="right">0.317</td>
+<td align="right">0.647</td>
+</tr>
+<tr class="even">
+<td>t-test: power, unconditional</td>
+<td align="right">0.180</td>
+<td align="right">0.326</td>
+<td align="right">0.610</td>
+<td align="right">0.180</td>
+<td align="right">0.321</td>
+<td align="right">0.612</td>
+</tr>
+<tr class="odd">
+<td>t-test: power, | pass</td>
+<td align="right">0.219</td>
+<td align="right">0.400</td>
+<td align="right">0.689</td>
+<td align="right">0.189</td>
+<td align="right">0.333</td>
+<td align="right">0.614</td>
+</tr>
+<tr class="even">
+<td>t-test: power, | fail</td>
+<td align="right">0.121</td>
+<td align="right">0.301</td>
+<td align="right">0.608</td>
+<td align="right">0.137</td>
+<td align="right">0.295</td>
+<td align="right">0.611</td>
+</tr>
+<tr class="odd">
+<td>MWW-test: power, unconditional</td>
+<td align="right">0.245</td>
+<td align="right">0.491</td>
+<td align="right">0.849</td>
+<td align="right">0.175</td>
+<td align="right">0.332</td>
+<td align="right">0.661</td>
+</tr>
+<tr class="even">
+<td>MWW-test: power, | fail</td>
+<td align="right">0.288</td>
+<td align="right">0.533</td>
+<td align="right">0.852</td>
+<td align="right">0.225</td>
+<td align="right">0.415</td>
+<td align="right">0.703</td>
+</tr>
+<tr class="odd">
+<td>t-MWW: power</td>
+<td align="right">0.246</td>
+<td align="right">0.498</td>
+<td align="right">0.849</td>
+<td align="right">0.194</td>
+<td align="right">0.359</td>
+<td align="right">0.672</td>
+</tr>
+<tr class="even">
+<td>log t-test: power, unconditional</td>
+<td align="right">0.225</td>
+<td align="right">0.392</td>
+<td align="right">0.728</td>
+<td align="right">0.199</td>
+<td align="right">0.350</td>
+<td align="right">0.660</td>
+</tr>
+<tr class="odd">
+<td>log t-test: power, | fail</td>
+<td align="right">0.202</td>
+<td align="right">0.384</td>
+<td align="right">0.728</td>
+<td align="right">0.196</td>
+<td align="right">0.365</td>
+<td align="right">0.678</td>
+</tr>
+<tr class="even">
+<td>t-log t: power</td>
+<td align="right">0.212</td>
+<td align="right">0.388</td>
+<td align="right">0.728</td>
+<td align="right">0.190</td>
+<td align="right">0.343</td>
+<td align="right">0.656</td>
+</tr>
+</tbody>
+</table>
+<p>Summary:</p>
 <ol style="list-style-type: decimal">
 <li>The unconditional t-test of log transfored response and especially Mann-Whitney-Wilcoxon have more power than the unconditional t-test.</li>
 <li>The overal power of the normality-test filter strategy using the Mann-Whitney-Wilcoxon as the alternative is about the same as the unconditional MWW strategy with the more skewed parameterization but slightly higher than that for the unconditional MWW strategy with the less skewed parameterization.</li>

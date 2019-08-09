@@ -1,6 +1,5 @@
 ---
-title: What is the consequence of a Shapiro-Wilk test-of-normality filter on Type
-  I error and Power?
+title: What is the consequence of a Shapiro-Wilk test-of-normality filter on Type I error and Power?
 author: Jeff Walker
 date: '2019-08-08'
 slug: what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power
@@ -14,11 +13,14 @@ tags:
   - fake data
 keywords:
   - tech
+output:
+  blogdown::html_page:
+    toc: true
 ---
 
-This post explores the effects of the **Normality Filter** -- using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response. In this strategy, a t-test is used only if the Shapiro-Wilk p-value is > than some cut-off (such as 0.05), otherwise the alternative is used.
+This 1990-wants-you-back post explores the effects of a **Normality Filter** -- using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response. In this strategy, the alternative is used if the Shapiro-Wilk p-value is less than some cut-off (such as 0.05), otherwise the t-test on the untransformed data is used.
 
-TL;DR -- Meh. Using a Shapiro-Wilk filter isn't going to lead to either better or worse inference. That said, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.](https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
+TL;DR -- Meh. Using a Shapiro-Wilk filter isn't going to lead to either better or worse inference. That said, if one simply wants a p-value, [there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.](https://rdoodles.rbind.io/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/). Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
 
 And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:
 
@@ -44,6 +46,8 @@ library(MASS)
 library(ggplot2)
 library(ggpubr)
 library(cowplot)
+
+do_sims <- FALSE # redo simulations?
 ```
 
 ```{r functions}
@@ -203,52 +207,59 @@ filter_summary <- function(test_stats, alpha=0.05){
 No real data are normally distributed so this parameterization of the simulation gives the behavior of the shapiro-wilk filter for data that are effectively normal.
 
 ```{r normal, eval=TRUE, echo=TRUE, message=FALSE}
-set.seed(1)
-base_niter <- 10^4 # target number of shapiro-wilk tests that "pass" (p > 0.05)
-
-mu_i <- 10
-sigma_set <- c(1)
-alpha_set <- c(0.1, 0.05, 0.01)
-n_set <- c(10)
-niter_set <- c(base_niter, base_niter*5, base_niter*10) # more iterations to get more samples that "pass" filter
-res_table <- data.table(NULL)
-gg <- list(NULL)
-list_i <- 0
-for(effect_i in c(0, 0.8)){ # "large" effect
-  for(sigma_i in sigma_set){
-    list_i <- list_i + 1
-    for(i in 1:length(n_set)){
-      n_i <- n_set[i]
-      niter_i <- niter_set[i]
-      fd <- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=effect_i, dist="normal")
-      
-      res <- data.table(filter_stats(fd))
-      for(alpha_i in alpha_set){
-        res_table <- rbind(res_table, data.table(
-          iter = niter_i,
-          mu = mu_i,
-          sigma = sigma_i,
-          effect = effect_i,
-          cn_mean = mean(fd[1:n_i,]),
-          cn_sd = sd(fd[1:n_i,]),
-          cn_cv = sd(fd[1:n_i,])/mean(fd[1:n_i,]),
-          tr_mean = mean(fd[(n_i+1):(n_i*2),]),
-          tr_sd = sd(fd[(n_i+1):(n_i*2),]),
-          tr_cv = sd(fd[(n_i+1):(n_i*2),])/mean(fd[(n_i+1):(n_i*2),]),
-          n = n_i,
-          alpha = alpha_i,
-          data.table(t(filter_summary(res, alpha=alpha_i)))))
+if(do_sims==TRUE){
+  set.seed(1)
+  base_niter <- 10^4 # target number of shapiro-wilk tests that "pass" (p > 0.05)
+  
+  mu_i <- 10
+  sigma_set <- c(1)
+  alpha_set <- c(0.1, 0.05, 0.01)
+  n_set <- c(10)
+  niter_set <- c(base_niter, base_niter*5, base_niter*10) # more iterations to get more samples that "pass" filter
+  res_table <- data.table(NULL)
+  gg <- list(NULL)
+  list_i <- 0
+  for(effect_i in c(0, 0.8)){ # "large" effect
+    for(sigma_i in sigma_set){
+      list_i <- list_i + 1
+      for(i in 1:length(n_set)){
+        n_i <- n_set[i]
+        niter_i <- niter_set[i]
+        fd <- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=effect_i, dist="normal")
+        
+        res <- data.table(filter_stats(fd))
+        for(alpha_i in alpha_set){
+          res_table <- rbind(res_table, data.table(
+            iter = niter_i,
+            mu = mu_i,
+            sigma = sigma_i,
+            effect = effect_i,
+            cn_mean = mean(fd[1:n_i,]),
+            cn_sd = sd(fd[1:n_i,]),
+            cn_cv = sd(fd[1:n_i,])/mean(fd[1:n_i,]),
+            tr_mean = mean(fd[(n_i+1):(n_i*2),]),
+            tr_sd = sd(fd[(n_i+1):(n_i*2),]),
+            tr_cv = sd(fd[(n_i+1):(n_i*2),])/mean(fd[(n_i+1):(n_i*2),]),
+            n = n_i,
+            alpha = alpha_i,
+            data.table(t(filter_summary(res, alpha=alpha_i)))))
+        }
       }
     }
   }
+  norm_table <- t(res_table)
+  # write to file
+  write.table(norm_table, "../output/2019-08-08-norm_table.txt",quote=FALSE, sep="\t")
+}else{ # if not true, read file
+  norm_table <- read.table("../output/2019-08-08-norm_table.txt", header=TRUE, sep="\t")
 }
-norm_table <- t(res_table)
 
 ```
 
 ## Type I error
 ```{r normal-type-1}
 type1 <- norm_table[, 1:3]
+colnames(type1) <- c("n=6", "n=10", "n=20")
 row.names(type1) <- c(
   "iterations",
   "mu",
@@ -273,8 +284,10 @@ row.names(type1) <- c(
   "log t-test: type I, | fail",
   "t-log t: type I"
 )
-round(type1, 3)
+knitr::kable(type1, digits=3)
 ```
+
+Summary:
 
 1. The conditional Type I error of the t-test for the sets that pass the Shapiro-Wilk filter is effectively the nominal value (0.05), as is that for the the unconditional Type I. The conditional Type I error for the sets that fail the filter is small (the test is conservative) but this is irrelevant because these data would be analyzed by Mann-Whitney-Wilcoxon or by a t-test of log-transformed data.
 2. The conditional Type I error for MWW test for sets that fail the Shapiro-Wilk filter is very slightly liberal.
@@ -286,6 +299,7 @@ These results replicate that in Rochon et al. See also Lumley et al (both are ci
 ## Power
 ```{r normal-power}
 type2 <- norm_table[, 4:6] # really power, not type 2
+colnames(type2) <- c("n=6", "n=10", "n=20")
 row.names(type2) <- c(
   "iterations",
   "mu",
@@ -310,8 +324,10 @@ row.names(type2) <- c(
   "log t-test: power, | fail",
   "t-log t: power"
 )
-round(type2, 3)
+knitr::kable(type2, digits=3)
 ```
+
+Summary:
 
 1. The unconditional Mann-Whitney-Wilcoxon has slightly reduced power relative to the unconditional t-test on either untransformed or log transformed response.
 2. The Mann-Whitney-Wilcoxon for sets that fail has slightly greater power relative to the unconditional t-test on either untransformed or log transformed response.
@@ -322,85 +338,93 @@ round(type2, 3)
 The lognormal distribution is explored with two parameterizations, one with larger skew and one with smaller skew, but still distinct from Normal.
 
 ```{r lognormal, message=FALSE}
-set.seed(1)
-base_niter <- 10^4 # target number of shapiro-wilk tests that "pass" (p > 0.05)
-mean_cn <- 10
-sd_cn <- 2
-effect_i <- 2
+if(do_sims==TRUE){
+  set.seed(1)
+  base_niter <- 10^4 # target number of shapiro-wilk tests that "pass" (p > 0.05)
+  mean_cn <- 10
+  sd_cn <- 2
+  effect_i <- 2
+  
+  mu_i <- 0 # exp(x) = 1
+  sigma_set <- c(0.8, 0.4)
+  alpha_set <- c(0.05)
+  n_set <- c(6, 10, 20)
+  niter_set <- c(base_niter, base_niter*5, base_niter*10) # more iterations to get more samples that "pass" filter
+  res_table <- data.table(NULL)
+  gg <- list(NULL)
+  list_i <- 0
+  for(effect_i in c(0, sd_cn*0.8)){ # "large" effect
+    for(sigma_i in sigma_set){
+      for(n_i in 1:length(n_set)){
+        list_i <- list_i + 1
+        niter_i <- niter_set[i]
+        fd <- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=0, dist="lnorm")
+        
+        # set to common CV
+        # sd = CV x Mean
+        fd <- scale(fd, scale=TRUE)
+        sd_cn <- 2
+        fd[1:n_i,] <- fd[1:n_i,]*sd_cn + mean_cn # 2 is the sd in the CN
+        fd[(n_i+1):(n_i*2),] <- fd[(n_i+1):(n_i*2),]*sd_cn*(mean_cn + effect_i)/mean_cn + mean_cn + effect_i 
 
-mu_i <- 0 # exp(x) = 1
-sigma_set <- c(0.8, 0.4)
-alpha_set <- c(0.05)
-n_set <- c(6, 10, 20)
-niter_set <- c(base_niter, base_niter*5, base_niter*10) # more iterations to get more samples that "pass" filter
-res_table <- data.table(NULL)
-gg <- list(NULL)
-list_i <- 0
-for(effect_i in c(0, sd_cn*0.8)){ # "large" effect
-  for(sigma_i in sigma_set){
-    list_i <- list_i + 1
-    for(i in 1:length(n_set)){
-      n_i <- n_set[i]
-      niter_i <- niter_set[i]
-      fd <- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=0, dist="lnorm")
-      
-      # set to common CV
-      # sd = CV x Mean
-      fd <- scale(fd, scale=TRUE)
-      sd_cn <- 2
-      fd[1:n_i,] <- fd[1:n_i,]*sd_cn + mean_cn # 2 is the sd in the CN
-      fd[(n_i+1):(n_i*2),] <- fd[(n_i+1):(n_i*2),]*sd_cn*(mean_cn + effect_i)/mean_cn + mean_cn + effect_i # 2 is the sd in the CN
-      # mean(fd)
-      # sd(fd)
-      # sd(fd)/mean(fd)
-      
-      gg_fd <- data.table(x=rep(c("a","b"), each=n_i), fd[, 1:4])
-      gg0 <- gghistogram(c(fd))
-      gg1 <- ggboxplot(data=gg_fd, x="x", y="V1", add="jitter")
-      gg2 <- ggboxplot(data=gg_fd, x="x", y="V2", add="jitter")
-      gg3 <- ggboxplot(data=gg_fd, x="x", y="V3", add="jitter")
-      gg4 <- ggboxplot(data=gg_fd, x="x", y="V4", add="jitter")
-      gg[[list_i]] <- plot_grid(gg0, gg1, gg2, gg3, gg4, ncol=5, rel_widths = c(2, 1, 1, 1, 1))
-      
-      res <- data.table(filter_stats(fd))
-      for(alpha_i in alpha_set){
-        res_table <- rbind(res_table, data.table(
-          iter = niter_i,
-          mu = mu_i,
-          sigma = sigma_i,
-          effect = effect_i,
-          cn_mean = mean(fd[1:n_i,]),
-          cn_sd = sd(fd[1:n_i,]),
-          cn_cv = sd(fd[1:n_i,])/mean(fd[1:n_i,]),
-          tr_mean = mean(fd[(n_i+1):(n_i*2),]),
-          tr_sd = sd(fd[(n_i+1):(n_i*2),]),
-          tr_cv = sd(fd[(n_i+1):(n_i*2),])/mean(fd[(n_i+1):(n_i*2),]),
-          n = n_i,
-          alpha = alpha_i,
-        #  alpha_2 = 1-(1-alpha_i)^2,
-          data.table(t(filter_summary(res, alpha=alpha_i)))))
+        if(n_i == n_set[length(n_set)] & effect_i==0){
+          gg_fd <- data.table(x=rep(c("a","b"), each=n_i), fd[, 1:3])
+          gg0 <- gghistogram(c(fd))
+          gg1 <- ggboxplot(data=gg_fd, x="x", y="V1", add="jitter")
+          gg2 <- ggboxplot(data=gg_fd, x="x", y="V2", add="jitter")
+          gg3 <- ggboxplot(data=gg_fd, x="x", y="V3", add="jitter")
+          gg <- plot_grid(gg0, gg1, gg2, gg3, ncol=4, rel_widths = c(2, 1, 1, 1, 1))
+          plot_file_name <- paste0("../images/2019-08-08-gg-s=", sigma_i, ".png")
+          save_plot(plot_file_name, gg, base_height = 4, base_width=6)
+        }
+        
+        res <- data.table(filter_stats(fd))
+        for(alpha_i in alpha_set){
+          res_table <- rbind(res_table, data.table(
+            iter = niter_i,
+            mu = mu_i,
+            sigma = sigma_i,
+            effect = effect_i,
+            cn_mean = mean(fd[1:n_i,]),
+            cn_sd = sd(fd[1:n_i,]),
+            cn_cv = sd(fd[1:n_i,])/mean(fd[1:n_i,]),
+            tr_mean = mean(fd[(n_i+1):(n_i*2),]),
+            tr_sd = sd(fd[(n_i+1):(n_i*2),]),
+            tr_cv = sd(fd[(n_i+1):(n_i*2),])/mean(fd[(n_i+1):(n_i*2),]),
+            n = n_i,
+            alpha = alpha_i,
+            #  alpha_2 = 1-(1-alpha_i)^2,
+            data.table(t(filter_summary(res, alpha=alpha_i)))))
+        }
       }
     }
-  }
+  }  
+  lognorm_table <- t(res_table)
+  # write to file
+  write.table(lognorm_table, "../output/2019-08-08-lognorm_table.txt",quote=FALSE, sep="\t")
+}else{ # if not true, read file
+  lognorm_table <- read.table("../output/2019-08-08-lognorm_table.txt", header=TRUE, sep="\t")
 }
-lognorm_table <- t(res_table)
+
 
 ```
 
-## What the distributions look like
-### larger skew
-```{r}
-gg[[1]]
+## What the parameterizations look like
+
+```{r lognormal-sigma-big, fig.cap="sigma = 0.8 (less approximately normal)"}
+knitr::include_graphics("2019-08-08-what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power_files/figure-html/2019-08-08-gg-s=0.8.png")
 ```
 
-### smaller skew
-```{r}
-gg[[2]]
+
+```{r lognormal-sigma-small, fig.cap="sigma = 0.4 (more approximately normal)"}
+knitr::include_graphics("2019-08-08-what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power_files/figure-html/2019-08-08-gg-s=0.4.png")
 ```
 
 ## Type I error
-```{r lognormal-type-1}
-type1 <- lognorm_table[, 1:6]
+
+```{r lognormal-type-1-a}
+type1 <- lognorm_table[, 1:3]
+colnames(type1) <- c("n=6", "n=10", "n=20")
 row.names(type1) <- c(
   "iterations",
   "mu",
@@ -425,8 +449,41 @@ row.names(type1) <- c(
   "log t-test: type I, | fail",
   "t-log t: type I"
 )
-round(type1, 3)
+knitr::kable(type1, digits=3, caption="mu = 0, sigma = 0.8")
 ```
+
+
+```{r lognormal-type-1b}
+type1 <- lognorm_table[, 4:6]
+colnames(type1) <- c("n=6", "n=10", "n=20")
+row.names(type1) <- c(
+  "iterations",
+  "mu",
+  "sigma",
+  "effect",
+  "Cn mean",
+  "Cn sd",
+  "Cn cv",
+  "Tr mean",
+  "Tr sd",
+  "Tr cv",
+  "n",
+  "alpha for normality test",
+  "failed normality, rate",
+  "t-test: type I, unconditional",
+  "t-test: type I, | pass",
+  "t-test: type I, | fail",
+  "MWW-test: type I, unconditional",
+  "MWW-test: type I, | fail",
+  "t-MWW: type I",
+  "log t-test: type I, unconditional",
+  "log t-test: type I, | fail",
+  "t-log t: type I"
+)
+knitr::kable(type1, digits=3, caption="mu = 0, sigma = 0.4")
+```
+
+Summary:
 
 1. All unconditional tests are slightly conservative (the Mann-Whitney-Wilcoxon least so)
 2. The conditional Type I error of the t-test for the sets that pass the Shapiro-Wilk filter increases with $n$ but the rate of this increase is less for the parameterization generating data that is more approximately normal (mu = 0, sigma = 0.4)
@@ -436,6 +493,7 @@ round(type1, 3)
 ## Power
 ```{r lognormal-power}
 type2 <- lognorm_table[, 7:12] # really power, not type 2
+colnames(type2) <- c("n=6", "n=10", "n=20")
 row.names(type2) <- c(
   "iterations",
   "mu",
@@ -460,8 +518,10 @@ row.names(type2) <- c(
   "log t-test: power, | fail",
   "t-log t: power"
 )
-round(type2, 3)
+knitr::kable(type2, digits=3)
 ```
+
+Summary:
 
 1. The unconditional t-test of log transfored response and especially Mann-Whitney-Wilcoxon have more power than the unconditional t-test.
 2. The overal power of the normality-test filter strategy using the Mann-Whitney-Wilcoxon as the alternative is about the same as the unconditional MWW strategy with the more skewed parameterization but slightly higher than that for the unconditional MWW strategy with the less skewed parameterization.
