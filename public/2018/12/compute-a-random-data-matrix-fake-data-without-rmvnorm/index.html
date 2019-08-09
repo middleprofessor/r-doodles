@@ -650,9 +650,8 @@ S # compare...pretty good!</code></pre>
                   Aug 8, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">TL;DR – Meh. Using a Shapiro-Wilk filter isn’t going to lead to either better or worse inference. That said, there are more powerful methods than a t-test on log-transformed data or Mann-Whitney-Wilcoxan.. Any update will include a test using a generalized linear model estimate of the effect and uncertainty.
-And of course, none of this addresses estimation itself, just the NHST approach to discovery. This quote is relevant:
-“The major limitation on the t-test and linear regression for inference about associations is not a distributional one, but whether detecting and estimating a difference in the mean of the outcome answers the scientific question at hand.</div>
+              <div class="media-content hide-xs font-merryweather">This post explores the effects of the Normality Filter – using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response. In this strategy, a t-test is used only if the Shapiro-Wilk p-value is &gt; than some cut-off (such as 0.05), otherwise the alternative is used.
+TL;DR – Meh.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
