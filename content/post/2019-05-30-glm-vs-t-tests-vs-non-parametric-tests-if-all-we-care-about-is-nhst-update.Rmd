@@ -234,7 +234,7 @@ knitr::kable(res_table[effect!=1,],
 ```
 
 
-# plot
+# plots
 
 ```{r}
 res <- melt(res_table, 
@@ -245,7 +245,7 @@ res <- melt(res_table,
 ```
 
 
-```{r type-1-plot}
+```{r type-1-plot, fig.cap="Type I error"}
 gg <- ggplot(data=res[effect==1,], aes(x=n, y=frequency, group=model, color=model)) +
   geom_line() +
   facet_grid(. ~ effect, labeller=label_both) +
@@ -253,7 +253,7 @@ gg <- ggplot(data=res[effect==1,], aes(x=n, y=frequency, group=model, color=mode
 gg
 ```
 
-```{r plower-plot}
+```{r plower-plot, fig.cap="Power"}
 gg <- ggplot(data=res[effect!=1,], aes(x=n, y=frequency, group=model, color=model)) +
   geom_line() +
   facet_grid(. ~ effect, labeller=label_both) +

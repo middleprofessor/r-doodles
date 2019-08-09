@@ -344,8 +344,8 @@ if(do_it==TRUE){
 </tbody>
 </table>
 </div>
-<div id="plot" class="section level1">
-<h1>plot</h1>
+<div id="plots" class="section level1">
+<h1>plots</h1>
 <pre class="r"><code>res &lt;- melt(res_table, 
             id.vars=c(&quot;mu_0&quot;, &quot;effect&quot;, &quot;n&quot;, &quot;theta&quot;, &quot;nb.error&quot;),
             measure.vars=c(&quot;t&quot;, &quot;Welch&quot;, &quot;log&quot;, &quot;Wilcoxan&quot;, &quot;nb&quot;, &quot;nb.x2&quot;, &quot;nb.perm&quot;, &quot;qp&quot;),
@@ -356,13 +356,23 @@ if(do_it==TRUE){
   facet_grid(. ~ effect, labeller=label_both) +
   NULL
 gg</code></pre>
-<p><img src="/post/2019-05-30-glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update_files/figure-html/type-1-plot-1.png" width="672" /></p>
+<div class="figure"><span id="fig:type-1-plot"></span>
+<img src="/post/2019-05-30-glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update_files/figure-html/type-1-plot-1.png" alt="Type I error" width="672" />
+<p class="caption">
+Figure 1: Type I error
+</p>
+</div>
 <pre class="r"><code>gg &lt;- ggplot(data=res[effect!=1,], aes(x=n, y=frequency, group=model, color=model)) +
   geom_line() +
   facet_grid(. ~ effect, labeller=label_both) +
   NULL
 gg</code></pre>
-<p><img src="/post/2019-05-30-glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update_files/figure-html/plower-plot-1.png" width="672" /></p>
+<div class="figure"><span id="fig:plower-plot"></span>
+<img src="/post/2019-05-30-glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update_files/figure-html/plower-plot-1.png" alt="Power" width="672" />
+<p class="caption">
+Figure 2: Power
+</p>
+</div>
 </div>
 <div class="footnotes">
 <hr />
