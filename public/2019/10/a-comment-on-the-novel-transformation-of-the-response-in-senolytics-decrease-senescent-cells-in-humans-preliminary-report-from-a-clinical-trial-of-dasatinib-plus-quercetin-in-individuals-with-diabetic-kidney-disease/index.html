@@ -432,6 +432,10 @@ qplot(id, res, color=day) +
 <p>The perfect, negative correlation of the residuals is more explicitly shown with a scatterplot of day_14 residuals vs. day_0 residuals.</p>
 <p><img src="/post/2019-10-02-a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
+<div id="conclusion" class="section level1">
+<h1>conclusion</h1>
+<p>There is some discussion on twitter and pubpeer on the mechanism of the inflated type I error; is it 1) the unpaired t-test, 2) the transformation, or 3) combination of both? The unpaired t-test is <em>not</em> the mechanism, because without the transformation, the unpaired t-test is conservative (fewer type I error than nominal) not liberal. It is the transformation that inflates the error. But, because of what a paired t-test does (it tests b-a = 0), it is unaffected by the transformation.</p>
+</div>
 
               
             </div>

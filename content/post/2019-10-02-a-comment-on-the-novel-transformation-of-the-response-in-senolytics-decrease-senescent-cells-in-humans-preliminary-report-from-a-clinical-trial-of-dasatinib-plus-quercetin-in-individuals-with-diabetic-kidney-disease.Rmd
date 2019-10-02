@@ -130,3 +130,6 @@ qplot(res[day=="day_0"], res[day=="day_14"]) +
 
 ```
 
+# conclusion
+
+There is some discussion on twitter and pubpeer on the mechanism of the inflated type I error; is it 1) the unpaired t-test, 2) the transformation, or 3) combination of both? The unpaired t-test is *not* the mechanism, because without the transformation, the unpaired t-test is conservative (fewer type I error than nominal) not liberal. It is the transformation that inflates the error. But, because of what a paired t-test does (it tests b-a = 0), it is unaffected by the transformation.
