@@ -33,10 +33,11 @@ The figure clearly show that the 1) analyzed response is not a raw count and 2) 
 
 It's pretty easy to see this is the case looking at the figures. I commented to twitter 
 
-```{r image, echo=FALSE}
+```{r image, echo=FALSE, eval=FALSE}
 image_path <- "../images/twitter.png"
 knitr::include_graphics(image_path)
 ```
+![](/post/2019-10-02-a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease_files/twitter.png) 
 
 The problem is less the perfect negative correlation among the responses but the fact the an individual's day 0 and day 14 measures are symetric about the mean (that is "perfect, negative correlation within individuals") -- see the two figures at the end of this post. Given the transformation, then, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. **Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error.**
 
