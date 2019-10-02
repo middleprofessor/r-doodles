@@ -39,7 +39,7 @@ knitr::include_graphics(image_path)
 ```
 ![](/post/2019-10-02-a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease_files/twitter.png) 
 
-Some later responses noted the perfect, negative correlation among the response, but the underlying problem is, fundamentally, the perfect, negative correlation *within individuals*, which occurs because the transformation necessarily makes an individual's day 0 and day 14 measures symetric about the mean (that is "perfect, negative correlation within individuals") -- see the two figures at the end of this post. Given the transformation, then, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. **Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error.**
+Some later responses noted the perfect, negative correlation among the response, but the underlying problem is, fundamentally, the perfect, negative correlation *within individuals*, which occurs because the transformation necessarily makes an individual's day 0 and day 14 measures symmetric about the mean (that is "perfect, negative correlation within individuals") -- see the two figures at the end of this post. Given the transformation, then, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. **Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error.**
 
 Anyway, my response went un-noticed and, motivated by a new twitter post from Andrew Althouse, I decided to revisit the issue **using a simulation to check my understanding** of what the transformation does and why it inflates Type I error.
 
@@ -51,21 +51,27 @@ n <- 9
 mu <- 100 # overall mean
 sigma_w <- 10 # variation within ID
 amp_vals <- c(0.001, 0.66, 1) # rho = 0, ~0.3, 0.5
-n_iter <- 10^4
+n_iter <- 10^4 # number of simulated data sets per amp_val
+
+# vectors of p-values with different t-tests
 p.norm_unpaired <- numeric(n_iter)
 p.norm_paired <- numeric(n_iter)
 p.count_unpaired <- numeric(n_iter)
 p.count_paired <- numeric(n_iter)
+
+# of vector of pre-post correlations just to check my rho
 r <- numeric(n_iter)
 
 t1_table <- data.frame(matrix(NA, nrow=6, ncol=length(amp_vals)))
 row.names(t1_table) <- c("Among:Within", "rho", "trans unpaired", "trans paired", "raw unpaired", "raw paired")
 
-set.seed(1)
-for(amp in amp_vals){
+set.seed(1) # so the results are precisely reproducible
+for(amp in amp_vals){ # controls among:within variance
   sigma_a <- amp*sigma_w # variation among ID
-  rho <- (amp*sigma_w)^2/((amp*sigma_w)^2 + sigma_w^2)
+  
+  # fill in first two rows of results table
   t1_table["Among:Within", which(amp_vals==amp)] <- amp^2
+  rho <- (amp*sigma_w)^2/((amp*sigma_w)^2 + sigma_w^2)
   t1_table["rho", which(amp_vals==amp)] <- rho
   
   # not a super efficient simulation but the for loop is more readable
@@ -73,8 +79,8 @@ for(amp in amp_vals){
     mu_i <- rnorm(n=n, mean=mu, sd=sigma_a) # means of each ID
     count_0 <- rnorm(n, mean=mu_i, sd=sigma_w) # counts at day 0
     count_14 <- rnorm(n, mean=mu_i, sd=sigma_w) # counts at day 14
-    norm_0 <- count_0/(count_0 + count_14)
-    norm_14 <- count_14/(count_0 + count_14)
+    norm_0 <- count_0/(count_0 + count_14) # transformed response
+    norm_14 <- count_14/(count_0 + count_14) # transformed response
     r[iter] <- cor(count_0, count_14)
     p.norm_unpaired[iter] <- t.test(norm_0, norm_14, var.equal=FALSE)$p.value
     p.norm_paired[iter] <- t.test(norm_0, norm_14, paired=TRUE)$p.value
@@ -82,6 +88,7 @@ for(amp in amp_vals){
     p.count_paired[iter] <- t.test(count_0, count_14, paired=TRUE)$p.value
   }
 
+  # build the table of type I error
   t1_table[3:6, which(amp_vals==amp)] <- c(
     sum(p.norm_unpaired < 0.05)/n_iter,
     sum(p.norm_paired < 0.05)/n_iter,
