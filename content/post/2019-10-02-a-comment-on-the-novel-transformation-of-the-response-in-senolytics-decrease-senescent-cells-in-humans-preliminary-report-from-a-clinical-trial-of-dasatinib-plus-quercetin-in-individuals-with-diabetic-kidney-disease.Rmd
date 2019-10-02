@@ -49,6 +49,7 @@ The response is a count, which is not Gaussian. Regardless, this initial simulat
 ```{r}
 n <- 9
 mu <- 100 # overall mean
+sigma_w <- 10 # variation within ID
 amp_vals <- c(0.001, 0.66, 1) # rho = 0, ~0.3, 0.5
 n_iter <- 10^4
 p.norm_unpaired <- numeric(n_iter)
@@ -58,14 +59,13 @@ p.count_paired <- numeric(n_iter)
 r <- numeric(n_iter)
 
 t1_table <- data.frame(matrix(NA, nrow=6, ncol=length(amp_vals)))
-row.names(t1_table) <- c("Among ID Var", "rho", "trans unpaired", "trans paired", "raw unpaired", "raw paired")
+row.names(t1_table) <- c("Among:Within", "rho", "trans unpaired", "trans paired", "raw unpaired", "raw paired")
 
 set.seed(1)
 for(amp in amp_vals){
-  sigma_w <- 10 # variation within ID
   sigma_a <- amp*sigma_w # variation among ID
   rho <- (amp*sigma_w)^2/((amp*sigma_w)^2 + sigma_w^2)
-  t1_table["Among ID Var", which(amp_vals==amp)] <- amp
+  t1_table["Among:Within", which(amp_vals==amp)] <- amp^2
   t1_table["rho", which(amp_vals==amp)] <- rho
   
   # not a super efficient simulation but the for loop is more readable
@@ -92,10 +92,14 @@ for(amp in amp_vals){
 
 ```
 
+```{r checks, echo=FALSE, eval=FALSE}
+var(mu_i)
+```
+
 The type I errors are
 ```{r, echo=FALSE}
 colnames(t1_table) <- paste0("Sim", 1:length(amp_vals))
-knitr::kable(t1_table, digits=c(3,3,3))
+knitr::kable(t1_table, digits=c(3,3,3), caption="Table of Type I errors. The first row is the ratio of the among-ID variance to within-ID variance. The among-ID variance is VAR(mu). The second row is the expected correlation given the among:within variance")
 ```
 
 The table of type I errors shows

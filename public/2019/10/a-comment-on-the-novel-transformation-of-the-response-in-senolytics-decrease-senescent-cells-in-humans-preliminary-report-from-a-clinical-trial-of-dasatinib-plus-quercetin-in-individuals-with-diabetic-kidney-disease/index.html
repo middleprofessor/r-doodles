@@ -322,6 +322,7 @@ if (!doNotTrack) {
 <p>The response is a count, which is not Gaussian. Regardless, this initial simulation uses a normal (conditional) response.</p>
 <pre class="r"><code>n &lt;- 9
 mu &lt;- 100 # overall mean
+sigma_w &lt;- 10 # variation within ID
 amp_vals &lt;- c(0.001, 0.66, 1) # rho = 0, ~0.3, 0.5
 n_iter &lt;- 10^4
 p.norm_unpaired &lt;- numeric(n_iter)
@@ -331,14 +332,13 @@ p.count_paired &lt;- numeric(n_iter)
 r &lt;- numeric(n_iter)
 
 t1_table &lt;- data.frame(matrix(NA, nrow=6, ncol=length(amp_vals)))
-row.names(t1_table) &lt;- c(&quot;Among ID Var&quot;, &quot;rho&quot;, &quot;trans unpaired&quot;, &quot;trans paired&quot;, &quot;raw unpaired&quot;, &quot;raw paired&quot;)
+row.names(t1_table) &lt;- c(&quot;Among:Within&quot;, &quot;rho&quot;, &quot;trans unpaired&quot;, &quot;trans paired&quot;, &quot;raw unpaired&quot;, &quot;raw paired&quot;)
 
 set.seed(1)
 for(amp in amp_vals){
-  sigma_w &lt;- 10 # variation within ID
   sigma_a &lt;- amp*sigma_w # variation among ID
   rho &lt;- (amp*sigma_w)^2/((amp*sigma_w)^2 + sigma_w^2)
-  t1_table[&quot;Among ID Var&quot;, which(amp_vals==amp)] &lt;- amp
+  t1_table[&quot;Among:Within&quot;, which(amp_vals==amp)] &lt;- amp^2
   t1_table[&quot;rho&quot;, which(amp_vals==amp)] &lt;- rho
   
   # not a super efficient simulation but the for loop is more readable
@@ -364,6 +364,7 @@ for(amp in amp_vals){
 }</code></pre>
 <p>The type I errors are</p>
 <table>
+<caption><span id="tab:unnamed-chunk-2">Table 1: </span>Table of Type I errors. The first row is the ratio of the among-ID variance to within-ID variance. The among-ID variance is VAR(mu). The second row is the expected correlation given the among:within variance</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -374,9 +375,9 @@ for(amp in amp_vals){
 </thead>
 <tbody>
 <tr class="odd">
-<td>Among ID Var</td>
-<td align="right">0.001</td>
-<td align="right">0.660</td>
+<td>Among:Within</td>
+<td align="right">0.000</td>
+<td align="right">0.436</td>
 <td align="right">1.000</td>
 </tr>
 <tr class="even">
