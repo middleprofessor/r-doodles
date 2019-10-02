@@ -96,7 +96,6 @@ for(amp in amp_vals){
 var(mu_i)
 ```
 
-The type I errors are
 ```{r, echo=FALSE}
 colnames(t1_table) <- paste0("Sim", 1:length(amp_vals))
 knitr::kable(t1_table, digits=c(3,3,3), caption="Table of Type I errors. The first row is the ratio of the among-ID variance to within-ID variance. The among-ID variance is VAR(mu). The second row is the expected correlation given the among:within variance")
