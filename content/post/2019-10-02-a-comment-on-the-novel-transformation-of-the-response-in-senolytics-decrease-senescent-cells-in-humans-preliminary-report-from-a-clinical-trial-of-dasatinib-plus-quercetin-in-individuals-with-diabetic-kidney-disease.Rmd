@@ -21,13 +21,13 @@ library(lme4)
 ```
 
 Motivation: https://pubpeer.com/publications/8DF6E66FEFAA2C3C7D5BD9C3FC45A2#2
-and https://twitter.com/ADAlthousePhD/status/1176519053596340226
+and https://twitter.com/CGATist/status/1175015246282539009
 
-tl;dr: Given the transformation done by the authors, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error with an unpaired t-test. The transformation is necessary and sufficient to produce the result (meaning even in conditions where a paired t-test isn't needed, the transformation still produces elevated Type I error).
+tl;dr: Given the transformation done by the authors, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error with an unpaired t-test. The transformation is necessary and sufficient to produce the result (meaning **even in conditions where a paired t-test isn't needed, the transformation still produces elevated Type I error**).
 
-Twitter alerted the world to interesting looking figures from a recent publication. The paper itself is on a pair of drugs that target senescent cells to reduce the number of senescent cells in a tissue. The raw response is a count of senescent cells before (day 0) and after (day 14) treatment. I read the paper quickly but don't see a control.
+Pubpeer and Twitter alerted the world to interesting looking figures from a recent publication. The paper itself is on a pair of drugs that target senescent cells to reduce the number of senescent cells in a tissue. The raw response is a count of senescent cells before (day 0) and after (day 14) treatment. I read the paper quickly but don't see a control.
 
-The figure clearly show that the 1) analyzed response is not a raw count and 2) the value of the response in day 14 for individual $i$ is one minus its value in day 0. A pubpeer queery got this response from an author:
+The figure clearly show that the 1) analyzed response is not a raw count and 2) the value of the two responses for individual $i$ are symmetric about the mean response. A pubpeer query got this response from an author:
 
 "To test for effects on % reduction in senescent cells WITHIN subjects without confounding effects of variations of initial senescent cell burden among subjects, data are expressed as % of values at day 0 + day 14 for each subject, i.e. value at time 0 for subject 1 is: absolute value at day 0 for subject 1/(absolute value at day 0 for subject 1 + absolute value at day 14 for subject 1) x 100. Thus, % at day 0 + % at day 14 for subject 1 = 100."
 
@@ -39,9 +39,9 @@ knitr::include_graphics(image_path)
 ```
 ![](/post/2019-10-02-a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease_files/twitter.png) 
 
-The problem is less the perfect negative correlation among the responses but the fact the an individual's day 0 and day 14 measures are symetric about the mean (that is "perfect, negative correlation within individuals") -- see the two figures at the end of this post. Given the transformation, then, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. **Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error.**
+Some later responses noted the perfect, negative correlation among the response, but the underlying problem is, fundamentally, the perfect, negative correlation *within individuals*, which occurs because the transformation necessarily makes an individual's day 0 and day 14 measures symetric about the mean (that is "perfect, negative correlation within individuals") -- see the two figures at the end of this post. Given the transformation, then, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. **Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error.**
 
-Motivated by a new twitter post from Andrew, I decided to show this using a simulation.
+Anyway, my response went un-noticed and, motivated by a new twitter post from Andrew Althouse, I decided to revisit the issue **using a simulation to check my understanding** of what the transformation does and why it inflates Type I error.
 
 # normal conditional response
 The response is a count, which is not Gaussian. Regardless, this initial simulation uses a normal (conditional) response.
