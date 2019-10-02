@@ -76,9 +76,9 @@ for(amp in amp_vals){
     norm_0 <- count_0/(count_0 + count_14)
     norm_14 <- count_14/(count_0 + count_14)
     r[iter] <- cor(count_0, count_14)
-    p.norm_unpaired[iter] <- t.test(norm_0, norm_14, var.equal=FALSE, paired=FALSE)$p.value
+    p.norm_unpaired[iter] <- t.test(norm_0, norm_14, var.equal=FALSE)$p.value
     p.norm_paired[iter] <- t.test(norm_0, norm_14, paired=TRUE)$p.value
-    p.count_unpaired[iter] <- t.test(count_0, count_14, var.equal=FALSE, paired=FALSE)$p.value
+    p.count_unpaired[iter] <- t.test(count_0, count_14, var.equal=FALSE)$p.value
     p.count_paired[iter] <- t.test(count_0, count_14, paired=TRUE)$p.value
   }
 
@@ -113,6 +113,7 @@ id <- as.character(rep(1:n, times=2))
 m1 <- lm(count ~ day)
 res <- residuals(m1)
 qplot(id, res, color=day) +
+  ylab("Residuals")
   NULL
 ```
 
