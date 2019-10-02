@@ -116,7 +116,7 @@ id <- as.character(rep(1:n, times=2))
 m1 <- lm(count ~ day)
 res <- residuals(m1)
 qplot(id, res, color=day) +
-  ylab("Residuals")
+  ylab("Residuals") +
   NULL
 ```
 

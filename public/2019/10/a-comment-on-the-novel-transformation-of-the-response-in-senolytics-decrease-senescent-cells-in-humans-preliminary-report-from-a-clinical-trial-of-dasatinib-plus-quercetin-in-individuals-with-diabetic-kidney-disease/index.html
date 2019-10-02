@@ -426,10 +426,9 @@ id &lt;- as.character(rep(1:n, times=2))
 m1 &lt;- lm(count ~ day)
 res &lt;- residuals(m1)
 qplot(id, res, color=day) +
-  ylab(&quot;Residuals&quot;)</code></pre>
+  ylab(&quot;Residuals&quot;) +
+  NULL</code></pre>
 <p><img src="/post/2019-10-02-a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
-<pre class="r"><code>  NULL</code></pre>
-<pre><code>## NULL</code></pre>
 <p>The perfect, negative correlation of the residuals is more explicitly shown with a scatterplot of day_14 residuals vs. day_0 residuals.</p>
 <p><img src="/post/2019-10-02-a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
