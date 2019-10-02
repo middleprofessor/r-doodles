@@ -1,0 +1,38 @@
+Motivated by Andrew's tweet today (Oct 1), I did my own simulation, which turns out to have elements of both Andrew's and Tim's. In my simulation I first randomly sample ID means using an among ID variance and then use these means to sample day 0 and day 14 data for each ID and a common within ID variance. The expected correlation given the values of within and among ID variance is in my variable rho (Tim used rho to compute correlated day 0 and day 14 variables).
+
+My results replicate those of Andrew and Tim *but* my interpretation is exactly opposite of Tim's. That is, it is the transformation of the response that gives the high type I error. A unpaired t-test on the raw response will be conservative *if* there is true among-ID variance (which creates a correlation between pre and post)-- the among ID variance adds to the noise, which is why we do the paired t. But when the response is transformed, the unpaired test is liberal (which is not expected for an unpaired test when among ID variance > 0), hence its the transformation that is causing the misbehavior. This makes sense, given the transformation, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big.
+
+n <- 9
+mu <- 100 # overall mean
+amp <- 0.5
+sigma_w <- 10 # variation within ID
+sigma_a <- amp*sigma_w # variation among ID
+rho <- (amp*sigma_w)^2/((amp*sigma_w)^2 + sigma_w^2)
+
+n_iter <- 10^4
+p.norm_unpaired <- numeric(n_iter)
+p.norm_paired <- numeric(n_iter)
+p.count_unpaired <- numeric(n_iter)
+p.count_paired <- numeric(n_iter)
+r <- numeric(n_iter)
+set.seed(1)
+for(iter in 1:n_iter){
+  mu_i <- rnorm(n=n, mean=mu, sd=sigma_a) # means of each ID
+  count_0 <- rnorm(n, mean=mu_i, sd=sigma_w) # counts at day 0
+  count_14 <- rnorm(n, mean=mu_i, sd=sigma_w) # counts at day 14
+  norm_0 <- count_0/(count_0 + count_14)
+  norm_14 <- count_14/(count_0 + count_14)
+  r[iter] <- cor(count_0, count_14)
+  p.norm_unpaired[iter] <- t.test(norm_0, norm_14, var.equal=FALSE, paired=FALSE)$p.value
+  p.norm_paired[iter] <- t.test(norm_0, norm_14, paired=TRUE)$p.value
+  p.count_unpaired[iter] <- t.test(count_0, count_14, var.equal=FALSE, paired=FALSE)$p.value
+  p.count_paired[iter] <- t.test(count_0, count_14, paired=TRUE)$p.value
+}
+data.table(rho=rho, r=mean(r))
+data.table(method=c("norm unpaired", "norm paired", "raw unpaired", "raw paired"),
+           "type 1" = c(
+             sum(p.norm_unpaired < 0.05)/n_iter,
+             sum(p.norm_paired < 0.05)/n_iter,
+             sum(p.count_unpaired < 0.05)/n_iter,
+             sum(p.count_paired < 0.05)/n_iter
+))

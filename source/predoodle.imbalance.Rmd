@@ -1,0 +1,267 @@
+---
+title: "Untitled"
+author: "Jeff Walker"
+date: "8/16/2019"
+output: html_document
+---
+
+
+# Set up
+
+```{r libraries, message=FALSE}
+library(data.table)
+library(MASS)
+library(ggplot2)
+library(ggpubr)
+library(cowplot)
+
+library(kableExtra)
+
+do_sims <- FALSE # redo simulations?
+```
+
+```{r functions}
+fake_data <- function(niter=10^4, n=50, location=0, scale=1, shape=1, effect=0, dist="normal"){
+
+  if(dist=="normal"){
+    cn <- matrix(rnorm(n*niter, mean=location, sd=scale), nrow=n, ncol=niter)
+    tr <- matrix(rnorm(n*niter, mean=(location + effect), sd=scale), nrow=n, ncol=niter)
+    fd <- rbind(cn, tr)
+  }
+  if(dist=="nb"){ # negative binomial for counts
+    cn <- matrix(rnegbin(niter*n, mu=location, theta=shape), nrow=n, ncol=niter)
+    tr <- matrix(rnegbin(niter*n, mu=(location + effect), theta=shape), nrow=n, ncol=niter)
+    fd <- rbind(cn, tr)
+  }
+  if(dist=="exp"){ # exponential to reproduce paper
+    rate_cn <- 1/location
+    rate_tr <- 1/(location + effect)
+    cn <- matrix(rexp(niter*n, rate=rate_cn), nrow=n, ncol=niter)
+    tr <- matrix(rexp(niter*n, rate=rate_tr), nrow=n, ncol=niter)
+    fd <- rbind(cn, tr)
+  }
+  if(dist=="lnorm"){ # exponential to reproduce paper
+    cn <- matrix(rlnorm(niter*n, meanlog=location, sdlog=scale), nrow=n, ncol=niter)
+    tr <- matrix(rlnorm(niter*n, meanlog=location, sdlog=scale), nrow=n, ncol=niter)
+    fd <- rbind(cn, tr)
+  }
+  return(fd)
+}
+
+filter_stats <- function(fd, n1=nrow(fd)/2, n2=nrow(fd)/2){
+  # outputs SW p for residual, group1, and group2 + unconditional t-test p
+  niter <- ncol(fd)
+  x <- rep(c("a","b"), times=c(n1, n2))
+  test_stats_cols <- c("residual", "group1","group2", "p", "p.log", "p.mww")
+  test_stats <- matrix(NA, nrow=niter, ncol=length(test_stats_cols))
+  colnames(test_stats) <- test_stats_cols
+
+  if(min(fd)==0){
+    logfd <- log(fd+1)
+    } else{
+    logfd <- log(fd) # exponential, gamma
+  }
+  
+  iter <- 1 # for debugging
+  for(iter in 1:niter){
+    test_stats[iter, "residual"] <- shapiro.test(residuals(lm(fd[, iter] ~ x)))$p.value # using residual
+    # test_stats[iter, "group1"] <- shapiro.test(fd[1:n, iter])$p.value # using group variable
+    # test_stats[iter, "group2"] <- shapiro.test(fd[(n+1):(2*n), iter])$p.value # using group variable
+    test_stats[iter, "p"] <- t.test(fd[, iter] ~ x, var.equal=TRUE)$p.value
+    test_stats[iter, "p.log"] <- t.test(logfd[, iter] ~ x, var.equal=TRUE)$p.value
+    test_stats[iter, "p.mww"] <- wilcox.test(fd[, iter] ~ x, exact=FALSE)$p.value
+  }
+  return(test_stats)
+}
+
+filter_summary <- function(test_stats, alpha=0.05){
+  # note that prob of at least 1 group rejected is
+  # 1 - (1-alpha)^2
+  niter <- nrow(test_stats)
+  
+  ###### Shapiro Wilk test stats
+  
+  # rate of SW rejection using residual
+  SW_rej_residual <- sum(test_stats$residual < alpha)/niter
+  
+  # rate of SW rejection testing each group seperately
+  #SW_rej_group <- sum(test_stats$group1 < alpha | test_stats$group2 < alpha)/niter # SW positives using group
+  
+  ##### t-test stats
+  
+  # unconditional type I error/power using t-test
+  t_unconditional <- sum(test_stats$p < 0.05)/niter
+  
+  # conditional type I/power of subset that "pass" (not rejected) shapiro wilk test using residuals
+  t_pass_residual <- sum(test_stats[residual > alpha, p] < 0.05)/sum(test_stats[,residual > alpha])
+  
+  # conditional type I/power of subset that "pass" (not rejected) shapiro wilk test using groupwise
+  #t_pass_group <- sum(test_stats[group1 > alpha & group2 > alpha, p] < 0.05)/sum(test_stats[, group1 > alpha & group2 > alpha])
+  
+  # conditional type I/power of subset that "fail" (rejected) shapiro wilk test using residuals
+  t_rej_residual <- sum(test_stats[residual < alpha, p] < 0.05)/sum(test_stats[,residual < alpha])
+  
+  # conditional type I/power of subset that "fail" (rejected) shapiro wilk test using groupwise
+  #t_rej_group <- sum(test_stats[group1 < alpha | group2 < alpha, p] < 0.05)/sum(test_stats[, group1 < alpha | group2 < alpha]) # conditional on positive SW on group
+  
+  
+  ##### Mann-Whitney-Wilcoxon test stats
+  
+  # unconditional type I error/power using MWW
+  mww_unconditional <- sum(test_stats$p.mww < 0.05)/niter
+  
+  # conditional type I/power of subset that "fail" (rejected) shapiro wilk test using residuals
+  mww_fail_residual <- sum(test_stats[residual < alpha, p.mww] < 0.05)/sum(test_stats[,residual < alpha])
+  
+  # conditional type I/power of subset that "fail" (rejected) shapiro wilk test using groupwise
+  #mww_fail_group <- sum(test_stats[group1 < alpha & group2 < alpha, p.mww] < 0.05)/sum(test_stats[, group1 < alpha & group2 < alpha])
+  
+  ##### combined t-test + Mann-Whitney-Wilcoxon test stats
+
+  # conditional type I/power of subset that "pass" (not rejected) shapiro wilk test using residuals
+  t_mww_fail_residual <- (sum(test_stats[residual > alpha, p] < 0.05) +
+                            sum(test_stats[residual < alpha, p.mww] < 0.05))/niter
+  
+  # conditional type I/power of subset that "pass" (not rejected) shapiro wilk test using groupwise
+  #t_mww_fail_group <- (sum(test_stats[group1 > alpha & group2 > alpha, p] < 0.05) +
+  #                     sum(test_stats[group1 < alpha & group2 < alpha, p.mww] < 0.05))/niter
+
+  ##### log-t test stats
+  
+  logt_unconditional <- sum(test_stats$p.log < 0.05)/niter
+  
+  # conditional type I/power of subset that "fail" (rejected) shapiro wilk test using residuals
+  logt_fail_residual <- sum(test_stats[residual < alpha, p.log] < 0.05)/sum(test_stats[,residual < alpha])
+  
+  # conditional type I/power of subset that "fail" (rejected) shapiro wilk test using groupwise
+  #logt_fail_group <- sum(test_stats[group1 < alpha & group2 < alpha, p.log] < 0.05)/sum(test_stats[, group1 < alpha & group2 < alpha])
+  
+  ##### combined t-test + log-t test stats
+
+  # conditional type I/power of subset that "pass" (not rejected) shapiro wilk test using residuals
+  t_logt_fail_residual <- (sum(test_stats[residual > alpha, p] < 0.05) +
+                            sum(test_stats[residual < alpha, p.log] < 0.05))/niter
+  
+  # conditional type I/power of subset that "pass" (not rejected) shapiro wilk test using groupwise
+  #t_logt_fail_group <- (sum(test_stats[group1 > alpha & group2 > alpha, p] < 0.05) +
+  #                     sum(test_stats[group1 < alpha & group2 < alpha, p.log] < 0.05))/niter
+ 
+
+  res <- c(SW_rej.res=SW_rej_residual,
+           #SW_rej.group=SW_rej_group,
+           t.uncond=t_unconditional,
+           t_pass.res=t_pass_residual,
+           #t_pass.group=t_pass_group,
+           t_rej.residual=t_rej_residual,
+           #t_rej_group=t_rej_group,
+           
+           mww.uncond=mww_unconditional,
+           mww_fail.res=mww_fail_residual,
+           #mww_fail.group=mww_fail_group,
+           t_mww_fail.res=t_mww_fail_residual,
+           #t_mww_fail.group=t_mww_fail_group,
+
+           logt.uncond=logt_unconditional,
+           logt_fail.res=logt_fail_residual,
+           #logt_fail.group=logt_fail_group,
+           t_logt_fail.res=t_logt_fail_residual
+           #t_logt_fail.group=t_logt_fail_group
+           )
+  return(res)
+}
+```
+
+# Normal distribution
+
+No real data are normally distributed so this parameterization of the simulation gives the behavior of the shapiro-wilk filter for data that are effectively normal.
+
+```{r normal, eval=TRUE, echo=TRUE, message=FALSE}
+if(do_sims==TRUE){
+  set.seed(1)
+  base_niter <- 5*10^4 # target number of shapiro-wilk tests that "pass" (p > 0.05)
+  
+  balance_set <- c(0.5 )# fraction missing from group 1
+  mu_i <- 10
+  sigma_set <- c(1)
+  alpha_set <- c(0.05)
+  n_set <- c(10, 20)
+  niter_set <- c(base_niter*1, base_niter*1, base_niter*1, base_niter*1) # more iterations to get more samples that "pass" filter
+  res_table <- data.table(NULL)
+  gg <- list(NULL)
+  list_i <- 0
+  for(balance in balance_set){
+    for(effect_i in c(0, 0.8)){ # "large" effect
+      for(sigma_i in sigma_set){
+        list_i <- list_i + 1
+        for(i in 1:length(n_set)){
+          n_i <- n_set[i]
+          n_1 <- round(n_i*balance, 0)
+          rows_1 <- 1:n_1
+          rows_2 <- (n_1+1):(n_1+n2)
+          niter_i <- niter_set[i]
+          fd <- fake_data(niter=niter_i, n=n_i, location=mu_i, scale=sigma_i, effect=effect_i, dist="normal")
+          fd <- fd[-(1:n_1), ]
+          res <- data.table(filter_stats(fd, n1=n_1, n2=n_i))
+          for(alpha_i in alpha_set){
+            res_table <- rbind(res_table, data.table(
+              iter = niter_i,
+              mu = mu_i,
+              sigma = sigma_i,
+              effect = effect_i,
+              cn_mean = mean(fd[rows_1,]),
+              cn_sd = sd(fd[rows_1,]),
+              cn_cv = sd(fd[rows_1,])/mean(fd[rows_1,]),
+              tr_mean = mean(fd[rows_2,]),
+              tr_sd = sd(fd[rows_2,]),
+              tr_cv = sd(fd[rows_2,])/mean(fd[rows_2,]),
+              n1 = n_1,
+              n2 = n_i,
+              alpha = alpha_i,
+              data.table(t(filter_summary(res, alpha=alpha_i)))))
+          }
+        }
+      }
+    }
+  }
+  norm_table <- t(res_table)
+  # write to file
+#  write.table(norm_table, "../output/2019-08-08-norm_table.txt",quote=FALSE, sep="\t")
+}else{ # if not true, read file
+#  norm_table <- read.table("../output/2019-08-08-norm_table.txt", header=TRUE, sep="\t")
+}
+
+```
+
+## Type I error
+```{r normal-type-1}
+type1 <- norm_table[, 1:4]
+row3 <- c(5:10, 14:23) # rows for 3 dits
+type1[row3,] <- formatC(type1[row3,], format="f", digits=3)
+colnames(type1) <- c("n=10, type 1", "n=20, type 1", "n=10, power", "n=20, power")
+row.names(type1) <- c(
+  "iterations",
+  "mu",
+  "sigma",
+  "effect",
+  "Cn mean",
+  "Cn sd",
+  "Cn cv",
+  "Tr mean",
+  "Tr sd",
+  "Tr cv",
+  "n1",
+  "n2",
+  "alpha for normality test",
+  "failed normality, rate",
+  "t-test: type I, unconditional",
+  "t-test: type I, | pass",
+  "t-test: type I, | fail",
+  "MWW-test: type I, unconditional",
+  "MWW-test: type I, | fail",
+  "t-MWW: type I",
+  "log t-test: type I, unconditional",
+  "log t-test: type I, | fail",
+  "t-log t: type I"
+)
+knitr::kable(type1, caption="Type I error as a function of n for normal data")
+```

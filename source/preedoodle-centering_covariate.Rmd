@@ -1,0 +1,42 @@
+---
+title: "predoodle -- centering covariate"
+author: "Jeff Walker"
+date: "9/30/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(data.table)
+library(ggplot2)
+```
+
+```{r}
+n <- 10^3
+b0 <- 10 # mean of ref
+b1 <- 1 # effect of treatment
+b2 <- 1 # effect of size
+b3 <- 1 # treatment x size interaction
+b <- c(b0, b1, b2, b3)
+sigma <- 1
+fd <- data.table(
+  treatment=rep(c("control", "treatment"), each=2),
+  size=rnorm(n=n*2, mean=100, sd=10)
+)
+X <- model.matrix(~ treatment*size, data=fd)
+y_vec <- (X%*%b)[,1] + rnorm(n*2, mean=0, sd=sigma)
+fd[, y := y_vec]
+fd[, size.c := size-mean(size)]
+
+qplot(x=size, y=y, color=treatment, data=fd) + geom_smooth(method="lm")
+qplot(x=size.c, y=y, color=treatment, data=fd) + geom_smooth(method="lm")
+
+# fit model
+m1 <- lm(y ~ treatment*size, data=fd)
+coef(summary(m1))
+m2 <- lm(y ~ treatment*size.c, data=fd)
+coef(summary(m2))
+
+```
+

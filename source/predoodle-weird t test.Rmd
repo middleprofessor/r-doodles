@@ -1,0 +1,63 @@
+---
+title: "doodle -- standardize pre-post"
+author: "Jeff Walker"
+date: "10/1/2019"
+output: html_document
+---
+Motivation: https://pubpeer.com/publications/8DF6E66FEFAA2C3C7D5BD9C3FC45A2#2
+and https://twitter.com/ADAlthousePhD/status/1176519053596340226
+
+tl;dr: Given the transformation, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error with an unpaired t-test.
+
+From the authors on pubpeer:
+"To test for effects on % reduction in senescent cells WITHIN subjects without confounding effects of variations of initial senescent cell burden among subjects, data are expressed as % of values at day 0 + day 14 for each subject, i.e. value at time 0 for subject 1 is: absolute value at day 0 for subject 1/(absolute value at day 0 for subject 1 + absolute value at day 14 for subject 1) x 100. Thus, % at day 0 + % at day 14 for subject 1 = 100."
+
+It's pretty easy to see this is the case looking at the figures. I added to twitter "Sure, I get the logic behind the transformation but it they failed to get the new problems 1) perfect negative correlated error within individuals and ..." The problem is less the perfect negative correlation among the responses but the fact the an individual's day 0 and day 14 measures are symetric about the mean.  Given the transformation, then, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. **Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error.**
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(data.table)
+```
+
+# normal conditional response
+The response is a count divided by a length, which probably is not Gaussian. Regardless, this initial simulation uses a normal (conditional) response.
+
+```{r}
+n <- 9
+mu <- 100 # overall mean
+amp <- 0.5
+sigma_w <- 10 # variation within ID
+sigma_a <- amp*sigma_w # variation among ID
+rho <- (amp*sigma_w)^2/((amp*sigma_w)^2 + sigma_w^2)
+
+n_iter <- 10^4
+p.norm_unpaired <- numeric(n_iter)
+p.norm_paired <- numeric(n_iter)
+p.count_unpaired <- numeric(n_iter)
+p.count_paired <- numeric(n_iter)
+r <- numeric(n_iter)
+set.seed(1)
+for(iter in 1:n_iter){
+  mu_i <- rnorm(n=n, mean=mu, sd=sigma_a) # means of each ID
+  count_0 <- rnorm(n, mean=mu_i, sd=sigma_w) # counts at day 0
+  count_14 <- rnorm(n, mean=mu_i, sd=sigma_w) # counts at day 14
+  norm_0 <- count_0/(count_0 + count_14)
+  norm_14 <- count_14/(count_0 + count_14)
+  r[iter] <- cor(count_0, count_14)
+  p.norm_unpaired[iter] <- t.test(norm_0, norm_14, var.equal=FALSE, paired=FALSE)$p.value
+  p.norm_paired[iter] <- t.test(norm_0, norm_14, paired=TRUE)$p.value
+  p.count_unpaired[iter] <- t.test(count_0, count_14, var.equal=FALSE, paired=FALSE)$p.value
+  p.count_paired[iter] <- t.test(count_0, count_14, paired=TRUE)$p.value
+}
+data.table(rho=rho, r=mean(r))
+data.table(method=c("norm unpaired", "norm paired", "raw unpaired", "raw paired"),
+           "type 1" = c(
+             sum(p.norm_unpaired < 0.05)/n_iter,
+             sum(p.norm_paired < 0.05)/n_iter,
+             sum(p.count_unpaired < 0.05)/n_iter,
+             sum(p.count_paired < 0.05)/n_iter
+))
+```
+
