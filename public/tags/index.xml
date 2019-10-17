@@ -6,7 +6,7 @@
     <description>Recent content in Tags on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 27 Apr 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 16 Oct 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,7 +14,7 @@
     <item>
       <title>Ancova</title>
       <link>/tags/ancova/</link>
-      <pubDate>Sat, 27 Apr 2019 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/ancova/</guid>
       <description></description>
@@ -32,7 +32,7 @@
     <item>
       <title>Bias</title>
       <link>/tags/bias/</link>
-      <pubDate>Wed, 31 Jul 2019 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/bias/</guid>
       <description></description>
@@ -104,7 +104,7 @@
     <item>
       <title>Effect Size</title>
       <link>/tags/effect-size/</link>
-      <pubDate>Wed, 31 Jul 2019 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/effect-size/</guid>
       <description></description>
@@ -113,7 +113,7 @@
     <item>
       <title>Fake Data</title>
       <link>/tags/fake-data/</link>
-      <pubDate>Wed, 02 Oct 2019 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/fake-data/</guid>
       <description></description>
@@ -269,6 +269,15 @@
       <pubDate>Tue, 11 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>/tags/regression/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Regression to the Mean</title>
+      <link>/tags/regression-to-the-mean/</link>
+      <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/regression-to-the-mean/</guid>
       <description></description>
     </item>
     

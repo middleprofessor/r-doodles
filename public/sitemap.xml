@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2019/10/normalization-results-in-regression-to-the-mean/</loc>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/10/a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease/</loc>
     <lastmod>2019-10-02T00:00:00+00:00</lastmod>
   </url>
@@ -163,7 +168,7 @@
   
   <url>
     <loc>/tags/ancova/</loc>
-    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -180,7 +185,7 @@
   
   <url>
     <loc>/tags/bias/</loc>
-    <lastmod>2019-07-31T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -238,13 +243,13 @@
   
   <url>
     <loc>/tags/effect-size/</loc>
-    <lastmod>2019-07-31T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/fake-data/</loc>
-    <lastmod>2019-10-02T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -340,7 +345,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2019-10-02T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -358,7 +363,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-10-02T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -375,6 +380,12 @@
   </url>
   
   <url>
+    <loc>/tags/regression-to-the-mean/</loc>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/tags/repeated-measures/</loc>
     <lastmod>2019-01-22T00:00:00+00:00</lastmod>
     <priority>0</priority>
@@ -382,19 +393,19 @@
   
   <url>
     <loc>/categories/reproducibility/</loc>
-    <lastmod>2019-06-03T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2019-10-02T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/</loc>
-    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
+<meta name="keywords" content="">
+<meta name="description" content="Some ecology. Some physiology. Much fake data">
+
+
+<meta property="og:description" content="Some ecology. Some physiology. Much fake data">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Regression to the Mean">
+<meta name="twitter:title" content="Regression to the Mean">
+<meta property="og:url" content="/tags/regression-to-the-mean/">
+<meta property="twitter:url" content="/tags/regression-to-the-mean/">
+<meta property="og:site_name" content="R Doodles">
+<meta property="og:description" content="Some ecology. Some physiology. Much fake data">
+<meta name="twitter:description" content="Some ecology. Some physiology. Much fake data">
+<meta property="og:locale" content="en-us">
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@jwalkrunski">
+
+
+  <meta name="twitter:creator" content="@jwalkrunski">
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+
+
+    <title>Regression to the Mean</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+      <link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/regression-to-the-mean/index.xml">
+    
+
+    
+
+    <link rel="canonical" href="/tags/regression-to-the-mean/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-nnm2spxvve8onlujjlegkkytaehyadd4ksxc1hyzzq9a2wvtrgbljqyulomn.min.css" />
+    
+    
+
+    
+      
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-118821125-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="1">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">R Doodles</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="1">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+        
+          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="//github.com/middleprofessor">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://stats.stackexchange.com/users/119435/jwalker">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-stack-exchange"></i>
+      
+      <span class="sidebar-button-desc">CrossValidated</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://scholar.google.com/citations?user=W58TmakAAAAJ&amp;hl">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-google"></i>
+      
+      <span class="sidebar-button-desc">Google Scholar</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.researchgate.net/profile/Jeffrey_Walker4/contributions">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Research Gate</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.middleprofessor.com">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-university"></i>
+      
+      <span class="sidebar-button-desc">Research/Teaching</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+        
+
+      
+      <div id="main" data-behavior="1"
+        class="
+               hasCoverMetaIn
+               ">
+        
+          <section class="postShorten-group main-content-wrap">
+            
+            
+              
+  
+    
+      
+        
+      
+    
+  
+
+
+  
+
+<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
+  <div class="postShorten-wrap">
+    
+    <div class="postShorten-header">
+      <h1 class="postShorten-title" itemprop="headline">
+        <a class="link-unstyled" href="/2019/10/normalization-results-in-regression-to-the-mean/">
+          Normalization results in regression to the mean
+        </a>
+      </h1>
+      
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-10-16T00:00:00Z">
+        
+  October 16, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/reproducibility">reproducibility</a>, 
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
+  </div>
+
+    </div>
+    <div class="postShorten-excerpt" itemprop="articleBody">
+      
+        I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
+I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.
+      
+      <p>
+        <a href="/2019/10/normalization-results-in-regression-to-the-mean/" class="postShorten-excerpt_link link">Continue reading</a>
+        
+      </p>
+    </div>
+  </div>
+  
+</article>
+
+            
+            
+
+          </section>
+        
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+    
+      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Jeff Walker, Professor of Biological Sciences
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        University of Southern Maine, Portland, Maine, United States
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/10/normalization-results-in-regression-to-the-mean/">
+                <h3 class="media-heading">Normalization results in regression to the mean</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
+I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/10/a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease/">
+                <h3 class="media-heading">A comment on the novel transformation of the response in &#34; Senolytics decrease senescent cells in humans: Preliminary report from a clinical trial of Dasatinib plus Quercetin in individuals with diabetic kidney disease&#34;</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivation: https://pubpeer.com/publications/8DF6E66FEFAA2C3C7D5BD9C3FC45A2#2 and https://twitter.com/CGATist/status/1175015246282539009
+tl;dr: Given the transformation done by the authors, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error with an unpaired t-test. The transformation is necessary and sufficient to produce the result (meaning even in conditions where a paired t-test isn’t needed, the transformation still produces elevated Type I error).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/08/what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power/">
+                <h3 class="media-heading">What is the consequence of a Shapiro-Wilk test-of-normality filter on Type I error and Power?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Aug 8, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Set up Normal distribution Type I error Power  Right skewed continuous – lognormal What the parameterizations look like Type I error Power    This 1990-wants-you-back doodle explores the effects of a Normality Filter – using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+                <h3 class="media-heading">What is the bias in the estimation of an effect given an omitted interaction term?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) is missing, its component on the total efffect is added to the coefficient of \(x_1\).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+                <h3 class="media-heading">Is the power to test an interaction effect less than that for a main effect?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/analyze-the-mean-or-median-and-not-the-max-response/">
+                <h3 class="media-heading">Analyze the mean (or median) and not the max response</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is an update of Paired t-test as a special case of linear model and hierarchical model
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/paired-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
+                <h3 class="media-heading">Paired t-test as a special case of linear model and hierarchical (linear mixed) model</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update – Fig. 2A is an analysis of the maximum endurance over three trials. This has consequences.
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/what-does-cell-biology-data-look-like/">
+                <h3 class="media-heading">What does cell biology data look like?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/">
+                <h3 class="media-heading">Reanalyzing data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update - This post has been updated
+A very skeletal analysis of
+Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
+which got some attention on pubpeer.
+Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/">
+                <h3 class="media-heading">GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update to the earlier post, which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough – or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         32 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('/images/Jackson%20copy%202.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+
+
+<script src="//yihui.name/js/math-code.js"></script>
+<script async
+src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    
+  </body>
+</html>
+

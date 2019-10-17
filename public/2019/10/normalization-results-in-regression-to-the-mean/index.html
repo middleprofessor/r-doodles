@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
+<meta name="keywords" content="tech">
+<meta name="description" content="I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
+I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.">
+
+
+<meta property="og:description" content="I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
+I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Normalization results in regression to the mean">
+<meta name="twitter:title" content="Normalization results in regression to the mean">
+<meta property="og:url" content="/2019/10/normalization-results-in-regression-to-the-mean/">
+<meta property="twitter:url" content="/2019/10/normalization-results-in-regression-to-the-mean/">
+<meta property="og:site_name" content="R Doodles">
+<meta property="og:description" content="I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
+I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.">
+<meta name="twitter:description" content="I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
+I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2019-10-16T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2019-10-16T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="reproducibility">
+    
+      <meta property="article:section" content="stats 101">
+    
+  
+  
+    
+      <meta property="article:tag" content="ancova">
+    
+      <meta property="article:tag" content="effect size">
+    
+      <meta property="article:tag" content="fake data">
+    
+      <meta property="article:tag" content="regression to the mean">
+    
+      <meta property="article:tag" content="bias">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@jwalkrunski">
+
+
+  <meta name="twitter:creator" content="@jwalkrunski">
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+
+
+    <title>Normalization results in regression to the mean</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2019/10/normalization-results-in-regression-to-the-mean/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-nnm2spxvve8onlujjlegkkytaehyadd4ksxc1hyzzq9a2wvtrgbljqyulomn.min.css" />
+    
+    
+
+    
+      
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-118821125-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">R Doodles</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+        
+          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="//github.com/middleprofessor">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://stats.stackexchange.com/users/119435/jwalker">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-stack-exchange"></i>
+      
+      <span class="sidebar-button-desc">CrossValidated</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://scholar.google.com/citations?user=W58TmakAAAAJ&amp;hl">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-google"></i>
+      
+      <span class="sidebar-button-desc">Google Scholar</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.researchgate.net/profile/Jeffrey_Walker4/contributions">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Research Gate</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.middleprofessor.com">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-university"></i>
+      
+      <span class="sidebar-button-desc">Research/Teaching</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Normalization results in regression to the mean
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-10-16T00:00:00Z">
+        
+  October 16, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/reproducibility">reproducibility</a>, 
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+
+<p>I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the <a href="https://elifesciences.org/collections/9b1e83d1/reproducibility-project-cancer-biology">cancer reproducibility project</a>. What a terrific site.</p>
+<p>I downloaded the article and data for Fig 1C for <a href="https://elifesciences.org/articles/39944">Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET</a> just to explore. Without looking at the author’s code, I wrote my own script to replicate Fig 1C. My numbers weren’t quite right so I looked at the script and realized that I needed to re-scale within Blot in addition to Antibody and Type. Once I did this, my code reproduces the author’s results. My method for preparing the data is <em>very</em> different from the authors (Its very data.table-ish), which is pretty typical of any R analysis – ask 10 R scripters how to get something done and you’ll recieve 20 different answers.</p>
+<p>Anyway, I’m curious about the normalization since I have a student that works in a lab that normalizes data, probably in a similar fashion. The normalization here had 2 steps: 1) first, the value for the Antibody levels were normalized by the value of a reference (Gapdh) for each Set. And 2) second, the the Gapdh-normalized values were rescaled by the mean of the Gapdh-normalized values for the shScr Condition within each combination of Antibody+Type+Blot and then <em>all</em> values in the shScr were assigned to 1 (since the mean within the Condition level is 1). The statistical test then is a one-sample t-test of shMet with <span class="math inline">\(\mu=1\)</span>.</p>
+<p>Intuition 1: Step one of this normalization would seem to introduce a biased estimate of the effect, conditional on Gapdh, very similar to the biased estimate of the change score (or change from pre to post) conditional on pre-treatment values <a href="https://www.middleprofessor.com/files/quasipubs/change_scores.html">in a pre-post design</a>.</p>
+<p>Intuition 2: Step two would just seem to introduce type I error since we’re removing variance from the 2nd sample.</p>
+<p>The proper way to avoid the conditional bias in a pre-post design is to add the pre-treatment value as a covariate. I don’t know if the ratio is conditionally biased but I re-analyzed the data using the Gapdh value as a covariate in a linear model instead of something to normalize the response. I also just re-ran a t-test the normalized response (step 1) without the re-scaling in step 2. Both the linear model and t-test results <em>for these data</em> were very different from the original results. I plotted the data and it’s pretty easy to see why, but it’s hard for me to generalize from this one example. So I did a simulation.</p>
+<p>Indeed, both my intutions turn out to be true. All analysis is below. I parameterized the distribution of Gapdh and the other values so they looked something like the actual values in the paper. I don’t know how much my results would change given different parameterizations of these distributions.</p>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<pre class="r"><code>folder &lt;- &quot;Data from Generation and characterization of shMet B16-F10 cells and exosomes&quot;
+filename &lt;- &quot;Study_42_Figure_1_WB_quant_Data.csv&quot;
+file_path &lt;- here(data_path, folder, filename)
+exp1 &lt;- fread(file_path)
+#View(exp1)</code></pre>
+<pre class="r"><code># get Gapdh ref for each row to rescale (&quot;normalize&quot;) by Gapdh
+gapdh_ref.dt &lt;- exp1[Antibody==&quot;Gapdh&quot;, .(gapdh_ref=mean(Value)), by=Set]
+exp1.v1 &lt;- merge(exp1, gapdh_ref.dt, by=&quot;Set&quot;)
+exp1.v1[, Value.norm:=Value/gapdh_ref]
+
+# get mean shScr for each Antibody:Type:Blot to rescale by mean shScr 
+shScr_ref.dt &lt;- exp1.v1[Condition==&quot;shScr&quot;, .(shScr_ref=mean(Value.norm)), by=.(Antibody, Type, Blot)]
+exp1.v1 &lt;- merge(exp1.v1, shScr_ref.dt, by=c(&quot;Antibody&quot;, &quot;Type&quot;, &quot;Blot&quot;))
+exp1.v1[, value.norm.2:=Value.norm/shScr_ref]
+exp1.v1[, value.norm.3:=ifelse(Condition==&quot;shScr&quot;, 1, value.norm.2)]
+#View(exp1.v1)
+
+gg1 &lt;- ggbarplot(data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;], 
+                 x=&quot;Condition&quot;, 
+                 y=&quot;value.norm.2&quot;,
+          add=c(&quot;mean_se&quot;)) +
+  ylab(&quot;Met&quot;) +
+  NULL
+gg2 &lt;- ggbarplot(data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;,],
+                 x=&quot;Condition&quot;, 
+                 y=&quot;value.norm.2&quot;,
+                 add=c(&quot;mean_se&quot;)) +
+  ylab(&quot;pMet&quot;) +
+  NULL
+
+gg3 &lt;- ggbarplot(data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;], 
+                 x=&quot;Condition&quot;, 
+                 y=&quot;value.norm.3&quot;,
+          add=c(&quot;mean_se&quot;)) +
+  ylab(&quot;Met&quot;) +
+  NULL
+gg4 &lt;- ggbarplot(data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;,],
+                 x=&quot;Condition&quot;, 
+                 y=&quot;value.norm.3&quot;,
+                 add=c(&quot;mean_se&quot;)) +
+  ylab(&quot;pMet&quot;) +
+  NULL
+
+plot_grid(gg1, gg2, gg3, gg4, nrow=2)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/reproducibility-1.png" width="672" /></p>
+<p>The two bottom plots reproduce Fig 1C from the paper. The two top plots are scaled by Gapdh but not shScr</p>
+</div>
+<div id="what-are-the-consequences-of-normalization-compare-to-linear-model-with-gapdh-as-covariate" class="section level2">
+<h2>What are the consequences of normalization? Compare to linear model with Gapdh as covariate</h2>
+<pre class="r"><code>m1 &lt;- lm(value.norm.2 ~ Condition, data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;])
+m2 &lt;- lm(Value ~ Condition, data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;])
+m3 &lt;- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;])
+coef(summary(m1))</code></pre>
+<pre><code>##                 Estimate Std. Error   t value   Pr(&gt;|t|)
+## (Intercept)    0.2258586  0.2337038 0.9664309 0.38855596
+## ConditionshScr 0.7741414  0.3305071 2.3422842 0.07918029</code></pre>
+<pre class="r"><code>coef(summary(m2))</code></pre>
+<pre><code>##                 Estimate Std. Error   t value   Pr(&gt;|t|)
+## (Intercept)     2547.013   4791.796 0.5315362 0.62319492
+## ConditionshScr 14538.350   6776.624 2.1453678 0.09849231</code></pre>
+<pre class="r"><code>coef(summary(m3))</code></pre>
+<pre><code>##                    Estimate   Std. Error    t value  Pr(&gt;|t|)
+## (Intercept)    11545.929046 26227.993625  0.4402140 0.6895688
+## gapdh_ref         -1.227088     3.499151 -0.3506815 0.7490069
+## ConditionshScr 16769.492308  9964.835324  1.6828670 0.1909905</code></pre>
+<pre class="r"><code>m1 &lt;- lm(value.norm.2 ~ Condition, data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;])
+m2 &lt;- lm(Value ~ Condition, data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;])
+m3 &lt;- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;])
+coef(summary(m1))</code></pre>
+<pre><code>##                Estimate Std. Error  t value     Pr(&gt;|t|)
+## (Intercept)    0.251231 0.05962501 4.213517 0.0056012932
+## ConditionshScr 0.748769 0.08432250 8.879824 0.0001135521</code></pre>
+<pre class="r"><code>coef(summary(m2))</code></pre>
+<pre><code>##                Estimate Std. Error   t value  Pr(&gt;|t|)
+## (Intercept)    1563.237   2243.615 0.6967491 0.5120363
+## ConditionshScr 4471.471   3172.951 1.4092469 0.2084245</code></pre>
+<pre class="r"><code>coef(summary(m3))</code></pre>
+<pre><code>##                    Estimate  Std. Error    t value  Pr(&gt;|t|)
+## (Intercept)    1038.5456491 8949.475770 0.11604542 0.9121333
+## gapdh_ref         0.0656947    1.077481 0.06097064 0.9537447
+## ConditionshScr 4474.0624660 3474.762371 1.28758804 0.2542632</code></pre>
+<pre class="r"><code>gg6 &lt;- ggplot(data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;], aes(x=gapdh_ref, y=Value, color=Condition)) +
+  geom_point() +
+  ylab(&quot;Met&quot;) +
+  NULL
+
+gg7 &lt;- ggplot(data=exp1.v1[Antibody==&quot;Met&quot;], aes(x=gapdh_ref, y=Value, color=Condition, shape=Type)) +
+  geom_point() +
+  ylab(&quot;Met&quot;) +
+  NULL
+
+gg8 &lt;- ggplot(data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;], aes(x=gapdh_ref, y=Value, color=Condition)) +
+  geom_point() +
+  ylab(&quot;pMet&quot;) +
+  NULL
+
+gg9 &lt;- ggplot(data=exp1.v1[Antibody==&quot;pMet&quot;], aes(x=gapdh_ref, y=Value, color=Condition, shape=Type)) +
+  geom_point() +
+  ylab(&quot;pMet&quot;) +
+  NULL
+plot_grid(gg6, gg7, gg8, gg9, nrow=2)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/covariate%20v%20normalization-1.png" width="672" /></p>
+<p>It’s pretty hard to figure out systemic bias due to normalization with a sample size of 3 or 4 so…</p>
+</div>
+<div id="simulation-with-corgapdh-met-0" class="section level2">
+<h2>Simulation with Cor(Gapdh, Met) = 0</h2>
+<pre class="r"><code>set.seed(1)
+shape_gapdh &lt;- 80
+scale_gapdh &lt;- 100
+qplot(rgamma(10^3, shape=shape_gapdh, scale=scale_gapdh))</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-1.png" width="672" /></p>
+<pre class="r"><code>shape_met &lt;- 2.5
+scale_met &lt;- 1000
+qplot(rgamma(10^3, shape=shape_met, scale=scale_met))</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-2.png" width="672" /></p>
+<pre class="r"><code>n &lt;- 4
+
+niter &lt;- 5000
+prob &lt;- data.frame(matrix(NA, nrow=niter, ncol=3))
+colnames(prob) &lt;- c(&quot;cov&quot;, &quot;ratio&quot;, &quot;rel&quot;)
+effect_lm &lt;- numeric(niter)
+effect_ratio &lt;- numeric(niter)
+effect_rel &lt;- numeric(niter)
+delta_gapdh &lt;- numeric(niter)
+for(iter in 1:niter){
+  fd &lt;- data.table(
+    treatment=rep(c(&quot;cn&quot;, &quot;tr&quot;), each=n),
+    gapdh=rgamma(n*2, shape=shape_gapdh, scale=scale_gapdh),
+    value=rgamma(n*2, shape=shape_met, scale=scale_met)
+  )
+  fd[, ratio:=value/gapdh]
+  cn_ref &lt;- mean(fd[treatment==&quot;cn&quot;, ratio])
+  fd[, rel:=ratio/cn_ref]
+
+  m1 &lt;- lm(value ~ gapdh + treatment, data=fd)
+  prob[iter, &quot;cov&quot;] &lt;- coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Pr(&gt;|t|)&quot;]
+  prob[iter, &quot;ratio&quot;] &lt;- t.test(fd[treatment==&quot;cn&quot;, ratio], fd[treatment==&quot;tr&quot;, ratio], var.equal=TRUE)$p.value
+  prob[iter, &quot;rel&quot;] &lt;- t.test(x=fd[treatment==&quot;tr&quot;, rel], mu=1)$p.value
+  
+  delta_gapdh[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, gapdh]) - mean(fd[treatment==&quot;cn&quot;, gapdh])
+  effect_lm[iter] &lt;- coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Estimate&quot;]
+  effect_ratio[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, ratio]) - mean(fd[treatment==&quot;cn&quot;, ratio])
+  effect_rel[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, rel]) - 1
+
+}</code></pre>
+<pre class="r"><code>apply(prob, 2, function(x) sum(x &lt; 0.05)/niter)</code></pre>
+<pre><code>##    cov  ratio    rel 
+## 0.0494 0.0470 0.1354</code></pre>
+<pre class="r"><code>qplot(x=delta_gapdh, y=effect_lm) + geom_smooth(method=&quot;lm&quot;)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<pre class="r"><code>qplot(x=delta_gapdh, y=effect_ratio) + geom_smooth(method=&quot;lm&quot;)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<pre class="r"><code>qplot(x=delta_gapdh, y=effect_rel) + geom_smooth(method=&quot;lm&quot;)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-1-3.png" width="672" /></p>
+<p>The two-stage normalization (one-sample t-test against a reference value of 1) has high type I error The two-sample t-test of the normalized value has an nominal type I error but is conditionally biased on <span class="math inline">\(\Delta\)</span>gapdh The linear model with gapdh as a covariate performs well</p>
+</div>
+<div id="corgapdh-met-0" class="section level2">
+<h2>Cor(Gapdh, Met) &gt; 0</h2>
+<pre class="r"><code>n &lt;- 10^3
+rho=0.5
+alpha_gapdh &lt;- 80
+beta_gapdh &lt;- 100
+alpha_met &lt;- 30
+beta_met &lt;- 100
+y1 &lt;- rgamma(n, shape=alpha_gapdh - rho*sqrt(alpha_gapdh*alpha_met), rate=1)
+y2 &lt;- rgamma(n, shape=alpha_met - rho*sqrt(alpha_gapdh*alpha_met), rate=1)
+y3 &lt;- rgamma(n, shape=rho*sqrt(alpha_gapdh*alpha_met), rate=1)
+gapdh &lt;- beta_gapdh*(y1+y3)
+value &lt;- beta_met*(y2+y3)
+qplot(y1)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-explore-1.png" width="672" /></p>
+<pre class="r"><code>qplot(y2)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-explore-2.png" width="672" /></p>
+<pre class="r"><code>qplot(y3)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-explore-3.png" width="672" /></p>
+<pre class="r"><code>qplot(gapdh)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-explore-4.png" width="672" /></p>
+<pre class="r"><code>qplot(value)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-explore-5.png" width="672" /></p>
+<pre class="r"><code>cor(gapdh, value)</code></pre>
+<pre><code>## [1] 0.5172257</code></pre>
+<pre class="r"><code>set.seed(1)
+rho=0.5
+alpha_gapdh &lt;- 80
+beta_gapdh &lt;- 100
+alpha_met &lt;- 30
+beta_met &lt;- 100
+n &lt;- 4
+
+niter &lt;- 5000
+prob &lt;- data.frame(matrix(NA, nrow=niter, ncol=3))
+colnames(prob) &lt;- c(&quot;cov&quot;, &quot;ratio&quot;, &quot;rel&quot;)
+effect_lm &lt;- numeric(niter)
+effect_ratio &lt;- numeric(niter)
+effect_rel &lt;- numeric(niter)
+delta_gapdh &lt;- numeric(niter)
+for(iter in 1:niter){
+  y1 &lt;- rgamma(n*2, shape=alpha_gapdh - rho*sqrt(alpha_gapdh*alpha_met), rate=1)
+  y2 &lt;- rgamma(n*2, shape=alpha_met - rho*sqrt(alpha_gapdh*alpha_met), rate=1)
+  y3 &lt;- rgamma(n*2, shape=rho*sqrt(alpha_gapdh*alpha_met), rate=1)
+  fd &lt;- data.table(
+    treatment=rep(c(&quot;cn&quot;, &quot;tr&quot;), each=n),
+    gapdh=beta_gapdh*(y1+y3),
+    value=beta_met*(y2+y3)
+  )
+  fd[, ratio:=value/gapdh]
+  cn_ref &lt;- mean(fd[treatment==&quot;cn&quot;, ratio])
+  fd[, rel:=ratio/cn_ref]
+
+  m1 &lt;- lm(value ~ gapdh + treatment, data=fd)
+  prob[iter, &quot;cov&quot;] &lt;- coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Pr(&gt;|t|)&quot;]
+  prob[iter, &quot;ratio&quot;] &lt;- t.test(fd[treatment==&quot;cn&quot;, ratio], fd[treatment==&quot;tr&quot;, ratio], var.equal=TRUE)$p.value
+  prob[iter, &quot;rel&quot;] &lt;- t.test(x=fd[treatment==&quot;tr&quot;, rel], mu=1)$p.value
+  
+  delta_gapdh[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, gapdh]) - mean(fd[treatment==&quot;cn&quot;, gapdh])
+  effect_lm[iter] &lt;- coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Estimate&quot;]
+  effect_ratio[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, ratio]) - mean(fd[treatment==&quot;cn&quot;, ratio])
+  effect_rel[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, rel]) - 1
+  
+}</code></pre>
+<pre class="r"><code>apply(prob, 2, function(x) sum(x &lt; 0.05)/niter)</code></pre>
+<pre><code>##    cov  ratio    rel 
+## 0.0468 0.0546 0.1100</code></pre>
+<pre class="r"><code>qplot(x=delta_gapdh, y=effect_lm) + geom_smooth(method=&quot;lm&quot;)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-results-1.png" width="672" /></p>
+<pre class="r"><code>qplot(x=delta_gapdh, y=effect_ratio) + geom_smooth(method=&quot;lm&quot;)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-results-2.png" width="672" /></p>
+<pre class="r"><code>qplot(x=delta_gapdh, y=effect_rel) + geom_smooth(method=&quot;lm&quot;)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-results-3.png" width="672" /></p>
+<p>Same results.</p>
+</div>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/ancova/">ancova</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/effect-size/">effect size</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/fake-data/">fake data</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/regression-to-the-mean/">regression to the mean</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/bias/">bias</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/10/a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease/" data-tooltip="A comment on the novel transformation of the response in &#34; Senolytics decrease senescent cells in humans: Preliminary report from a clinical trial of Dasatinib plus Quercetin in individuals with diabetic kidney disease&#34;">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/10/normalization-results-in-regression-to-the-mean/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/10/normalization-results-in-regression-to-the-mean/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/10/normalization-results-in-regression-to-the-mean/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/10/a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease/" data-tooltip="A comment on the novel transformation of the response in &#34; Senolytics decrease senescent cells in humans: Preliminary report from a clinical trial of Dasatinib plus Quercetin in individuals with diabetic kidney disease&#34;">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/10/normalization-results-in-regression-to-the-mean/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/10/normalization-results-in-regression-to-the-mean/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/10/normalization-results-in-regression-to-the-mean/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F10%2Fnormalization-results-in-regression-to-the-mean%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F10%2Fnormalization-results-in-regression-to-the-mean%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F10%2Fnormalization-results-in-regression-to-the-mean%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+    
+      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Jeff Walker, Professor of Biological Sciences
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        University of Southern Maine, Portland, Maine, United States
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/10/normalization-results-in-regression-to-the-mean/">
+                <h3 class="media-heading">Normalization results in regression to the mean</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
+I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/10/a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease/">
+                <h3 class="media-heading">A comment on the novel transformation of the response in &#34; Senolytics decrease senescent cells in humans: Preliminary report from a clinical trial of Dasatinib plus Quercetin in individuals with diabetic kidney disease&#34;</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivation: https://pubpeer.com/publications/8DF6E66FEFAA2C3C7D5BD9C3FC45A2#2 and https://twitter.com/CGATist/status/1175015246282539009
+tl;dr: Given the transformation done by the authors, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error with an unpaired t-test. The transformation is necessary and sufficient to produce the result (meaning even in conditions where a paired t-test isn’t needed, the transformation still produces elevated Type I error).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/08/what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power/">
+                <h3 class="media-heading">What is the consequence of a Shapiro-Wilk test-of-normality filter on Type I error and Power?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Aug 8, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Set up Normal distribution Type I error Power  Right skewed continuous – lognormal What the parameterizations look like Type I error Power    This 1990-wants-you-back doodle explores the effects of a Normality Filter – using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+                <h3 class="media-heading">What is the bias in the estimation of an effect given an omitted interaction term?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) is missing, its component on the total efffect is added to the coefficient of \(x_1\).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+                <h3 class="media-heading">Is the power to test an interaction effect less than that for a main effect?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/analyze-the-mean-or-median-and-not-the-max-response/">
+                <h3 class="media-heading">Analyze the mean (or median) and not the max response</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is an update of Paired t-test as a special case of linear model and hierarchical model
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/paired-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
+                <h3 class="media-heading">Paired t-test as a special case of linear model and hierarchical (linear mixed) model</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update – Fig. 2A is an analysis of the maximum endurance over three trials. This has consequences.
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/what-does-cell-biology-data-look-like/">
+                <h3 class="media-heading">What does cell biology data look like?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/reanalyzing-data-from-human-gut-microbiota-from-autism-spectrum-disorder-promote-behavioral-symptoms-in-mice/">
+                <h3 class="media-heading">Reanalyzing data from Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update - This post has been updated
+A very skeletal analysis of
+Sharon, G., Cruz, N.J., Kang, D.W., Gandal, M.J., Wang, B., Kim, Y.M., Zink, E.M., Casey, C.P., Taylor, B.C., Lane, C.J. and Bramer, L.M., 2019. Human Gut Microbiota from Autism Spectrum Disorder Promote Behavioral Symptoms in Mice. Cell, 177(6), pp.1600-1618.
+which got some attention on pubpeer.
+Commenters are questioning the result of Fig1G. It is very hard to infer a p-value from plots like these, where the data are multi-level, regardless of if means and some kind of error bar is presented.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/">
+                <h3 class="media-heading">GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update to the earlier post, which was written in response to my own thinking about how to teach stastics to experimental biologists working in fields that are dominated by hypothesis testing instead of estimation. That is, should these researchers learn GLMs or is a t-test on raw or log-transformed data on something like count data good enough – or even superior? My post was written without the benefit of either [Ives](Ives, Anthony R.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         32 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('/images/Jackson%20copy%202.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2019\/10\/normalization-results-in-regression-to-the-mean\/';
+          
+            this.page.identifier = '\/2019\/10\/normalization-results-in-regression-to-the-mean\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+<script src="//yihui.name/js/math-code.js"></script>
+<script async
+src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    
+  </body>
+</html>
+

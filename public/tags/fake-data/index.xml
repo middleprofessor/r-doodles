@@ -6,10 +6,20 @@
     <description>Recent content in Fake Data on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 02 Oct 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 16 Oct 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/fake-data/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Normalization results in regression to the mean</title>
+      <link>/2019/10/normalization-results-in-regression-to-the-mean/</link>
+      <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/10/normalization-results-in-regression-to-the-mean/</guid>
+      <description>I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
+I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.</description>
+    </item>
     
     <item>
       <title>A comment on the novel transformation of the response in &#34; Senolytics decrease senescent cells in humans: Preliminary report from a clinical trial of Dasatinib plus Quercetin in individuals with diabetic kidney disease&#34;</title>
