@@ -16,17 +16,17 @@ keywords:
   - tech
 ---
 
-I'm trying to understand the role of statistics in experimental (cell, micro) biology because I'm working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the [cancer reproducibility project](https://elifesciences.org/collections/9b1e83d1/reproducibility-project-cancer-biology). What a terrific site.
+I was having an internal conversation with myself, which led me to thinking about reproducibility in bench biology, which led me to the [cancer reproducibility project](https://elifesciences.org/collections/9b1e83d1/reproducibility-project-cancer-biology). What a terrific site.
 
-I downloaded the article and data for Fig 1C for [Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET](https://elifesciences.org/articles/39944) just to explore. Without looking at the author's code, I wrote my own script to replicate Fig 1C. My numbers weren't quite right so I looked at the script and realized that I needed to re-scale within Blot in addition to Antibody and Type. Once I did this, my code reproduces the author's results. My method for preparing the data is *very* different from the authors (Its very data.table-ish), which is pretty typical of any R analysis -- ask 10 R scripters how to get something done and you'll recieve 20 different answers.
+I downloaded the article and data for Fig 1C of the [Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET](https://elifesciences.org/articles/39944) just to explore. Without looking at the author's code, I wrote my own script to replicate Fig 1C. My numbers weren't quite right so I looked at the author's script and realized that I needed to re-scale within Blot in addition to Antibody and Type. Once I did this, my code reproduces the author's results. My method for preparing the data is *very* different from the authors (my code is very data.table-ish), which is pretty typical of any R analysis -- ask 10 R scripters how to get something done and you'll recieve 20 different answers.
 
-Anyway, I'm curious about the normalization since I have a student that works in a lab that normalizes data, probably in a similar fashion. The normalization here had 2 steps: 1) first, the value for the Antibody levels were normalized by the value of a reference (Gapdh) for each Set. And 2) second, the the Gapdh-normalized values were rescaled by the mean of the Gapdh-normalized values for the shScr Condition within each combination of Antibody+Type+Blot and then *all* values in the shScr were assigned to 1 (since the mean within the Condition level is 1). The statistical test then is a one-sample t-test of shMet with $\mu=1$.
+Anyway, I'm curious about the normalization since this seems to be very common yet my intuition thinks it can lead to regression to the mean. The normalization here had 2 steps: 1) first, the value for the Antibody levels were normalized by the value of a reference (Gapdh) for each Set. This is the typical normalization throughout bench biology. And 2) second, the Gapdh-normalized values were rescaled by the mean of the Gapdh-normalized values for the shScr Condition within each combination of Antibody+Type+Blot and then *all* values in the shScr were assigned to 1 (since the mean within the Condition level is 1). The statistical test then is a one-sample t-test of shMet with $\mu=1$.
 
-Intuition 1: Step one of this normalization would seem to introduce a biased estimate of the effect, conditional on Gapdh, very similar to the biased estimate of the change score (or change from pre to post) conditional on pre-treatment values [in a pre-post design](https://www.middleprofessor.com/files/quasipubs/change_scores.html).
+Intuition 1: Step one of this normalization would seem to introduce a biased estimate of the effect, conditional on Gapdh, very similar to the biased estimate of a change score (or change from pre to post) conditional on pre-treatment values [in a pre-post design](https://www.middleprofessor.com/files/quasipubs/change_scores.html).
 
 Intuition 2: Step two would just seem to introduce type I error since we're removing variance from the 2nd sample.
 
-The proper way to avoid the conditional bias in a pre-post design is to add the pre-treatment value as a covariate. I don't know if the ratio is conditionally biased but I re-analyzed the data using the Gapdh value as a covariate in a linear model instead of something to normalize the response. I also just re-ran a t-test the normalized response (step 1) without the re-scaling in step 2. Both the linear model and t-test results *for these data* were very different from the original results. I plotted the data and it's pretty easy to see why, but it's hard for me to generalize from this one example. So I did a simulation.
+The proper way to avoid the conditional bias in a pre-post design is to add the pre-treatment value as a covariate. I don't know if Normalization by a reference sample is conditionally biased but I re-analyzed the data using the Gapdh value as a covariate in a linear model. I also just re-ran a t-test of the normalized response (step 1) without the re-scaling in step 2. Both the linear model and t-test results *for these data* were very different from the original results. I plotted the data and it's pretty easy to see why, but it's hard for me to generalize from this one example. So I did a simulation to check my intuition above.
 
 Indeed, both my intutions turn out to be true. All analysis is below. I parameterized the distribution of Gapdh and the other values so they looked something like the actual values in the paper. I don't know how much my results would change given different parameterizations of these distributions.
 
@@ -143,7 +143,7 @@ It's pretty hard to figure out systemic bias due to normalization with a sample 
 ## Simulation with Cor(Gapdh, Met) = 0
 
 ```{r simulation}
-set.seed(1)
+set.seed(2)
 shape_gapdh <- 80
 scale_gapdh <- 100
 qplot(rgamma(10^3, shape=shape_gapdh, scale=scale_gapdh))
@@ -154,10 +154,10 @@ n <- 4
 
 niter <- 5000
 prob <- data.frame(matrix(NA, nrow=niter, ncol=3))
-colnames(prob) <- c("cov", "ratio", "rel")
+colnames(prob) <- c("cov", "norm1", "norm2")
 effect_lm <- numeric(niter)
-effect_ratio <- numeric(niter)
-effect_rel <- numeric(niter)
+effect_norm1 <- numeric(niter)
+effect_norm2 <- numeric(niter)
 delta_gapdh <- numeric(niter)
 for(iter in 1:niter){
   fd <- data.table(
@@ -165,19 +165,19 @@ for(iter in 1:niter){
     gapdh=rgamma(n*2, shape=shape_gapdh, scale=scale_gapdh),
     value=rgamma(n*2, shape=shape_met, scale=scale_met)
   )
-  fd[, ratio:=value/gapdh]
-  cn_ref <- mean(fd[treatment=="cn", ratio])
-  fd[, rel:=ratio/cn_ref]
+  fd[, norm1:=value/gapdh]
+  cn_ref <- mean(fd[treatment=="cn", norm1])
+  fd[, norm2:=norm1/cn_ref]
 
   m1 <- lm(value ~ gapdh + treatment, data=fd)
   prob[iter, "cov"] <- coef(summary(m1))["treatmenttr", "Pr(>|t|)"]
-  prob[iter, "ratio"] <- t.test(fd[treatment=="cn", ratio], fd[treatment=="tr", ratio], var.equal=TRUE)$p.value
-  prob[iter, "rel"] <- t.test(x=fd[treatment=="tr", rel], mu=1)$p.value
+  prob[iter, "norm1"] <- t.test(fd[treatment=="cn", norm1], fd[treatment=="tr", norm1], var.equal=TRUE)$p.value
+  prob[iter, "norm2"] <- t.test(x=fd[treatment=="tr", norm2], mu=1)$p.value
   
   delta_gapdh[iter] <- mean(fd[treatment=="tr", gapdh]) - mean(fd[treatment=="cn", gapdh])
   effect_lm[iter] <- coef(summary(m1))["treatmenttr", "Estimate"]
-  effect_ratio[iter] <- mean(fd[treatment=="tr", ratio]) - mean(fd[treatment=="cn", ratio])
-  effect_rel[iter] <- mean(fd[treatment=="tr", rel]) - 1
+  effect_norm1[iter] <- mean(fd[treatment=="tr", norm1]) - mean(fd[treatment=="cn", norm1])
+  effect_norm2[iter] <- mean(fd[treatment=="tr", norm2]) - 1
 
 }
 
@@ -186,8 +186,8 @@ for(iter in 1:niter){
 ```{r}
 apply(prob, 2, function(x) sum(x < 0.05)/niter)
 qplot(x=delta_gapdh, y=effect_lm) + geom_smooth(method="lm")
-qplot(x=delta_gapdh, y=effect_ratio) + geom_smooth(method="lm")
-qplot(x=delta_gapdh, y=effect_rel) + geom_smooth(method="lm")
+qplot(x=delta_gapdh, y=effect_norm1) + geom_smooth(method="lm")
+qplot(x=delta_gapdh, y=effect_norm2) + geom_smooth(method="lm")
 ```
 
 The two-stage normalization (one-sample t-test against a reference value of 1) has high type I error
@@ -215,56 +215,229 @@ qplot(gapdh)
 qplot(value)
 cor(gapdh, value)
 ```
-
-```{r simulation-rho>0}
-set.seed(1)
-rho=0.5
-alpha_gapdh <- 80
-beta_gapdh <- 100
-alpha_met <- 30
-beta_met <- 100
-n <- 4
-
-niter <- 5000
-prob <- data.frame(matrix(NA, nrow=niter, ncol=3))
-colnames(prob) <- c("cov", "ratio", "rel")
-effect_lm <- numeric(niter)
-effect_ratio <- numeric(niter)
-effect_rel <- numeric(niter)
-delta_gapdh <- numeric(niter)
-for(iter in 1:niter){
-  y1 <- rgamma(n*2, shape=alpha_gapdh - rho*sqrt(alpha_gapdh*alpha_met), rate=1)
-  y2 <- rgamma(n*2, shape=alpha_met - rho*sqrt(alpha_gapdh*alpha_met), rate=1)
-  y3 <- rgamma(n*2, shape=rho*sqrt(alpha_gapdh*alpha_met), rate=1)
+```{r simulation-gamma}
+simulate_experiment <- function(
+  n=10, # number of replicates per treatment level
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+){
+  kappa_1_i <- rep(c(kappa_1, kappa_1*s_kappa), each=n)
+  theta_1_i <- rep(c(theta_1, theta_1*s_theta), each=n)
+  # control
+  y1 <- rgamma(n*2, shape=kappa_0 - rho*sqrt(kappa_0*kappa_1), scale=1)
+  y2 <- rgamma(n*2, shape=kappa_1_i - rho*sqrt(kappa_0*kappa_1_i), scale=1)
+  y3 <- rgamma(n*2, shape=rho*sqrt(kappa_0*kappa_1), scale=1)
   fd <- data.table(
     treatment=rep(c("cn", "tr"), each=n),
-    gapdh=beta_gapdh*(y1+y3),
-    value=beta_met*(y2+y3)
+    gapdh=theta_0*(y1+y3),
+    value=theta_1_i*(y2+y3)
   )
-  fd[, ratio:=value/gapdh]
-  cn_ref <- mean(fd[treatment=="cn", ratio])
-  fd[, rel:=ratio/cn_ref]
+  fd[, norm1:=value/gapdh]
+  cn_ref <- mean(fd[treatment=="cn", norm1])
+  fd[, norm2:=norm1/cn_ref]
+  return(fd)
+}
+```
 
-  m1 <- lm(value ~ gapdh + treatment, data=fd)
-  prob[iter, "cov"] <- coef(summary(m1))["treatmenttr", "Pr(>|t|)"]
-  prob[iter, "ratio"] <- t.test(fd[treatment=="cn", ratio], fd[treatment=="tr", ratio], var.equal=TRUE)$p.value
-  prob[iter, "rel"] <- t.test(x=fd[treatment=="tr", rel], mu=1)$p.value
-  
-  delta_gapdh[iter] <- mean(fd[treatment=="tr", gapdh]) - mean(fd[treatment=="cn", gapdh])
-  effect_lm[iter] <- coef(summary(m1))["treatmenttr", "Estimate"]
-  effect_ratio[iter] <- mean(fd[treatment=="tr", ratio]) - mean(fd[treatment=="cn", ratio])
-  effect_rel[iter] <- mean(fd[treatment=="tr", rel]) - 1
-  
+```{r simulate-explore}
+n=10^4 # number of replicates per treatment level
+rho=0.5 # correlation between the reference value and that of a control level
+s_kappa=1.1 # effect of treatment on shape (this is multiplicative so 1 = no effect)
+s_theta=1.1 # effect of treatment on scale (this is multiplicative so 1 = no effect
+kappa_0=80 # shape parameter for reference
+theta_0=100 # scale parameter for reference
+kappa_1=30 # shape parameter for control
+theta_1=100 # scale parameter for control
+(s_kappa*kappa_1*s_theta*theta_1 - kappa_1*theta_1)/(sqrt(kappa_1*theta_1^2))
+
+fd <- simulate_experiment(
+  n, # number of replicates per treatment level
+  rho, # correlation between the reference value and that of a control level
+  s_kappa, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0, # shape parameter for reference
+  theta_0, # scale parameter for reference
+  kappa_1, # shape parameter for control
+  theta_1 # scale parameter for control
+)
+
+# quick and dirty cohen's
+kappa_1*theta_1
+s_kappa*kappa_1*s_theta*theta_1
+(means_table <- fd[, .(cell_mean=mean(value), cell_sd=sd(value)), by=treatment])
+(means_table[treatment=="tr", cell_mean] - means_table[treatment=="cn", cell_mean])/means_table[treatment=="cn", cell_sd]
+```
+
+
+```{r simulation-rho>0}
+iterate_experiment <- function(
+  n=10, # number of replicates per treatment level
+  niter=2000, # number of iterations
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+  ){
+  # Given a western blot with three "treatments": reference (Gapdh) is the set of values for normaliztion
+  # control is the set of values for a control. The treatment value is determined by beta_1 -- the effect
+  prob_cols <- c("cov", "norm1", "norm2")
+  prob <- data.table(matrix(-9999, nrow=niter, ncol=length(prob_cols)))
+  setnames(prob, old=colnames(prob), new=prob_cols)
+  effect_cols <- c("delta_gapdh", "effect_lm", "effect_norm1", "effect_norm2")
+  effects_dt <- data.table(matrix(-9999, nrow=niter, ncol=length(effect_cols)))
+  setnames(effects_dt, old=colnames(effects_dt), new=effect_cols)
+  # effect_lm <- numeric(niter) # effect size using lm with gapdh as covariate
+  # effect_norm1 <- numeric(niter) # effect size using standard normalization against gapdh
+  # effect_norm2 <- numeric(niter) # effect size using re-scaling to control (shSrc in this case)
+  # delta_gapdh <- numeric(niter) # the difference between control and treatment gapdh
+  kappa_1_i <- rep(c(kappa_1, kappa_1*s_kappa), each=n)
+  for(iter in 1:niter){
+    fd <- simulate_experiment(
+      n, # number of replicates per treatment level
+      rho, # correlation between the reference value and that of a control level
+      s_kappa, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+      s_theta, # effect of treatment on scale (this is multiplicative so 1 = no effect
+      kappa_0, # shape parameter for reference
+      theta_0, # scale parameter for reference
+      kappa_1, # shape parameter for control
+      theta_1 # scale parameter for control
+    )
+
+    m1 <- lm(value ~ gapdh + treatment, data=fd)
+    prob[iter, cov := coef(summary(m1))["treatmenttr", "Pr(>|t|)"]]
+    prob[iter, norm1 := t.test(fd[treatment=="cn", norm1], fd[treatment=="tr", norm1], var.equal=TRUE)$p.value]
+    prob[iter, norm2 := t.test(x=fd[treatment=="tr", norm2], mu=1)$p.value]
+    
+    effects_dt[iter, delta_gapdh := mean(fd[treatment=="tr", gapdh]) - mean(fd[treatment=="cn", gapdh])]
+    effects_dt[iter, effect_lm := coef(summary(m1))["treatmenttr", "Estimate"]]
+    effects_dt[iter, effect_norm1 := mean(fd[treatment=="tr", norm1]) - mean(fd[treatment=="cn", norm1])]
+    effects_dt[iter, effect_norm2 := mean(fd[treatment=="tr", norm2]) - 1]
+  }
+  return(
+    cbind(prob, effects_dt)
+  )
 }
 
 ```
+### Cor with Gapdh=0, no treatment effect
 
-```{r simulation-rho-results}
-apply(prob, 2, function(x) sum(x < 0.05)/niter)
-qplot(x=delta_gapdh, y=effect_lm) + geom_smooth(method="lm")
-qplot(x=delta_gapdh, y=effect_ratio) + geom_smooth(method="lm")
-qplot(x=delta_gapdh, y=effect_rel) + geom_smooth(method="lm")
-
+```{r simulation1}
+# rho = 0, effect=0
+set.seed(1)
+res <- iterate_experiment(
+  n=6, # number of replicates per treatment level
+  niter=1000, # number of iterations
+  rho=0, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+)
 ```
 
-Same results.
+```{r simulation1-results}
+prob_cols <- c("cov", "norm1", "norm2")
+niter <- nrow(res)
+apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
+qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method="lm")
+qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method="lm")
+qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method="lm")
+coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+```
+
+### Cor with Gapdh=0.5, no treatment effect
+
+```{r simulation2}
+# rho = 0.5, effect=0
+set.seed(1)
+res <- iterate_experiment(
+  n=6, # number of replicates per treatment level
+  niter=1000, # number of iterations
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+)
+```
+
+```{r simulation2-results}
+prob_cols <- c("cov", "norm1", "norm2")
+niter <- nrow(res)
+apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
+qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method="lm")
+qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method="lm")
+qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method="lm")
+coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+```
+
+### Cor with Gapdh=0, treatment effect ~ 1 (cohen's d)
+
+```{r simulation3}
+set.seed(1)
+res <- iterate_experiment(
+  n=6, # number of replicates per treatment level
+  niter=1000, # number of iterations
+  rho=0, # correlation between the reference value and that of a control level
+  s_kappa=1.1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1.1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+)
+# cohens
+(s_kappa*kappa_1*s_theta*theta_1 - kappa_1*theta_1)/(sqrt(kappa_1*theta_1^2))
+```
+
+```{r simulation3-results}
+prob_cols <- c("cov", "norm1", "norm2")
+niter <- nrow(res)
+apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
+qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method="lm")
+qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method="lm")
+qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method="lm")
+coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+```
+
+### Cor with Gapdh=0.5, treatment effect ~ 1 (cohen's d)
+
+```{r simulation4}
+set.seed(1)
+res <- iterate_experiment(
+  n=6, # number of replicates per treatment level
+  niter=1000, # number of iterations
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1.1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1.1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+)
+```
+
+```{r simulation4-results}
+prob_cols <- c("cov", "norm1", "norm2")
+niter <- nrow(res)
+apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
+qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method="lm")
+qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method="lm")
+qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method="lm")
+coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+```
+
+## Some consequences
+
