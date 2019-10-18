@@ -14,9 +14,26 @@ tags:
   - bias
 keywords:
   - tech
+output:
+  blogdown::html_page:
+    toc: true
 ---
 
 
+<div id="TOC">
+<ul>
+<li><a href="#background">Background</a></li>
+<li><a href="#reproducibility">Reproducibility</a></li>
+<li><a href="#what-are-the-consequences-of-normalization-compare-to-linear-model-with-gapdh-as-covariate">What are the consequences of normalization? Compare to linear model with Gapdh as covariate</a><ul>
+<li><a href="#linear-models">linear models</a></li>
+</ul></li>
+<li><a href="#simulations">Simulations</a><ul>
+<li><a href="#simulation-functions">Simulation functions</a></li>
+<li><a href="#functions-to-plot-simulation-results">functions to plot simulation results</a></li>
+<li><a href="#results-and-consequences">Results and consequences</a></li>
+</ul></li>
+</ul>
+</div>
 
 <p>This not fully fleshed out post has two tl;drs, the first is specific to the paper (see below), the second is very general, for anyone normalizing gel/blot/etc. data.</p>
 <p>tl;dr 1 The linear model with Gapdh as covariate fit to the empirical data from the paper is inconclusive while the model with the normalization used by the authors has a very low p-value for both Met and pMet</p>
@@ -514,18 +531,17 @@ knitr::kable(type_1, col.names=&quot;Power&quot;)</code></pre>
 <pre class="r"><code>plot_effects(res)</code></pre>
 <p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 </div>
-</div>
-<div id="cor-with-gapdh0.5-treatment-effect-1-cohens-d" class="section level3">
-<h3>Cor with Gapdh=0.5, treatment effect ~ 1 (cohen’s d)</h3>
+<div id="cor-with-gapdh0.5-treatment-effect-1-cohens-d" class="section level4">
+<h4>Cor with Gapdh=0.5, treatment effect ~ 1 (cohen’s d)</h4>
 <pre class="r"><code>set.seed(1)
 file_path &lt;- here(output_path, &quot;normalization_res4.rds&quot;)
 if(simulate_it==TRUE){
   res &lt;- iterate_experiment(
   n=4, # number of replicates per treatment level
   niter=5000, # number of iterations
-  rho=0, # correlation between the reference value and that of a control level
-  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
-  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1.1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1.1, # effect of treatment on scale (this is multiplicative so 1 = no effect
   kappa_0=80, # shape parameter for reference
   theta_0=100, # scale parameter for reference
   kappa_1=30, # shape parameter for control
@@ -550,19 +566,21 @@ knitr::kable(type_1, col.names=&quot;Power&quot;)</code></pre>
 <tbody>
 <tr class="odd">
 <td>lm</td>
-<td align="right">0.0476</td>
+<td align="right">0.1802</td>
 </tr>
 <tr class="even">
 <td>norm1</td>
-<td align="right">0.0456</td>
+<td align="right">0.2006</td>
 </tr>
 <tr class="odd">
 <td>norm2</td>
-<td align="right">0.1150</td>
+<td align="right">0.2612</td>
 </tr>
 </tbody>
 </table>
 <pre class="r"><code>plot_effects(res)</code></pre>
 <p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>Don’t believe the higher power with norm2. It’s a mirage due to the liberal Type I error.</p>
+</div>
 </div>
 </div>
