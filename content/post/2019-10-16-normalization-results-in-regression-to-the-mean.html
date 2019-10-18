@@ -18,7 +18,9 @@ keywords:
 
 
 
-<p>tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is <em>regression to the mean</em>, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude “an effect exists” when the evidence doesn’t favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.</p>
+<p>This not fully fleshed out post has two tl;drs, the first is specific to the paper (see below), the second is very general, for anyone normalizing gel/blot/etc. data.</p>
+<p>tl;dr 1 The linear model with Gapdh as covariate fit to the empirical data from the paper is inconclusive while the model with the normalization used by the authors has a very low p-value for both Met and pMet</p>
+<p>tl;dr 2 Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is <em>regression to the mean</em>, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude “an effect exists” when the evidence doesn’t favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.</p>
 <p>I would think this isn’t news but I’m not familiar with the literature. Google Scholaring found mostly normalization in microarray/RNAseq type stuff and much of this is concerned with different issues. There is abundant literature on normalizng on body weight and adjusting for baseline in pre-post designs, but there doesn’t seem to be much acknowledgment of regression to the mean within experimental biology. I did find this,</p>
 <p>Janušonis, S., 2009. Comparing two small samples with an unstable, treatment-independent baseline. Journal of neuroscience methods, 179(2), pp.173-178.</p>
 <p>which doesn’t seem to recognize the issue of regression to the mean and inflated conditional type I error.</p>
@@ -39,6 +41,12 @@ filename &lt;- &quot;Study_42_Figure_1_WB_quant_Data.csv&quot;
 file_path &lt;- here(data_path, folder, filename)
 exp1 &lt;- fread(file_path)
 #View(exp1)</code></pre>
+<p>Create normalized values</p>
+<ol style="list-style-type: decimal">
+<li>Value.norm is the conventional normalization using the reference (Gapdh) value.</li>
+<li>value.norm.2 is Value.norm rescaled by the mean of shScr</li>
+<li>value.norm.3 is setting all rescalings of shScr to = 1</li>
+</ol>
 <pre class="r"><code># get Gapdh ref for each row to rescale (&quot;normalize&quot;) by Gapdh
 gapdh_ref.dt &lt;- exp1[Antibody==&quot;Gapdh&quot;, .(gapdh_ref=mean(Value)), by=Set]
 exp1.v1 &lt;- merge(exp1, gapdh_ref.dt, by=&quot;Set&quot;)
@@ -83,63 +91,101 @@ plot_grid(gg1, gg2, gg3, gg4, nrow=2)</code></pre>
 </div>
 <div id="what-are-the-consequences-of-normalization-compare-to-linear-model-with-gapdh-as-covariate" class="section level2">
 <h2>What are the consequences of normalization? Compare to linear model with Gapdh as covariate</h2>
-<pre class="r"><code>m1 &lt;- lm(value.norm.2 ~ Condition, data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;])
+<p>tl;dr Big. The linear model with Gapdh as covariate is inconclusive while the model with the normalization used by the authors has a very low p-value.</p>
+<div id="linear-models" class="section level3">
+<h3>linear models</h3>
+<div id="met" class="section level4">
+<h4>Met</h4>
+<p>m1 is the preferred method. m2 is conventional normalization. m4 is what the author’s did.</p>
+<pre class="r"><code># linear model with ref as covariate
+m1 &lt;- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;])
+# linear model with no accounting for ref
 m2 &lt;- lm(Value ~ Condition, data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;])
-m3 &lt;- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;])
+# linear model using Gapdh normalized values
+m3 &lt;- lm(Value.norm ~ Condition, data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;])
+# linear model using Gapdh normalized rescaled to shScr values
+m4 &lt;- lm(value.norm.3 ~ Condition, data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;])
 coef(summary(m1))</code></pre>
-<pre><code>##                 Estimate Std. Error   t value   Pr(&gt;|t|)
-## (Intercept)    0.2258586  0.2337038 0.9664309 0.38855596
-## ConditionshScr 0.7741414  0.3305071 2.3422842 0.07918029</code></pre>
+<pre><code>##                    Estimate   Std. Error    t value  Pr(&gt;|t|)
+## (Intercept)    11545.929046 26227.993625  0.4402140 0.6895688
+## gapdh_ref         -1.227088     3.499151 -0.3506815 0.7490069
+## ConditionshScr 16769.492308  9964.835324  1.6828670 0.1909905</code></pre>
 <pre class="r"><code>coef(summary(m2))</code></pre>
 <pre><code>##                 Estimate Std. Error   t value   Pr(&gt;|t|)
 ## (Intercept)     2547.013   4791.796 0.5315362 0.62319492
 ## ConditionshScr 14538.350   6776.624 2.1453678 0.09849231</code></pre>
 <pre class="r"><code>coef(summary(m3))</code></pre>
-<pre><code>##                    Estimate   Std. Error    t value  Pr(&gt;|t|)
-## (Intercept)    11545.929046 26227.993625  0.4402140 0.6895688
-## gapdh_ref         -1.227088     3.499151 -0.3506815 0.7490069
-## ConditionshScr 16769.492308  9964.835324  1.6828670 0.1909905</code></pre>
-<pre class="r"><code>m1 &lt;- lm(value.norm.2 ~ Condition, data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;])
+<pre><code>##                 Estimate Std. Error   t value  Pr(&gt;|t|)
+## (Intercept)    0.3647146  0.5688478 0.6411462 0.5563180
+## ConditionshScr 1.5410749  0.8044723 1.9156344 0.1279129</code></pre>
+<pre class="r"><code>coef(summary(m4))</code></pre>
+<pre><code>##                 Estimate Std. Error  t value    Pr(&gt;|t|)
+## (Intercept)    0.2258586 0.06511642 3.468535 0.025617769
+## ConditionshScr 0.7741414 0.09208852 8.406492 0.001095958</code></pre>
+</div>
+<div id="pmet" class="section level4">
+<h4>pMet</h4>
+<p>m1 is the preferred method. m2 is conventional normalization. m4 is what the author’s did.</p>
+<pre class="r"><code># linear model with ref as covariate
+m1 &lt;- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;])
+# linear model with no accounting for ref
 m2 &lt;- lm(Value ~ Condition, data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;])
-m3 &lt;- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;])
+# linear model using Gapdh normalized values
+m3 &lt;- lm(Value.norm ~ Condition, data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;])
+# linear model using Gapdh normalized rescaled to shScr values
+m4 &lt;- lm(value.norm.3 ~ Condition, data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;])
 coef(summary(m1))</code></pre>
-<pre><code>##                Estimate Std. Error  t value     Pr(&gt;|t|)
-## (Intercept)    0.251231 0.05962501 4.213517 0.0056012932
-## ConditionshScr 0.748769 0.08432250 8.879824 0.0001135521</code></pre>
+<pre><code>##                    Estimate  Std. Error    t value  Pr(&gt;|t|)
+## (Intercept)    1038.5456491 8949.475770 0.11604542 0.9121333
+## gapdh_ref         0.0656947    1.077481 0.06097064 0.9537447
+## ConditionshScr 4474.0624660 3474.762371 1.28758804 0.2542632</code></pre>
 <pre class="r"><code>coef(summary(m2))</code></pre>
 <pre><code>##                Estimate Std. Error   t value  Pr(&gt;|t|)
 ## (Intercept)    1563.237   2243.615 0.6967491 0.5120363
 ## ConditionshScr 4471.471   3172.951 1.4092469 0.2084245</code></pre>
 <pre class="r"><code>coef(summary(m3))</code></pre>
-<pre><code>##                    Estimate  Std. Error    t value  Pr(&gt;|t|)
-## (Intercept)    1038.5456491 8949.475770 0.11604542 0.9121333
-## gapdh_ref         0.0656947    1.077481 0.06097064 0.9537447
-## ConditionshScr 4474.0624660 3474.762371 1.28758804 0.2542632</code></pre>
+<pre><code>##                 Estimate Std. Error   t value  Pr(&gt;|t|)
+## (Intercept)    0.2202671  0.2824690 0.7797922 0.4651516
+## ConditionshScr 0.5380471  0.3994714 1.3468976 0.2266568</code></pre>
+<pre class="r"><code>coef(summary(m4))</code></pre>
+<pre><code>##                Estimate Std. Error  t value     Pr(&gt;|t|)
+## (Intercept)    0.251231 0.05920414 4.243471 0.0054189900
+## ConditionshScr 0.748769 0.08372730 8.942949 0.0001091122</code></pre>
+</div>
+<div id="some-plots-of-whats-going-on" class="section level4">
+<h4>some plots of what’s going on</h4>
 <pre class="r"><code>gg6 &lt;- ggplot(data=exp1.v1[Antibody==&quot;Met&quot; &amp; Type==&quot;Cells&quot;], aes(x=gapdh_ref, y=Value, color=Condition)) +
   geom_point() +
   ylab(&quot;Met&quot;) +
+  theme_minimal() +
   NULL
 
 gg7 &lt;- ggplot(data=exp1.v1[Antibody==&quot;Met&quot;], aes(x=gapdh_ref, y=Value, color=Condition, shape=Type)) +
   geom_point() +
   ylab(&quot;Met&quot;) +
+  theme_minimal() +
   NULL
 
 gg8 &lt;- ggplot(data=exp1.v1[Antibody==&quot;pMet&quot; &amp; Type==&quot;Cells&quot;], aes(x=gapdh_ref, y=Value, color=Condition)) +
   geom_point() +
   ylab(&quot;pMet&quot;) +
+  theme_minimal() +
   NULL
 
 gg9 &lt;- ggplot(data=exp1.v1[Antibody==&quot;pMet&quot;], aes(x=gapdh_ref, y=Value, color=Condition, shape=Type)) +
   geom_point() +
   ylab(&quot;pMet&quot;) +
+  theme_minimal() +
   NULL
-plot_grid(gg6, gg7, gg8, gg9, nrow=2)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/covariate%20v%20normalization-1.png" width="672" /></p>
+plot_grid(gg6, gg8, nrow=1)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 <p>It’s pretty hard to figure out systemic bias due to normalization with a sample size of 3 or 4 so…</p>
+</div>
+</div>
 </div>
 <div id="simulations" class="section level2">
 <h2>Simulations</h2>
+<p>Simulate the experiment in Fig 1 C of the paper. Effectively, this simulates an experiment with one control level, one treatment level, and a sample size of 4 (per level). Control and treatment levels are adjusted using a reference level (simulating Gapdh). The adjustments are 1) lm (linear model with Gapdh has covariate), 2) norm1 (the ratio of the control or treatment level divided by Gapdh level), 3) norm2 (norm1 rescaled to the control mean and then all control levels reset to equal one.)</p>
 <div id="simulation-functions" class="section level3">
 <h3>Simulation functions</h3>
 <p>The main function for generating a data set with a control, a treatment, and a reference for normalization.</p>
@@ -254,18 +300,27 @@ s_kappa*kappa_1*s_theta*theta_1
   prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
   niter &lt;- nrow(res)
   apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x &lt; 0.05)/niter)
-  gg1 &lt;- qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method=&quot;lm&quot;) +
+  gg1 &lt;- qplot(x=res$delta_gapdh/10^3, y=res$effect_lm) +
+    geom_smooth(method=&quot;lm&quot;) +
     ggtitle(&quot;Linear model&quot;) +
-    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
-    ylab(&quot;Effect&quot;)
-  gg2 &lt;- qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method=&quot;lm&quot;) +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  &quot;(X 1000)&quot;))) +
+    ylab(&quot;Effect&quot;) +
+    theme_minimal() +
+    NULL
+  gg2 &lt;- qplot(x=res$delta_gapdh/10^3, y=res$effect_norm1) +
+    geom_smooth(method=&quot;lm&quot;) +
     ggtitle(&quot;Norm1&quot;) +
-    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
-    ylab(&quot;Effect&quot;)
-  gg3 &lt;- qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method=&quot;lm&quot;) +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  &quot;(X 1000)&quot;))) +
+    ylab(&quot;Effect&quot;) +
+    theme_minimal() +
+    NULL
+  gg3 &lt;- qplot(x=res$delta_gapdh/10^3, y=res$effect_norm2) +
+    geom_smooth(method=&quot;lm&quot;) +
     ggtitle(&quot;Norm2&quot;) +
-    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
-    ylab(&quot;Effect&quot;)
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  &quot;(X 1000)&quot;))) +
+    ylab(&quot;Effect&quot;) +
+    theme_minimal() +
+    NULL
   gg &lt;- plot_grid(gg1, gg2, gg3, nrow=1)
   return(gg)
 }
@@ -345,11 +400,11 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 </table>
 <p>Treatment effect size as a function of observed difference in Gapdh value between treatment and control <span class="math inline">\(\Delta Gapdh\)</span>. A slope indicates a <strong>conditional bias</strong> of the effect on <span class="math inline">\(\Delta Gapdh\)</span>, which results because of regression to the mean. The treatment effect of both norm1 and norm2 normalization is strongly conditionally biased.</p>
 <pre class="r"><code>plot_effects(res)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <pre class="r"><code># coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))</code></pre>
 <p>The probability of Type I error as a function of observed difference in Gapdh value between treatment and control <span class="math inline">\(\Delta Gapdh\)</span>. The nominal probability is 0.05. The plots show that the conditional Type I error (conditional on <span class="math inline">\(\Delta Gapdh\)</span>) increases to exceedingly high values as the magnitude of <span class="math inline">\(\Delta Gapdh\)</span> increases for both Norm1 and Norm 2 normalization procedures.</p>
 <pre class="r"><code>plot_prob_t1(res)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
 <div id="cor-with-gapdh0.5-no-treatment-effect" class="section level4">
 <h4>Cor with Gapdh=0.5, no treatment effect</h4>
@@ -401,11 +456,11 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 </table>
 <p>Treatment effect size as a function of observed difference in Gapdh value between treatment and control <span class="math inline">\(\Delta Gapdh\)</span>. A slope indicates a <strong>conditional bias</strong> of the effect on <span class="math inline">\(\Delta Gapdh\)</span>, which results because of regression to the mean. The treatment effect of both norm1 and norm2 normalization is strongly conditionally biased.</p>
 <pre class="r"><code>plot_effects(res)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <pre class="r"><code># coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))</code></pre>
 <p>The probability of Type I error as a function of observed difference in Gapdh value between treatment and control <span class="math inline">\(\Delta Gapdh\)</span>. The nominal probability is 0.05. The plots show that the conditional Type I error (conditional on <span class="math inline">\(\Delta Gapdh\)</span>) increases to exceedingly high values as the magnitude of <span class="math inline">\(\Delta Gapdh\)</span> increases for both Norm1 and Norm 2 normalization procedures.</p>
 <pre class="r"><code>plot_prob_t1(res)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>Interesting. The linear model method gets a wee bit conservative with increasing <span class="math inline">\(\Delta Gapdh\)</span> while norm1 is a little liberal. Norm2 is liberal across the range of <span class="math inline">\(\Delta Gapdh\)</span>.</p>
 </div>
 <div id="cor-with-gapdh0-treatment-effect-1-cohens-d" class="section level4">
@@ -432,12 +487,12 @@ if(simulate_it==TRUE){
 <pre class="r"><code>prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
 niter &lt;- nrow(res)
 type_1 &lt;- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x &lt; 0.05)/niter)
-knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
+knitr::kable(type_1, col.names=&quot;Power&quot;)</code></pre>
 <table>
 <thead>
 <tr class="header">
 <th></th>
-<th align="right">Type I</th>
+<th align="right">Power</th>
 </tr>
 </thead>
 <tbody>
@@ -457,7 +512,7 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 </table>
 <p>We would hope the estimate of the effect would not change with <span class="math inline">\(\Delta Gapdh\)</span> (that is, it’s not conditional on this). The conditional effects for both normalizations are interesting. I can’t do the math to figure out what the E(effect) is for either normalization (except in the case when E(effect)=0 as above) but assuming these results are like the case with E(effect)=0 above, then effects are inflated when <span class="math inline">\(\Delta Gapdh &lt; 0\)</span> and supressed when <span class="math inline">\(\Delta Gapdh &gt; 0\)</span></p>
 <pre class="r"><code>plot_effects(res)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 </div>
 </div>
 <div id="cor-with-gapdh0.5-treatment-effect-1-cohens-d" class="section level3">
@@ -484,12 +539,12 @@ if(simulate_it==TRUE){
 <pre class="r"><code>prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
 niter &lt;- nrow(res)
 type_1 &lt;- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x &lt; 0.05)/niter)
-knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
+knitr::kable(type_1, col.names=&quot;Power&quot;)</code></pre>
 <table>
 <thead>
 <tr class="header">
 <th></th>
-<th align="right">Type I</th>
+<th align="right">Power</th>
 </tr>
 </thead>
 <tbody>
@@ -508,6 +563,6 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 </tbody>
 </table>
 <pre class="r"><code>plot_effects(res)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>
 </div>

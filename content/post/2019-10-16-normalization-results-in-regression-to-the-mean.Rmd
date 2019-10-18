@@ -15,8 +15,11 @@ tags:
 keywords:
   - tech
 ---
+This not fully fleshed out post has two tl;drs, the first is specific to the paper (see below), the second is very general, for anyone normalizing gel/blot/etc. data.
 
-tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is *regression to the mean*, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude "an effect exists" when the evidence doesn't favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.
+tl;dr 1  The linear model with Gapdh as covariate fit to the empirical data from the paper is inconclusive while the model with the normalization used by the authors has a very low p-value for both Met and pMet
+
+tl;dr 2 Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is *regression to the mean*, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude "an effect exists" when the evidence doesn't favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.
 
 I would think this isn't news but I'm not familiar with the literature. Google Scholaring found mostly normalization in microarray/RNAseq type stuff and much of this is concerned with different issues. There is abundant literature on normalizng on body weight and adjusting for baseline in pre-post designs, but there doesn't seem to be much acknowledgment of regression to the mean within experimental biology. I did find this, 
 
@@ -63,6 +66,12 @@ file_path <- here(data_path, folder, filename)
 exp1 <- fread(file_path)
 #View(exp1)
 ```
+
+Create normalized values
+
+1. Value.norm is the conventional normalization using the reference (Gapdh) value.
+2. value.norm.2 is Value.norm rescaled by the mean of shScr
+3. value.norm.3 is setting all rescalings of shScr to = 1
 
 ```{r reproducibility}
 # get Gapdh ref for each row to rescale ("normalize") by Gapdh
@@ -112,47 +121,79 @@ The two bottom plots reproduce Fig 1C from the paper. The two top plots are scal
 
 ## What are the consequences of normalization? Compare to linear model with Gapdh as covariate
 
-```{r covariate v normalization}
-m1 <- lm(value.norm.2 ~ Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
+tl;dr Big. The linear model with Gapdh as covariate is inconclusive while the model with the normalization used by the authors has a very low p-value.
+
+### linear models
+#### Met
+m1 is the preferred method. m2 is conventional normalization. m4 is what the author's did.
+
+```{r covariate-v-normalization-met}
+# linear model with ref as covariate
+m1 <- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
+# linear model with no accounting for ref
 m2 <- lm(Value ~ Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
-m3 <- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
+# linear model using Gapdh normalized values
+m3 <- lm(Value.norm ~ Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
+# linear model using Gapdh normalized rescaled to shScr values
+m4 <- lm(value.norm.3 ~ Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
 coef(summary(m1))
 coef(summary(m2))
 coef(summary(m3))
+coef(summary(m4))
+```
 
-m1 <- lm(value.norm.2 ~ Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
+#### pMet
+m1 is the preferred method. m2 is conventional normalization. m4 is what the author's did.
+
+```{r covariate-v-normalization-pmet-1}
+# linear model with ref as covariate
+m1 <- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
+# linear model with no accounting for ref
 m2 <- lm(Value ~ Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
-m3 <- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
+# linear model using Gapdh normalized values
+m3 <- lm(Value.norm ~ Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
+# linear model using Gapdh normalized rescaled to shScr values
+m4 <- lm(value.norm.3 ~ Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
 coef(summary(m1))
 coef(summary(m2))
 coef(summary(m3))
+coef(summary(m4))
+```
 
+#### some plots of what's going on
+```{r}
 gg6 <- ggplot(data=exp1.v1[Antibody=="Met" & Type=="Cells"], aes(x=gapdh_ref, y=Value, color=Condition)) +
   geom_point() +
   ylab("Met") +
+  theme_minimal() +
   NULL
 
 gg7 <- ggplot(data=exp1.v1[Antibody=="Met"], aes(x=gapdh_ref, y=Value, color=Condition, shape=Type)) +
   geom_point() +
   ylab("Met") +
+  theme_minimal() +
   NULL
 
 gg8 <- ggplot(data=exp1.v1[Antibody=="pMet" & Type=="Cells"], aes(x=gapdh_ref, y=Value, color=Condition)) +
   geom_point() +
   ylab("pMet") +
+  theme_minimal() +
   NULL
 
 gg9 <- ggplot(data=exp1.v1[Antibody=="pMet"], aes(x=gapdh_ref, y=Value, color=Condition, shape=Type)) +
   geom_point() +
   ylab("pMet") +
+  theme_minimal() +
   NULL
-plot_grid(gg6, gg7, gg8, gg9, nrow=2)
+plot_grid(gg6, gg8, nrow=1)
 
 ```
 
 It's pretty hard to figure out systemic bias due to normalization with a sample size of 3 or 4 so...
 
 ## Simulations
+
+Simulate the experiment in Fig 1 C of the paper. Effectively, this simulates an experiment with one control level, one treatment level, and a sample size of 4 (per level). Control and treatment levels are adjusted using a reference level (simulating Gapdh). The adjustments are 1) lm (linear model with Gapdh has covariate), 2) norm1 (the ratio of the control or treatment level divided by Gapdh level), 3) norm2 (norm1 rescaled  to the control mean and then all control levels reset to equal one.)
 
 ### Simulation functions
 
@@ -299,18 +340,27 @@ plot_effects <- function(res){
   prob_cols <- c("lm", "norm1", "norm2")
   niter <- nrow(res)
   apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
-  gg1 <- qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method="lm") +
+  gg1 <- qplot(x=res$delta_gapdh/10^3, y=res$effect_lm) +
+    geom_smooth(method="lm") +
     ggtitle("Linear model") +
-    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
-    ylab("Effect")
-  gg2 <- qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method="lm") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  gg2 <- qplot(x=res$delta_gapdh/10^3, y=res$effect_norm1) +
+    geom_smooth(method="lm") +
     ggtitle("Norm1") +
-    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
-    ylab("Effect")
-  gg3 <- qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method="lm") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  gg3 <- qplot(x=res$delta_gapdh/10^3, y=res$effect_norm2) +
+    geom_smooth(method="lm") +
     ggtitle("Norm2") +
-    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
-    ylab("Effect")
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
   gg <- plot_grid(gg1, gg2, gg3, nrow=1)
   return(gg)
 }
@@ -464,7 +514,7 @@ Since there is a true treatment effect, this is the power (instead of Type I err
 prob_cols <- c("lm", "norm1", "norm2")
 niter <- nrow(res)
 type_1 <- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
-knitr::kable(type_1, col.names="Type I")
+knitr::kable(type_1, col.names="Power")
 
 ```
 
@@ -505,7 +555,7 @@ Power.
 prob_cols <- c("lm", "norm1", "norm2")
 niter <- nrow(res)
 type_1 <- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
-knitr::kable(type_1, col.names="Type I")
+knitr::kable(type_1, col.names="Power")
 
 ```
 

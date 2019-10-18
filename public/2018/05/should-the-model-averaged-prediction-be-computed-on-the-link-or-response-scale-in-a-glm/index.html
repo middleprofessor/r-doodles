@@ -898,7 +898,9 @@ res &lt;- data.table(response=yhat.response$mod.avg.pred,
                   Oct 10, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude “an effect exists” when the evidence doesn’t favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.</div>
+              <div class="media-content hide-xs font-merryweather">This not fully fleshed out post has two tl;drs, the first is specific to the paper (see below), the second is very general, for anyone normalizing gel/blot/etc. data.
+tl;dr 1 The linear model with Gapdh as covariate fit to the empirical data from the paper is inconclusive while the model with the normalization used by the authors has a very low p-value for both Met and pMet
+tl;dr 2 Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
