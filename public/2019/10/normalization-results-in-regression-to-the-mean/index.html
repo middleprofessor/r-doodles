@@ -8,18 +8,18 @@
 <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
 <meta name="keywords" content="tech">
-<meta name="description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
+<meta name="description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude “an effect exists” when the evidence doesn’t favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
 
 
-<meta property="og:description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
+<meta property="og:description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude “an effect exists” when the evidence doesn’t favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Normalization results in regression to the mean">
-<meta name="twitter:title" content="Normalization results in regression to the mean">
+<meta property="og:title" content="Normalization results in regression to the mean and inflated Type I error conditional on the reference values">
+<meta name="twitter:title" content="Normalization results in regression to the mean and inflated Type I error conditional on the reference values">
 <meta property="og:url" content="/2019/10/normalization-results-in-regression-to-the-mean/">
 <meta property="twitter:url" content="/2019/10/normalization-results-in-regression-to-the-mean/">
 <meta property="og:site_name" content="R Doodles">
-<meta property="og:description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
-<meta name="twitter:description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
+<meta property="og:description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude “an effect exists” when the evidence doesn’t favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
+<meta name="twitter:description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude “an effect exists” when the evidence doesn’t favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
 <meta property="og:locale" content="en-us">
 
   
@@ -71,7 +71,7 @@
   <meta property="twitter:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
 
 
-    <title>Normalization results in regression to the mean</title>
+    <title>Normalization results in regression to the mean and inflated Type I error conditional on the reference values</title>
 
     <link rel="icon" href="/favicon.png">
     
@@ -281,7 +281,7 @@ if (!doNotTrack) {
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      Normalization results in regression to the mean
+      Normalization results in regression to the mean and inflated Type I error conditional on the reference values
     </h1>
   
   
@@ -313,14 +313,20 @@ if (!doNotTrack) {
               
 
 
-<p>tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is <em>regression to the mean</em>, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.</p>
+<p>tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is <em>regression to the mean</em>, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude “an effect exists” when the evidence doesn’t favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.</p>
+<p>I would think this isn’t news but I’m not familiar with the literature. Google Scholaring found mostly normalization in microarray/RNAseq type stuff and much of this is concerned with different issues. There is abundant literature on normalizng on body weight and adjusting for baseline in pre-post designs, but there doesn’t seem to be much acknowledgment of regression to the mean within experimental biology. I did find this,</p>
+<p>Janušonis, S., 2009. Comparing two small samples with an unstable, treatment-independent baseline. Journal of neuroscience methods, 179(2), pp.173-178.</p>
+<p>which doesn’t seem to recognize the issue of regression to the mean and inflated conditional type I error.</p>
+<div id="background" class="section level2">
+<h2>Background</h2>
 <p>I was having an internal conversation with myself, which led me to thinking about reproducibility in bench biology, which led me to the <a href="https://elifesciences.org/collections/9b1e83d1/reproducibility-project-cancer-biology">cancer reproducibility project</a>. What a terrific site.</p>
 <p>I downloaded the article and data for Fig 1C of the <a href="https://elifesciences.org/articles/39944">Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET</a> just to explore. Without looking at the author’s code, I wrote my own script to replicate Fig 1C. My numbers weren’t quite right so I looked at the author’s script and realized that I needed to re-scale within Blot in addition to Antibody and Type. Once I did this, my code reproduces the author’s results. My method for preparing the data is <em>very</em> different from the authors (my code is very data.table-ish), which is pretty typical of any R analysis – ask 10 R scripters how to get something done and you’ll recieve 20 different answers.</p>
 <p>Anyway, I’m curious about the normalization since this seems to be very common yet my intuition thinks it can lead to regression to the mean. The normalization here had 2 steps: 1) first, the value for the Antibody levels were normalized by the value of a reference (Gapdh) for each Set. This is the typical normalization throughout bench biology. And 2) second, the Gapdh-normalized values were rescaled by the mean of the Gapdh-normalized values for the shScr Condition within each combination of Antibody+Type+Blot and then <em>all</em> values in the shScr were assigned to 1 (since the mean within the Condition level is 1). The statistical test then is a one-sample t-test of shMet with <span class="math inline">\(\mu=1\)</span>.</p>
-<p>Intuition 1: Step one of this normalization would seem to introduce a biased estimate of the effect, conditional on Gapdh, very similar to the biased estimate of a change score (or change from pre to post) conditional on pre-treatment values <a href="https://www.middleprofessor.com/files/quasipubs/change_scores.html">in a pre-post design</a>.</p>
+<p>Intuition 1: Step one of this normalization would seem to introduce a biased estimate of the effect, conditional on the mean difference in Gapdh between treatment and control values, very similar to the biased estimate of a change score (or change from pre to post) conditional on pre-treatment values <a href="https://www.middleprofessor.com/files/quasipubs/change_scores.html">in a pre-post design</a>.</p>
 <p>Intuition 2: Step two would just seem to introduce type I error since we’re removing variance from the 2nd sample.</p>
 <p>The proper way to avoid the conditional bias in a pre-post design is to add the pre-treatment value as a covariate. I don’t know if Normalization by a reference sample is conditionally biased but I re-analyzed the data using the Gapdh value as a covariate in a linear model. I also just re-ran a t-test of the normalized response (step 1) without the re-scaling in step 2. Both the linear model and t-test results <em>for these data</em> were very different from the original results. I plotted the data and it’s pretty easy to see why, but it’s hard for me to generalize from this one example. So I did a simulation to check my intuition above.</p>
 <p>Indeed, both my intutions turn out to be true. All analysis is below. I parameterized the distribution of Gapdh and the other values so they looked something like the actual values in the paper. I don’t know how much my results would change given different parameterizations of these distributions.</p>
+</div>
 <div id="reproducibility" class="section level2">
 <h2>Reproducibility</h2>
 <pre class="r"><code>folder &lt;- &quot;Data from Generation and characterization of shMet B16-F10 cells and exosomes&quot;
@@ -587,10 +593,11 @@ plot_prob_t1 &lt;- function(res){
 <div id="cor-with-gapdh0-no-treatment-effect" class="section level4">
 <h4>Cor with Gapdh=0, no treatment effect</h4>
 <p>This simulates a case where there is no correlation between the reference level and the experimental (control and treatment) levels. Wouldn’t need to normalize if this were the case but I include here to show how patterns are created by normalization.</p>
-<pre class="r"><code># rho = 0, effect=0
-set.seed(1)
-res &lt;- iterate_experiment(
-  n=6, # number of replicates per treatment level
+<pre class="r"><code>set.seed(1)
+file_path &lt;- here(output_path, &quot;normalization_res1.rds&quot;)
+if(simulate_it==TRUE){
+  res &lt;- iterate_experiment(
+  n=4, # number of replicates per treatment level
   niter=5000, # number of iterations
   rho=0, # correlation between the reference value and that of a control level
   s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
@@ -599,7 +606,11 @@ res &lt;- iterate_experiment(
   theta_0=100, # scale parameter for reference
   kappa_1=30, # shape parameter for control
   theta_1=100 # scale parameter for control
-)</code></pre>
+)
+  saveRDS(res, file = file_path)
+}else{
+  res &lt;- readRDS(file = file_path)
+}</code></pre>
 <p>Unconditional Type I error in the three methods. “Unconditional” means not conditional on the observed difference in Gapdh value between treatment and control.</p>
 <pre class="r"><code>prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
 niter &lt;- nrow(res)
@@ -615,15 +626,15 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 <tbody>
 <tr class="odd">
 <td>lm</td>
-<td align="right">0.0546</td>
+<td align="right">0.0476</td>
 </tr>
 <tr class="even">
 <td>norm1</td>
-<td align="right">0.0506</td>
+<td align="right">0.0456</td>
 </tr>
 <tr class="odd">
 <td>norm2</td>
-<td align="right">0.1392</td>
+<td align="right">0.1150</td>
 </tr>
 </tbody>
 </table>
@@ -638,10 +649,11 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 <div id="cor-with-gapdh0.5-no-treatment-effect" class="section level4">
 <h4>Cor with Gapdh=0.5, no treatment effect</h4>
 <p>A correlation between Gapdh value and that of the control or treatment is expected (and the reason why normalization is done).</p>
-<pre class="r"><code># rho = 0.5, effect=0
-set.seed(1)
-res &lt;- iterate_experiment(
-  n=6, # number of replicates per treatment level
+<pre class="r"><code>set.seed(1)
+file_path &lt;- here(output_path, &quot;normalization_res2.rds&quot;)
+if(simulate_it==TRUE){
+  res &lt;- iterate_experiment(
+  n=4, # number of replicates per treatment level
   niter=5000, # number of iterations
   rho=0.5, # correlation between the reference value and that of a control level
   s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
@@ -650,7 +662,11 @@ res &lt;- iterate_experiment(
   theta_0=100, # scale parameter for reference
   kappa_1=30, # shape parameter for control
   theta_1=100 # scale parameter for control
-)</code></pre>
+)
+  saveRDS(res, file = file_path)
+}else{
+  res &lt;- readRDS(file = file_path)
+}</code></pre>
 <p>Unconditional Type I error in the three methods. “Unconditional” means not conditional on the observed difference in Gapdh value between treatment and control.</p>
 <pre class="r"><code>prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
 niter &lt;- nrow(res)
@@ -666,15 +682,15 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 <tbody>
 <tr class="odd">
 <td>lm</td>
-<td align="right">0.0464</td>
+<td align="right">0.0468</td>
 </tr>
 <tr class="even">
 <td>norm1</td>
-<td align="right">0.0456</td>
+<td align="right">0.0546</td>
 </tr>
 <tr class="odd">
 <td>norm2</td>
-<td align="right">0.1304</td>
+<td align="right">0.1100</td>
 </tr>
 </tbody>
 </table>
@@ -690,8 +706,10 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 <div id="cor-with-gapdh0-treatment-effect-1-cohens-d" class="section level4">
 <h4>Cor with Gapdh=0, treatment effect ~ 1 (cohen’s d)</h4>
 <pre class="r"><code>set.seed(1)
-res &lt;- iterate_experiment(
-  n=6, # number of replicates per treatment level
+file_path &lt;- here(output_path, &quot;normalization_res3.rds&quot;)
+if(simulate_it==TRUE){
+  res &lt;- iterate_experiment(
+  n=4, # number of replicates per treatment level
   niter=5000, # number of iterations
   rho=0, # correlation between the reference value and that of a control level
   s_kappa=1.1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
@@ -700,7 +718,11 @@ res &lt;- iterate_experiment(
   theta_0=100, # scale parameter for reference
   kappa_1=30, # shape parameter for control
   theta_1=100 # scale parameter for control
-)</code></pre>
+)
+  saveRDS(res, file = file_path)
+}else{
+  res &lt;- readRDS(file = file_path)
+}</code></pre>
 <p>Since there is a true treatment effect, this is the power (instead of Type I error). Linear model has slightly more power than norm1. norm2 has most power but this is at cost of high Type I error.</p>
 <pre class="r"><code>prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
 niter &lt;- nrow(res)
@@ -716,15 +738,15 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 <tbody>
 <tr class="odd">
 <td>lm</td>
-<td align="right">0.3466</td>
+<td align="right">0.2106</td>
 </tr>
 <tr class="even">
 <td>norm1</td>
-<td align="right">0.2938</td>
+<td align="right">0.1924</td>
 </tr>
 <tr class="odd">
 <td>norm2</td>
-<td align="right">0.3940</td>
+<td align="right">0.2236</td>
 </tr>
 </tbody>
 </table>
@@ -736,17 +758,23 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 <div id="cor-with-gapdh0.5-treatment-effect-1-cohens-d" class="section level3">
 <h3>Cor with Gapdh=0.5, treatment effect ~ 1 (cohen’s d)</h3>
 <pre class="r"><code>set.seed(1)
-res &lt;- iterate_experiment(
-  n=6, # number of replicates per treatment level
+file_path &lt;- here(output_path, &quot;normalization_res4.rds&quot;)
+if(simulate_it==TRUE){
+  res &lt;- iterate_experiment(
+  n=4, # number of replicates per treatment level
   niter=5000, # number of iterations
-  rho=0.5, # correlation between the reference value and that of a control level
-  s_kappa=1.1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
-  s_theta=1.1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  rho=0, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
   kappa_0=80, # shape parameter for reference
   theta_0=100, # scale parameter for reference
   kappa_1=30, # shape parameter for control
   theta_1=100 # scale parameter for control
-)</code></pre>
+)
+  saveRDS(res, file = file_path)
+}else{
+  res &lt;- readRDS(file = file_path)
+}</code></pre>
 <p>Power.</p>
 <pre class="r"><code>prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
 niter &lt;- nrow(res)
@@ -762,15 +790,15 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
 <tbody>
 <tr class="odd">
 <td>lm</td>
-<td align="right">0.3022</td>
+<td align="right">0.0476</td>
 </tr>
 <tr class="even">
 <td>norm1</td>
-<td align="right">0.3278</td>
+<td align="right">0.0456</td>
 </tr>
 <tr class="odd">
 <td>norm2</td>
-<td align="right">0.4420</td>
+<td align="right">0.1150</td>
 </tr>
 </tbody>
 </table>
@@ -1039,14 +1067,14 @@ knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
             
             <div class="media-body">
               <a class="link-unstyled" href="/2019/10/normalization-results-in-regression-to-the-mean/">
-                <h3 class="media-heading">Normalization results in regression to the mean</h3>
+                <h3 class="media-heading">Normalization results in regression to the mean and inflated Type I error conditional on the reference values</h3>
               </a>
               <span class="media-meta">
                 <span class="media-date text-small">
                   Oct 10, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.</div>
+              <div class="media-content hide-xs font-merryweather">tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null too often, or we too often conclude “an effect exists” when the evidence doesn’t favor this conclusion. The correct way to achieve the same goals as normalization is a linear model with the reference value as a covariate.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
