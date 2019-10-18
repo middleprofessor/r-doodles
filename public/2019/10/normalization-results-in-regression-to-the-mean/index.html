@@ -8,22 +8,18 @@
 <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
 <meta name="keywords" content="tech">
-<meta name="description" content="I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
-I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.">
+<meta name="description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
 
 
-<meta property="og:description" content="I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
-I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.">
+<meta property="og:description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Normalization results in regression to the mean">
 <meta name="twitter:title" content="Normalization results in regression to the mean">
 <meta property="og:url" content="/2019/10/normalization-results-in-regression-to-the-mean/">
 <meta property="twitter:url" content="/2019/10/normalization-results-in-regression-to-the-mean/">
 <meta property="og:site_name" content="R Doodles">
-<meta property="og:description" content="I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
-I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.">
-<meta name="twitter:description" content="I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
-I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.">
+<meta property="og:description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
+<meta name="twitter:description" content="tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.">
 <meta property="og:locale" content="en-us">
 
   
@@ -317,12 +313,13 @@ if (!doNotTrack) {
               
 
 
-<p>I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the <a href="https://elifesciences.org/collections/9b1e83d1/reproducibility-project-cancer-biology">cancer reproducibility project</a>. What a terrific site.</p>
-<p>I downloaded the article and data for Fig 1C for <a href="https://elifesciences.org/articles/39944">Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET</a> just to explore. Without looking at the author’s code, I wrote my own script to replicate Fig 1C. My numbers weren’t quite right so I looked at the script and realized that I needed to re-scale within Blot in addition to Antibody and Type. Once I did this, my code reproduces the author’s results. My method for preparing the data is <em>very</em> different from the authors (Its very data.table-ish), which is pretty typical of any R analysis – ask 10 R scripters how to get something done and you’ll recieve 20 different answers.</p>
-<p>Anyway, I’m curious about the normalization since I have a student that works in a lab that normalizes data, probably in a similar fashion. The normalization here had 2 steps: 1) first, the value for the Antibody levels were normalized by the value of a reference (Gapdh) for each Set. And 2) second, the the Gapdh-normalized values were rescaled by the mean of the Gapdh-normalized values for the shScr Condition within each combination of Antibody+Type+Blot and then <em>all</em> values in the shScr were assigned to 1 (since the mean within the Condition level is 1). The statistical test then is a one-sample t-test of shMet with <span class="math inline">\(\mu=1\)</span>.</p>
-<p>Intuition 1: Step one of this normalization would seem to introduce a biased estimate of the effect, conditional on Gapdh, very similar to the biased estimate of the change score (or change from pre to post) conditional on pre-treatment values <a href="https://www.middleprofessor.com/files/quasipubs/change_scores.html">in a pre-post design</a>.</p>
+<p>tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is <em>regression to the mean</em>, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.</p>
+<p>I was having an internal conversation with myself, which led me to thinking about reproducibility in bench biology, which led me to the <a href="https://elifesciences.org/collections/9b1e83d1/reproducibility-project-cancer-biology">cancer reproducibility project</a>. What a terrific site.</p>
+<p>I downloaded the article and data for Fig 1C of the <a href="https://elifesciences.org/articles/39944">Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET</a> just to explore. Without looking at the author’s code, I wrote my own script to replicate Fig 1C. My numbers weren’t quite right so I looked at the author’s script and realized that I needed to re-scale within Blot in addition to Antibody and Type. Once I did this, my code reproduces the author’s results. My method for preparing the data is <em>very</em> different from the authors (my code is very data.table-ish), which is pretty typical of any R analysis – ask 10 R scripters how to get something done and you’ll recieve 20 different answers.</p>
+<p>Anyway, I’m curious about the normalization since this seems to be very common yet my intuition thinks it can lead to regression to the mean. The normalization here had 2 steps: 1) first, the value for the Antibody levels were normalized by the value of a reference (Gapdh) for each Set. This is the typical normalization throughout bench biology. And 2) second, the Gapdh-normalized values were rescaled by the mean of the Gapdh-normalized values for the shScr Condition within each combination of Antibody+Type+Blot and then <em>all</em> values in the shScr were assigned to 1 (since the mean within the Condition level is 1). The statistical test then is a one-sample t-test of shMet with <span class="math inline">\(\mu=1\)</span>.</p>
+<p>Intuition 1: Step one of this normalization would seem to introduce a biased estimate of the effect, conditional on Gapdh, very similar to the biased estimate of a change score (or change from pre to post) conditional on pre-treatment values <a href="https://www.middleprofessor.com/files/quasipubs/change_scores.html">in a pre-post design</a>.</p>
 <p>Intuition 2: Step two would just seem to introduce type I error since we’re removing variance from the 2nd sample.</p>
-<p>The proper way to avoid the conditional bias in a pre-post design is to add the pre-treatment value as a covariate. I don’t know if the ratio is conditionally biased but I re-analyzed the data using the Gapdh value as a covariate in a linear model instead of something to normalize the response. I also just re-ran a t-test the normalized response (step 1) without the re-scaling in step 2. Both the linear model and t-test results <em>for these data</em> were very different from the original results. I plotted the data and it’s pretty easy to see why, but it’s hard for me to generalize from this one example. So I did a simulation.</p>
+<p>The proper way to avoid the conditional bias in a pre-post design is to add the pre-treatment value as a covariate. I don’t know if Normalization by a reference sample is conditionally biased but I re-analyzed the data using the Gapdh value as a covariate in a linear model. I also just re-ran a t-test of the normalized response (step 1) without the re-scaling in step 2. Both the linear model and t-test results <em>for these data</em> were very different from the original results. I plotted the data and it’s pretty easy to see why, but it’s hard for me to generalize from this one example. So I did a simulation to check my intuition above.</p>
 <p>Indeed, both my intutions turn out to be true. All analysis is below. I parameterized the distribution of Gapdh and the other values so they looked something like the actual values in the paper. I don’t know how much my results would change given different parameterizations of these distributions.</p>
 <div id="reproducibility" class="section level2">
 <h2>Reproducibility</h2>
@@ -430,139 +427,356 @@ plot_grid(gg6, gg7, gg8, gg9, nrow=2)</code></pre>
 <p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/covariate%20v%20normalization-1.png" width="672" /></p>
 <p>It’s pretty hard to figure out systemic bias due to normalization with a sample size of 3 or 4 so…</p>
 </div>
-<div id="simulation-with-corgapdh-met-0" class="section level2">
-<h2>Simulation with Cor(Gapdh, Met) = 0</h2>
-<pre class="r"><code>set.seed(1)
-shape_gapdh &lt;- 80
-scale_gapdh &lt;- 100
-qplot(rgamma(10^3, shape=shape_gapdh, scale=scale_gapdh))</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-1.png" width="672" /></p>
-<pre class="r"><code>shape_met &lt;- 2.5
-scale_met &lt;- 1000
-qplot(rgamma(10^3, shape=shape_met, scale=scale_met))</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-2.png" width="672" /></p>
-<pre class="r"><code>n &lt;- 4
-
-niter &lt;- 5000
-prob &lt;- data.frame(matrix(NA, nrow=niter, ncol=3))
-colnames(prob) &lt;- c(&quot;cov&quot;, &quot;ratio&quot;, &quot;rel&quot;)
-effect_lm &lt;- numeric(niter)
-effect_ratio &lt;- numeric(niter)
-effect_rel &lt;- numeric(niter)
-delta_gapdh &lt;- numeric(niter)
-for(iter in 1:niter){
+<div id="simulations" class="section level2">
+<h2>Simulations</h2>
+<div id="simulation-functions" class="section level3">
+<h3>Simulation functions</h3>
+<p>The main function for generating a data set with a control, a treatment, and a reference for normalization.</p>
+<pre class="r"><code>simulate_experiment &lt;- function(
+  n=10, # number of replicates per treatment level
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+){
+  kappa_1_i &lt;- rep(c(kappa_1, kappa_1*s_kappa), each=n)
+  theta_1_i &lt;- rep(c(theta_1, theta_1*s_theta), each=n)
+  # control
+  y1 &lt;- rgamma(n*2, shape=kappa_0 - rho*sqrt(kappa_0*kappa_1), scale=1)
+  y2 &lt;- rgamma(n*2, shape=kappa_1_i - rho*sqrt(kappa_0*kappa_1_i), scale=1)
+  y3 &lt;- rgamma(n*2, shape=rho*sqrt(kappa_0*kappa_1), scale=1)
   fd &lt;- data.table(
     treatment=rep(c(&quot;cn&quot;, &quot;tr&quot;), each=n),
-    gapdh=rgamma(n*2, shape=shape_gapdh, scale=scale_gapdh),
-    value=rgamma(n*2, shape=shape_met, scale=scale_met)
+    gapdh=theta_0*(y1+y3),
+    value=theta_1_i*(y2+y3)
   )
-  fd[, ratio:=value/gapdh]
-  cn_ref &lt;- mean(fd[treatment==&quot;cn&quot;, ratio])
-  fd[, rel:=ratio/cn_ref]
-
-  m1 &lt;- lm(value ~ gapdh + treatment, data=fd)
-  prob[iter, &quot;cov&quot;] &lt;- coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Pr(&gt;|t|)&quot;]
-  prob[iter, &quot;ratio&quot;] &lt;- t.test(fd[treatment==&quot;cn&quot;, ratio], fd[treatment==&quot;tr&quot;, ratio], var.equal=TRUE)$p.value
-  prob[iter, &quot;rel&quot;] &lt;- t.test(x=fd[treatment==&quot;tr&quot;, rel], mu=1)$p.value
-  
-  delta_gapdh[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, gapdh]) - mean(fd[treatment==&quot;cn&quot;, gapdh])
-  effect_lm[iter] &lt;- coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Estimate&quot;]
-  effect_ratio[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, ratio]) - mean(fd[treatment==&quot;cn&quot;, ratio])
-  effect_rel[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, rel]) - 1
-
+  fd[, norm1:=value/gapdh]
+  cn_ref &lt;- mean(fd[treatment==&quot;cn&quot;, norm1])
+  fd[, norm2:=norm1/cn_ref]
+  return(fd)
 }</code></pre>
-<pre class="r"><code>apply(prob, 2, function(x) sum(x &lt; 0.05)/niter)</code></pre>
-<pre><code>##    cov  ratio    rel 
-## 0.0494 0.0470 0.1354</code></pre>
-<pre class="r"><code>qplot(x=delta_gapdh, y=effect_lm) + geom_smooth(method=&quot;lm&quot;)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<pre class="r"><code>qplot(x=delta_gapdh, y=effect_ratio) + geom_smooth(method=&quot;lm&quot;)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
-<pre class="r"><code>qplot(x=delta_gapdh, y=effect_rel) + geom_smooth(method=&quot;lm&quot;)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-1-3.png" width="672" /></p>
-<p>The two-stage normalization (one-sample t-test against a reference value of 1) has high type I error The two-sample t-test of the normalized value has an nominal type I error but is conditionally biased on <span class="math inline">\(\Delta\)</span>gapdh The linear model with gapdh as a covariate performs well</p>
+<p>Script to explore parameterization. To turn on, change eval to TRUE</p>
+<pre class="r"><code>n=10^4 # number of replicates per treatment level
+rho=0.5 # correlation between the reference value and that of a control level
+s_kappa=1.1 # effect of treatment on shape (this is multiplicative so 1 = no effect)
+s_theta=1.1 # effect of treatment on scale (this is multiplicative so 1 = no effect
+kappa_0=80 # shape parameter for reference
+theta_0=100 # scale parameter for reference
+kappa_1=30 # shape parameter for control
+theta_1=100 # scale parameter for control
+(s_kappa*kappa_1*s_theta*theta_1 - kappa_1*theta_1)/(sqrt(kappa_1*theta_1^2))
+
+fd &lt;- simulate_experiment(
+  n, # number of replicates per treatment level
+  rho, # correlation between the reference value and that of a control level
+  s_kappa, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0, # shape parameter for reference
+  theta_0, # scale parameter for reference
+  kappa_1, # shape parameter for control
+  theta_1 # scale parameter for control
+)
+
+# quick and dirty cohen&#39;s
+kappa_1*theta_1
+s_kappa*kappa_1*s_theta*theta_1
+(means_table &lt;- fd[, .(cell_mean=mean(value), cell_sd=sd(value)), by=treatment])
+(means_table[treatment==&quot;tr&quot;, cell_mean] - means_table[treatment==&quot;cn&quot;, cell_mean])/means_table[treatment==&quot;cn&quot;, cell_sd]</code></pre>
+<p>Script to generate simulated data <em>n_iter</em> times and output tables of effects and p-values.</p>
+<pre class="r"><code>iterate_experiment &lt;- function(
+  n=10, # number of replicates per treatment level
+  niter=2000, # number of iterations
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+  ){
+  # Given a western blot with three &quot;treatments&quot;: reference (Gapdh) is the set of values for normaliztion
+  # control is the set of values for a control. The treatment value is determined by beta_1 -- the effect
+  prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
+  prob &lt;- data.table(matrix(-9999, nrow=niter, ncol=length(prob_cols)))
+  setnames(prob, old=colnames(prob), new=prob_cols)
+  effect_cols &lt;- c(&quot;delta_gapdh&quot;, &quot;effect_lm&quot;, &quot;effect_norm1&quot;, &quot;effect_norm2&quot;)
+  effects_dt &lt;- data.table(matrix(-9999, nrow=niter, ncol=length(effect_cols)))
+  setnames(effects_dt, old=colnames(effects_dt), new=effect_cols)
+  # effect_lm &lt;- numeric(niter) # effect size using lm with gapdh as covariate
+  # effect_norm1 &lt;- numeric(niter) # effect size using standard normalization against gapdh
+  # effect_norm2 &lt;- numeric(niter) # effect size using re-scaling to control (shSrc in this case)
+  # delta_gapdh &lt;- numeric(niter) # the difference between control and treatment gapdh
+  kappa_1_i &lt;- rep(c(kappa_1, kappa_1*s_kappa), each=n)
+  for(iter in 1:niter){
+    fd &lt;- simulate_experiment(
+      n, # number of replicates per treatment level
+      rho, # correlation between the reference value and that of a control level
+      s_kappa, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+      s_theta, # effect of treatment on scale (this is multiplicative so 1 = no effect
+      kappa_0, # shape parameter for reference
+      theta_0, # scale parameter for reference
+      kappa_1, # shape parameter for control
+      theta_1 # scale parameter for control
+    )
+
+    m1 &lt;- lm(value ~ gapdh + treatment, data=fd)
+    prob[iter, lm := coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Pr(&gt;|t|)&quot;]]
+    prob[iter, norm1 := t.test(fd[treatment==&quot;cn&quot;, norm1], fd[treatment==&quot;tr&quot;, norm1], var.equal=TRUE)$p.value]
+    prob[iter, norm2 := t.test(x=fd[treatment==&quot;tr&quot;, norm2], mu=1)$p.value]
+    
+    effects_dt[iter, delta_gapdh := mean(fd[treatment==&quot;tr&quot;, gapdh]) - mean(fd[treatment==&quot;cn&quot;, gapdh])]
+    effects_dt[iter, effect_lm := coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Estimate&quot;]]
+    effects_dt[iter, effect_norm1 := mean(fd[treatment==&quot;tr&quot;, norm1]) - mean(fd[treatment==&quot;cn&quot;, norm1])]
+    effects_dt[iter, effect_norm2 := mean(fd[treatment==&quot;tr&quot;, norm2]) - 1]
+  }
+  return(
+    cbind(prob, effects_dt)
+  )
+}</code></pre>
 </div>
-<div id="corgapdh-met-0" class="section level2">
-<h2>Cor(Gapdh, Met) &gt; 0</h2>
-<pre class="r"><code>n &lt;- 10^3
-rho=0.5
-alpha_gapdh &lt;- 80
-beta_gapdh &lt;- 100
-alpha_met &lt;- 30
-beta_met &lt;- 100
-y1 &lt;- rgamma(n, shape=alpha_gapdh - rho*sqrt(alpha_gapdh*alpha_met), rate=1)
-y2 &lt;- rgamma(n, shape=alpha_met - rho*sqrt(alpha_gapdh*alpha_met), rate=1)
-y3 &lt;- rgamma(n, shape=rho*sqrt(alpha_gapdh*alpha_met), rate=1)
-gapdh &lt;- beta_gapdh*(y1+y3)
-value &lt;- beta_met*(y2+y3)
-qplot(y1)</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-explore-1.png" width="672" /></p>
-<pre class="r"><code>qplot(y2)</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-explore-2.png" width="672" /></p>
-<pre class="r"><code>qplot(y3)</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-explore-3.png" width="672" /></p>
-<pre class="r"><code>qplot(gapdh)</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-explore-4.png" width="672" /></p>
-<pre class="r"><code>qplot(value)</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-explore-5.png" width="672" /></p>
-<pre class="r"><code>cor(gapdh, value)</code></pre>
-<pre><code>## [1] 0.5172257</code></pre>
-<pre class="r"><code>set.seed(1)
-rho=0.5
-alpha_gapdh &lt;- 80
-beta_gapdh &lt;- 100
-alpha_met &lt;- 30
-beta_met &lt;- 100
-n &lt;- 4
+<div id="functions-to-plot-simulation-results" class="section level3">
+<h3>functions to plot simulation results</h3>
+<pre class="r"><code>plot_effects &lt;- function(res){
+  prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
+  niter &lt;- nrow(res)
+  apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x &lt; 0.05)/niter)
+  gg1 &lt;- qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method=&quot;lm&quot;) +
+    ggtitle(&quot;Linear model&quot;) +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
+    ylab(&quot;Effect&quot;)
+  gg2 &lt;- qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method=&quot;lm&quot;) +
+    ggtitle(&quot;Norm1&quot;) +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
+    ylab(&quot;Effect&quot;)
+  gg3 &lt;- qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method=&quot;lm&quot;) +
+    ggtitle(&quot;Norm2&quot;) +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
+    ylab(&quot;Effect&quot;)
+  gg &lt;- plot_grid(gg1, gg2, gg3, nrow=1)
+  return(gg)
+}
 
-niter &lt;- 5000
-prob &lt;- data.frame(matrix(NA, nrow=niter, ncol=3))
-colnames(prob) &lt;- c(&quot;cov&quot;, &quot;ratio&quot;, &quot;rel&quot;)
-effect_lm &lt;- numeric(niter)
-effect_ratio &lt;- numeric(niter)
-effect_rel &lt;- numeric(niter)
-delta_gapdh &lt;- numeric(niter)
-for(iter in 1:niter){
-  y1 &lt;- rgamma(n*2, shape=alpha_gapdh - rho*sqrt(alpha_gapdh*alpha_met), rate=1)
-  y2 &lt;- rgamma(n*2, shape=alpha_met - rho*sqrt(alpha_gapdh*alpha_met), rate=1)
-  y3 &lt;- rgamma(n*2, shape=rho*sqrt(alpha_gapdh*alpha_met), rate=1)
-  fd &lt;- data.table(
-    treatment=rep(c(&quot;cn&quot;, &quot;tr&quot;), each=n),
-    gapdh=beta_gapdh*(y1+y3),
-    value=beta_met*(y2+y3)
-  )
-  fd[, ratio:=value/gapdh]
-  cn_ref &lt;- mean(fd[treatment==&quot;cn&quot;, ratio])
-  fd[, rel:=ratio/cn_ref]
-
-  m1 &lt;- lm(value ~ gapdh + treatment, data=fd)
-  prob[iter, &quot;cov&quot;] &lt;- coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Pr(&gt;|t|)&quot;]
-  prob[iter, &quot;ratio&quot;] &lt;- t.test(fd[treatment==&quot;cn&quot;, ratio], fd[treatment==&quot;tr&quot;, ratio], var.equal=TRUE)$p.value
-  prob[iter, &quot;rel&quot;] &lt;- t.test(x=fd[treatment==&quot;tr&quot;, rel], mu=1)$p.value
-  
-  delta_gapdh[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, gapdh]) - mean(fd[treatment==&quot;cn&quot;, gapdh])
-  effect_lm[iter] &lt;- coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Estimate&quot;]
-  effect_ratio[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, ratio]) - mean(fd[treatment==&quot;cn&quot;, ratio])
-  effect_rel[iter] &lt;- mean(fd[treatment==&quot;tr&quot;, rel]) - 1
-  
+plot_prob_t1 &lt;- function(res){
+  res[, t1.lm:=ifelse(lm &lt;= 0.05, 1, 0)]
+  res[, t1.norm1:=ifelse(norm1 &lt;= 0.05, 1, 0)]
+  res[, t1.norm2:=ifelse(norm2 &lt;= 0.05, 1, 0)]
+  gg1 &lt;- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.lm)) +
+    geom_smooth(method=&#39;glm&#39;, method.args=list(family=&#39;binomial&#39;)) +
+    ylab(&quot;Prob(Type I): linear model&quot;) +
+    xlab(expression(paste(&quot;|&quot;,Gapdh[t] - Gapdh[c],&quot;|&quot;))) +
+    theme_minimal()
+  gg2 &lt;- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.norm1)) +
+    geom_smooth(method=&#39;glm&#39;, method.args=list(family=&#39;binomial&#39;)) +
+    ylab(&quot;Prob(Type I): norm1&quot;) +
+    xlab(expression(paste(&quot;|&quot;,Gapdh[t] - Gapdh[c],&quot;|&quot;))) +
+    theme_minimal()
+  gg3 &lt;- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.norm2)) +
+    geom_smooth(method=&#39;glm&#39;, method.args=list(family=&#39;binomial&#39;)) +
+    ylab(&quot;Prob(Type I): norm2&quot;) +
+    xlab(expression(paste(&quot;|&quot;,Gapdh[t] - Gapdh[c],&quot;|&quot;))) +
+    theme_minimal()
+  gg &lt;- plot_grid(gg1, gg2, gg3, nrow=1)
+  return(gg)
 }</code></pre>
-<pre class="r"><code>apply(prob, 2, function(x) sum(x &lt; 0.05)/niter)</code></pre>
-<pre><code>##    cov  ratio    rel 
-## 0.0468 0.0546 0.1100</code></pre>
-<pre class="r"><code>qplot(x=delta_gapdh, y=effect_lm) + geom_smooth(method=&quot;lm&quot;)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-results-1.png" width="672" /></p>
-<pre class="r"><code>qplot(x=delta_gapdh, y=effect_ratio) + geom_smooth(method=&quot;lm&quot;)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-results-2.png" width="672" /></p>
-<pre class="r"><code>qplot(x=delta_gapdh, y=effect_rel) + geom_smooth(method=&quot;lm&quot;)</code></pre>
-<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/simulation-rho-results-3.png" width="672" /></p>
-<p>Same results.</p>
+</div>
+<div id="results-and-consequences" class="section level3">
+<h3>Results and consequences</h3>
+<div id="cor-with-gapdh0-no-treatment-effect" class="section level4">
+<h4>Cor with Gapdh=0, no treatment effect</h4>
+<p>This simulates a case where there is no correlation between the reference level and the experimental (control and treatment) levels. Wouldn’t need to normalize if this were the case but I include here to show how patterns are created by normalization.</p>
+<pre class="r"><code># rho = 0, effect=0
+set.seed(1)
+res &lt;- iterate_experiment(
+  n=6, # number of replicates per treatment level
+  niter=5000, # number of iterations
+  rho=0, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+)</code></pre>
+<p>Unconditional Type I error in the three methods. “Unconditional” means not conditional on the observed difference in Gapdh value between treatment and control.</p>
+<pre class="r"><code>prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
+niter &lt;- nrow(res)
+type_1 &lt;- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x &lt; 0.05)/niter)
+knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Type I</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>lm</td>
+<td align="right">0.0546</td>
+</tr>
+<tr class="even">
+<td>norm1</td>
+<td align="right">0.0506</td>
+</tr>
+<tr class="odd">
+<td>norm2</td>
+<td align="right">0.1392</td>
+</tr>
+</tbody>
+</table>
+<p>Treatment effect size as a function of observed difference in Gapdh value between treatment and control <span class="math inline">\(\Delta Gapdh\)</span>. A slope indicates a <strong>conditional bias</strong> of the effect on <span class="math inline">\(\Delta Gapdh\)</span>, which results because of regression to the mean. The treatment effect of both norm1 and norm2 normalization is strongly conditionally biased.</p>
+<pre class="r"><code>plot_effects(res)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code># coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))</code></pre>
+<p>The probability of Type I error as a function of observed difference in Gapdh value between treatment and control <span class="math inline">\(\Delta Gapdh\)</span>. The nominal probability is 0.05. The plots show that the conditional Type I error (conditional on <span class="math inline">\(\Delta Gapdh\)</span>) increases to exceedingly high values as the magnitude of <span class="math inline">\(\Delta Gapdh\)</span> increases for both Norm1 and Norm 2 normalization procedures.</p>
+<pre class="r"><code>plot_prob_t1(res)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="cor-with-gapdh0.5-no-treatment-effect" class="section level4">
+<h4>Cor with Gapdh=0.5, no treatment effect</h4>
+<p>A correlation between Gapdh value and that of the control or treatment is expected (and the reason why normalization is done).</p>
+<pre class="r"><code># rho = 0.5, effect=0
+set.seed(1)
+res &lt;- iterate_experiment(
+  n=6, # number of replicates per treatment level
+  niter=5000, # number of iterations
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+)</code></pre>
+<p>Unconditional Type I error in the three methods. “Unconditional” means not conditional on the observed difference in Gapdh value between treatment and control.</p>
+<pre class="r"><code>prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
+niter &lt;- nrow(res)
+type_1 &lt;- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x &lt; 0.05)/niter)
+knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Type I</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>lm</td>
+<td align="right">0.0464</td>
+</tr>
+<tr class="even">
+<td>norm1</td>
+<td align="right">0.0456</td>
+</tr>
+<tr class="odd">
+<td>norm2</td>
+<td align="right">0.1304</td>
+</tr>
+</tbody>
+</table>
+<p>Treatment effect size as a function of observed difference in Gapdh value between treatment and control <span class="math inline">\(\Delta Gapdh\)</span>. A slope indicates a <strong>conditional bias</strong> of the effect on <span class="math inline">\(\Delta Gapdh\)</span>, which results because of regression to the mean. The treatment effect of both norm1 and norm2 normalization is strongly conditionally biased.</p>
+<pre class="r"><code>plot_effects(res)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code># coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))</code></pre>
+<p>The probability of Type I error as a function of observed difference in Gapdh value between treatment and control <span class="math inline">\(\Delta Gapdh\)</span>. The nominal probability is 0.05. The plots show that the conditional Type I error (conditional on <span class="math inline">\(\Delta Gapdh\)</span>) increases to exceedingly high values as the magnitude of <span class="math inline">\(\Delta Gapdh\)</span> increases for both Norm1 and Norm 2 normalization procedures.</p>
+<pre class="r"><code>plot_prob_t1(res)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Interesting. The linear model method gets a wee bit conservative with increasing <span class="math inline">\(\Delta Gapdh\)</span> while norm1 is a little liberal. Norm2 is liberal across the range of <span class="math inline">\(\Delta Gapdh\)</span>.</p>
+</div>
+<div id="cor-with-gapdh0-treatment-effect-1-cohens-d" class="section level4">
+<h4>Cor with Gapdh=0, treatment effect ~ 1 (cohen’s d)</h4>
+<pre class="r"><code>set.seed(1)
+res &lt;- iterate_experiment(
+  n=6, # number of replicates per treatment level
+  niter=5000, # number of iterations
+  rho=0, # correlation between the reference value and that of a control level
+  s_kappa=1.1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1.1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+)</code></pre>
+<p>Since there is a true treatment effect, this is the power (instead of Type I error). Linear model has slightly more power than norm1. norm2 has most power but this is at cost of high Type I error.</p>
+<pre class="r"><code>prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
+niter &lt;- nrow(res)
+type_1 &lt;- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x &lt; 0.05)/niter)
+knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Type I</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>lm</td>
+<td align="right">0.3466</td>
+</tr>
+<tr class="even">
+<td>norm1</td>
+<td align="right">0.2938</td>
+</tr>
+<tr class="odd">
+<td>norm2</td>
+<td align="right">0.3940</td>
+</tr>
+</tbody>
+</table>
+<p>We would hope the estimate of the effect would not change with <span class="math inline">\(\Delta Gapdh\)</span> (that is, it’s not conditional on this). The conditional effects for both normalizations are interesting. I can’t do the math to figure out what the E(effect) is for either normalization (except in the case when E(effect)=0 as above) but assuming these results are like the case with E(effect)=0 above, then effects are inflated when <span class="math inline">\(\Delta Gapdh &lt; 0\)</span> and supressed when <span class="math inline">\(\Delta Gapdh &gt; 0\)</span></p>
+<pre class="r"><code>plot_effects(res)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+</div>
+<div id="cor-with-gapdh0.5-treatment-effect-1-cohens-d" class="section level3">
+<h3>Cor with Gapdh=0.5, treatment effect ~ 1 (cohen’s d)</h3>
+<pre class="r"><code>set.seed(1)
+res &lt;- iterate_experiment(
+  n=6, # number of replicates per treatment level
+  niter=5000, # number of iterations
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1.1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1.1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+)</code></pre>
+<p>Power.</p>
+<pre class="r"><code>prob_cols &lt;- c(&quot;lm&quot;, &quot;norm1&quot;, &quot;norm2&quot;)
+niter &lt;- nrow(res)
+type_1 &lt;- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x &lt; 0.05)/niter)
+knitr::kable(type_1, col.names=&quot;Type I&quot;)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Type I</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>lm</td>
+<td align="right">0.3022</td>
+</tr>
+<tr class="even">
+<td>norm1</td>
+<td align="right">0.3278</td>
+</tr>
+<tr class="odd">
+<td>norm2</td>
+<td align="right">0.4420</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>plot_effects(res)</code></pre>
+<p><img src="/post/2019-10-16-normalization-results-in-regression-to-the-mean_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
 </div>
 
               
@@ -832,8 +1046,7 @@ for(iter in 1:niter){
                   Oct 10, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
-I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.</div>
+              <div class="media-content hide-xs font-merryweather">tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

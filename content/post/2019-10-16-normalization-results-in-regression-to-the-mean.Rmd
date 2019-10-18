@@ -16,6 +16,8 @@ keywords:
   - tech
 ---
 
+tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is *regression to the mean*, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude "an effect exists" when the evidence doesn't favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.
+
 I was having an internal conversation with myself, which led me to thinking about reproducibility in bench biology, which led me to the [cancer reproducibility project](https://elifesciences.org/collections/9b1e83d1/reproducibility-project-cancer-biology). What a terrific site.
 
 I downloaded the article and data for Fig 1C of the [Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET](https://elifesciences.org/articles/39944) just to explore. Without looking at the author's code, I wrote my own script to replicate Fig 1C. My numbers weren't quite right so I looked at the author's script and realized that I needed to re-scale within Blot in addition to Antibody and Type. Once I did this, my code reproduces the author's results. My method for preparing the data is *very* different from the authors (my code is very data.table-ish), which is pretty typical of any R analysis -- ask 10 R scripters how to get something done and you'll recieve 20 different answers.
@@ -140,63 +142,11 @@ plot_grid(gg6, gg7, gg8, gg9, nrow=2)
 
 It's pretty hard to figure out systemic bias due to normalization with a sample size of 3 or 4 so...
 
-## Simulation with Cor(Gapdh, Met) = 0
+## Simulations
 
-```{r simulation}
-set.seed(2)
-shape_gapdh <- 80
-scale_gapdh <- 100
-qplot(rgamma(10^3, shape=shape_gapdh, scale=scale_gapdh))
-shape_met <- 2.5
-scale_met <- 1000
-qplot(rgamma(10^3, shape=shape_met, scale=scale_met))
-n <- 4
+### Simulation functions
 
-niter <- 5000
-prob <- data.frame(matrix(NA, nrow=niter, ncol=3))
-colnames(prob) <- c("cov", "norm1", "norm2")
-effect_lm <- numeric(niter)
-effect_norm1 <- numeric(niter)
-effect_norm2 <- numeric(niter)
-delta_gapdh <- numeric(niter)
-for(iter in 1:niter){
-  fd <- data.table(
-    treatment=rep(c("cn", "tr"), each=n),
-    gapdh=rgamma(n*2, shape=shape_gapdh, scale=scale_gapdh),
-    value=rgamma(n*2, shape=shape_met, scale=scale_met)
-  )
-  fd[, norm1:=value/gapdh]
-  cn_ref <- mean(fd[treatment=="cn", norm1])
-  fd[, norm2:=norm1/cn_ref]
-
-  m1 <- lm(value ~ gapdh + treatment, data=fd)
-  prob[iter, "cov"] <- coef(summary(m1))["treatmenttr", "Pr(>|t|)"]
-  prob[iter, "norm1"] <- t.test(fd[treatment=="cn", norm1], fd[treatment=="tr", norm1], var.equal=TRUE)$p.value
-  prob[iter, "norm2"] <- t.test(x=fd[treatment=="tr", norm2], mu=1)$p.value
-  
-  delta_gapdh[iter] <- mean(fd[treatment=="tr", gapdh]) - mean(fd[treatment=="cn", gapdh])
-  effect_lm[iter] <- coef(summary(m1))["treatmenttr", "Estimate"]
-  effect_norm1[iter] <- mean(fd[treatment=="tr", norm1]) - mean(fd[treatment=="cn", norm1])
-  effect_norm2[iter] <- mean(fd[treatment=="tr", norm2]) - 1
-
-}
-
-```
-
-```{r}
-apply(prob, 2, function(x) sum(x < 0.05)/niter)
-qplot(x=delta_gapdh, y=effect_lm) + geom_smooth(method="lm")
-qplot(x=delta_gapdh, y=effect_norm1) + geom_smooth(method="lm")
-qplot(x=delta_gapdh, y=effect_norm2) + geom_smooth(method="lm")
-```
-
-The two-stage normalization (one-sample t-test against a reference value of 1) has high type I error
-The two-sample t-test of the normalized value has an nominal type I error but is conditionally biased on $\Delta$gapdh
-The linear model with gapdh as a covariate performs well
-
-## Cor(Gapdh, Met) > 0
-
-```{r simulation-rho-explore}
+```{r simulation-rho-explore, echo=FALSE, eval=FALSE}
 n <- 10^3
 rho=0.5
 alpha_gapdh <- 80
@@ -215,6 +165,9 @@ qplot(gapdh)
 qplot(value)
 cor(gapdh, value)
 ```
+
+The main function for generating a data set with a control, a treatment, and a reference for normalization.
+
 ```{r simulation-gamma}
 simulate_experiment <- function(
   n=10, # number of replicates per treatment level
@@ -244,7 +197,8 @@ simulate_experiment <- function(
 }
 ```
 
-```{r simulate-explore}
+Script to explore parameterization. To turn on, change eval to TRUE
+```{r simulate-explore, eval=FALSE}
 n=10^4 # number of replicates per treatment level
 rho=0.5 # correlation between the reference value and that of a control level
 s_kappa=1.1 # effect of treatment on shape (this is multiplicative so 1 = no effect)
@@ -273,8 +227,9 @@ s_kappa*kappa_1*s_theta*theta_1
 (means_table[treatment=="tr", cell_mean] - means_table[treatment=="cn", cell_mean])/means_table[treatment=="cn", cell_sd]
 ```
 
+Script to generate simulated data *n_iter* times and output tables of effects and p-values.
 
-```{r simulation-rho>0}
+```{r iterate-simulation}
 iterate_experiment <- function(
   n=10, # number of replicates per treatment level
   niter=2000, # number of iterations
@@ -288,7 +243,7 @@ iterate_experiment <- function(
   ){
   # Given a western blot with three "treatments": reference (Gapdh) is the set of values for normaliztion
   # control is the set of values for a control. The treatment value is determined by beta_1 -- the effect
-  prob_cols <- c("cov", "norm1", "norm2")
+  prob_cols <- c("lm", "norm1", "norm2")
   prob <- data.table(matrix(-9999, nrow=niter, ncol=length(prob_cols)))
   setnames(prob, old=colnames(prob), new=prob_cols)
   effect_cols <- c("delta_gapdh", "effect_lm", "effect_norm1", "effect_norm2")
@@ -312,7 +267,7 @@ iterate_experiment <- function(
     )
 
     m1 <- lm(value ~ gapdh + treatment, data=fd)
-    prob[iter, cov := coef(summary(m1))["treatmenttr", "Pr(>|t|)"]]
+    prob[iter, lm := coef(summary(m1))["treatmenttr", "Pr(>|t|)"]]
     prob[iter, norm1 := t.test(fd[treatment=="cn", norm1], fd[treatment=="tr", norm1], var.equal=TRUE)$p.value]
     prob[iter, norm2 := t.test(x=fd[treatment=="tr", norm2], mu=1)$p.value]
     
@@ -327,14 +282,65 @@ iterate_experiment <- function(
 }
 
 ```
-### Cor with Gapdh=0, no treatment effect
+### functions to plot simulation results
+
+```{r plot-functions}
+plot_effects <- function(res){
+  prob_cols <- c("lm", "norm1", "norm2")
+  niter <- nrow(res)
+  apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
+  gg1 <- qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method="lm") +
+    ggtitle("Linear model") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
+    ylab("Effect")
+  gg2 <- qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method="lm") +
+    ggtitle("Norm1") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
+    ylab("Effect")
+  gg3 <- qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method="lm") +
+    ggtitle("Norm2") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c]))) +
+    ylab("Effect")
+  gg <- plot_grid(gg1, gg2, gg3, nrow=1)
+  return(gg)
+}
+
+plot_prob_t1 <- function(res){
+  res[, t1.lm:=ifelse(lm <= 0.05, 1, 0)]
+  res[, t1.norm1:=ifelse(norm1 <= 0.05, 1, 0)]
+  res[, t1.norm2:=ifelse(norm2 <= 0.05, 1, 0)]
+  gg1 <- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.lm)) +
+    geom_smooth(method='glm', method.args=list(family='binomial')) +
+    ylab("Prob(Type I): linear model") +
+    xlab(expression(paste("|",Gapdh[t] - Gapdh[c],"|"))) +
+    theme_minimal()
+  gg2 <- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.norm1)) +
+    geom_smooth(method='glm', method.args=list(family='binomial')) +
+    ylab("Prob(Type I): norm1") +
+    xlab(expression(paste("|",Gapdh[t] - Gapdh[c],"|"))) +
+    theme_minimal()
+  gg3 <- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.norm2)) +
+    geom_smooth(method='glm', method.args=list(family='binomial')) +
+    ylab("Prob(Type I): norm2") +
+    xlab(expression(paste("|",Gapdh[t] - Gapdh[c],"|"))) +
+    theme_minimal()
+  gg <- plot_grid(gg1, gg2, gg3, nrow=1)
+  return(gg)
+}
+```
+
+
+### Results and consequences
+#### Cor with Gapdh=0, no treatment effect
+
+This simulates a case where there is no correlation between the reference level and the experimental (control and treatment) levels. Wouldn't need to normalize if this were the case but I include here to show how patterns are created by normalization.
 
 ```{r simulation1}
 # rho = 0, effect=0
 set.seed(1)
 res <- iterate_experiment(
   n=6, # number of replicates per treatment level
-  niter=1000, # number of iterations
+  niter=5000, # number of iterations
   rho=0, # correlation between the reference value and that of a control level
   s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
   s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
@@ -345,24 +351,35 @@ res <- iterate_experiment(
 )
 ```
 
-```{r simulation1-results}
-prob_cols <- c("cov", "norm1", "norm2")
+Unconditional Type I error in the three methods. "Unconditional" means not conditional on the observed difference in Gapdh value between treatment and control.
+```{r}
+prob_cols <- c("lm", "norm1", "norm2")
 niter <- nrow(res)
-apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
-qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method="lm")
-qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method="lm")
-qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method="lm")
-coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+type_1 <- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
+knitr::kable(type_1, col.names="Type I")
 ```
 
-### Cor with Gapdh=0.5, no treatment effect
+Treatment effect size as a function of observed difference in Gapdh value between treatment and control $\Delta Gapdh$. A slope indicates a **conditional bias** of the effect on $\Delta Gapdh$, which results because of regression to the mean. The treatment effect of both norm1 and norm2 normalization is strongly conditionally biased.
+```{r}
+plot_effects(res)
+# coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+```
 
+The probability of Type I error as a function of observed difference in Gapdh value between treatment and control $\Delta Gapdh$. The nominal probability is 0.05. The plots show that the conditional Type I error (conditional on $\Delta Gapdh$) increases to exceedingly high values as the magnitude of $\Delta Gapdh$ increases for both Norm1 and Norm 2 normalization procedures.
+
+```{r}
+plot_prob_t1(res)
+```
+
+#### Cor with Gapdh=0.5, no treatment effect
+
+A correlation between Gapdh value and that of the control or treatment is expected (and the reason why normalization is done).
 ```{r simulation2}
 # rho = 0.5, effect=0
 set.seed(1)
 res <- iterate_experiment(
   n=6, # number of replicates per treatment level
-  niter=1000, # number of iterations
+  niter=5000, # number of iterations
   rho=0.5, # correlation between the reference value and that of a control level
   s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
   s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
@@ -373,23 +390,35 @@ res <- iterate_experiment(
 )
 ```
 
-```{r simulation2-results}
-prob_cols <- c("cov", "norm1", "norm2")
+Unconditional Type I error in the three methods. "Unconditional" means not conditional on the observed difference in Gapdh value between treatment and control.
+```{r}
+prob_cols <- c("lm", "norm1", "norm2")
 niter <- nrow(res)
-apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
-qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method="lm")
-qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method="lm")
-qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method="lm")
-coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+type_1 <- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
+knitr::kable(type_1, col.names="Type I")
 ```
 
-### Cor with Gapdh=0, treatment effect ~ 1 (cohen's d)
+Treatment effect size as a function of observed difference in Gapdh value between treatment and control $\Delta Gapdh$. A slope indicates a **conditional bias** of the effect on $\Delta Gapdh$, which results because of regression to the mean. The treatment effect of both norm1 and norm2 normalization is strongly conditionally biased.
+```{r}
+plot_effects(res)
+# coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+```
+
+The probability of Type I error as a function of observed difference in Gapdh value between treatment and control $\Delta Gapdh$. The nominal probability is 0.05. The plots show that the conditional Type I error (conditional on $\Delta Gapdh$) increases to exceedingly high values as the magnitude of $\Delta Gapdh$ increases for both Norm1 and Norm 2 normalization procedures.
+
+```{r}
+plot_prob_t1(res)
+```
+
+Interesting. The linear model method gets a wee bit conservative with increasing $\Delta Gapdh$ while norm1 is a little liberal. Norm2 is liberal across the range of $\Delta Gapdh$.
+
+#### Cor with Gapdh=0, treatment effect ~ 1 (cohen's d)
 
 ```{r simulation3}
 set.seed(1)
 res <- iterate_experiment(
   n=6, # number of replicates per treatment level
-  niter=1000, # number of iterations
+  niter=5000, # number of iterations
   rho=0, # correlation between the reference value and that of a control level
   s_kappa=1.1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
   s_theta=1.1, # effect of treatment on scale (this is multiplicative so 1 = no effect
@@ -398,18 +427,24 @@ res <- iterate_experiment(
   kappa_1=30, # shape parameter for control
   theta_1=100 # scale parameter for control
 )
-# cohens
-(s_kappa*kappa_1*s_theta*theta_1 - kappa_1*theta_1)/(sqrt(kappa_1*theta_1^2))
+
 ```
 
-```{r simulation3-results}
-prob_cols <- c("cov", "norm1", "norm2")
+Since there is a true treatment effect, this is the power (instead of Type I error). Linear model has slightly more power than norm1. norm2 has most power but this is at cost of high Type I error.
+
+```{r}
+prob_cols <- c("lm", "norm1", "norm2")
 niter <- nrow(res)
-apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
-qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method="lm")
-qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method="lm")
-qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method="lm")
-coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+type_1 <- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
+knitr::kable(type_1, col.names="Type I")
+
+```
+
+We would hope the estimate of the effect would not change with $\Delta Gapdh$ (that is, it's not conditional on this). The conditional effects for both normalizations are interesting. I can't do the math to figure out what the E(effect) is for either normalization (except in the case when E(effect)=0 as above) but assuming these results are like the case with E(effect)=0 above, then effects are inflated when $\Delta Gapdh < 0$ and supressed when $\Delta Gapdh > 0$
+
+```{r}
+plot_effects(res)
+
 ```
 
 ### Cor with Gapdh=0.5, treatment effect ~ 1 (cohen's d)
@@ -418,7 +453,7 @@ coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
 set.seed(1)
 res <- iterate_experiment(
   n=6, # number of replicates per treatment level
-  niter=1000, # number of iterations
+  niter=5000, # number of iterations
   rho=0.5, # correlation between the reference value and that of a control level
   s_kappa=1.1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
   s_theta=1.1, # effect of treatment on scale (this is multiplicative so 1 = no effect
@@ -429,15 +464,19 @@ res <- iterate_experiment(
 )
 ```
 
-```{r simulation4-results}
-prob_cols <- c("cov", "norm1", "norm2")
+Power.
+```{r}
+prob_cols <- c("lm", "norm1", "norm2")
 niter <- nrow(res)
-apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
-qplot(x=res$delta_gapdh, y=res$effect_lm) + geom_smooth(method="lm")
-qplot(x=res$delta_gapdh, y=res$effect_norm1) + geom_smooth(method="lm")
-qplot(x=res$delta_gapdh, y=res$effect_norm2) + geom_smooth(method="lm")
-coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+type_1 <- apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
+knitr::kable(type_1, col.names="Type I")
+
 ```
 
-## Some consequences
+```{r}
+plot_effects(res)
+
+```
+
+
 

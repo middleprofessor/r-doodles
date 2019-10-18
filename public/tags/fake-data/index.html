@@ -301,8 +301,7 @@ if (!doNotTrack) {
     </div>
     <div class="postShorten-excerpt" itemprop="articleBody">
       
-        I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
-I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.
+        tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.
       
       <p>
         <a href="/2019/10/normalization-results-in-regression-to-the-mean/" class="postShorten-excerpt_link link">Continue reading</a>
@@ -745,8 +744,7 @@ load libraries library(ggplot2) library(ggpubr) library(data.table)  make some f
                   Oct 10, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">I’m trying to understand the role of statistics in experimental (cell, micro) biology because I’m working with students and PIs who do this type of research. This led me to thinking about reproducibility which led me to the cancer reproducibility project. What a terrific site.
-I downloaded the article and data for Fig 1C for Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET just to explore.</div>
+              <div class="media-content hide-xs font-merryweather">tl;dr Standard procedure in labs is to normalize values from gels/blots/etc by some standard that is expected to be constant across treatments. A problem with this is regression to the mean, which results in inflated Type I error. This means t-tests and such are too liberal, that is, we reject the null to often, or we conclude “an effect exists” when the evidence doesn’t favor this conclusion too often. The correct was to achieve the same goals as normalization is a linear model with the reference value as a covariate.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
