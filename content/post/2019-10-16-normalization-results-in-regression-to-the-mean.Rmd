@@ -479,7 +479,7 @@ plot_effects(res)
 # coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
 ```
 
-The probability of Type I error as a function of observed difference in Gapdh value between treatment and control $\Delta Gapdh$. The nominal probability is 0.05. The plots show that the conditional Type I error (conditional on $\Delta Gapdh$) increases to exceedingly high values as the magnitude of $\Delta Gapdh$ increases for both Norm1 and Norm 2 normalization procedures.
+The probability of Type I error as a function of observed difference in Gapdh value between treatment and control $\Delta Gapdh$. The nominal probability is 0.05. The conditional Type I error of the linear model gets slighlty conservative as the magnitude of $\Delta Gapdh$ increases. The conditional Type I error of norm1 (conventional normalization) gets slighlty liberal as the magnitude of $\Delta Gapdh$ increases. Compare this to no correlation with the reference value above. The conditional Type I error of norm2 (the normalization in the paper) is liberal at all magnitudes of $\Delta Gapdh$ increases..
 
 ```{r}
 plot_prob_t1(res)
