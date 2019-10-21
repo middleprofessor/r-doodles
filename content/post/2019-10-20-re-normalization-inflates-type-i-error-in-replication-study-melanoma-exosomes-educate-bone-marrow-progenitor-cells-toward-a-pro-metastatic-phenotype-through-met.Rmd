@@ -164,6 +164,24 @@ It's pretty clear that norm2 and especially norm3 have consequences. Are these r
 
 Simulate the experiment in Fig 1 C of the paper. Effectively, this simulates an experiment with one control level, one treatment level, and a sample size of 4 (per level). Control and treatment levels are adjusted using a reference level (simulating Gapdh). The adjustments are 1) lm (linear model with Gapdh has covariate), 2) norm1 (the ratio of the control or treatment level divided by Gapdh level), 3) norm2 (norm1 rescaled  to the control mean) and 4) norm3, equivalent to norm2 but all control levels reset to equal one.
 
+### What is correlation between gapdh and control or treatment?
+```{r}
+cor(exp1.v1[Condition=="shScr" & Antibody=="Met", Value], exp1.v1[Condition=="shMet" & Antibody=="Met", gapdh_ref])
+cor(exp1.v1[Condition=="shScr" & Antibody=="Met", Value], exp1.v1[Condition=="shScr" & Antibody=="Met", gapdh_ref])
+cor(exp1.v1[Condition=="shScr" & Antibody=="pMet", Value], exp1.v1[Condition=="shMet" & Antibody=="pMet", gapdh_ref])
+cor(exp1.v1[Condition=="shScr" & Antibody=="pMet", Value], exp1.v1[Condition=="shScr" & Antibody=="pMet", gapdh_ref])
+
+cor(exp1.v1[Condition=="shScr" & Antibody=="Met" & Type=="Cells", Value], 
+    exp1.v1[Condition=="shMet" & Antibody=="Met" & Type=="Cells", gapdh_ref])
+cor(exp1.v1[Condition=="shScr" & Antibody=="Met" & Type=="Cells", Value], 
+    exp1.v1[Condition=="shScr" & Antibody=="Met" & Type=="Cells", gapdh_ref])
+cor(exp1.v1[Condition=="shScr" & Antibody=="pMet" & Type=="Cells", Value],
+    exp1.v1[Condition=="shMet" & Antibody=="pMet" & Type=="Cells", gapdh_ref])
+cor(exp1.v1[Condition=="shScr" & Antibody=="pMet" & Type=="Cells", Value], 
+    exp1.v1[Condition=="shScr" & Antibody=="pMet" & Type=="Cells", gapdh_ref])
+
+```
+
 ### How are the experiments structured?
 
 ```{r}
@@ -191,15 +209,16 @@ get_fake_data <- function(
 ){
   kappa_1_i <- rep(c(kappa_1, kappa_1*s_kappa), each=n)
   theta_1_i <- rep(c(theta_1, theta_1*s_theta), each=n)
-    y1 <- rgamma(n*2, shape=kappa_0 - rho*sqrt(kappa_0*kappa_1), scale=1)
-    y2 <- rgamma(n*2, shape=kappa_1_i - rho*sqrt(kappa_0*kappa_1_i), scale=1)
-    y3 <- rgamma(n*2, shape=rho*sqrt(kappa_0*kappa_1), scale=1)
-    fd <- data.table(
-      iter=i,
-      treatment=rep(c("cn", "tr"), each=n),
-      gapdh=theta_0*(y1+y3),
-      value=theta_1_i*(y2+y3)
-    )
+  y1 <- rgamma(n*2, shape=kappa_0 - rho*sqrt(kappa_0*kappa_1), scale=1)
+  y2 <- rgamma(n*2, shape=kappa_1_i - rho*sqrt(kappa_0*kappa_1_i), scale=1)
+  y3 <- rgamma(n*2, shape=rho*sqrt(kappa_0*kappa_1), scale=1)
+  fd <- data.table(
+    iter=i,
+    treatment=rep(c("cn", "tr"), each=n),
+    gapdh=theta_0*(y1+y3),
+    value=theta_1_i*(y2+y3)
+  )
+  return(fd)
 }
 
 simulate_experiment <- function(
@@ -213,53 +232,17 @@ simulate_experiment <- function(
   kappa_1=30, # shape parameter for control
   theta_1=100 # scale parameter for control
 ){
-  kappa_1_i <- rep(c(kappa_1, kappa_1*s_kappa), each=n)
-  theta_1_i <- rep(c(theta_1, theta_1*s_theta), each=n)
-  # control
-  y1 <- rgamma(n*2, shape=kappa_0 - rho*sqrt(kappa_0*kappa_1), scale=1)
-  y2 <- rgamma(n*2, shape=kappa_1_i - rho*sqrt(kappa_0*kappa_1_i), scale=1)
-  y3 <- rgamma(n*2, shape=rho*sqrt(kappa_0*kappa_1), scale=1)
-  fd <- data.table(
-    treatment=rep(c("cn", "tr"), each=n),
-    gapdh=theta_0*(y1+y3),
-    value=theta_1_i*(y2+y3)
-  )
   fd <- get_fake_data(n, rho, s_kappa, s_theta, 
                       kappa_0, theta_0, kappa_1, theta_1)
   fd[, blot:=rep(blot_id, 2)]
   fd[, norm1:=value/gapdh]
-  cn_ref <- fd[treatment=="cn", .(cn_ref=mean(norm1)), by=blot]
-  fd <- merge(fd, cn_ref, by="blot")
+  cn_ref_list <- fd[treatment=="cn", .(cn_ref=mean(norm1)), by=blot]
+  fd <- merge(fd, cn_ref_list, by="blot")
   fd[, norm2:=norm1/cn_ref]
   fd[, norm3:=ifelse(treatment=="cn", 1, norm2)]
   return(fd)
 }
-```
 
-Script to explore parameterization. To turn on, change eval to TRUE
-```{r simulate-explore, eval=FALSE}
-n=10^4 # number of replicates per treatment level
-rho=0.5 # correlation between the reference value and that of a control level
-s_kappa=1.1 # effect of treatment on shape (this is multiplicative so 1 = no effect)
-s_theta=1.1 # effect of treatment on scale (this is multiplicative so 1 = no effect
-kappa_0=80 # shape parameter for reference
-theta_0=100 # scale parameter for reference
-kappa_1=30 # shape parameter for control
-theta_1=100 # scale parameter for control
-(s_kappa*kappa_1*s_theta*theta_1 - kappa_1*theta_1)/(sqrt(kappa_1*theta_1^2))
-
-  fd <- get_fake_data(n, rho, s_kappa, s_theta, 
-                      kappa_0, theta_0, kappa_1, theta_1)
-# quick and dirty cohen's
-kappa_1*theta_1
-s_kappa*kappa_1*s_theta*theta_1
-(means_table <- fd[, .(cell_mean=mean(value), cell_sd=sd(value)), by=treatment])
-(means_table[treatment=="tr", cell_mean] - means_table[treatment=="cn", cell_mean])/means_table[treatment=="cn", cell_sd]
-```
-
-Script to generate simulated data *n_iter* times and output tables of effects and p-values.
-
-```{r iterate-simulation}
 iterate_experiment <- function(
   n=4, # number of replicates per treatment level
   blot_id=rep("blot1", n), # how to divy up the n samples among blots
@@ -312,6 +295,27 @@ iterate_experiment <- function(
   )
 }
 
+```
+
+Script to explore parameterization. To turn on, change eval to TRUE
+```{r simulate-explore, eval=FALSE}
+n=10^4 # number of replicates per treatment level
+rho=0.5 # correlation between the reference value and that of a control level
+s_kappa=1.0 # effect of treatment on shape (this is multiplicative so 1 = no effect)
+s_theta=1.0 # effect of treatment on scale (this is multiplicative so 1 = no effect
+kappa_0=80 # shape parameter for reference
+theta_0=100 # scale parameter for reference
+kappa_1=30 # shape parameter for control
+theta_1=100 # scale parameter for control
+(s_kappa*kappa_1*s_theta*theta_1 - kappa_1*theta_1)/(sqrt(kappa_1*theta_1^2))
+
+  fd <- get_fake_data(n, rho, s_kappa, s_theta, 
+                      kappa_0, theta_0, kappa_1, theta_1)
+# quick and dirty cohen's
+kappa_1*theta_1
+s_kappa*kappa_1*s_theta*theta_1
+(means_table <- fd[, .(cell_mean=mean(value), cell_sd=sd(value)), by=treatment])
+(means_table[treatment=="tr", cell_mean] - means_table[treatment=="cn", cell_mean])/means_table[treatment=="cn", cell_sd]
 ```
 
 ### functions to plot simulation results
@@ -399,7 +403,7 @@ The simulation computes type I error at all combinations of $blots$ in (2, 3, 4)
 
 Note: With n=4 and blots=4 (1 replicate per blot), norm2 and norm3 are equal but a linear model or two-sample t-test on norm2 wouldn't make much sense as all values of control are equal to 1.0. This is avoided using norm3 (regardless of number of replicates per blot) because the p-value for norm3 is computed using one-sample t-test with mu=1. 
 
-```{r simulation-1}
+```{r simulation}
 # parameters
 # n=4, # number of replicates per treatment level
 # blots=blots_i, # number of blots. Reps/blot = n/blots
@@ -411,11 +415,11 @@ Note: With n=4 and blots=4 (1 replicate per blot), norm2 and norm3 are equal but
 # theta_0=100, # scale parameter for reference
 # kappa_1=30, # shape parameter for control
 # theta_1=100 # scale parameter for control
-simulate_it <- TRUE
+simulate_it <- FALSE
 which_sim <- "sim2"
 set.seed(1) # resetting each combo
 if(which_sim=="sim1"){
-  file_path <- here(output_path, "normalization_II_sim1b.rds")
+  file_path <- here(output_path, "normalization_II_sim1.rds")
   n <- 4
   blots_vec <- c(1, 2, 3, 4) 
   reps_per_blot_mat <- t(matrix(c(c(rep(4, 1), rep(NA, 3)),
@@ -477,7 +481,11 @@ if(simulate_it==TRUE){
 
 ```
 
+## Simulation results for data n=4 (that of replication study)
+### Unconditional Type I error
 ```{r simulation_1_table}
+file_path <- here(output_path, "normalization_II_sim1.rds")
+res <- readRDS(file = file_path)
 type1 <- get_type_1_table(res[rho==0])
 knitr::kable(type1, caption="rho = 0")
 type1 <- get_type_1_table(res[rho==0.5])
@@ -488,84 +496,22 @@ The correlation parameter $rho$ doesn't have much of an effect. Norm1 and Norm2 
 
 Norm3 has inflated Type I error when each blot has only a single replicate of each treatment level but has nominal Type I when all replicates are on a single blot. Note that $norm2 = norm1$ when there is all replicates are on one blot. And, as mentioned above, it makes less and less sense to analyze norm2 using a two-sample 2-test as the number of blots approaches n (because the variance in the control sample goes to zero)
 
+### Conditional Type I error (on the difference in Gapdh between control and treatment)
+#### No expected correlation between Gapdh level and either control or treatment level
 ```{r}
-plot_prob_t1(res[blots==10 & rho==0.5])
+plot_prob_t1(res[blots==1 & rho==0])
+plot_prob_t1(res[blots==2 & rho==0])
+plot_prob_t1(res[blots==3 & rho==0])
+plot_prob_t1(res[blots==4 & rho==0])
+```
+
+#### Expected correlation between Gapdh level and either control or treatment level is 0.5
+
+```{r}
+plot_prob_t1(res[blots==1 & rho==0.5])
+plot_prob_t1(res[blots==2 & rho==0.5])
+plot_prob_t1(res[blots==3 & rho==0.5])
+plot_prob_t1(res[blots==4 & rho==0.5])
 
 ```
 
-### Exploring the parameter space a bit
-
-Here I repeat the above but using n=10 with four ways of dividing this up among blots: 1) one blot containing all replicates, 2) two blots containing five replicates each, 3) 5 blots containing two replicates each, and 4) ten blots each containing one replicate.
-
-```{r simlation-2}
-# parameters
-# n, # number of replicates per treatment level
-# blots, # number of blots. Reps/blot = n/blots
-# niter, # number of iterations
-# rho, # correlation between the reference value and that of a control level
-# s_kappa, # effect of multiplicative treatment on shape
-# s_theta, # effect of multiplicative treatment on scale
-# kappa_0, # shape parameter for reference
-# theta_0, # scale parameter for reference
-# kappa_1, # shape parameter for control
-# theta_1 # scale parameter for control
-simulate_it <- FALSE
-set.seed(1)
-file_path <- here(output_path, "normalization_II_sim2.rds")
-
-n <- 10 # sample per treatment level
-n_iter <- 5000
-blots_vec <- c(1, 2, 5, 10) # number of blots
-rho_vec <- c(0, 0.5) # cor between ref and either cn or tr
-sim_combo <- expand.grid(blots=blots_vec, rho=rho_vec)
-
-reps_per_blot_mat <- t(matrix(c(c(rep(10, 1), rep(NA, 9)),
-                                c(rep(5, 2), rep(NA, 8)),
-                                c(rep(2, 5), rep(NA, 5)),
-                                rep(1, 10)), ncol=4))
-sim_combo <- data.table(cbind(sim_combo, reps_per_blot_mat))
-reps_per_blot_names <- as.character(1:n)
-
-res <- data.table(NULL)
-if(simulate_it==TRUE){
-  for(combo in 1:nrow(sim_combo)){
-    blots_i <- sim_combo[combo, blots]
-    reps_per_blot_i <- na.omit(as.numeric(sim_combo[combo, .SD, 
-                                                    .SDcols=reps_per_blot_names]))
-    rho_i <- sim_combo[combo, rho]
-    res <- rbind(res, 
-                 data.table(blots=blots_i,
-                            rho=rho_i,
-                            iterate_experiment(
-                              n=n,
-                              reps_per_blot=reps_per_blot_i,
-                              niter=n_iter,
-                              rho=rho_i,
-                              s_kappa=1,
-                              s_theta=1,
-                              kappa_0=80,
-                              theta_0=100,
-                              kappa_1=30,
-                              theta_1=100
-                            )))
-    
-  }
-  saveRDS(res, file = file_path)
-}else{
-  res <- readRDS(file = file_path)
-}
-
-```
-
-```{r simulation-2-table}
-prob_cols <- c("lm","norm1", "norm2","norm3")
-niter <- nrow(res)/length(unique(res[, blots]))/length(unique(res[, rho]))
-res_long <- melt(res, id.vars = c("blots", "rho"), measure.vars = prob_cols, variable.name = "method", value.name = "p.value")
-type_1 <- res_long[, .(Type_I=sum(p.value < 0.05)/niter), by=.(blots, rho, method)]
-type_1_wide = dcast(type_1[rho==0], blots ~ method, value.var = "Type_I")
-knitr::kable(type_1_wide)
-type_1_wide = dcast(type_1[rho==0.5], blots ~ method, value.var = "Type_I")
-knitr::kable(type_1_wide)
-```
-
-The results are effectively the same as n=4 with perhaps increased inflation of Type I error with norm3 when all replicates are in a single blot (or similarly, rescaling by the mean of all control values)
