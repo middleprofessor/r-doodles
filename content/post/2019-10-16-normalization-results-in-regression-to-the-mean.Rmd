@@ -223,7 +223,7 @@ cor(gapdh, value)
 The main function for generating a data set with a control, a treatment, and a reference for normalization.
 
 ```{r simulation-gamma}
-simulate_experiment <- function(
+simulate_experiment_old <- function(
   n=10, # number of replicates per treatment level
   rho=0.5, # correlation between the reference value and that of a control level
   s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
@@ -284,7 +284,7 @@ s_kappa*kappa_1*s_theta*theta_1
 Script to generate simulated data *n_iter* times and output tables of effects and p-values.
 
 ```{r iterate-simulation}
-iterate_experiment <- function(
+iterate_experiment_old <- function(
   n=10, # number of replicates per treatment level
   niter=2000, # number of iterations
   rho=0.5, # correlation between the reference value and that of a control level
@@ -307,9 +307,9 @@ iterate_experiment <- function(
   # effect_norm1 <- numeric(niter) # effect size using standard normalization against gapdh
   # effect_norm2 <- numeric(niter) # effect size using re-scaling to control (shSrc in this case)
   # delta_gapdh <- numeric(niter) # the difference between control and treatment gapdh
-  kappa_1_i <- rep(c(kappa_1, kappa_1*s_kappa), each=n)
+  set.seed(1) # yes I want this here
   for(iter in 1:niter){
-    fd <- simulate_experiment(
+    fd <- simulate_experiment_old(
       n, # number of replicates per treatment level
       rho, # correlation between the reference value and that of a control level
       s_kappa, # effect of treatment on shape (this is multiplicative so 1 = no effect)
@@ -340,9 +340,7 @@ iterate_experiment <- function(
 
 ```{r plot-functions}
 plot_effects <- function(res){
-  prob_cols <- c("lm", "norm1", "norm2")
-  niter <- nrow(res)
-  apply(res[,.SD, .SDcols=prob_cols], 2, function(x) sum(x < 0.05)/niter)
+  prob_cols <- c("lm", "norm1", "norm2", "norm3")
   gg1 <- qplot(x=res$delta_gapdh/10^3, y=res$effect_lm) +
     geom_smooth(method="lm") +
     ggtitle("Linear model") +
@@ -364,7 +362,14 @@ plot_effects <- function(res){
     ylab("Effect") +
     theme_minimal() +
     NULL
-  gg <- plot_grid(gg1, gg2, gg3, nrow=1)
+  gg4 <- qplot(x=res$delta_gapdh/10^3, y=res$effect_norm3) +
+    geom_smooth(method="lm") +
+    ggtitle("Norm3") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  gg <- plot_grid(gg1, gg2, gg3, gg4, nrow=2)
   return(gg)
 }
 
@@ -372,6 +377,7 @@ plot_prob_t1 <- function(res){
   res[, t1.lm:=ifelse(lm <= 0.05, 1, 0)]
   res[, t1.norm1:=ifelse(norm1 <= 0.05, 1, 0)]
   res[, t1.norm2:=ifelse(norm2 <= 0.05, 1, 0)]
+  res[, t1.norm3:=ifelse(norm3 <= 0.05, 1, 0)]
   gg1 <- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.lm)) +
     geom_smooth(method='glm', method.args=list(family='binomial')) +
     ylab("Prob(Type I): linear model") +
@@ -387,7 +393,12 @@ plot_prob_t1 <- function(res){
     ylab("Prob(Type I): norm2") +
     xlab(expression(paste("|",Gapdh[t] - Gapdh[c],"|"))) +
     theme_minimal()
-  gg <- plot_grid(gg1, gg2, gg3, nrow=1)
+  gg4 <- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.norm3)) +
+    geom_smooth(method='glm', method.args=list(family='binomial')) +
+    ylab("Prob(Type I): norm3") +
+    xlab(expression(paste("|",Gapdh[t] - Gapdh[c],"|"))) +
+    theme_minimal()
+  gg <- plot_grid(gg1, gg2, gg3, gg4, nrow=2)
   return(gg)
 }
 ```
@@ -445,11 +456,11 @@ plot_prob_t1(res)
 A correlation between Gapdh value and that of the control or treatment is expected (and the reason why normalization is done).
 ```{r simulation2}
 set.seed(1)
-file_path <- here(output_path, "normalization_res2.rds")
+file_path <- here(output_path, "normalization_res2b.rds")
 if(simulate_it==TRUE){
-  res <- iterate_experiment(
+  res <- iterate_experiment_old(
   n=4, # number of replicates per treatment level
-  niter=5000, # number of iterations
+  niter=1000, # number of iterations
   rho=0.5, # correlation between the reference value and that of a control level
   s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
   s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
@@ -477,6 +488,11 @@ Treatment effect size as a function of observed difference in Gapdh value betwee
 ```{r}
 plot_effects(res)
 # coef(summary(lm(effect_lm ~ delta_gapdh, data=res)))
+plot_effects(resb[blots==1 & rho==0.5])
+plot_effects(resb[blots==2 & rho==0.5])
+plot_effects(resb[blots==3 & rho==0.5])
+plot_effects(resb[blots==4 & rho==0.5])
+
 ```
 
 The probability of Type I error as a function of observed difference in Gapdh value between treatment and control $\Delta Gapdh$. The nominal probability is 0.05. The conditional Type I error of the linear model gets slighlty conservative as the magnitude of $\Delta Gapdh$ increases. The conditional Type I error of norm1 (conventional normalization) gets slighlty liberal as the magnitude of $\Delta Gapdh$ increases. Compare this to no correlation with the reference value above. The conditional Type I error of norm2 (the normalization in the paper) is liberal at all magnitudes of $\Delta Gapdh$ increases..
@@ -568,4 +584,52 @@ plot_effects(res)
 ```
 
 Don't believe the higher power with norm2. It's a mirage due to the liberal Type I error.
+
+## Simulation 1
+
+```{r}
+# see 
+file_path <- here(output_path, "normalization_II_sim1.rds")
+res <- readRDS(file = file_path)
+```
+
+### Conditional bias of effect estimate
+#### one blot with all replicates, rho=0, effect=0
+
+```{r}
+plot_effects(res[blots==1 & rho==0])
+```
+
+#### 4 blots, each with a single replicate, rho=0, effect=0
+
+```{r}
+plot_effects(res[blots==4 & rho==0])
+
+```
+
+### Prob[type I] conditional on difference in Gapdh between Treatment and Control
+#### rho=0
+
+```{r}
+plot_prob_t1(res[blots==1 & rho==0])
+plot_prob_t1(res[blots==2 & rho==0])
+plot_prob_t1(res[blots==3 & rho==0])
+plot_prob_t1(res[blots==4 & rho==0])
+
+```
+
+```{r}
+plot_prob_t1(res[blots==1 & rho==0.5])
+plot_prob_t1(res[blots==2 & rho==0.5])
+plot_prob_t1(res[blots==3 & rho==0.5])
+plot_prob_t1(res[blots==4 & rho==0.5])
+plot_prob_t1(res[rho==0.5])
+
+```
+
+```{r}
+plot_prob_t1(resa)
+plot_prob_t1(resb)
+
+```
 

@@ -1,0 +1,571 @@
+---
+title: 'Re-normalization inflates Type I error in Replication Study: Melanoma exosomes
+  educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET'
+author: Jeff Walker
+date: '2019-10-20'
+slug: re-normalization-inflates-type-i-error-in-replication-study-melanoma-exosomes-educate-bone-marrow-progenitor-cells-toward-a-pro-metastatic-phenotype-through-met
+categories:
+  - reproducibility
+tags:
+  - normalization
+  - NHST
+  - Type I error
+keywords:
+  - tech
+---
+
+Fig 1C of the [Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET](https://elifesciences.org/articles/39944) uses an odd (to me) three stage normalization procedure for the quantified western blots. The authors compared blot values of a treatment (Met or pMet) to a control (shScr) using Gapdh to normalize the values. The three stages of the normalization are
+
+1. first, the value for the Antibody levels were normalized by the value of a reference (Gapdh) for each Set. This is the typical normalization throughout bench biology.
+2. second, the Gapdh-normalized values were rescaled by the mean of the Gapdh-normalized values for the shScr Condition within each combination of Antibody+Type+Blot. And,
+3. third, *all* values in the shScr group were assigned to 1 (since the mean within the Condition level is 1). The statistical test then is a one-sample t-test of shMet with $\mu=1$.
+
+Stage 1 can introduce inflated *conditional* type I error due to regression to the mean. I explore that here. Stage 3 would seem to introduce inflated unconditional type I error simply because one is wiping out the variation in the treatment. I explore that here.
+
+This post has two parts. Part 1 is a replication of Fig 1c using my own script and to familiarize myself with the data. Part 2 is a simulation of the consequences of the three stage normalization.
+
+# Reproducibility
+The authors archived the code with the article, which is a major positive of the Cancer Reproducibility project. My goal here is to reproduce the results writing my own script and without looking at the author's scripts (If the original researchers have an error in their code than simply running their code would reproduce the error. The goal of my reproducibility projects are to reproduce what researchers *say* they do).
+
+My reproduced plot was a bit off because my normalized values were a bit off. Looking at the researchers's script, I recognized that I hadn't included Blot ID in stage 2 of the normalization. This may or may not have been in the methods or may or may not be obvious to an experienced researcher in cell biology (I am not). After including blot, my code reproduces the published results. Note that my script for preparing the data (re-arranging the archived data to something that can be analyzed and plotted) is *very* different from the authors -- my code is very data.table-ish.
+
+```{r setup, include=FALSE}
+library(here)
+library(janitor)
+library(data.table)
+library(lmerTest)
+library(emmeans)
+library(ggpubr)
+library(cowplot)
+
+here <- here::here
+data_path <- "content/data"
+output_path <- "content/output"
+
+simulate_it=FALSE # False indicates the simulations were done and written to disc
+```
+
+```{r import}
+folder <- "Data from Generation and characterization of shMet B16-F10 cells and exosomes"
+filename <- "Study_42_Figure_1_WB_quant_Data.csv"
+file_path <- here(data_path, folder, filename)
+exp1 <- fread(file_path)
+exp1[, Condition := factor(Condition, c("shScr", "shMet"))]
+#View(exp1)
+```
+
+Create normalized values
+
+1. norm1 is the conventional normalization using the reference (Gapdh) value.
+2. norm2 is norm1 rescaled by the mean of shScr
+3. norm3 is setting all rescalings of shScr to = 1
+
+```{r reproducibility}
+# get Gapdh ref for each row to rescale ("normalize") by Gapdh
+gapdh_ref.dt <- exp1[Antibody=="Gapdh", .(gapdh_ref=mean(Value)), by=Set]
+exp1.v1 <- merge(exp1, gapdh_ref.dt, by="Set")
+exp1.v1[, norm1:=Value/gapdh_ref]
+
+# get mean shScr for each Antibody:Type:Blot to rescale by mean shScr 
+shScr_ref.dt <- exp1.v1[Condition=="shScr", .(shScr_ref=mean(norm1)), by=.(Antibody, Type, Blot)]
+exp1.v1 <- merge(exp1.v1, shScr_ref.dt, by=c("Antibody", "Type", "Blot"))
+exp1.v1[, norm2:=norm1/shScr_ref]
+exp1.v1[, norm3:=ifelse(Condition=="shScr", 1, norm2)]
+#View(exp1.v1)
+
+gg1 <- ggbarplot(data=exp1.v1[Antibody=="Met" & Type=="Cells"], 
+                 x="Condition", 
+                 y="norm1",
+          add=c("mean_se")) +
+  ylab("Met") +
+  NULL
+gg2 <- ggbarplot(data=exp1.v1[Antibody=="pMet" & Type=="Cells",],
+                 x="Condition", 
+                 y="norm1",
+                 add=c("mean_se")) +
+  ylab("pMet") +
+  NULL
+
+gg3 <- ggbarplot(data=exp1.v1[Antibody=="Met" & Type=="Cells"], 
+                 x="Condition", 
+                 y="norm3",
+          add=c("mean_se")) +
+  ylab("Met") +
+  NULL
+gg4 <- ggbarplot(data=exp1.v1[Antibody=="pMet" & Type=="Cells",],
+                 x="Condition", 
+                 y="norm3",
+                 add=c("mean_se")) +
+  ylab("pMet") +
+  NULL
+
+plot_grid(gg1, gg2, gg3, gg4, nrow=2)
+
+
+```
+
+The two bottom plots reproduce Fig 1C from the paper, which uses norm3. The two top plots are scaled by Gapdh but not shScr (norm1)
+
+## What are the consequences of normalization? Compare to linear model with Gapdh as covariate
+
+Here I compare p-values of linear models of the effect of $Condition$ on blot value using the three normalizations, no normalization, and a linear model ("lm") with Gapdh as a covariate, which is the preferred method of adjusting for set-specific variation among many statistisians.
+
+### Met
+m1 is the preferred method. m2 is conventional normalization. m4 is what the author's did.
+
+```{r covariate-v-normalization-met}
+prob <- numeric(5) # p-values for all five ways of analyzing data
+# linear model with ref as covariate
+m1 <- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
+# linear model with no accounting for ref
+m2 <- lm(Value ~ Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
+# linear model using Gapdh normalized values
+m3 <- lm(norm1 ~ Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
+# linear model using Gapdh normalized rescaled to shScr values
+m4 <- lm(norm2 ~ Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
+# linear model using Gapdh normalized rescaled to shScr values with shScr=1
+m5 <- lm(norm3 ~ Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
+prob[1] <- coef(summary(m1))["ConditionshMet", "Pr(>|t|)"]
+prob[2] <- coef(summary(m2))["ConditionshMet", "Pr(>|t|)"]
+prob[3] <- coef(summary(m3))["ConditionshMet", "Pr(>|t|)"]
+prob[4] <- coef(summary(m4))["ConditionshMet", "Pr(>|t|)"]
+prob[5] <- coef(summary(m5))["ConditionshMet", "Pr(>|t|)"]
+knitr::kable(data.table(Method=c("lm", "none", "norm1", "norm2", "norm3"),
+             "p-value" = prob), digits = 3)
+```
+
+### pMet
+
+```{r covariate-v-normalization-pmet-1}
+prob <- numeric(5) # p-values for all five ways of analyzing data
+# linear model with ref as covariate
+m1 <- lm(Value ~ gapdh_ref + Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
+# linear model with no accounting for ref
+m2 <- lm(Value ~ Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
+# linear model using Gapdh normalized values
+m3 <- lm(norm1 ~ Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
+# linear model using Gapdh normalized rescaled to shScr values
+m4 <- lm(norm2 ~ Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
+# linear model using Gapdh normalized rescaled to shScr values with shScr=1
+m5 <- lm(norm3 ~ Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
+prob[1] <- coef(summary(m1))["ConditionshMet", "Pr(>|t|)"]
+prob[2] <- coef(summary(m2))["ConditionshMet", "Pr(>|t|)"]
+prob[3] <- coef(summary(m3))["ConditionshMet", "Pr(>|t|)"]
+prob[4] <- coef(summary(m4))["ConditionshMet", "Pr(>|t|)"]
+prob[5] <- coef(summary(m5))["ConditionshMet", "Pr(>|t|)"]
+knitr::kable(data.table(Method=c("lm", "none", "norm1", "norm2", "norm3"),
+             "p-value" = prob), digits = 3)
+
+```
+
+It's pretty clear that norm2 and especially norm3 have consequences. Are these re-normalizations inflating Type I error?
+
+## Simulations
+
+Simulate the experiment in Fig 1 C of the paper. Effectively, this simulates an experiment with one control level, one treatment level, and a sample size of 4 (per level). Control and treatment levels are adjusted using a reference level (simulating Gapdh). The adjustments are 1) lm (linear model with Gapdh has covariate), 2) norm1 (the ratio of the control or treatment level divided by Gapdh level), 3) norm2 (norm1 rescaled  to the control mean) and 4) norm3, equivalent to norm2 but all control levels reset to equal one.
+
+### How are the experiments structured?
+
+```{r}
+exp1[Antibody=="Met" & Type=="Cells", .(N=.N), by=.(Antibody, Type, Blot, Condition)]
+exp1[Antibody=="pMet" & Type=="Cells", .(N=.N), by=.(Antibody, Type, Blot, Condition)]
+```
+
+If there were one replicate per blot (with both treatment and control) then the control values would all be 1.0 following norm2. This seems to be the reason for norm3. In the paper there Met data: one replicate in one blot and two replicates in one blot for the Met data (so n=3); pMet data: one replicate in two blots and two replicates in two blots (so n=4).
+
+### Simulation functions
+
+The main function for generating a data set with a control, a treatment, and a reference for normalization. norm2 adjusts for blot by re-scaling the mean of the norm1 value for the control. Blot should be properly simulated using a multilevel model with random blot effect but here I just assume the blot mu is fixed.
+
+
+```{r simulation-experiment}
+get_fake_data <- function(
+  n=4, # number of replicates per treatment level
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+){
+  kappa_1_i <- rep(c(kappa_1, kappa_1*s_kappa), each=n)
+  theta_1_i <- rep(c(theta_1, theta_1*s_theta), each=n)
+    y1 <- rgamma(n*2, shape=kappa_0 - rho*sqrt(kappa_0*kappa_1), scale=1)
+    y2 <- rgamma(n*2, shape=kappa_1_i - rho*sqrt(kappa_0*kappa_1_i), scale=1)
+    y3 <- rgamma(n*2, shape=rho*sqrt(kappa_0*kappa_1), scale=1)
+    fd <- data.table(
+      iter=i,
+      treatment=rep(c("cn", "tr"), each=n),
+      gapdh=theta_0*(y1+y3),
+      value=theta_1_i*(y2+y3)
+    )
+}
+
+simulate_experiment <- function(
+  n=4, # number of replicates per treatment level
+  blot_id=rep("blot1", n), # how to divy up the n samples among blots
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+){
+  kappa_1_i <- rep(c(kappa_1, kappa_1*s_kappa), each=n)
+  theta_1_i <- rep(c(theta_1, theta_1*s_theta), each=n)
+  # control
+  y1 <- rgamma(n*2, shape=kappa_0 - rho*sqrt(kappa_0*kappa_1), scale=1)
+  y2 <- rgamma(n*2, shape=kappa_1_i - rho*sqrt(kappa_0*kappa_1_i), scale=1)
+  y3 <- rgamma(n*2, shape=rho*sqrt(kappa_0*kappa_1), scale=1)
+  fd <- data.table(
+    treatment=rep(c("cn", "tr"), each=n),
+    gapdh=theta_0*(y1+y3),
+    value=theta_1_i*(y2+y3)
+  )
+  fd <- get_fake_data(n, rho, s_kappa, s_theta, 
+                      kappa_0, theta_0, kappa_1, theta_1)
+  fd[, blot:=rep(blot_id, 2)]
+  fd[, norm1:=value/gapdh]
+  cn_ref <- fd[treatment=="cn", .(cn_ref=mean(norm1)), by=blot]
+  fd <- merge(fd, cn_ref, by="blot")
+  fd[, norm2:=norm1/cn_ref]
+  fd[, norm3:=ifelse(treatment=="cn", 1, norm2)]
+  return(fd)
+}
+```
+
+Script to explore parameterization. To turn on, change eval to TRUE
+```{r simulate-explore, eval=FALSE}
+n=10^4 # number of replicates per treatment level
+rho=0.5 # correlation between the reference value and that of a control level
+s_kappa=1.1 # effect of treatment on shape (this is multiplicative so 1 = no effect)
+s_theta=1.1 # effect of treatment on scale (this is multiplicative so 1 = no effect
+kappa_0=80 # shape parameter for reference
+theta_0=100 # scale parameter for reference
+kappa_1=30 # shape parameter for control
+theta_1=100 # scale parameter for control
+(s_kappa*kappa_1*s_theta*theta_1 - kappa_1*theta_1)/(sqrt(kappa_1*theta_1^2))
+
+  fd <- get_fake_data(n, rho, s_kappa, s_theta, 
+                      kappa_0, theta_0, kappa_1, theta_1)
+# quick and dirty cohen's
+kappa_1*theta_1
+s_kappa*kappa_1*s_theta*theta_1
+(means_table <- fd[, .(cell_mean=mean(value), cell_sd=sd(value)), by=treatment])
+(means_table[treatment=="tr", cell_mean] - means_table[treatment=="cn", cell_mean])/means_table[treatment=="cn", cell_sd]
+```
+
+Script to generate simulated data *n_iter* times and output tables of effects and p-values.
+
+```{r iterate-simulation}
+iterate_experiment <- function(
+  n=4, # number of replicates per treatment level
+  blot_id=rep("blot1", n), # how to divy up the n samples among blots
+  niter=2000, # number of iterations
+  rho=0.5, # correlation between the reference value and that of a control level
+  s_kappa=1, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+  s_theta=1, # effect of treatment on scale (this is multiplicative so 1 = no effect
+  kappa_0=80, # shape parameter for reference
+  theta_0=100, # scale parameter for reference
+  kappa_1=30, # shape parameter for control
+  theta_1=100 # scale parameter for control
+  ){
+  # Given a western blot with three "treatments": reference (Gapdh) is the set of values for normaliztion
+  # control is the set of values for a control. The treatment value is determined by beta_1 -- the effect
+  prob_cols <- c("lm", "norm1", "norm2", "norm3")
+  prob <- data.table(matrix(-9999, nrow=niter, ncol=length(prob_cols)))
+  setnames(prob, old=colnames(prob), new=prob_cols)
+  effect_cols <- c("delta_gapdh", "effect_lm", "effect_norm1", "effect_norm2", "effect_norm3")
+  effects_dt <- data.table(matrix(-9999, nrow=niter, ncol=length(effect_cols)))
+  setnames(effects_dt, old=colnames(effects_dt), new=effect_cols)
+  r <- numeric(niter) # dor between control and gapdh values
+  set.seed(1) # yes I want to reset this to the same with each combo
+  for(iter in 1:niter){
+    fd <- simulate_experiment(
+      n=n, # number of replicates per treatment level
+      blot_id=blot_id, # how to divy up the n samples among blots
+      rho=rho, # correlation between the reference value and that of a control level
+      s_kappa=s_kappa, # effect of treatment on shape (this is multiplicative so 1 = no effect)
+      s_theta=s_theta, # effect of treatment on scale (this is multiplicative so 1 = no effect
+      kappa_0=kappa_0, # shape parameter for reference
+      theta_0=theta_0, # scale parameter for reference
+      kappa_1=kappa_1, # shape parameter for control
+      theta_1=theta_1 # scale parameter for control
+    )
+    r[iter] <- cor(fd[treatment=="cn", gapdh], fd[treatment=="cn", value])
+    m1 <- lm(value ~ gapdh + treatment, data=fd)
+    prob[iter, lm := coef(summary(m1))["treatmenttr", "Pr(>|t|)"]]
+    prob[iter, norm1 := t.test(fd[treatment=="cn", norm1], fd[treatment=="tr", norm1], var.equal=TRUE)$p.value]
+    prob[iter, norm2 := t.test(fd[treatment=="cn", norm2], fd[treatment=="tr", norm2], var.equal=TRUE)$p.value]
+    prob[iter, norm3 := t.test(x=fd[treatment=="tr", norm3], mu=1)$p.value]
+    
+    effects_dt[iter, delta_gapdh := mean(fd[treatment=="tr", gapdh]) - mean(fd[treatment=="cn", gapdh])]
+    effects_dt[iter, effect_lm := coef(summary(m1))["treatmenttr", "Estimate"]]
+    effects_dt[iter, effect_norm1 := mean(fd[treatment=="tr", norm1]) - mean(fd[treatment=="cn", norm1])]
+    effects_dt[iter, effect_norm2 := mean(fd[treatment=="tr", norm2]) - mean(fd[treatment=="cn", norm2])]
+    effects_dt[iter, effect_norm3 := mean(fd[treatment=="tr", norm3]) - 1]
+  }
+  return(
+    data.table(prob, effects_dt, cor=r)
+  )
+}
+
+```
+
+### functions to plot simulation results
+
+```{r plot-functions}
+plot_effects <- function(res){
+  prob_cols <- c("lm", "norm1", "norm2", "norm3")
+  gg1 <- qplot(x=res$delta_gapdh/10^3, y=res$effect_lm) +
+    geom_smooth(method="lm") +
+    ggtitle("Linear model") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  gg2 <- qplot(x=res$delta_gapdh/10^3, y=res$effect_norm1) +
+    geom_smooth(method="lm") +
+    ggtitle("Norm1") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  gg3 <- qplot(x=res$delta_gapdh/10^3, y=res$effect_norm2) +
+    geom_smooth(method="lm") +
+    ggtitle("Norm2") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  gg4 <- qplot(x=res$delta_gapdh/10^3, y=res$effect_norm3) +
+    geom_smooth(method="lm") +
+    ggtitle("Norm3") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  gg <- plot_grid(gg1, gg2, gg3, gg4, nrow=2)
+  return(gg)
+}
+
+plot_prob_t1 <- function(res){
+  res[, t1.lm:=ifelse(lm <= 0.05, 1, 0)]
+  res[, t1.norm1:=ifelse(norm1 <= 0.05, 1, 0)]
+  res[, t1.norm2:=ifelse(norm2 <= 0.05, 1, 0)]
+  res[, t1.norm3:=ifelse(norm3 <= 0.05, 1, 0)]
+  gg1 <- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.lm)) +
+    geom_smooth(method='glm', method.args=list(family='binomial')) +
+    ylab("Prob(Type I): linear model") +
+    xlab(expression(paste("|",Gapdh[t] - Gapdh[c],"|"))) +
+    theme_minimal()
+  gg2 <- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.norm1)) +
+    geom_smooth(method='glm', method.args=list(family='binomial')) +
+    ylab("Prob(Type I): norm1") +
+    xlab(expression(paste("|",Gapdh[t] - Gapdh[c],"|"))) +
+    theme_minimal()
+  gg3 <- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.norm2)) +
+    geom_smooth(method='glm', method.args=list(family='binomial')) +
+    ylab("Prob(Type I): norm2") +
+    xlab(expression(paste("|",Gapdh[t] - Gapdh[c],"|"))) +
+    theme_minimal()
+  gg4 <- ggplot(data=res, aes(x=abs(delta_gapdh), y=t1.norm3)) +
+    geom_smooth(method='glm', method.args=list(family='binomial')) +
+    ylab("Prob(Type I): norm3") +
+    xlab(expression(paste("|",Gapdh[t] - Gapdh[c],"|"))) +
+    theme_minimal()
+  gg <- plot_grid(gg1, gg2, gg3, gg4, nrow=2)
+  return(gg)
+}
+```
+
+```{r type-1-table}
+get_type_1_table <- function(res){
+  prob_cols <- c("lm","norm1", "norm2","norm3")
+  niter <- nrow(res)/length(unique(res[, blots]))/length(unique(res[, rho]))
+  res_long <- melt(res, id.vars = c("blots", "rho"), measure.vars = prob_cols, variable.name = "method", value.name = "p.value")
+  type_1 <- res_long[, .(Type_I=sum(p.value < 0.05)/niter), by=.(blots, rho, method)]
+  type_1_wide <- dcast(type_1, blots ~ method, value.var = "Type_I")
+  return(type_1_wide)
+}
+```
+
+
+### Results and consequences
+
+The simulation computes type I error at all combinations of $blots$ in (2, 3, 4) and $rho$ in (0, 0.5). The parameter $blots$ is the number of unique blots. The number of replicates per blot is n/blots. With n=4 and blots=3, there are 1, 1, and 2 replicates in the three blots. This is the case for the pMet response in Fig 1C. The paramter $rho$ is the expected correlation between the reference level and either the control or treatment level. When $rho = 0$ there is no correlation and there would be no need to adjust (or normalize) for a reference such as Gapdh.
+
+Note: With n=4 and blots=4 (1 replicate per blot), norm2 and norm3 are equal but a linear model or two-sample t-test on norm2 wouldn't make much sense as all values of control are equal to 1.0. This is avoided using norm3 (regardless of number of replicates per blot) because the p-value for norm3 is computed using one-sample t-test with mu=1. 
+
+```{r simulation-1}
+# parameters
+# n=4, # number of replicates per treatment level
+# blots=blots_i, # number of blots. Reps/blot = n/blots
+# niter=1000, # number of iterations
+# rho=0, # correlation between the reference value and that of a control level
+# s_kappa=1, # effect of multiplicative treatment on shape
+# s_theta=1, # effect of multiplicative treatment on scale
+# kappa_0=80, # shape parameter for reference
+# theta_0=100, # scale parameter for reference
+# kappa_1=30, # shape parameter for control
+# theta_1=100 # scale parameter for control
+simulate_it <- TRUE
+which_sim <- "sim2"
+set.seed(1) # resetting each combo
+if(which_sim=="sim1"){
+  file_path <- here(output_path, "normalization_II_sim1b.rds")
+  n <- 4
+  blots_vec <- c(1, 2, 3, 4) 
+  reps_per_blot_mat <- t(matrix(c(c(rep(4, 1), rep(NA, 3)),
+                                  c(rep(2, 2), rep(NA, 2)),
+                                  c(c(1, 1, 2), rep(NA, 1)),
+                                  rep(1, 4)), ncol=4))
+}
+if(which_sim=="sim2"){
+  file_path <- here(output_path, "normalization_II_sim2.rds")
+  n <- 10
+  blots_vec <- c(1, 2, 5, 10) # number of blots
+  
+  reps_per_blot_mat <- t(matrix(c(c(rep(10, 1), rep(NA, 9)),
+                                  c(rep(5, 2), rep(NA, 8)),
+                                  c(rep(2, 5), rep(NA, 5)),
+                                  rep(1, 10)), ncol=4))
+}
+if(simulate_it==TRUE){
+  n_iter <- 5000
+  rho_vec <- c(0, 0.5) # cor between ref and either cn or tr
+  sim_combo <- expand.grid(blots=blots_vec, rho=rho_vec)
+  
+  blot_id_mat <- data.frame(matrix(nrow=nrow(reps_per_blot_mat), ncol=n))
+  for(i in 1:nrow(reps_per_blot_mat)){
+    reps_per_blot <- na.omit(reps_per_blot_mat[i,])
+    blot_names <- paste0("blot", seq_along(reps_per_blot))
+    blot_id_mat[i,] <- rep(blot_names, times=reps_per_blot)
+  }
+  blot_id_mat$blots <- blots_vec
+   sim_combo <- data.table(merge(sim_combo, blot_id_mat, by="blots"))
+  blot_id_cols <- paste0("X", 1:n)
+  
+  res <- data.table(NULL)
+  for(combo in 1:nrow(sim_combo)){
+    blots_i <- sim_combo[combo, blots]
+    blot_id_i <- unlist(sim_combo[combo, .SD, .SDcols=blot_id_cols])
+    rho_i <- sim_combo[combo, rho]
+    res <- rbind(res, 
+                 data.table(blots=blots_i,
+                            rho=rho_i,
+                            iterate_experiment(
+                              n=n,
+                              blot_id=blot_id_i,
+                              niter=n_iter,
+                              rho=rho_i,
+                              s_kappa=1,
+                              s_theta=1,
+                              kappa_0=80,
+                              theta_0=100,
+                              kappa_1=30,
+                              theta_1=100
+                            )))
+    
+  }
+  saveRDS(res, file = file_path)
+}else{
+  res <- readRDS(file = file_path)
+}
+
+```
+
+```{r simulation_1_table}
+type1 <- get_type_1_table(res[rho==0])
+knitr::kable(type1, caption="rho = 0")
+type1 <- get_type_1_table(res[rho==0.5])
+knitr::kable(type1, caption="rho = 0.5")
+```
+
+The correlation parameter $rho$ doesn't have much of an effect. Norm1 and Norm2 have nominal Type I error but note that this is the *unconditional* type I error. Both have inflated Type I error *conditional on the difference in the mean value of the reference between the control and treatment* -- [this is explored here](https://rdoodles.rbind.io/2019/10/normalization-results-in-regression-to-the-mean/.
+
+Norm3 has inflated Type I error when each blot has only a single replicate of each treatment level but has nominal Type I when all replicates are on a single blot. Note that $norm2 = norm1$ when there is all replicates are on one blot. And, as mentioned above, it makes less and less sense to analyze norm2 using a two-sample 2-test as the number of blots approaches n (because the variance in the control sample goes to zero)
+
+```{r}
+plot_prob_t1(res[blots==10 & rho==0.5])
+
+```
+
+### Exploring the parameter space a bit
+
+Here I repeat the above but using n=10 with four ways of dividing this up among blots: 1) one blot containing all replicates, 2) two blots containing five replicates each, 3) 5 blots containing two replicates each, and 4) ten blots each containing one replicate.
+
+```{r simlation-2}
+# parameters
+# n, # number of replicates per treatment level
+# blots, # number of blots. Reps/blot = n/blots
+# niter, # number of iterations
+# rho, # correlation between the reference value and that of a control level
+# s_kappa, # effect of multiplicative treatment on shape
+# s_theta, # effect of multiplicative treatment on scale
+# kappa_0, # shape parameter for reference
+# theta_0, # scale parameter for reference
+# kappa_1, # shape parameter for control
+# theta_1 # scale parameter for control
+simulate_it <- FALSE
+set.seed(1)
+file_path <- here(output_path, "normalization_II_sim2.rds")
+
+n <- 10 # sample per treatment level
+n_iter <- 5000
+blots_vec <- c(1, 2, 5, 10) # number of blots
+rho_vec <- c(0, 0.5) # cor between ref and either cn or tr
+sim_combo <- expand.grid(blots=blots_vec, rho=rho_vec)
+
+reps_per_blot_mat <- t(matrix(c(c(rep(10, 1), rep(NA, 9)),
+                                c(rep(5, 2), rep(NA, 8)),
+                                c(rep(2, 5), rep(NA, 5)),
+                                rep(1, 10)), ncol=4))
+sim_combo <- data.table(cbind(sim_combo, reps_per_blot_mat))
+reps_per_blot_names <- as.character(1:n)
+
+res <- data.table(NULL)
+if(simulate_it==TRUE){
+  for(combo in 1:nrow(sim_combo)){
+    blots_i <- sim_combo[combo, blots]
+    reps_per_blot_i <- na.omit(as.numeric(sim_combo[combo, .SD, 
+                                                    .SDcols=reps_per_blot_names]))
+    rho_i <- sim_combo[combo, rho]
+    res <- rbind(res, 
+                 data.table(blots=blots_i,
+                            rho=rho_i,
+                            iterate_experiment(
+                              n=n,
+                              reps_per_blot=reps_per_blot_i,
+                              niter=n_iter,
+                              rho=rho_i,
+                              s_kappa=1,
+                              s_theta=1,
+                              kappa_0=80,
+                              theta_0=100,
+                              kappa_1=30,
+                              theta_1=100
+                            )))
+    
+  }
+  saveRDS(res, file = file_path)
+}else{
+  res <- readRDS(file = file_path)
+}
+
+```
+
+```{r simulation-2-table}
+prob_cols <- c("lm","norm1", "norm2","norm3")
+niter <- nrow(res)/length(unique(res[, blots]))/length(unique(res[, rho]))
+res_long <- melt(res, id.vars = c("blots", "rho"), measure.vars = prob_cols, variable.name = "method", value.name = "p.value")
+type_1 <- res_long[, .(Type_I=sum(p.value < 0.05)/niter), by=.(blots, rho, method)]
+type_1_wide = dcast(type_1[rho==0], blots ~ method, value.var = "Type_I")
+knitr::kable(type_1_wide)
+type_1_wide = dcast(type_1[rho==0.5], blots ~ method, value.var = "Type_I")
+knitr::kable(type_1_wide)
+```
+
+The results are effectively the same as n=4 with perhaps increased inflation of Type I error with norm3 when all replicates are in a single blot (or similarly, rescaling by the mean of all control values)
