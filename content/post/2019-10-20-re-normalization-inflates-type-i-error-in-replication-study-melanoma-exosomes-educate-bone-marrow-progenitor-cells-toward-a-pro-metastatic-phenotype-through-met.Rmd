@@ -1,5 +1,5 @@
 ---
-title: 'Re-normalization inflates Type I error in Replication Study: Melanoma exosomes
+title: 'Re-normalization Inflates Type I error in Replication Study: Melanoma exosomes
   educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET'
 author: Jeff Walker
 date: '2019-10-20'
@@ -14,15 +14,23 @@ keywords:
   - tech
 ---
 
-Fig 1C of the [Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET](https://elifesciences.org/articles/39944) uses an odd (to me) three stage normalization procedure for the quantified western blots. The authors compared blot values of a treatment (Met or pMet) to a control (shScr) using Gapdh to normalize the values. The three stages of the normalization are
+Fig 1C of the [Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET](https://elifesciences.org/articles/39944) uses an odd (to me) three stage normalization procedure for the quantified western blots. The authors compared blot values of a treatment (Met or pMet) to a control (shScr) using GAPDH to normalize the values. The three stages of the normalization are
 
-1. first, the value for the Antibody levels were normalized by the value of a reference (Gapdh) for each Set. This is the typical normalization throughout bench biology.
-2. second, the Gapdh-normalized values were rescaled by the mean of the Gapdh-normalized values for the shScr Condition within each combination of Antibody+Type+Blot. And,
+1. first, the value for the Antibody levels were normalized by the value of a reference (GAPDH) for each Set. This is the typical normalization throughout bench biology.
+2. second, the GAPDH-normalized values were rescaled by the mean of the GAPDH-normalized values for the shScr Condition within each combination of Antibody+Type+Blot. And,
 3. third, *all* values in the shScr group were assigned to 1 (since the mean within the Condition level is 1). The statistical test then is a one-sample t-test of shMet with $\mu=1$.
 
-Stage 1 can introduce inflated *conditional* type I error due to regression to the mean. I explore that here. Stage 3 would seem to introduce inflated unconditional type I error simply because one is wiping out the variation in the treatment. I explore that here.
+Stage 1 can introduce inflated *conditional* type I error due to regression to the mean. I explore that here. Stage 3 would seem to introduce inflated marginal (or unconditional) type I error simply because one is wiping out the variation in the treatment. I explore that here.
 
-This post has two parts. Part 1 is a replication of Fig 1c using my own script and to familiarize myself with the data. Part 2 is a simulation of the consequences of the three stage normalization.
+This post has two parts. Part 1 is a replication of Fig 1c using my own script and to familiarize myself with the data. Part 2 is a simulation of the consequences of the normalization methods on Type I error.
+
+# Conditional v marginal type I error
+
+Normalizing a value using a reference, such as GAPDH, is used to increase the precision of a treatment effect by removing the noise in band intensity due to non-biological sources of variation. The reference value (intensity) is the proxy for this variation and the treatment or control values are expected to go up and down (that is have a positive correlation) with this reference. Normalizing by a reference value assumes that the correlation between reference values and either control or treatment values is 1.0 -- that is they are precisely similarly effected by the non-biological sources of variation. At an correlation less that 1.0, there will be some consequence of [regression to the mean](https://www.middleprofessor.com/files/quasipubs/change_scores.html) due to the vicissitudes of sampling. This consequence is largest when the true correlation between reference values and control/treatment values is zero.
+
+The consequences of regression to the mean on type I error can be shown by plotting the probability of type I error against the observed difference in the reference value between treatment and control, which I'll refer to as $\Delta Gapdh$ since GAPDH is the reference in the focal study. An increase in the probability of type I error as the magnitude of $\Delta Gapdh$ increases is the result of regression to the mean -- an experiment with a larger $\Delta Gapdh$ is more likely to result in a larger observed treatment effect, when no true treatment effect exists, and therefore more likely to result in small *p*-values and inflated type I error.
+
+The type I error as a function of the magnitude of $\Delta Gapdh$ is the **conditional type I error** because it is conditional on $\Delta Gapdh$. I refer to the type I error taken over all values of $\Delta Gapdh$ as the **marginal type I error**. The marginal type I error is the type I error that we usually talk about (because we usually don't think of it as being conditioned on some aspect of the experiment)
 
 # Reproducibility
 The authors archived the code with the article, which is a major positive of the Cancer Reproducibility project. My goal here is to reproduce the results writing my own script and without looking at the author's scripts (If the original researchers have an error in their code than simply running their code would reproduce the error. The goal of my reproducibility projects are to reproduce what researchers *say* they do).
@@ -56,12 +64,12 @@ exp1[, Condition := factor(Condition, c("shScr", "shMet"))]
 
 Create normalized values
 
-1. norm1 is the conventional normalization using the reference (Gapdh) value.
+1. norm1 is the conventional normalization using the reference (GAPDH) value.
 2. norm2 is norm1 rescaled by the mean of shScr
 3. norm3 is setting all rescalings of shScr to = 1
 
 ```{r reproducibility}
-# get Gapdh ref for each row to rescale ("normalize") by Gapdh
+# get GAPDH ref for each row to rescale ("normalize") by GAPDH
 gapdh_ref.dt <- exp1[Antibody=="Gapdh", .(gapdh_ref=mean(Value)), by=Set]
 exp1.v1 <- merge(exp1, gapdh_ref.dt, by="Set")
 exp1.v1[, norm1:=Value/gapdh_ref]
@@ -104,11 +112,11 @@ plot_grid(gg1, gg2, gg3, gg4, nrow=2)
 
 ```
 
-The two bottom plots reproduce Fig 1C from the paper, which uses norm3. The two top plots are scaled by Gapdh but not shScr (norm1)
+The two bottom plots reproduce Fig 1C from the paper, which uses norm3. The two top plots are scaled by GAPDH but not shScr (norm1)
 
 ## What are the consequences of normalization? Compare to linear model with Gapdh as covariate
 
-Here I compare p-values of linear models of the effect of $Condition$ on blot value using the three normalizations, no normalization, and a linear model ("lm") with Gapdh as a covariate, which is the preferred method of adjusting for set-specific variation among many statistisians.
+Here I compare p-values of linear models of the effect of $Condition$ on blot value using the three normalizations, no normalization, and a linear model ("lm") with $Gapdh$ as a covariate, which is the preferred method of adjusting for set-specific variation among many statistisians.
 
 ### Met
 m1 is the preferred method. m2 is conventional normalization. m4 is what the author's did.
@@ -158,27 +166,38 @@ knitr::kable(data.table(Method=c("lm", "none", "norm1", "norm2", "norm3"),
 
 ```
 
-It's pretty clear that norm2 and especially norm3 have consequences. Are these re-normalizations inflating Type I error?
+It's pretty clear that norm2 and especially norm3 have consequences. Are these re-normalizations inflating type I error?
 
 ## Simulations
 
-Simulate the experiment in Fig 1 C of the paper. Effectively, this simulates an experiment with one control level, one treatment level, and a sample size of 4 (per level). Control and treatment levels are adjusted using a reference level (simulating Gapdh). The adjustments are 1) lm (linear model with Gapdh has covariate), 2) norm1 (the ratio of the control or treatment level divided by Gapdh level), 3) norm2 (norm1 rescaled  to the control mean) and 4) norm3, equivalent to norm2 but all control levels reset to equal one.
+Simulate the experiment in Fig 1 C of the paper. Effectively, this simulates an experiment with one control level, one treatment level, and a sample size of 4 (per level). Control and treatment levels are adjusted using a reference level (simulating GAPDH). The adjustments are 1) lm (linear model with $Gapdh$ has covariate), 2) norm1 (the ratio of the control or treatment level divided by $Gapdh$ level), 3) norm2 (norm1 rescaled  to the control mean) and 4) norm3, equivalent to norm2 but the values for control are set to equal one.
 
 ### What is correlation between gapdh and control or treatment?
-```{r}
-cor(exp1.v1[Condition=="shScr" & Antibody=="Met", Value], exp1.v1[Condition=="shMet" & Antibody=="Met", gapdh_ref])
-cor(exp1.v1[Condition=="shScr" & Antibody=="Met", Value], exp1.v1[Condition=="shScr" & Antibody=="Met", gapdh_ref])
-cor(exp1.v1[Condition=="shScr" & Antibody=="pMet", Value], exp1.v1[Condition=="shMet" & Antibody=="pMet", gapdh_ref])
-cor(exp1.v1[Condition=="shScr" & Antibody=="pMet", Value], exp1.v1[Condition=="shScr" & Antibody=="pMet", gapdh_ref])
 
-cor(exp1.v1[Condition=="shScr" & Antibody=="Met" & Type=="Cells", Value], 
-    exp1.v1[Condition=="shMet" & Antibody=="Met" & Type=="Cells", gapdh_ref])
-cor(exp1.v1[Condition=="shScr" & Antibody=="Met" & Type=="Cells", Value], 
-    exp1.v1[Condition=="shScr" & Antibody=="Met" & Type=="Cells", gapdh_ref])
-cor(exp1.v1[Condition=="shScr" & Antibody=="pMet" & Type=="Cells", Value],
-    exp1.v1[Condition=="shMet" & Antibody=="pMet" & Type=="Cells", gapdh_ref])
-cor(exp1.v1[Condition=="shScr" & Antibody=="pMet" & Type=="Cells", Value], 
-    exp1.v1[Condition=="shScr" & Antibody=="pMet" & Type=="Cells", gapdh_ref])
+Various estimates of the true correlation between conditional response (conditioned on treatment level) and the reference value for the focal data. The true correlation is estimated with large error, because of the small sample size, so the estimates here are very uncertain. Nevertheless, the different estimates are pretty consistent that this correlation is very small. Regardless, Keep these values in mind.
+
+```{r}
+fit <- lm(Value ~ Condition + Type + Antibody,
+          data=exp1.v1[Antibody!="Gapdh"])
+cor(residuals(fit), exp1.v1[Antibody!="Gapdh", gapdh_ref])
+
+fit <- lm(Value ~ Condition + Antibody,
+          data=exp1.v1[Antibody!="Gapdh" & Type=="Cells"])
+cor(residuals(fit), exp1.v1[Antibody!="Gapdh" & Type=="Cells", gapdh_ref])
+
+fit <- lm(Value ~ Condition + Type, data=exp1.v1[Antibody=="Met"])
+cor(residuals(fit), exp1.v1[Antibody=="Met", gapdh_ref])
+
+fit <- lm(Value ~ Condition, data=exp1.v1[Antibody=="Met" & Type=="Cells"])
+cor(residuals(fit), exp1.v1[Antibody=="Met" & Type=="Cells", gapdh_ref])
+
+fit <- lm(Value ~ Condition, data=exp1.v1[Antibody=="pMet"])
+cor(residuals(fit), exp1.v1[Antibody=="pMet", gapdh_ref])
+
+fit <- lm(Value ~ Condition, data=exp1.v1[Antibody=="pMet" & Type=="Cells"])
+cor(residuals(fit), exp1.v1[Antibody=="pMet" & Type=="Cells", gapdh_ref])
+
+
 
 ```
 
@@ -189,11 +208,13 @@ exp1[Antibody=="Met" & Type=="Cells", .(N=.N), by=.(Antibody, Type, Blot, Condit
 exp1[Antibody=="pMet" & Type=="Cells", .(N=.N), by=.(Antibody, Type, Blot, Condition)]
 ```
 
-If there were one replicate per blot (with both treatment and control) then the control values would all be 1.0 following norm2. This seems to be the reason for norm3. In the paper there Met data: one replicate in one blot and two replicates in one blot for the Met data (so n=3); pMet data: one replicate in two blots and two replicates in two blots (so n=4).
+Met data: one replicate in one blot and two replicates in one blot for the Met data (so n=3); 
+
+pMet data: one replicate in two blots and two replicates in one blots (so n=4). 
 
 ### Simulation functions
 
-The main function for generating a data set with a control, a treatment, and a reference for normalization. norm2 adjusts for blot by re-scaling the mean of the norm1 value for the control. Blot should be properly simulated using a multilevel model with random blot effect but here I just assume the blot mu is fixed.
+The functions for generating a data set with a control, a treatment, and a reference for normalization. norm1, norm2, and norm3 are defined as above. The parameter rho controls the expected correlation between the reference and either the control or treatment. The explored values are (0, 0.3, 0.6). Note the empirical estimates of rho are close to zero.
 
 
 ```{r simulation-experiment}
@@ -399,9 +420,8 @@ get_type_1_table <- function(res){
 
 ### Results and consequences
 
-The simulation computes type I error at all combinations of $blots$ in (2, 3, 4) and $rho$ in (0, 0.5). The parameter $blots$ is the number of unique blots. The number of replicates per blot is n/blots. With n=4 and blots=3, there are 1, 1, and 2 replicates in the three blots. This is the case for the pMet response in Fig 1C. The paramter $rho$ is the expected correlation between the reference level and either the control or treatment level. When $rho = 0$ there is no correlation and there would be no need to adjust (or normalize) for a reference such as Gapdh.
+The simulation computes type I error at all combinations of $blots$ in (1, 2, 3, 4) and $rho$ in (0, 0.3, 0.6). The parameter $blots$ is the number of unique blots. The number of replicates per blot is n/blots, so with blots=1 there is one blot with four replicates. With n=4 and blots=3, there are 1, 1, and 2 replicates in the three blots, which is the case for pMet in Fig 1C. The parameter $rho$ is the expected correlation between the reference level and either the control or treatment level. When $rho = 0$ there is no correlation and there would be no need to adjust (or normalize) for a reference such as GAPDH. Again, the empirical estimate of rho are close to zero.
 
-Note: With n=4 and blots=4 (1 replicate per blot), norm2 and norm3 are equal but a linear model or two-sample t-test on norm2 wouldn't make much sense as all values of control are equal to 1.0. This is avoided using norm3 (regardless of number of replicates per blot) because the p-value for norm3 is computed using one-sample t-test with mu=1. 
 
 ```{r simulation}
 # parameters
@@ -415,11 +435,13 @@ Note: With n=4 and blots=4 (1 replicate per blot), norm2 and norm3 are equal but
 # theta_0=100, # scale parameter for reference
 # kappa_1=30, # shape parameter for control
 # theta_1=100 # scale parameter for control
-simulate_it <- FALSE
-which_sim <- "sim2"
+simulate_it <- TRUE
+which_sim <- "sim1"
 set.seed(1) # resetting each combo
 if(which_sim=="sim1"){
   file_path <- here(output_path, "normalization_II_sim1.rds")
+  n_iter <- 5000
+  rho_vec <- c(0, 0.3, 0.6) # cor between ref and either cn or tr
   n <- 4
   blots_vec <- c(1, 2, 3, 4) 
   reps_per_blot_mat <- t(matrix(c(c(rep(4, 1), rep(NA, 3)),
@@ -429,6 +451,8 @@ if(which_sim=="sim1"){
 }
 if(which_sim=="sim2"){
   file_path <- here(output_path, "normalization_II_sim2.rds")
+  n_iter <- 5000
+  rho_vec <- c(0, 0.3, 0.6) # cor between ref and either cn or tr
   n <- 10
   blots_vec <- c(1, 2, 5, 10) # number of blots
   
@@ -438,8 +462,6 @@ if(which_sim=="sim2"){
                                   rep(1, 10)), ncol=4))
 }
 if(simulate_it==TRUE){
-  n_iter <- 5000
-  rho_vec <- c(0, 0.5) # cor between ref and either cn or tr
   sim_combo <- expand.grid(blots=blots_vec, rho=rho_vec)
   
   blot_id_mat <- data.frame(matrix(nrow=nrow(reps_per_blot_mat), ncol=n))
@@ -482,36 +504,82 @@ if(simulate_it==TRUE){
 ```
 
 ## Simulation results for data n=4 (that of replication study)
-### Unconditional Type I error
+### marginal type I error
+
+Again, the marginal type I error is just the normal type I error.
+
 ```{r simulation_1_table}
 file_path <- here(output_path, "normalization_II_sim1.rds")
 res <- readRDS(file = file_path)
-type1 <- get_type_1_table(res[rho==0])
-knitr::kable(type1, caption="rho = 0")
-type1 <- get_type_1_table(res[rho==0.5])
-knitr::kable(type1, caption="rho = 0.5")
+
+type1_a <- get_type_1_table(res[rho==0])
+type1_b <- get_type_1_table(res[rho==0.3])
+type1 <- cbind(type1_a, type1_b[, .SD, .SDcols=c("lm", "norm1", "norm2", "norm3")])
+type1_kable <- knitr::kable(type1, full_width=FALSE, digits=3)
+type1_kable <- kableExtra::add_header_above(type1_kable, c(" " = 1, "rho = 0" = 4, "rho = 0.3" = 4))
+type1_kable
 ```
 
-The correlation parameter $rho$ doesn't have much of an effect. Norm1 and Norm2 have nominal Type I error but note that this is the *unconditional* type I error. Both have inflated Type I error *conditional on the difference in the mean value of the reference between the control and treatment* -- [this is explored here](https://rdoodles.rbind.io/2019/10/normalization-results-in-regression-to-the-mean/.
+The correlation parameter $rho$ doesn't have much of an effect. Both lm and norm1 have nominal type I error regardless of rho or number of blots. Type I error of norm2 is increasingly inflated as the number of blots increases and the number of replicates/blot decreases. The reverse is the case for type I error of norm3 -- type I error is inflated when all replicates are on a single blot. Note that the type I error for lm and norm1 are not a function of how replicates are structured.
 
-Norm3 has inflated Type I error when each blot has only a single replicate of each treatment level but has nominal Type I when all replicates are on a single blot. Note that $norm2 = norm1$ when there is all replicates are on one blot. And, as mentioned above, it makes less and less sense to analyze norm2 using a two-sample 2-test as the number of blots approaches n (because the variance in the control sample goes to zero)
+### Conditional type I error (on the difference in GAPDH between control and treatment)
 
-### Conditional Type I error (on the difference in Gapdh between control and treatment)
-#### No expected correlation between Gapdh level and either control or treatment level
+The plots below are expected type I error conditional on the magnitude of $\Delta Gapdh$ when there are 3 blots (close to the actual data) and $rho=0$. Expected type I error is approximately nominal (0.05) across all levels of $\Delta Gapdh$, as expected. Expected type I error is  strongly conditional on $\Delta Gapdh$ for all three normalizations.
+```{r}
+plot_prob_t1(res[blots==3 & rho==0])
+
+```
+
+The plots below are expected type I error conditional on the magnitude of $\Delta Gapdh$ when there are 3 blots (that of actual data) and $rho=0.3$. Expected type I error for lm with $Gapdh$ as a covariate is approximately nominal (0.05) across all levels of $\Delta Gapdh$, as expected. Expected type I error increases with $\Delta Gapdh$ for all three normalizations.
+
+```{r}
+plot_prob_t1(res[blots==1 & rho==0.3])
+```
+
+Conclusions
+
+1. Both marginal and conditional type I error is well controlled using the linear model with the reference (GAPDH) as a covariate
+2. Marginal type I error is well controlled using conventional normalization (norm1) but conditional type I error can be highly inflated as the magnitude of $\Delta Gapdh$ increases and especially when the correlation between the reference and control/treatment values is small.
+3. Marginal type I error for norm2 (renormalization using the control) is well controlled when there are many replicates per blot but increases above nominal when the number of replicates per blot decreases to one. Conditional type I error can be highly inflated as the magnitude of $\Delta Gapdh$ increases and especially when the correlation between the reference and control/treatment values is small.
+4. Marginal type I error for norm3 (setting control values to 1.0) is well controlled when there is one replicate per blot but increases above nominal when the number of replicates per blot increases. Conditional type I error can be highly inflated as the magnitude of $\Delta Gapdh$ increases and especially when the correlation between the reference and control/treatment values is small.
+
+## Simulation results for data n=10
+
+Results for larger study (n=10) without comment other than these essentially reinforce all comments above.
+
+### marginal type I error
+```{r}
+file_path <- here(output_path, "normalization_II_sim2.rds")
+res <- readRDS(file = file_path)
+
+type1_a <- get_type_1_table(res[rho==0])
+type1_b <- get_type_1_table(res[rho==0.5])
+type1 <- cbind(type1_a, type1_b[, .SD, .SDcols=c("lm", "norm1", "norm2", "norm3")])
+type1_kable <- knitr::kable(type1, full_width=FALSE, digits=3)
+type1_kable <- kableExtra::add_header_above(type1_kable, c(" " = 1, "rho = 0" = 4, "rho = 0.5" = 4))
+type1_kable
+```
+### Conditional type I for rho=0
 ```{r}
 plot_prob_t1(res[blots==1 & rho==0])
 plot_prob_t1(res[blots==2 & rho==0])
-plot_prob_t1(res[blots==3 & rho==0])
-plot_prob_t1(res[blots==4 & rho==0])
+plot_prob_t1(res[blots==5 & rho==0])
+plot_prob_t1(res[blots==10 & rho==0])
 ```
 
-#### Expected correlation between Gapdh level and either control or treatment level is 0.5
+### Conditional type I for rho=0.5
+```{r}
+plot_prob_t1(res[blots==1 & rho==0.6])
+plot_prob_t1(res[blots==2 & rho==0.6])
+plot_prob_t1(res[blots==5 & rho==0.6])
+plot_prob_t1(res[blots==10 & rho==0.6])
+```
 
 ```{r}
-plot_prob_t1(res[blots==1 & rho==0.5])
-plot_prob_t1(res[blots==2 & rho==0.5])
-plot_prob_t1(res[blots==3 & rho==0.5])
-plot_prob_t1(res[blots==4 & rho==0.5])
+plot_effects(res[blots==1 & rho==0.5])
+plot_effects(res[blots==2 & rho==0.5])
+plot_effects(res[blots==5 & rho==0.5])
+plot_effects(res[blots==10 & rho==0.5])
 
 ```
 
