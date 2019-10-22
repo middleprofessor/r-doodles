@@ -234,7 +234,6 @@ get_fake_data <- function(
   y2 <- rgamma(n*2, shape=kappa_1_i - rho*sqrt(kappa_0*kappa_1_i), scale=1)
   y3 <- rgamma(n*2, shape=rho*sqrt(kappa_0*kappa_1), scale=1)
   fd <- data.table(
-    iter=i,
     treatment=rep(c("cn", "tr"), each=n),
     gapdh=theta_0*(y1+y3),
     value=theta_1_i*(y2+y3)
@@ -285,6 +284,7 @@ iterate_experiment <- function(
   effects_dt <- data.table(matrix(-9999, nrow=niter, ncol=length(effect_cols)))
   setnames(effects_dt, old=colnames(effects_dt), new=effect_cols)
   r <- numeric(niter) # dor between control and gapdh values
+  se.norm1 <- numeric(niter) # se.norm1
   set.seed(1) # yes I want to reset this to the same with each combo
   for(iter in 1:niter){
     fd <- simulate_experiment(
@@ -298,21 +298,27 @@ iterate_experiment <- function(
       kappa_1=kappa_1, # shape parameter for control
       theta_1=theta_1 # scale parameter for control
     )
-    r[iter] <- cor(fd[treatment=="cn", gapdh], fd[treatment=="cn", value])
     m1 <- lm(value ~ gapdh + treatment, data=fd)
-    prob[iter, lm := coef(summary(m1))["treatmenttr", "Pr(>|t|)"]]
-    prob[iter, norm1 := t.test(fd[treatment=="cn", norm1], fd[treatment=="tr", norm1], var.equal=TRUE)$p.value]
+    m1.coef <- coef(summary(m1))
+    prob[iter, lm := m1.coef["treatmenttr", "Pr(>|t|)"]]
+    m2 <- lm(norm1 ~ treatment, data=fd)
+    m2.coef <- coef(summary(m2))
+    prob[iter, norm1 := m2.coef["treatmenttr", "Pr(>|t|)"]]
+    # prob[iter, norm1 := t.test(fd[treatment=="cn", norm1], fd[treatment=="tr", norm1], var.equal=TRUE)$p.value]
     prob[iter, norm2 := t.test(fd[treatment=="cn", norm2], fd[treatment=="tr", norm2], var.equal=TRUE)$p.value]
     prob[iter, norm3 := t.test(x=fd[treatment=="tr", norm3], mu=1)$p.value]
     
     effects_dt[iter, delta_gapdh := mean(fd[treatment=="tr", gapdh]) - mean(fd[treatment=="cn", gapdh])]
-    effects_dt[iter, effect_lm := coef(summary(m1))["treatmenttr", "Estimate"]]
-    effects_dt[iter, effect_norm1 := mean(fd[treatment=="tr", norm1]) - mean(fd[treatment=="cn", norm1])]
+    effects_dt[iter, effect_lm := m1.coef["treatmenttr", "Estimate"]]
+    effects_dt[iter, effect_norm1 := m2.coef["treatmenttr", "Estimate"]]
     effects_dt[iter, effect_norm2 := mean(fd[treatment=="tr", norm2]) - mean(fd[treatment=="cn", norm2])]
     effects_dt[iter, effect_norm3 := mean(fd[treatment=="tr", norm3]) - 1]
+    
+    r[iter] <- cor(fd[treatment=="cn", gapdh], fd[treatment=="cn", value])
+    se.norm1[iter] <- m2.coef["treatmenttr", "Std. Error"]
   }
   return(
-    data.table(prob, effects_dt, cor=r)
+    data.table(prob, effects_dt, cor=r, se_norm1=se.norm1)
   )
 }
 
@@ -368,6 +374,45 @@ plot_effects <- function(res){
   gg4 <- qplot(x=res$delta_gapdh/10^3, y=res$effect_norm3) +
     geom_smooth(method="lm") +
     ggtitle("Norm3") +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  gg <- plot_grid(gg1, gg2, gg3, gg4, nrow=2)
+  return(gg)
+}
+
+plot_se <- function(res){
+  prob_cols <- c("lm", "norm1", "norm2", "norm3")
+  blot_levels <- unique(res$blots)
+  i <- 1
+  gg1 <- qplot(x=res[blots==blot_levels[i], delta_gapdh/10^3], y=res[blots==blot_levels[i], se_norm1]) +
+    geom_smooth(method="lm") +
+    ggtitle(paste("blots =", blot_levels[i])) +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  i <- 2
+  gg2 <- qplot(x=res[blots==blot_levels[i], delta_gapdh/10^3], y=res[blots==blot_levels[i], se_norm1]) +
+    geom_smooth(method="lm") +
+    ggtitle(paste("blots =", blot_levels[i])) +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  i <- 3
+  gg3 <- qplot(x=res[blots==blot_levels[i], delta_gapdh/10^3], y=res[blots==blot_levels[i], se_norm1]) +
+    geom_smooth(method="lm") +
+    ggtitle(paste("blots =", blot_levels[i])) +
+    xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
+    ylab("Effect") +
+    theme_minimal() +
+    NULL
+  i <- 4
+  gg4 <- qplot(x=res[blots==blot_levels[i], delta_gapdh/10^3], y=res[blots==blot_levels[i], se_norm1]) +
+    geom_smooth(method="lm") +
+    ggtitle(paste("blots =", blot_levels[i])) +
     xlab(expression(paste(Gapdh[t] - Gapdh[c],  "(X 1000)"))) +
     ylab("Effect") +
     theme_minimal() +
@@ -436,7 +481,7 @@ The simulation computes type I error at all combinations of $blots$ in (1, 2, 3,
 # kappa_1=30, # shape parameter for control
 # theta_1=100 # scale parameter for control
 simulate_it <- TRUE
-which_sim <- "sim1"
+which_sim <- "sim2"
 set.seed(1) # resetting each combo
 if(which_sim=="sim1"){
   file_path <- here(output_path, "normalization_II_sim1.rds")
@@ -450,9 +495,9 @@ if(which_sim=="sim1"){
                                   rep(1, 4)), ncol=4))
 }
 if(which_sim=="sim2"){
-  file_path <- here(output_path, "normalization_II_sim2.rds")
-  n_iter <- 5000
-  rho_vec <- c(0, 0.3, 0.6) # cor between ref and either cn or tr
+  file_path <- here(output_path, "normalization_II_sim2b.rds")
+  n_iter <- 10000
+  rho_vec <- c(0.5) # cor between ref and either cn or tr
   n <- 10
   blots_vec <- c(1, 2, 5, 10) # number of blots
   
@@ -549,7 +594,7 @@ Results for larger study (n=10) without comment other than these essentially rei
 
 ### marginal type I error
 ```{r}
-file_path <- here(output_path, "normalization_II_sim2.rds")
+file_path <- here(output_path, "normalization_II_sim2b.rds")
 res <- readRDS(file = file_path)
 
 type1_a <- get_type_1_table(res[rho==0])
@@ -569,10 +614,10 @@ plot_prob_t1(res[blots==10 & rho==0])
 
 ### Conditional type I for rho=0.5
 ```{r}
-plot_prob_t1(res[blots==1 & rho==0.6])
-plot_prob_t1(res[blots==2 & rho==0.6])
-plot_prob_t1(res[blots==5 & rho==0.6])
-plot_prob_t1(res[blots==10 & rho==0.6])
+plot_prob_t1(res[blots==1 & rho==0.5])
+plot_prob_t1(res[blots==2 & rho==0.5])
+plot_prob_t1(res[blots==5 & rho==0.5])
+plot_prob_t1(res[blots==10 & rho==0.5])
 ```
 
 ```{r}
@@ -580,6 +625,11 @@ plot_effects(res[blots==1 & rho==0.5])
 plot_effects(res[blots==2 & rho==0.5])
 plot_effects(res[blots==5 & rho==0.5])
 plot_effects(res[blots==10 & rho==0.5])
+
+```
+
+```{r}
+plot_se(res[rho==0.5])
 
 ```
 
