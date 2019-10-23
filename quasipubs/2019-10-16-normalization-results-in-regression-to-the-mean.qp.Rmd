@@ -1,6 +1,10 @@
 ---
 title: 'Normalization results in regression to the mean and inflated Type I error conditional on the reference values'
-author: Jeff Walker
+author:
+  - name: Jeffrey A. Walker
+    affiliation:
+    - Department of Biological Sciences, University of Southern Maine, Portland, Maine, USA
+    - walker@maine.edu
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output:
   BiocStyle::html_document:
@@ -10,6 +14,8 @@ output:
     fig_caption: yes
     number_sections: true
     code_folding: hide
+    includes:
+      before_body: copyright.html
 ---
 # Summary
 Fig 1C of the [Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET](https://elifesciences.org/articles/39944) uses an odd (to me) three stage normalization procedure for the quantified western blots. The authors compared blot values between a treatment (shMet cells) and a control (shScr cells) using GAPDH to normalize the values. The three stages of the normalization are
