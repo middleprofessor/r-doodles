@@ -1,5 +1,5 @@
 ---
-title: 'Normalization Inflates Type I error: A Simulation Motivated by Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET'
+title: 'Normalization results in regression to the mean and inflated Type I error conditional on the reference values'
 author: Jeff Walker
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output:
@@ -30,7 +30,7 @@ The type I error as a function of the magnitude of $\Delta Gapdh$ is the **condi
 
 # Fig 1C
 
-```{r setup, include=FALSE}
+```{r setup}
 library(here)
 library(janitor)
 library(data.table)
