@@ -12,7 +12,7 @@ output:
     code_folding: hide
 ---
 # Summary
-Fig 1C of the [Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET](https://elifesciences.org/articles/39944) uses an odd (to me) three stage normalization procedure for the quantified western blots. The authors compared blot values of a treatment (Met or pMet) to a control (shScr) using GAPDH to normalize the values. The three stages of the normalization are
+Fig 1C of the [Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET](https://elifesciences.org/articles/39944) uses an odd (to me) three stage normalization procedure for the quantified western blots. The authors compared blot values between a treatment (shMet cells) and a control (shScr cells) using GAPDH to normalize the values. The three stages of the normalization are
 
 1. first, the value for the Antibody levels were normalized by the value of a reference (GAPDH) for each Set. This is the typical normalization throughout bench biology.
 2. second, the GAPDH-normalized values were rescaled by the mean of the GAPDH-normalized values for the shScr Condition within each combination of Antibody+Type+Blot. And,
