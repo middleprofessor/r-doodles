@@ -29,8 +29,8 @@ The consequences of regression to the mean on type I error can be shown by plott
 The type I error as a function of the magnitude of $\Delta Gapdh$ is the **conditional type I error** because it is conditional on $\Delta Gapdh$. I refer to the type I error taken over all values of $\Delta Gapdh$ as the **marginal type I error**. The marginal type I error is the type I error that we usually talk about (because we usually don't think of it as being conditioned on some covariate)
 
 # Fig 1C
-
-```{r setup}
+## Setup
+```{r setup, warning=FALSE, message=FALSE}
 library(here)
 library(janitor)
 library(data.table)
@@ -46,6 +46,7 @@ output_path <- "content/output"
 simulate_it=FALSE # False indicates the simulations were done and written to disc
 ```
 
+## Import
 ```{r import}
 folder <- "Data from Generation and characterization of shMet B16-F10 cells and exosomes"
 filename <- "Study_42_Figure_1_WB_quant_Data.csv"
@@ -61,6 +62,7 @@ The Met and pMet values in Fig 1C are normalized using a three-step procedure (e
 2. norm2 is norm1 rescaled by the mean of shScr.
 3. norm3 is setting all rescaled values of shScr to equal 1.
 
+## Reproducibility
 ```{r reproducibility}
 # get GAPDH ref for each row to rescale ("normalize") by GAPDH
 gapdh_ref.dt <- exp1[Antibody=="Gapdh", .(gapdh_ref=mean(Value)), by=Set]
@@ -264,7 +266,6 @@ pMet data: one replicate in two blots and two replicates in one blots (so n=4).
 
 The functions for generating a data set with a control, a treatment, and a reference for normalization. norm1, norm2, and norm3 are defined as above. The parameter rho controls the expected correlation between the reference and either the control or treatment. The explored values are (0, 0.3, 0.6). Note the empirical estimates of rho are close to zero.
 
-
 ```{r simulation-experiment}
 get_fake_data <- function(
   n=4, # number of replicates per treatment level
@@ -372,6 +373,7 @@ iterate_experiment <- function(
 
 ```
 
+## A short script to explore the distribution
 ```{r simulate-explore, eval=FALSE}
 n=10^4 # number of replicates per treatment level
 rho=0.5 # correlation between the reference value and that of a control level
@@ -515,6 +517,7 @@ plot_prob_t1_2 <- function(res, ycol, two_d=FALSE){
 }
 ```
 
+## Script for output table
 ```{r type-1-table}
 get_type_1_table <- function(res){
   prob_cols <- c("lm","norm1", "norm2","norm3")
@@ -622,29 +625,36 @@ res <- readRDS(file = file_path)
 
 type1_a <- get_type_1_table(res[rho==0])
 type1_b <- get_type_1_table(res[rho==0.3])
-type1 <- cbind(type1_a, type1_b[, .SD, .SDcols=c("lm", "norm1", "norm2", "norm3")])
-type1_kable <- knitr::kable(type1, full_width=TRUE, digits=3)
-type1_kable <- kableExtra::add_header_above(type1_kable, c(" " = 1, "rho = 0" = 4, "rho = 0.3" = 4))
-type1_kable
+
+knitr::kable(type1_a, full_width=FALSE,
+             digits=3,
+             caption="A. Marginal Type I error. rho=0.0")
+knitr::kable(type1_b, full_width=FALSE,
+             digits=3,
+             caption="B. Marginal Type I error. rho=0.3")
 ```
 
 The correlation parameter $rho$ doesn't have much of an effect. Both lm and norm1 have nominal type I error regardless of rho or number of blots. Type I error of norm2 is increasingly inflated as the number of blots increases and the number of replicates/blot decreases. The reverse is the case for type I error of norm3 -- type I error is inflated when all replicates are on a single blot. Note that the type I error for lm and norm1 are not a function of how replicates are structured.
 
 ### Conditional type I error (on the difference in GAPDH between control and treatment)
 
-```{r, fig.cap="p-values from linear model with Gapdh as covariate. The graphs are the same for all values of blots, but are shown for easy comparison with norm2 and norm3"}
+Linear Model
+```{r, fig.cap="p-values from linear model with Gapdh as covariate. The graphs are the same for all values of blots, but are shown for easy comparison with norm2 and norm3. Red line is nominal level (0.05)"}
 plot_prob_t1_2(res, ycol="lm", two_d=TRUE)
 ```
 
-```{r, fig.cap="p-values from t-test of norm1. The graphs are the same for all values of blots, but are shown for easy comparison with norm2 and norm3"}
+Norm1
+```{r, fig.cap="p-values from t-test of norm1. The graphs are the same for all values of blots, but are shown for easy comparison with norm2 and norm3. Red line is nominal level (0.05)"}
 plot_prob_t1_2(res, ycol="norm1", two_d=TRUE)
 ```
 
-```{r, fig.cap="p-values from t-test of norm2"}
+Norm2
+```{r, fig.cap="p-values from t-test of norm2. Red line is nominal level (0.05)"}
 plot_prob_t1_2(res, ycol="norm2", two_d=TRUE)
 ```
 
-```{r, fig.cap="p-values from t-test of norm3"}
+Norm3
+```{r, fig.cap="p-values from t-test of norm3. Red line is nominal level (0.05)"}
 plot_prob_t1_2(res, ycol="norm3", two_d=TRUE)
 ```
 
@@ -665,33 +675,40 @@ Combined, the simulation shows
 ## Results for n=10
 ### marginal type I error
 
-```{r}
+```{r, fig.cap="Marginal Type 1 Error"}
 file_path <- here(output_path, "normalization_II_sim2.rds")
 res <- readRDS(file = file_path)
 
 type1_a <- get_type_1_table(res[rho==0])
 type1_b <- get_type_1_table(res[rho==0.3])
-type1 <- cbind(type1_a, type1_b[, .SD, .SDcols=c("lm", "norm1", "norm2", "norm3")])
-type1_kable <- knitr::kable(type1, full_width=TRUE, digits=3)
-type1_kable <- kableExtra::add_header_above(type1_kable, c(" " = 1, "rho = 0" = 4, "rho = 0.3" = 4))
-type1_kable
+
+knitr::kable(type1_a, full_width=FALSE,
+             digits=3,
+             caption="A. Marginal Type I error. rho=0.0")
+knitr::kable(type1_b, full_width=FALSE,
+             digits=3,
+             caption="B. Marginal Type I error. rho=0.3")
 ```
 
 ### Conditional Type I error
 
-```{r, fig.cap="p-values from linear model with Gapdh as covariate. The graphs are the same for all values of blots, but are shown for easy comparison with norm2 and norm3"}
+Linear model
+```{r, fig.cap="p-values from linear model with Gapdh as covariate. The graphs are the same for all values of blots, but are shown for easy comparison with norm2 and norm3. Red line is nominal level (0.05)"}
 plot_prob_t1_2(res, ycol="lm", two_d=TRUE)
 ```
 
-```{r, fig.cap="p-values from t-test of norm1. The graphs are the same for all values of blots, but are shown for easy comparison with norm2 and norm3"}
+norm1
+```{r, fig.cap="p-values from t-test of norm1. The graphs are the same for all values of blots, but are shown for easy comparison with norm2 and norm3. Red line is nominal level (0.05)"}
 plot_prob_t1_2(res, ycol="norm1", two_d=TRUE)
 ```
 
-```{r, fig.cap="p-values from t-test of norm2"}
+norm2
+```{r, fig.cap="p-values from t-test of norm2. Red line is nominal level (0.05)"}
 plot_prob_t1_2(res, ycol="norm2", two_d=TRUE)
 ```
 
-```{r, fig.cap="p-values from t-test of norm3"}
+norm3
+```{r, fig.cap="p-values from t-test of norm3. Red line is nominal level (0.05)"}
 plot_prob_t1_2(res, ycol="norm3", two_d=TRUE)
 ```
 
