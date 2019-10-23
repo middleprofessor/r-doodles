@@ -15,9 +15,6 @@ tags:
   - normalization
 keywords:
   - tech
-output:
-  blogdown::html_page:
-    toc: true
 ---
 Fig 1C of the [Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET](https://elifesciences.org/articles/39944) uses an odd (to me) three stage normalization procedure for the quantified western blots. The authors compared blot values of a treatment (Met or pMet) to a control (shScr) using GAPDH to normalize the values. The three stages of the normalization are
 
@@ -27,4 +24,4 @@ Fig 1C of the [Replication Study: Melanoma exosomes educate bone marrow progenit
 
 As shown in the simulation below and summarized in the section [Summary of simulation results for n=4], Stage 1 can introduce inflated *conditional* type I error due to regression to the mean while stage 2 and 3 renormalizations introduce inflated marginal (or unconditional) type I error.
 
-The full post is here.
+[The full post is here](https://rdoodles.rbind.io/posts-biocstyle/2019-10-16-normalization-results-in-regression-to-the-mean.qp.html).
