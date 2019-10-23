@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Normalization on R Doodles</title>
+    <link>/tags/normalization/</link>
+    <description>Recent content in Normalization on R Doodles</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 16 Oct 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/normalization/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Normalization results in regression to the mean and inflated Type I error conditional on the reference values</title>
+      <link>/2019/10/normalization-results-in-regression-to-the-mean/</link>
+      <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/10/normalization-results-in-regression-to-the-mean/</guid>
+      <description>Fig 1C of the Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET uses an odd (to me) three stage normalization procedure for the quantified western blots. The authors compared blot values of a treatment (Met or pMet) to a control (shScr) using GAPDH to normalize the values. The three stages of the normalization are
+first, the value for the Antibody levels were normalized by the value of a reference (GAPDH) for each Set.</description>
+    </item>
+    
+  </channel>
+</rss>
