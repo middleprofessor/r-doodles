@@ -18,7 +18,7 @@ keywords:
 
 I was googling around and somehow landed on a page that stated ["When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction"](https://www.methodology.psu.edu/ra/most/femiscon/). Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R's default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.
 
-**TL;DR** It depends on how one defines "main" effect or how one parameterizes the model. If "main" effect is defined as the coefficient of a factor from a dummy-coded model (that is, the added effect due to treatment), the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states). A question is, **is the coefficient of the interaction as a measure of "effect" using dummy coding misleading since the interaction is entirely allocated to one mean?**. Or, does it make sense, at least for experiments where we think of the effect of the non-reference (or non "control") levels as "what happens" when we add stuff to the control.
+**TL;DR** It depends on how one defines "main" effect or how one parameterizes the model. If "main" effect is defined as the coefficient of a factor from a dummy-coded model (that is, the added effect due to treatment), the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states). That said, an interaction effect using effects coding seems like a completely mathematical construct and not something "real"...or maybe I'm just re-ifying a dummy-coded interaction effect.
 
 **Updated** I read this when it was posted but forgot about it when I started this doodle: Andrew Gelman has a highly relevant blog post [You need 16 times the sample size to estimate an interaction than to estimate a main effect](https://statmodeling.stat.columbia.edu/2018/03/15/need-16-times-sample-size-estimate-interaction-estimate-main-effect/) that is really minimal in that it focusses entirely on the standard error. Gelman effectively used a -0.5, +0.5 contrast coding but added an update with -1, +1 (effects) coding. This coding is interesting and explored below.
 
@@ -46,7 +46,7 @@ kable(means_table, escape = FALSE)
 
 then the coefficients are
 
-```{r}
+```{r, echo=FALSE}
 coef_table <- data.frame(dummy=c(
   "$\\mu_{11}$",
   "$\\mu_{21} - \\mu_{11}$",
@@ -76,7 +76,7 @@ and, with effects coding
 3. $\beta_B$ is -1 times *half* the average of the simple effects of B, where the simple effects of B are the effects of B within each level of A 
 4. $\beta_{AB}$ is "the leftovers", that is, the non-additive effect, it is the difference between the mean of a group (any group!) and the expected mean of this group if A and B act additively (note that the sign of the effect depends on which group).
 
-$\beta_A$ and $\beta_B$ are often called the "main" effects and $\beta_{AB}$ the "interaction" effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to $\beta_A$ and $\beta_B$ in dummy-coding as "simple" effects. There are as many simple facts as levels of the other factor. And the simple effect coefficinet for the dummy-coded model depends on which level of the factor is set as the "reference".
+$\beta_A$ and $\beta_B$ are often called the "main" effects and $\beta_{AB}$ the "interaction" effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to $\beta_A$ and $\beta_B$ in dummy-coding as "simple" effects. There are as many simple effects as levels of the other factor. And the simple effect coefficient for the dummy-coded model depends on which level of the factor is set as the "reference".
 
 Finally, note that while the interaction effect in dummy and effects coding have the same verbal meaning, they have a different numerical value because the "main" effect differs between the codings.
 
@@ -84,7 +84,7 @@ Finally, note that while the interaction effect in dummy and effects coding have
 
 Given a set of means
 
-```{r}
+```{r, echo=FALSE}
 means_table <- data.frame(c("$\\mu_{11}=0$", "$\\mu_{21}=0.5$"), c("$\\mu_{12}=0.5$", "$\\mu_{22}=1.5$"))
 row.names(means_table) <- c("A-", "A+")
 colnames(means_table) <- c("B-", "B+")

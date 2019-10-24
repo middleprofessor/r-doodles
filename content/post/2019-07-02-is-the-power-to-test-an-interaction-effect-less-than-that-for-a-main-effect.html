@@ -19,7 +19,7 @@ keywords:
 
 
 <p>I was googling around and somehow landed on a page that stated <a href="https://www.methodology.psu.edu/ra/most/femiscon/">“When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”</a>. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.</p>
-<p><strong>TL;DR</strong> It depends on how one defines “main” effect or how one parameterizes the model. If “main” effect is defined as the coefficient of a factor from a dummy-coded model (that is, the added effect due to treatment), the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states). A question is, <strong>is the coefficient of the interaction as a measure of “effect” using dummy coding misleading since the interaction is entirely allocated to one mean?</strong>. Or, does it make sense, at least for experiments where we think of the effect of the non-reference (or non “control”) levels as “what happens” when we add stuff to the control.</p>
+<p><strong>TL;DR</strong> It depends on how one defines “main” effect or how one parameterizes the model. If “main” effect is defined as the coefficient of a factor from a dummy-coded model (that is, the added effect due to treatment), the power to test the interaction is less than that for a main effect if the two effects have the same magnitude. But, if defined as the coefficient of a factor from an effects-coded model, the power to test the interaction is the same as that for the main effect, if the two have equal magnitude (just as the source states). That said, an interaction effect using effects coding seems like a completely mathematical construct and not something “real”…or maybe I’m just re-ifying a dummy-coded interaction effect.</p>
 <p><strong>Updated</strong> I read this when it was posted but forgot about it when I started this doodle: Andrew Gelman has a highly relevant blog post <a href="https://statmodeling.stat.columbia.edu/2018/03/15/need-16-times-sample-size-estimate-interaction-estimate-main-effect/">You need 16 times the sample size to estimate an interaction than to estimate a main effect</a> that is really minimal in that it focusses entirely on the standard error. Gelman effectively used a -0.5, +0.5 contrast coding but added an update with -1, +1 (effects) coding. This coding is interesting and explored below.</p>
 <div id="some-definitions" class="section level2">
 <h2>Some definitions</h2>
@@ -67,20 +67,6 @@ A+
 </tbody>
 </table>
 <p>then the coefficients are</p>
-<pre class="r"><code>coef_table &lt;- data.frame(dummy=c(
-  &quot;$\\mu_{11}$&quot;,
-  &quot;$\\mu_{21} - \\mu_{11}$&quot;,
-  &quot;$\\mu_{12} - \\mu_{11}$&quot;,
-  &quot;$\\mu_{22} - (intercept + \\beta_A + \\beta_B)$&quot;
-), effects=c(
-  &quot;$(\\mu_{11} + \\mu_{21} + \\mu_{12} + \\mu_{22})/4$&quot;,
-  &quot;$-((\\mu_{21} - \\mu_{11}) + (\\mu_{22} - \\mu_{12}))/2$&quot;,
-  &quot;$-((\\mu_{12} - \\mu_{11}) + (\\mu_{22} - \\mu_{21}))/2$&quot;,
-  &quot;$\\mu_{11} - (intercept + \\beta_A + \\beta_B)$&quot;
-)  
-)
-row.names(coef_table) &lt;- c(&quot;intercept&quot;, &quot;$\\beta_A$&quot;, &quot;$\\beta_B$&quot;, &quot;$\\beta_{AB}$&quot;)
-kable(coef_table, escape = FALSE)</code></pre>
 <table>
 <thead>
 <tr>
@@ -155,16 +141,12 @@ intercept
 <li><span class="math inline">\(\beta_B\)</span> is -1 times <em>half</em> the average of the simple effects of B, where the simple effects of B are the effects of B within each level of A</li>
 <li><span class="math inline">\(\beta_{AB}\)</span> is “the leftovers”, that is, the non-additive effect, it is the difference between the mean of a group (any group!) and the expected mean of this group if A and B act additively (note that the sign of the effect depends on which group).</li>
 </ol>
-<p><span class="math inline">\(\beta_A\)</span> and <span class="math inline">\(\beta_B\)</span> are often called the “main” effects and <span class="math inline">\(\beta_{AB}\)</span> the “interaction” effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to <span class="math inline">\(\beta_A\)</span> and <span class="math inline">\(\beta_B\)</span> in dummy-coding as “simple” effects. There are as many simple facts as levels of the other factor. And the simple effect coefficinet for the dummy-coded model depends on which level of the factor is set as the “reference”.</p>
+<p><span class="math inline">\(\beta_A\)</span> and <span class="math inline">\(\beta_B\)</span> are often called the “main” effects and <span class="math inline">\(\beta_{AB}\)</span> the “interaction” effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to <span class="math inline">\(\beta_A\)</span> and <span class="math inline">\(\beta_B\)</span> in dummy-coding as “simple” effects. There are as many simple effects as levels of the other factor. And the simple effect coefficient for the dummy-coded model depends on which level of the factor is set as the “reference”.</p>
 <p>Finally, note that while the interaction effect in dummy and effects coding have the same verbal meaning, they have a different numerical value because the “main” effect differs between the codings.</p>
 </div>
 <div id="visualizing-interaction-effects" class="section level2">
 <h2>Visualizing interaction effects</h2>
 <p>Given a set of means</p>
-<pre class="r"><code>means_table &lt;- data.frame(c(&quot;$\\mu_{11}=0$&quot;, &quot;$\\mu_{21}=0.5$&quot;), c(&quot;$\\mu_{12}=0.5$&quot;, &quot;$\\mu_{22}=1.5$&quot;))
-row.names(means_table) &lt;- c(&quot;A-&quot;, &quot;A+&quot;)
-colnames(means_table) &lt;- c(&quot;B-&quot;, &quot;B+&quot;)
-kable(means_table, escape = FALSE)</code></pre>
 <table>
 <thead>
 <tr>
