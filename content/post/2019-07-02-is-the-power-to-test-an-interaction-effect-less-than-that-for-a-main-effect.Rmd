@@ -74,7 +74,7 @@ and, with effects coding
 1. the intercept is the grand mean
 2. $\beta_A$ is -1 times *half* the average of the simple effects of A, where the simple effects of A are the effects of A within each level of B 
 3. $\beta_B$ is -1 times *half* the average of the simple effects of B, where the simple effects of B are the effects of B within each level of A 
-4. $\beta_{AB}$ is "the leftovers", that is, the non-additive effect, it is the difference between the mean of a group (any group!) and the expected mean of this group if A and B act additively (note that the sign of the effect depends on which group).
+4. $\beta_{AB}$ is "the leftovers", that is, the non-additive effect, it is the difference between the mean of the group with the "control" levels of A and B and the expected mean of this group if A and B act additively (The magnitude is the difference between any mean and the additive effect but the sign of the difference depends on which group).
 
 $\beta_A$ and $\beta_B$ are often called the "main" effects and $\beta_{AB}$ the "interaction" effect. The table shows why these names are ambiguous. To avoid this ambiguity, it would be better to refer to $\beta_A$ and $\beta_B$ in dummy-coding as "simple" effects. There are as many simple effects as levels of the other factor. And the simple effect coefficient for the dummy-coded model depends on which level of the factor is set as the "reference".
 
