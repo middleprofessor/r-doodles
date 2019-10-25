@@ -37,7 +37,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Consider a $2 \times 2$ factorial experiment, factor A has two levels (-, +), factor B has two levels (-, +), and the means of the combinations are
 
-```{r}
+```{r, echo=FALSE}
 means_table <- data.frame(c("$\\mu_{11}$", "$\\mu_{21}$"), c("$\\mu_{12}$", "$\\mu_{22}$"))
 row.names(means_table) <- c("A-", "A+")
 colnames(means_table) <- c("B-", "B+")
