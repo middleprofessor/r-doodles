@@ -313,7 +313,7 @@ if (!doNotTrack) {
 
 <p>This doodle was motivated Jake Westfall’s answer to a <a href="https://stats.stackexchange.com/questions/142685/equivalent-to-welchs-t-test-in-gls-framework">Cross-Validated question</a>.</p>
 <p>The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the <em>t</em>-value reproduces, not the df and <em>p</em>-value. Jake notes the reason for this in his answer on Cross-Validated.</p>
-<p>To get the adjusted df, and the <em>p</em>-value associated with this, one can use the emmeans package by Russell Lenth, <a href="https://cran.rstudio.com/web/packages/emmeans/vignettes/FAQs.html">as he notes here</a>.</p>
+<p>To get the adjusted df, and the <em>p</em>-value associated with this, one can use the emmeans package by Russell Lenth, <a href="https://cran.rstudio.com/web/packages/emmeans/vignettes/FAQs.html">as he notes here</a>. Compare Tables 1 and 2 below to see how this adjustment can matter.</p>
 <div id="setup" class="section level1">
 <h1>Setup</h1>
 <div id="libraries" class="section level2">
@@ -377,8 +377,9 @@ t_table &lt;- data.table(rbind(
   c(&quot;emmeans&quot;, reglance(m2.emm))
 ))
 colnames(t_table) &lt;- c(&quot;method&quot;, &quot;df&quot;, &quot;t&quot;, &quot;p&quot;)
-knitr::kable(t_table)</code></pre>
+knitr::kable(t_table, caption=&quot;Original fake data&quot;)</code></pre>
 <table>
+<caption><span id="tab:unnamed-chunk-1">Table 1: </span>Original fake data</caption>
 <thead>
 <tr class="header">
 <th align="left">method</th>
@@ -450,8 +451,9 @@ t_table &lt;- data.table(rbind(
   c(&quot;emmeans&quot;, reglance(m2.emm))
 ))
 colnames(t_table) &lt;- c(&quot;method&quot;, &quot;df&quot;, &quot;t&quot;, &quot;p&quot;)
-knitr::kable(t_table)</code></pre>
+knitr::kable(t_table, caption=&quot;Small n fake data&quot;)</code></pre>
 <table>
+<caption><span id="tab:unnamed-chunk-2">Table 2: </span>Small n fake data</caption>
 <thead>
 <tr class="header">
 <th align="left">method</th>
