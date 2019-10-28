@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2019/10/can-a-linear-model-reproduce-a-welch-t-test/</loc>
+    <lastmod>2019-10-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/10/normalization-results-in-regression-to-the-mean/</loc>
     <lastmod>2019-10-16T00:00:00+00:00</lastmod>
   </url>
@@ -290,6 +295,12 @@
   </url>
   
   <url>
+    <loc>/tags/linear-model/</loc>
+    <lastmod>2019-10-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/categories/medicine/</loc>
     <lastmod>2018-03-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
@@ -339,7 +350,7 @@
   
   <url>
     <loc>/tags/p-values/</loc>
-    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -351,7 +362,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -369,7 +380,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -405,7 +416,7 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
+    <lastmod>2019-10-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

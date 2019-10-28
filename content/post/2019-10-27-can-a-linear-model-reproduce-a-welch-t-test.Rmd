@@ -1,0 +1,122 @@
+---
+title: Can a linear model reproduce a Welch t-test?
+author: Jeff Walker
+date: '2019-10-27'
+slug: can-a-linear-model-reproduce-a-welch-t-test
+categories:
+  - stats 101
+tags:
+  - p-values
+  - linear model
+keywords:
+  - tech
+---
+
+This doodle was motivated Jake Westfall's answer to a [Cross-Validated question](https://stats.stackexchange.com/questions/142685/equivalent-to-welchs-t-test-in-gls-framework).
+
+The short answer is yes but most R scripts that I've found on the web are unsatisfying because only the *t*-value reproduces, not the df and *p*-value. Jake notes the reason for this in his answer on Cross-Validated.
+
+To get the adjusted df, and the *p*-value associated with this, one can use the emmeans package by Russell Lenth, [as he notes here](https://cran.rstudio.com/web/packages/emmeans/vignettes/FAQs.html) 
+# Setup
+## Libraries
+```{r setup, warning=FALSE, message=FALSE}
+library(data.table)
+library(emmeans)
+library(nlme)
+```
+
+## Functions
+
+```{r functions}
+reglance <- function(x){
+  if(class(x)=="htest"){
+    t <- x$statistic
+    df <- x$parameter
+    p <- x$p.value
+  }
+   if(class(x)=="lm"){
+    df <- x$df.residual
+    t <- coef(summary(x))["groupB", "t value"]
+    p <- coef(summary(x))["groupB", "Pr(>|t|)"]
+  }
+ if(class(x)=="gls"){
+    N <- summary(x)$dims$N
+    k <- 2
+    df <- N - k
+    t <- summary(x)$tTable["groupB", "t-value"]
+    p <- summary(x)$tTable["groupB", "p-value"]
+  }
+  if(class(x)=="emmGrid"){
+    df <- summary(x)[1, "df"]
+    t <- summary(x)[1, "t.ratio"]
+    p <- summary(x)[1, "p.value"]
+  }
+  return(c(df=df, t=t, p=p))
+}
+```
+
+# Motivating fake data
+This is Jake's script, except that I've assigned the model objects and use these to make a table. I've also included the emmeans functions to generate the *t*-test using the gls model output.
+
+```{r}
+set.seed(497203)
+dat <- data.frame(group=rep.int(c("A","B"), c(10,20)),
+  y = rnorm(30, mean=rep.int(c(0,1), c(10,20)), sd=rep.int(c(1,2),c(10,20))))
+
+# the t-statistic assuming equal variances
+t.student <- t.test(y ~ group, data = dat, var.equal = TRUE)
+m1 <- lm(y ~ group, data = dat)
+
+# the t-statistic not assuming equal variances
+t.welch <- t.test(y ~ group, data = dat, var.equal = FALSE)
+m2 <- gls(y ~ group, data = dat, 
+          weights=varIdent(form = ~ 1 | group))
+
+m2.emm <- contrast(emmeans(m2, specs="group"))
+
+t_table <- data.table(rbind(
+  c("Student t", reglance(t.student)),
+  c("lm", reglance(m1)),
+  c("Welch t", reglance(t.welch)),
+  c("gls", reglance(m2)),
+  c("gls", reglance(m2.emm))
+))
+colnames(t_table) <- c("method", "df", "t", "p")
+knitr::kable(t_table)
+```
+The values aren't rounded because I want to see how close the gls and Welch *t* are. As Jake notes, the GLS model doesn't use the Satterthwaite df, so only the *t* reproduces. That said, *in this example*, the non-adjusted and Satterthwaite df are very close. Consequently, *in this example*, the difference in p-values are trivial with respect to how we might interpret a result. The emmeans computation of the df and p-value are not equal but are satisfyingly close to those of the Welch *t*, at least for me, and at least *in this example*.
+
+# Motivating example with small n
+
+Here I repeat Jake's example but with a smaller sample and I reverse which sample is associated with the larger variance.
+
+```{r}
+set.seed(497203)
+n1 <- 8
+n2 <- 4
+dat <- data.frame(group=rep.int(c("A","B"), c(n1,n2)),
+  y = rnorm(n1+n2, mean=rep.int(c(0,1), c(n1,n2)), sd=rep.int(c(1,2),c(n1,n2))))
+
+# the t-statistic assuming equal variances
+t.student <- t.test(y ~ group, data = dat, var.equal = TRUE)
+m1 <- lm(y ~ group, data = dat)
+
+# the t-statistic not assuming equal variances
+t.welch <- t.test(y ~ group, data = dat, var.equal = FALSE)
+m2 <- gls(y ~ group, data = dat, 
+          weights=varIdent(form = ~ 1 | group))
+
+m2.emm <- contrast(emmeans(m2, specs="group"))
+
+t_table <- data.table(rbind(
+  c("Student t", reglance(t.student)),
+  c("lm", reglance(m1)),
+  c("Welch t", reglance(t.welch)),
+  c("gls", reglance(m2)),
+  c("gls", reglance(m2.emm))
+))
+colnames(t_table) <- c("method", "df", "t", "p")
+knitr::kable(t_table)
+```
+
+In this example, the lack of the Satterthwaite adjustment of the df matters. The emmeans computation of the df and *p*-value is very satisfying.

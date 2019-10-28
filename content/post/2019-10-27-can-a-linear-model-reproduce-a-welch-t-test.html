@@ -1,0 +1,199 @@
+---
+title: Can a linear model reproduce a Welch t-test?
+author: Jeff Walker
+date: '2019-10-27'
+slug: can-a-linear-model-reproduce-a-welch-t-test
+categories:
+  - stats 101
+tags:
+  - p-values
+  - linear model
+keywords:
+  - tech
+---
+
+
+
+<p>This doodle was motivated Jake Westfall’s answer to a <a href="https://stats.stackexchange.com/questions/142685/equivalent-to-welchs-t-test-in-gls-framework">Cross-Validated question</a>.</p>
+<p>The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the <em>t</em>-value reproduces, not the df and <em>p</em>-value. Jake notes the reason for this in his answer on Cross-Validated.</p>
+<p>To get the adjusted df, and the <em>p</em>-value associated with this, one can use the emmeans package by Russell Lenth, <a href="https://cran.rstudio.com/web/packages/emmeans/vignettes/FAQs.html">as he notes here</a> # Setup ## Libraries</p>
+<pre class="r"><code>library(data.table)
+library(emmeans)
+library(nlme)</code></pre>
+<div id="functions" class="section level2">
+<h2>Functions</h2>
+<pre class="r"><code>reglance &lt;- function(x){
+  if(class(x)==&quot;htest&quot;){
+    t &lt;- x$statistic
+    df &lt;- x$parameter
+    p &lt;- x$p.value
+  }
+   if(class(x)==&quot;lm&quot;){
+    df &lt;- x$df.residual
+    t &lt;- coef(summary(x))[&quot;groupB&quot;, &quot;t value&quot;]
+    p &lt;- coef(summary(x))[&quot;groupB&quot;, &quot;Pr(&gt;|t|)&quot;]
+  }
+ if(class(x)==&quot;gls&quot;){
+    N &lt;- summary(x)$dims$N
+    k &lt;- 2
+    df &lt;- N - k
+    t &lt;- summary(x)$tTable[&quot;groupB&quot;, &quot;t-value&quot;]
+    p &lt;- summary(x)$tTable[&quot;groupB&quot;, &quot;p-value&quot;]
+  }
+  if(class(x)==&quot;emmGrid&quot;){
+    df &lt;- summary(x)[1, &quot;df&quot;]
+    t &lt;- summary(x)[1, &quot;t.ratio&quot;]
+    p &lt;- summary(x)[1, &quot;p.value&quot;]
+  }
+  return(c(df=df, t=t, p=p))
+}</code></pre>
+</div>
+<div id="motivating-fake-data" class="section level1">
+<h1>Motivating fake data</h1>
+<p>This is Jake’s script, except that I’ve assigned the model objects and use these to make a table. I’ve also included the emmeans functions to generate the <em>t</em>-test using the gls model output.</p>
+<pre class="r"><code>set.seed(497203)
+dat &lt;- data.frame(group=rep.int(c(&quot;A&quot;,&quot;B&quot;), c(10,20)),
+  y = rnorm(30, mean=rep.int(c(0,1), c(10,20)), sd=rep.int(c(1,2),c(10,20))))
+
+# the t-statistic assuming equal variances
+t.student &lt;- t.test(y ~ group, data = dat, var.equal = TRUE)
+m1 &lt;- lm(y ~ group, data = dat)
+
+# the t-statistic not assuming equal variances
+t.welch &lt;- t.test(y ~ group, data = dat, var.equal = FALSE)
+m2 &lt;- gls(y ~ group, data = dat, 
+          weights=varIdent(form = ~ 1 | group))
+
+m2.emm &lt;- contrast(emmeans(m2, specs=&quot;group&quot;))
+
+t_table &lt;- data.table(rbind(
+  c(&quot;Student t&quot;, reglance(t.student)),
+  c(&quot;lm&quot;, reglance(m1)),
+  c(&quot;Welch t&quot;, reglance(t.welch)),
+  c(&quot;gls&quot;, reglance(m2)),
+  c(&quot;gls&quot;, reglance(m2.emm))
+))
+colnames(t_table) &lt;- c(&quot;method&quot;, &quot;df&quot;, &quot;t&quot;, &quot;p&quot;)
+knitr::kable(t_table)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="left">df</th>
+<th align="left">t</th>
+<th align="left">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Student t</td>
+<td align="left">28</td>
+<td align="left">-1.55068268697165</td>
+<td align="left">0.132208346462522</td>
+</tr>
+<tr class="even">
+<td align="left">lm</td>
+<td align="left">28</td>
+<td align="left">1.55068268697165</td>
+<td align="left">0.132208346462522</td>
+</tr>
+<tr class="odd">
+<td align="left">Welch t</td>
+<td align="left">27.6771984386631</td>
+<td align="left">-1.87241001836005</td>
+<td align="left">0.0717506959077031</td>
+</tr>
+<tr class="even">
+<td align="left">gls</td>
+<td align="left">28</td>
+<td align="left">1.87241001838309</td>
+<td align="left">0.0716278864212684</td>
+</tr>
+<tr class="odd">
+<td align="left">gls</td>
+<td align="left">27.6856538252465</td>
+<td align="left">-1.87241001838309</td>
+<td align="left">0.071747442401355</td>
+</tr>
+<tr class="even">
+<td align="left">The values a</td>
+<td align="left">ren’t rounded becau</td>
+<td align="left">se I want to see how</td>
+<td align="left">close the gls and Welch <em>t</em> are. As Jake notes, the GLS model doesn’t use the Satterthwaite df, so only the <em>t</em> reproduces. That said, <em>in this example</em>, the non-adjusted and Satterthwaite df are very close. Consequently, <em>in this example</em>, the difference in p-values are trivial with respect to how we might interpret a result. The emmeans computation of the df and p-value are not equal but are satisfyingly close to those of the Welch <em>t</em>, at least for me, and at least <em>in this example</em>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="motivating-example-with-small-n" class="section level1">
+<h1>Motivating example with small n</h1>
+<p>Here I repeat Jake’s example but with a smaller sample and I reverse which sample is associated with the larger variance.</p>
+<pre class="r"><code>set.seed(497203)
+n1 &lt;- 8
+n2 &lt;- 4
+dat &lt;- data.frame(group=rep.int(c(&quot;A&quot;,&quot;B&quot;), c(n1,n2)),
+  y = rnorm(n1+n2, mean=rep.int(c(0,1), c(n1,n2)), sd=rep.int(c(1,2),c(n1,n2))))
+
+# the t-statistic assuming equal variances
+t.student &lt;- t.test(y ~ group, data = dat, var.equal = TRUE)
+m1 &lt;- lm(y ~ group, data = dat)
+
+# the t-statistic not assuming equal variances
+t.welch &lt;- t.test(y ~ group, data = dat, var.equal = FALSE)
+m2 &lt;- gls(y ~ group, data = dat, 
+          weights=varIdent(form = ~ 1 | group))
+
+m2.emm &lt;- contrast(emmeans(m2, specs=&quot;group&quot;))
+
+t_table &lt;- data.table(rbind(
+  c(&quot;Student t&quot;, reglance(t.student)),
+  c(&quot;lm&quot;, reglance(m1)),
+  c(&quot;Welch t&quot;, reglance(t.welch)),
+  c(&quot;gls&quot;, reglance(m2)),
+  c(&quot;gls&quot;, reglance(m2.emm))
+))
+colnames(t_table) &lt;- c(&quot;method&quot;, &quot;df&quot;, &quot;t&quot;, &quot;p&quot;)
+knitr::kable(t_table)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="left">df</th>
+<th align="left">t</th>
+<th align="left">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Student t</td>
+<td align="left">10</td>
+<td align="left">-2.3012090076821</td>
+<td align="left">0.0441633525165716</td>
+</tr>
+<tr class="even">
+<td align="left">lm</td>
+<td align="left">10</td>
+<td align="left">2.3012090076821</td>
+<td align="left">0.0441633525165716</td>
+</tr>
+<tr class="odd">
+<td align="left">Welch t</td>
+<td align="left">3.91598345952776</td>
+<td align="left">-1.87308830595972</td>
+<td align="left">0.135881711655436</td>
+</tr>
+<tr class="even">
+<td align="left">gls</td>
+<td align="left">10</td>
+<td align="left">1.87308831515667</td>
+<td align="left">0.0905471567272453</td>
+</tr>
+<tr class="odd">
+<td align="left">gls</td>
+<td align="left">3.9158589862009</td>
+<td align="left">-1.87308831515667</td>
+<td align="left">0.13588402534431</td>
+</tr>
+</tbody>
+</table>
+<p>In this example, the lack of the Satterthwaite adjustment of the df matters. The emmeans computation of the df and <em>p</em>-value is very satisfying.</p>
+</div>
