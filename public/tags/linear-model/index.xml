@@ -19,7 +19,7 @@
       <guid>/2019/10/can-a-linear-model-reproduce-a-welch-t-test/</guid>
       <description>This doodle was motivated Jake Westfall’s answer to a Cross-Validated question.
 The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the t-value reproduces, not the df and p-value. Jake notes the reason for this in his answer on Cross-Validated.
-To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here # Setup ## Libraries</description>
+To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here.</description>
     </item>
     
   </channel>

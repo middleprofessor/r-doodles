@@ -10,12 +10,12 @@
 <meta name="keywords" content="tech">
 <meta name="description" content="This doodle was motivated Jake Westfall’s answer to a Cross-Validated question.
 The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the t-value reproduces, not the df and p-value. Jake notes the reason for this in his answer on Cross-Validated.
-To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here # Setup ## Libraries">
+To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here.">
 
 
 <meta property="og:description" content="This doodle was motivated Jake Westfall’s answer to a Cross-Validated question.
 The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the t-value reproduces, not the df and p-value. Jake notes the reason for this in his answer on Cross-Validated.
-To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here # Setup ## Libraries">
+To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Can a linear model reproduce a Welch t-test?">
 <meta name="twitter:title" content="Can a linear model reproduce a Welch t-test?">
@@ -24,10 +24,10 @@ To get the adjusted df, and the p-value associated with this, one can use the em
 <meta property="og:site_name" content="R Doodles">
 <meta property="og:description" content="This doodle was motivated Jake Westfall’s answer to a Cross-Validated question.
 The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the t-value reproduces, not the df and p-value. Jake notes the reason for this in his answer on Cross-Validated.
-To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here # Setup ## Libraries">
+To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here.">
 <meta name="twitter:description" content="This doodle was motivated Jake Westfall’s answer to a Cross-Validated question.
 The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the t-value reproduces, not the df and p-value. Jake notes the reason for this in his answer on Cross-Validated.
-To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here # Setup ## Libraries">
+To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here.">
 <meta property="og:locale" content="en-us">
 
   
@@ -313,10 +313,15 @@ if (!doNotTrack) {
 
 <p>This doodle was motivated Jake Westfall’s answer to a <a href="https://stats.stackexchange.com/questions/142685/equivalent-to-welchs-t-test-in-gls-framework">Cross-Validated question</a>.</p>
 <p>The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the <em>t</em>-value reproduces, not the df and <em>p</em>-value. Jake notes the reason for this in his answer on Cross-Validated.</p>
-<p>To get the adjusted df, and the <em>p</em>-value associated with this, one can use the emmeans package by Russell Lenth, <a href="https://cran.rstudio.com/web/packages/emmeans/vignettes/FAQs.html">as he notes here</a> # Setup ## Libraries</p>
+<p>To get the adjusted df, and the <em>p</em>-value associated with this, one can use the emmeans package by Russell Lenth, <a href="https://cran.rstudio.com/web/packages/emmeans/vignettes/FAQs.html">as he notes here</a>.</p>
+<div id="setup" class="section level1">
+<h1>Setup</h1>
+<div id="libraries" class="section level2">
+<h2>Libraries</h2>
 <pre class="r"><code>library(data.table)
 library(emmeans)
 library(nlme)</code></pre>
+</div>
 <div id="functions" class="section level2">
 <h2>Functions</h2>
 <pre class="r"><code>reglance &lt;- function(x){
@@ -345,6 +350,7 @@ library(nlme)</code></pre>
   return(c(df=df, t=t, p=p))
 }</code></pre>
 </div>
+</div>
 <div id="motivating-fake-data" class="section level1">
 <h1>Motivating fake data</h1>
 <p>This is Jake’s script, except that I’ve assigned the model objects and use these to make a table. I’ve also included the emmeans functions to generate the <em>t</em>-test using the gls model output.</p>
@@ -368,7 +374,7 @@ t_table &lt;- data.table(rbind(
   c(&quot;lm&quot;, reglance(m1)),
   c(&quot;Welch t&quot;, reglance(t.welch)),
   c(&quot;gls&quot;, reglance(m2)),
-  c(&quot;gls&quot;, reglance(m2.emm))
+  c(&quot;emmeans&quot;, reglance(m2.emm))
 ))
 colnames(t_table) &lt;- c(&quot;method&quot;, &quot;df&quot;, &quot;t&quot;, &quot;p&quot;)
 knitr::kable(t_table)</code></pre>
@@ -407,22 +413,17 @@ knitr::kable(t_table)</code></pre>
 <td align="left">0.0716278864212684</td>
 </tr>
 <tr class="odd">
-<td align="left">gls</td>
+<td align="left">emmeans</td>
 <td align="left">27.6856538252465</td>
 <td align="left">-1.87241001838309</td>
 <td align="left">0.071747442401355</td>
 </tr>
-<tr class="even">
-<td align="left">The values a</td>
-<td align="left">ren’t rounded becau</td>
-<td align="left">se I want to see how</td>
-<td align="left">close the gls and Welch <em>t</em> are. As Jake notes, the GLS model doesn’t use the Satterthwaite df, so only the <em>t</em> reproduces. That said, <em>in this example</em>, the non-adjusted and Satterthwaite df are very close. Consequently, <em>in this example</em>, the difference in p-values are trivial with respect to how we might interpret a result. The emmeans computation of the df and p-value are not equal but are satisfyingly close to those of the Welch <em>t</em>, at least for me, and at least <em>in this example</em>.</td>
-</tr>
 </tbody>
 </table>
+<p>The values aren’t rounded because I want to see how close the gls and Welch <em>t</em> are. As Jake notes, the GLS model doesn’t use the Satterthwaite df, so only the <em>t</em> reproduces. That said, <em>in this example</em>, the non-adjusted and Satterthwaite df are very close. Consequently, <em>in this example</em>, the difference in p-values are trivial with respect to how we might interpret a result. The emmeans computation of the df and p-value are not equal but are satisfyingly close to those of the Welch <em>t</em>, at least for me, and at least <em>in this example</em>.</p>
 </div>
-<div id="motivating-example-with-small-n" class="section level1">
-<h1>Motivating example with small n</h1>
+<div id="fake-data-with-small-n" class="section level1">
+<h1>Fake data with small n</h1>
 <p>Here I repeat Jake’s example but with a smaller sample and I reverse which sample is associated with the larger variance.</p>
 <pre class="r"><code>set.seed(497203)
 n1 &lt;- 8
@@ -446,7 +447,7 @@ t_table &lt;- data.table(rbind(
   c(&quot;lm&quot;, reglance(m1)),
   c(&quot;Welch t&quot;, reglance(t.welch)),
   c(&quot;gls&quot;, reglance(m2)),
-  c(&quot;gls&quot;, reglance(m2.emm))
+  c(&quot;emmeans&quot;, reglance(m2.emm))
 ))
 colnames(t_table) &lt;- c(&quot;method&quot;, &quot;df&quot;, &quot;t&quot;, &quot;p&quot;)
 knitr::kable(t_table)</code></pre>
@@ -485,7 +486,7 @@ knitr::kable(t_table)</code></pre>
 <td align="left">0.0905471567272453</td>
 </tr>
 <tr class="odd">
-<td align="left">gls</td>
+<td align="left">emmeans</td>
 <td align="left">3.9158589862009</td>
 <td align="left">-1.87308831515667</td>
 <td align="left">0.13588402534431</td>
@@ -758,7 +759,7 @@ knitr::kable(t_table)</code></pre>
               </span>
               <div class="media-content hide-xs font-merryweather">This doodle was motivated Jake Westfall’s answer to a Cross-Validated question.
 The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the t-value reproduces, not the df and p-value. Jake notes the reason for this in his answer on Cross-Validated.
-To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here # Setup ## Libraries</div>
+To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

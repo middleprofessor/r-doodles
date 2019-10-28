@@ -16,9 +16,11 @@ This doodle was motivated Jake Westfall's answer to a [Cross-Validated question]
 
 The short answer is yes but most R scripts that I've found on the web are unsatisfying because only the *t*-value reproduces, not the df and *p*-value. Jake notes the reason for this in his answer on Cross-Validated.
 
-To get the adjusted df, and the *p*-value associated with this, one can use the emmeans package by Russell Lenth, [as he notes here](https://cran.rstudio.com/web/packages/emmeans/vignettes/FAQs.html) 
+To get the adjusted df, and the *p*-value associated with this, one can use the emmeans package by Russell Lenth, [as he notes here](https://cran.rstudio.com/web/packages/emmeans/vignettes/FAQs.html).
+
 # Setup
 ## Libraries
+
 ```{r setup, warning=FALSE, message=FALSE}
 library(data.table)
 library(emmeans)
@@ -79,14 +81,15 @@ t_table <- data.table(rbind(
   c("lm", reglance(m1)),
   c("Welch t", reglance(t.welch)),
   c("gls", reglance(m2)),
-  c("gls", reglance(m2.emm))
+  c("emmeans", reglance(m2.emm))
 ))
 colnames(t_table) <- c("method", "df", "t", "p")
 knitr::kable(t_table)
 ```
+
 The values aren't rounded because I want to see how close the gls and Welch *t* are. As Jake notes, the GLS model doesn't use the Satterthwaite df, so only the *t* reproduces. That said, *in this example*, the non-adjusted and Satterthwaite df are very close. Consequently, *in this example*, the difference in p-values are trivial with respect to how we might interpret a result. The emmeans computation of the df and p-value are not equal but are satisfyingly close to those of the Welch *t*, at least for me, and at least *in this example*.
 
-# Motivating example with small n
+# Fake data with small n
 
 Here I repeat Jake's example but with a smaller sample and I reverse which sample is associated with the larger variance.
 
@@ -113,7 +116,7 @@ t_table <- data.table(rbind(
   c("lm", reglance(m1)),
   c("Welch t", reglance(t.welch)),
   c("gls", reglance(m2)),
-  c("gls", reglance(m2.emm))
+  c("emmeans", reglance(m2.emm))
 ))
 colnames(t_table) <- c("method", "df", "t", "p")
 knitr::kable(t_table)
