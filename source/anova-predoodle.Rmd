@@ -1,0 +1,77 @@
+---
+title: "Main effects in ANOVA with type III ss"
+author: "Jeff Walker"
+date: "11/4/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(data.table)
+library(emmeans)
+library(ggpubr)
+library(harrellplot)
+library(car)
+```
+
+
+```{r}
+set.seed(1)
+n <- 6
+drug_levels <- c("placebo","active")
+fd <- data.table(
+  Drug = factor(rep(drug_levels, each=n*2),
+                drug_levels),
+  Sex = rep(rep(c("female","male"), each=n), 2)
+)
+X <- model.matrix(~Drug*Sex, data=fd)
+beta_0 <- 0
+beta_1 <- 1
+beta_2 <- 0
+beta_3 <- 1
+beta <- c(beta_0, beta_1, beta_2, beta_3)
+sigma <- 1
+fd[, response := (X%*%beta)[,1] + rnorm(n*2*2)]
+```
+
+plot
+```{r}
+harrellplot(x="Drug", 
+            y="response",
+            g="Sex",
+            data=fd,
+            horizontal=FALSE,
+            show.contrasts=FALSE,
+            display.treatment="ci",
+            show.dots=FALSE
+            )$gg
+```
+
+treatment contrasts
+```{r}
+m1 <- lm(response ~ Drug*Sex, data=fd)
+coef(summary(m1))
+contrast(emmeans(m1, specs="Drug"))
+contrast(emmeans(m1, specs="Sex"))
+p <- summary(contrast(emmeans(m1, specs="Drug")))[1,"p.value"]
+# p is the type III ss p-value from ANOVA
+```
+
+additive only
+```{r}
+m3 <- lm(response ~ Drug + Sex, data=fd)
+coef(summary(m3))
+contrast(emmeans(m3, specs="Drug"))
+contrast(emmeans(m3, specs="Sex"))
+```
+
+effects contrasts
+```{r}
+con3 <- list(Drug=contr.sum, Sex=contr.sum)
+m2 <- lm(response ~ Drug*Sex, data=fd, contrasts=con3)
+coef(summary(m2))
+Anova(m2, type="3")
+
+```
+
