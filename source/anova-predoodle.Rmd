@@ -12,6 +12,7 @@ library(data.table)
 library(emmeans)
 library(ggpubr)
 library(harrellplot)
+library(cowplot)
 library(car)
 ```
 
@@ -19,6 +20,11 @@ library(car)
 ```{r}
 set.seed(1)
 n <- 10
+
+# get random error
+sigma <- 2.4
+epsilon <- rnorm(n*2*2, sd=sigma)
+
 snail_levels <- c("low","high")
 crab_levels <- c("absent","present")
 fake_data <- data.table(
@@ -27,24 +33,38 @@ fake_data <- data.table(
   crab = factor(rep(rep(crab_levels, each=n), 2), crab_levels)
 )
 X <- model.matrix(~snail*crab, data=fake_data)
-beta_0 <- 10
-beta_1 <- -3
-beta_2 <- -1
-beta_3 <- 2
-beta <- c(beta_0, beta_1, beta_2, beta_3)
-sigma <- 3
-fake_data[, algae := (X%*%beta)[,1] + rnorm(n*2*2, sd=sigma)]
+beta <- c(15, -4, -2, 2)
+fake_data[, algae := (X%*%beta)[,1] + epsilon]
+beta2 <- c(15, -4, -4, 2)
+fake_data[, algae2 := (X%*%beta2)[,1] + epsilon]
 
+# reorder crab factor levels for image
+crab_levels <- c("absent","present")
+fake_data[, crab_reorder := factor(crab, crab_levels <- c("present", "absent"))]
+
+# simple effects
 fit <- lm(algae ~ snail*crab, data=fake_data)
 coef(summary(fit))
-fit.emm <- summary(emmeans(fit, specs=c("snail", "crab")))
+fit.emm <- emmeans(fit, specs=c("snail", "crab"))
+(fit.pairs <- contrast(fit.emm,
+                      method="revpairwise",
+                      simple="each",
+                      combine=TRUE,
+                      adjust="none")
+)
 
+# this is for re-order factor levels in plot
+fit <- lm(algae ~ snail*crab_reorder, data=fake_data)
+coef(summary(fit))
+fit.emm <- emmeans(fit, specs=c("snail", "crab_reorder"))
+
+set.seed(1)
 pd <- position_dodge(0.8)
-gg_response <- ggstripchart(
+gg_response_1 <- ggerrorplot(
   x = "snail",
   y = "algae",
-  color = "crab",
-  add = c("mean_ci"),
+  color = "crab_reorder",
+  add = c("mean_ci", "jitter"),
   alpha=0.5,
   position = pd,
   palette = "jco",
@@ -52,11 +72,45 @@ gg_response <- ggstripchart(
 ) +
   #geom_point(data=fit.emm, aes(x=snail, y=emmean, fill=crab),
   #          position=pd, size=3) +
-  geom_line(data=fit.emm, aes(x=snail, y=emmean, group=crab),
+  geom_line(data=summary(fit.emm), aes(x=snail, y=emmean, group=crab_reorder),
             position=pd) +
   NULL
 
-gg_response
+fit <- lm(algae2 ~ snail*crab, data=fake_data)
+coef(summary(fit))
+fit.emm <- emmeans(fit, specs=c("snail", "crab"))
+(fit.pairs <- contrast(fit.emm,
+                      method="revpairwise",
+                      simple="each",
+                      combine=TRUE,
+                      adjust="none")
+)
+
+# this is for re-order factor levels in plot
+fit <- lm(algae2 ~ snail*crab_reorder, data=fake_data)
+coef(summary(fit))
+fit.emm <- emmeans(fit, specs=c("snail", "crab_reorder"))
+
+set.seed(1)
+pd <- position_dodge(0.8)
+gg_response_2 <- ggerrorplot(
+  x = "snail",
+  y = "algae2",
+  color = "crab_reorder",
+  add = c("mean_ci", "jitter"),
+  alpha=0.5,
+  position = pd,
+  palette = "jco",
+  data = fake_data
+) +
+  #geom_point(data=fit.emm, aes(x=snail, y=emmean, fill=crab),
+  #          position=pd, size=3) +
+  geom_line(data=summary(fit.emm), aes(x=snail, y=emmean, group=crab_reorder),
+            position=pd) +
+  NULL
+
+
+plot_grid(gg_response_1, gg_response_2)
 
 ```
 
