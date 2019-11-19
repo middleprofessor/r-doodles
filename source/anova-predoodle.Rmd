@@ -18,60 +18,118 @@ library(car)
 
 ```{r}
 set.seed(1)
-n <- 6
-drug_levels <- c("placebo","active")
-fd <- data.table(
-  Drug = factor(rep(drug_levels, each=n*2),
-                drug_levels),
-  Sex = rep(rep(c("female","male"), each=n), 2)
+n <- 10
+snail_levels <- c("low","high")
+crab_levels <- c("absent","present")
+fake_data <- data.table(
+  snail = factor(rep(snail_levels, each=n*2),
+                snail_levels),
+  crab = factor(rep(rep(crab_levels, each=n), 2), crab_levels)
 )
-X <- model.matrix(~Drug*Sex, data=fd)
-beta_0 <- 0
-beta_1 <- 1
-beta_2 <- 0
-beta_3 <- 1
+X <- model.matrix(~snail*crab, data=fake_data)
+beta_0 <- 10
+beta_1 <- -3
+beta_2 <- -1
+beta_3 <- 2
 beta <- c(beta_0, beta_1, beta_2, beta_3)
-sigma <- 1
-fd[, response := (X%*%beta)[,1] + rnorm(n*2*2)]
-```
+sigma <- 3
+fake_data[, algae := (X%*%beta)[,1] + rnorm(n*2*2, sd=sigma)]
 
-plot
-```{r}
-harrellplot(x="Drug", 
-            y="response",
-            g="Sex",
-            data=fd,
-            horizontal=FALSE,
-            show.contrasts=FALSE,
-            display.treatment="ci",
-            show.dots=FALSE
-            )$gg
-```
+fit <- lm(algae ~ snail*crab, data=fake_data)
+coef(summary(fit))
+fit.emm <- summary(emmeans(fit, specs=c("snail", "crab")))
 
-treatment contrasts
-```{r}
-m1 <- lm(response ~ Drug*Sex, data=fd)
-coef(summary(m1))
-contrast(emmeans(m1, specs="Drug"))
-contrast(emmeans(m1, specs="Sex"))
-p <- summary(contrast(emmeans(m1, specs="Drug")))[1,"p.value"]
-# p is the type III ss p-value from ANOVA
-```
+pd <- position_dodge(0.8)
+gg_response <- ggstripchart(
+  x = "snail",
+  y = "algae",
+  color = "crab",
+  add = c("mean_ci"),
+  alpha=0.5,
+  position = pd,
+  palette = "jco",
+  data = fake_data
+) +
+  #geom_point(data=fit.emm, aes(x=snail, y=emmean, fill=crab),
+  #          position=pd, size=3) +
+  geom_line(data=fit.emm, aes(x=snail, y=emmean, group=crab),
+            position=pd) +
+  NULL
 
-additive only
-```{r}
-m3 <- lm(response ~ Drug + Sex, data=fd)
-coef(summary(m3))
-contrast(emmeans(m3, specs="Drug"))
-contrast(emmeans(m3, specs="Sex"))
-```
-
-effects contrasts
-```{r}
-con3 <- list(Drug=contr.sum, Sex=contr.sum)
-m2 <- lm(response ~ Drug*Sex, data=fd, contrasts=con3)
-coef(summary(m2))
-Anova(m2, type="3")
+gg_response
 
 ```
 
+# Balanced data
+```{r, message=FALSE, warning=FALSE}
+m1 <- lm(algae ~ snail*crab, data=fake_data)
+m2 <- lm(algae ~ snail + crab, data=fake_data)
+m1_emm <- emmeans(m1, specs="snail")
+m2_emm <- emmeans(m2, specs="snail")
+m1_marginal <- contrast(m1_emm, method="revpairwise", adjust="none")
+m2_marginal <- contrast(m2_emm, method="revpairwise", adjust="none")
+
+con3 <- list(snail=contr.sum, crab=contr.sum)
+m3 <- lm(algae ~ snail*crab, data=fake_data, contrasts=con3)
+m4 <- lm(algae ~ snail + crab, data=fake_data, contrasts=con3)
+m3_coef <- coef(summary(m3))
+m4_coef <- coef(summary(m4))
+m3_anova <- Anova(m3, type="3")
+m4_anova <- Anova(m4, type="3")
+
+(res_table <- data.table(" "=c("Estimate", "SE", "df", "statistic", "p-value"),
+  marginal_full=unlist(summary(m1_marginal)[1, c(2:6)]),
+  anova_full=c(NA, NA, round(m3_anova["Residuals", "Df"],0), unlist(m3_anova[2, 3:4])),
+  marginal_add=unlist(summary(m2_marginal)[1, c(2:6)]),
+  anova_add=c(NA, NA, round(m4_anova["Residuals", "Df"],0), unlist(m4_anova[2, 3:4])))
+)
+
+```
+
+
+# Unbalanced data
+```{r, message=FALSE, warning=FALSE}
+set.seed(1)
+inc <- c(1:10,
+         sample(11:20, 6),
+         sample(21:30, 8),
+         sample(31:40, 5))
+fake_data_missing <- fake_data[inc,]
+fake_data_missing[, .(N=.N), by=c("snail", "crab")]
+
+m0 <- lm(algae ~ snail, data=fake_data_missing)
+m1 <- lm(algae ~ snail*crab, data=fake_data_missing)
+m2 <- lm(algae ~ snail + crab, data=fake_data_missing)
+m1_emm <- emmeans(m1, specs="snail")
+m2_emm <- emmeans(m2, specs="snail")
+m1_marginal <- contrast(m1_emm, method="revpairwise", adjust="none")
+m2_marginal <- contrast(m2_emm, method="revpairwise", adjust="none")
+
+con3 <- list(snail=contr.sum, crab=contr.sum)
+m3 <- lm(algae ~ snail*crab, data=fake_data_missing, contrasts=con3)
+m4 <- lm(algae ~ snail + crab, data=fake_data_missing, contrasts=con3)
+m3_coef <- coef(summary(m3))
+m4_coef <- coef(summary(m4))
+m3_anova <- Anova(m3, type="3")
+m4_anova <- Anova(m4, type="3")
+m4_anova_2 <- Anova(m4, type="2")
+m2_anova_2 <- Anova(m2, type="2")
+m3_anova_2 <- Anova(m3, type="2")
+
+(res_table <- data.table(" "=c("Estimate", "SE", "df", "statistic", "p-value"),
+  marginal_full=unlist(summary(m1_marginal)[1, c(2:6)]),
+  anova_full=c(NA, NA, round(m3_anova["Residuals", "Df"],0), unlist(m3_anova[2, 3:4])),
+  marginal_add=unlist(summary(m2_marginal)[1, c(2:6)]),
+  anova_add=c(NA, NA, round(m4_anova["Residuals", "Df"],0), unlist(m4_anova[2, 3:4])))
+)
+
+(type_2_table <- data.table(" "=c("Estimate", "SE", "df", "statistic", "p-value"),
+  marginal_add=unlist(summary(m2_marginal)[1, c(2:6)]),
+  T2_add.dc=c(NA, NA, round(m2_anova_2["Residuals", "Df"],0), unlist(m2_anova_2[1, 3:4])),
+  T2_add.ec=c(NA, NA, round(m4_anova_2["Residuals", "Df"],0), unlist(m4_anova_2[1, 3:4])),
+  T3_add.ec=c(NA, NA, round(m4_anova["Residuals", "Df"],0), unlist(m4_anova[2, 3:4])),
+  T2_full.ec=c(NA, NA, round(m3_anova_2["Residuals", "Df"],0), unlist(m3_anova_2[1, 3:4])))
+)
+```
+
+# heterogeneity
