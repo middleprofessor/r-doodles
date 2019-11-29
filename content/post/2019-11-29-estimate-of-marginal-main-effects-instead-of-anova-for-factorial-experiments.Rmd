@@ -1,0 +1,308 @@
+---
+title: Estimate of marginal ("main") effects instead of ANOVA for factorial experiments
+author: Jeff Walker
+date: '2019-11-29'
+slug: estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments
+categories:
+  - stats 101
+tags:
+  - anova
+  - interaction
+keywords:
+  - tech
+---
+
+---
+title: "Estimation of marginal effects instead of ANOVA for factorial experiments"
+author: "Jeff Walker"
+date: "11/4/2019"
+output: html_document
+---
+
+keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the "main" effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
+
+The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.
+
+1. In many of these articles, the researchers interpret the main effects terms of a full-factorial ANOVA table computed from Type III sums of squares (a practice that is highly controversial among statisticians). These may be followed up with estimates of conditional effects but this is much less common that I would expect (and wish)
+2. Much less commonly, researchers interpret the main effects term of the ANOVA table refit with only additive terms (or Type II sums of squares).
+
+But why ANOVA (other than it was easy to compute 60 years ago without a computer). Why not simply estimate relevant contrasts? If the design is factorial, the relevant contrasts are generally the conditional effects (or "simple" effects) but could be the marginal effects computed from the additive model (marginal effects are computed as contrasts of marginal means). The advantage of estimation over ANOVA is that estimates and uncertainty matter (how can we predict the consequences of CO2 and warming with F statistics and p-values)
+
+The first part of this doodle compares inference from the estimation of marginal effects of a factorial design to inference from the "main" effects of an ANOVA table. As shown below, the first is equivalent to computing the marginal effects of the full model (which means that computing marginal effects from a full factorial model should be as controversial as the interpretation of main effects in an ANOVA table with Type III sum of squares). The second is equivalent to computing the marginal effects of the additive model. When the data are balanced, the estimate of a marginal effect is independent of the model (full or additive) but the SEs and DF differ, and consequently, the p-value. When the data are not balanced, the estimate of a marginal effect is not independent of the model.
+
+# Comparing marginal effects to main effect terms in an ANOVA table
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(data.table)
+library(emmeans)
+library(ggpubr)
+library(cowplot)
+library(car)
+```
+
+## First, some fake data
+
+```{r create fake data}
+set.seed(1)
+n <- 10
+
+# get random error
+sigma <- 2.5
+
+snail_levels <- c("low","high")
+crab_levels <- c("absent", "present")
+fake_data <- data.table(
+  snail = factor(rep(snail_levels, each=n*2),
+                snail_levels),
+  crab = factor(rep(rep(crab_levels, each=n), 2), crab_levels)
+)
+X <- model.matrix(~snail*crab, data=fake_data)
+beta <- c(15, -3.5, 1.5, -3)
+
+# find a pretty good match of parameters
+done <- FALSE
+seed_i <- 0
+tol <- 0.1
+while(done==FALSE){
+  seed_i <- seed_i + 1
+  set.seed(seed_i)
+  epsilon <- rnorm(n*2*2, sd=sigma)
+  fake_data[, algae := (X%*%beta)[,1] + epsilon]
+  fit <- lm(algae ~ snail*crab, data=fake_data)
+  coef_i <- coef(fit)
+  if(abs(coef_i[2] - beta[2]) < tol &
+     abs(coef_i[3] - beta[3]) < tol &
+     abs(coef_i[4] - beta[4]) < tol){done <- TRUE}
+}
+
+# the fake data
+set.seed(seed_i)
+epsilon <- rnorm(n*2*2, sd=sigma)
+fake_data[, algae := (X%*%beta)[,1] + epsilon]
+
+```
+
+Coefficients of the model
+
+```{r}
+fit <- lm(algae ~ snail*crab, data=fake_data)
+coef(summary(fit))
+
+```
+
+Conditional (simple) effects
+
+```{r}
+fit.emm <- emmeans(fit, specs=c("snail", "crab"))
+fit.pairs <- contrast(fit.emm,
+                      method="revpairwise",
+                      simple="each",
+                      combine=TRUE,
+                      adjust="none")
+knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))
+```
+
+What the data look like
+
+```{r}
+set.seed(1)
+pd <- position_dodge(0.8)
+gg_response <- ggerrorplot(
+  x = "snail",
+  y = "algae",
+  color = "crab",
+  add = c("mean_ci", "jitter"),
+  alpha=0.5,
+  position = pd,
+  palette = "jco",
+  data = fake_data
+) +
+  #geom_point(data=fit.emm, aes(x=snail, y=emmean, fill=crab),
+  #          position=pd, size=3) +
+  geom_line(data=summary(fit.emm), aes(x=snail, y=emmean, group=crab),
+            position=pd) +
+  NULL
+
+gg_response
+```
+
+## Comparison of marginal effects vs. "main" effects term of ANOVA table when data are balanced
+
+```{r, message=FALSE, warning=FALSE}
+m1 <- lm(algae ~ snail*crab, data=fake_data)
+m2 <- lm(algae ~ snail + crab, data=fake_data)
+m1_emm <- emmeans(m1, specs="snail")
+m2_emm <- emmeans(m2, specs="snail")
+m1_marginal <- contrast(m1_emm, method="revpairwise", adjust="none")
+m2_marginal <- contrast(m2_emm, method="revpairwise", adjust="none")
+
+con3 <- list(snail=contr.sum, crab=contr.sum)
+m3 <- lm(algae ~ snail*crab, data=fake_data, contrasts=con3)
+m4 <- lm(algae ~ snail + crab, data=fake_data, contrasts=con3)
+m3_coef <- coef(summary(m3))
+m4_coef <- coef(summary(m4))
+m3_anova <- Anova(m3, type="3")
+m4_anova <- Anova(m4, type="3")
+
+# res_table <- data.table(" "=c("Estimate", "SE", "df", "statistic", "p-value"),
+#   "marginal (full)"=unlist(summary(m1_marginal)[1, c(2:6)]),
+#   "ANOVA (full)"=c(NA, NA, round(m3_anova["Residuals", "Df"],0), unlist(m3_anova[2, 3:4])),
+#   "marginal (add)"=unlist(summary(m2_marginal)[1, c(2:6)]),
+#   "ANOVA (add)"=c(NA, NA, round(m4_anova["Residuals", "Df"],0), unlist(m4_anova[2, 3:4]))
+# )
+
+col_names <- c("Estimate", "SE", "df", "statistic", "p-value")
+row_names <- c("marginal (full)", "marginal (add)", "ANOVA (full)", "ANOVA (add)")
+res_table <- data.table(t(matrix(c(
+  unlist(summary(m1_marginal)[1, c(2:6)]),
+  unlist(summary(m2_marginal)[1, c(2:6)]),
+  c(NA, NA, round(m3_anova["Residuals", "Df"],0), unlist(m3_anova[2, 3:4])),
+  c(NA, NA, round(m4_anova["Residuals", "Df"],0), unlist(m4_anova[2, 3:4]))),
+  nrow=5, ncol=4
+)))
+setnames(res_table, old=colnames(res_table), new=col_names)
+res_table <- cbind(method=row_names, res_table)
+
+knitr::kable(res_table, digits=5, caption="Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail term of the ANOVA table from the full-factorial and additive models")
+```
+
+
+## Comparison of marginal effects vs. "main" effects term of ANOVA table when data are unbalanced
+
+Delete some data
+
+```{r}
+set.seed(1)
+inc <- c(1:10,
+         sample(11:20, 6),
+         sample(21:30, 8),
+         sample(31:40, 5))
+fake_data_missing <- fake_data[inc,]
+knitr::kable(fake_data_missing[, .(N=.N), by=c("snail", "crab")])
+```
+
+Marginal effects v ANOVA table main effects
+
+```{r, message=FALSE, warning=FALSE}
+m0 <- lm(algae ~ snail, data=fake_data_missing)
+m1 <- lm(algae ~ snail*crab, data=fake_data_missing)
+m2 <- lm(algae ~ snail + crab, data=fake_data_missing)
+m1_emm <- emmeans(m1, specs="snail")
+m2_emm <- emmeans(m2, specs="snail")
+m1_marginal <- contrast(m1_emm, method="revpairwise", adjust="none")
+m2_marginal <- contrast(m2_emm, method="revpairwise", adjust="none")
+
+con3 <- list(snail=contr.sum, crab=contr.sum)
+m3 <- lm(algae ~ snail*crab, data=fake_data_missing, contrasts=con3)
+m4 <- lm(algae ~ snail + crab, data=fake_data_missing, contrasts=con3)
+m3_coef <- coef(summary(m3))
+m4_coef <- coef(summary(m4))
+m3_anova <- Anova(m3, type="3")
+m4_anova <- Anova(m4, type="3")
+m4_anova_2 <- Anova(m4, type="2")
+m2_anova_2 <- Anova(m2, type="2")
+m3_anova_2 <- Anova(m3, type="2")
+
+# res_table <- data.table(" "=c("Estimate", "SE", "df", "statistic", "p-value"),
+#   "marginal (full)"=unlist(summary(m1_marginal)[1, c(2:6)]),
+#   "ANOVA (full)"=c(NA, NA, round(m3_anova["Residuals", "Df"],0), unlist(m3_anova[2, 3:4])),
+#   "marginal (add)"=unlist(summary(m2_marginal)[1, c(2:6)]),
+#   "ANOVA (add)"=c(NA, NA, round(m4_anova["Residuals", "Df"],0), unlist(m4_anova[2, 3:4]))
+# )
+
+col_names <- c("Estimate", "SE", "df", "statistic", "p-value")
+row_names <- c("marginal (full)", "marginal (add)", "ANOVA (full)", "ANOVA (add)")
+res_table <- data.table(t(matrix(c(
+  unlist(summary(m1_marginal)[1, c(2:6)]),
+  unlist(summary(m2_marginal)[1, c(2:6)]),
+  c(NA, NA, round(m3_anova["Residuals", "Df"],0), unlist(m3_anova[2, 3:4])),
+  c(NA, NA, round(m4_anova["Residuals", "Df"],0), unlist(m4_anova[2, 3:4]))),
+  nrow=5, ncol=4
+)))
+setnames(res_table, old=colnames(res_table), new=col_names)
+res_table <- cbind(method=row_names, res_table)
+
+knitr::kable(res_table, digits=5, caption="Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail \"main effect\" term of the ANOVA table from the full-factorial and additive models")
+
+```
+
+Different ways of computing marginal effects in R
+
+1. Marginal effects of additive model from emmeans (dummy coding)
+2. Type II ANOVA of additive model from car (dummy coding) 
+3. Type II ANOVA of additive model from car (effects coding)
+4. Type III ANOVA of additive model from car (effects coding)
+5. Type II ANOVA of factorial model from car (effects coding)
+
+```{r}
+col_names <- c("Estimate", "SE", "df", "statistic", "p-value")
+row_names <- c("1. marginal effects (additive, dummy coding)",
+               "2. Type 2 ANOVA (additive, dummy coding)", 
+               "3. Type 2 ANOVA  (additive, effects coding)",
+               "4. Type 3 ANOVA  (additive, effects coding)",
+               "5. Type 2 ANOVA  (full, effects coding)")
+type_2_table <- data.table(t(matrix(c(
+  unlist(summary(m2_marginal)[1, c(2:6)]),
+  c(NA, NA, round(m2_anova_2["Residuals", "Df"],0), unlist(m2_anova_2[1, 3:4])),
+  c(NA, NA, round(m4_anova_2["Residuals", "Df"],0), unlist(m4_anova_2[1, 3:4])),
+  c(NA, NA, round(m4_anova["Residuals", "Df"],0), unlist(m4_anova[2, 3:4])),
+  c(NA, NA, round(m3_anova_2["Residuals", "Df"],0), unlist(m3_anova_2[1, 3:4]))),
+  nrow=5, ncol=5
+)))
+setnames(type_2_table, old=colnames(type_2_table), new=col_names)
+type_2_table <- cbind(method=row_names, type_2_table)
+
+knitr::kable(type_2_table)
+```
+
+# When to estimate marginal effects
+
+Interactions effects are ubiquitous if not universal. Consequently, the decision to estimate and present marginal effects, as opposed to conditional effects, should not be in the service of a futile effort to learn the "true" model but should depend only on how much one wants to simplify a working model of a system.
+
+I would tend to not estimate marginal effects given the data analyzed above. The data are noisy but are consistant with an interesting interaction and, consequently, an interesting pattern of conditional effects. Namely, the effect of crab removal decreases algae cover when snail density is low but increases algae cover when snail density is high. Again, the data are too noisy to estimate the effects with much certainty, and good practice would be a set of replication experiemnts to estimate these effects with more precision. If the model were reduced and only the marginal effects were estimated, the possibility of this more complex model of how the system functions would be masked.
+
+The data in the right side of the figure below are precisely those in the analysis above (and reproduced in the left figure below) except the effect of crab removal is increased from -2 to -5. The effect of increasing snail density is the same. The interaction is the same. The residuals are the same.
+
+Even though the interaction effect is the same as that above, relative to the treatment effects of both snail density and crab removal, it is relatively small. Consequently at both levels of snail density, crab removal results in large decrease in algae cover. As long as we don't have any theory that is quantitative enough to predict this pattern, there is not much loss of understanding if we simply reduce this to the additive model. We don't claim in the paper that "there is no interaction" or that the effects of crab removal are the same at both levels of snail density, but only that the reduced model and the computation of the marginal effects is a good "working model" of what is going on.
+
+```{r}
+#beta <- c(15, -3.5, -2, 2)
+beta2 <- c(15, -3.5, -5, 2)
+fake_data[, algae2 := (X%*%beta2)[,1] + epsilon]
+
+fit <- lm(algae2 ~ snail*crab, data=fake_data)
+coef(summary(fit))
+fit.emm <- emmeans(fit, specs=c("snail", "crab"))
+fit.pairs <- contrast(fit.emm,
+                      method="revpairwise",
+                      simple="each",
+                      combine=TRUE,
+                      adjust="none")
+knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))
+
+set.seed(1)
+pd <- position_dodge(0.8)
+gg_response_2 <- ggerrorplot(
+  x = "snail",
+  y = "algae2",
+  color = "crab",
+  add = c("mean_ci", "jitter"),
+  alpha=0.5,
+  position = pd,
+  palette = "jco",
+  data = fake_data
+) +
+  #geom_point(data=fit.emm, aes(x=snail, y=emmean, fill=crab),
+  #          position=pd, size=3) +
+  geom_line(data=summary(fit.emm), aes(x=snail, y=emmean, group=crab),
+            position=pd) +
+  NULL
+
+
+plot_grid(gg_response, gg_response_2)
+
+```
+

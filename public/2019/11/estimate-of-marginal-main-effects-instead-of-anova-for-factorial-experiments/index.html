@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
+<meta name="keywords" content="tech">
+<meta name="description" content="keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
+The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.">
+
+
+<meta property="og:description" content="keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
+The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments">
+<meta name="twitter:title" content="Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments">
+<meta property="og:url" content="/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+<meta property="twitter:url" content="/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+<meta property="og:site_name" content="R Doodles">
+<meta property="og:description" content="keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
+The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.">
+<meta name="twitter:description" content="keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
+The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2019-11-29T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2019-11-29T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="stats 101">
+    
+  
+  
+    
+      <meta property="article:tag" content="anova">
+    
+      <meta property="article:tag" content="interaction">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@jwalkrunski">
+
+
+  <meta name="twitter:creator" content="@jwalkrunski">
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=640">
+
+
+    <title>Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-nnm2spxvve8onlujjlegkkytaehyadd4ksxc1hyzzq9a2wvtrgbljqyulomn.min.css" />
+    
+    
+
+    
+      
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-118821125-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">R Doodles</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+        
+          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="//github.com/middleprofessor">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://stats.stackexchange.com/users/119435/jwalker">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-stack-exchange"></i>
+      
+      <span class="sidebar-button-desc">CrossValidated</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://scholar.google.com/citations?user=W58TmakAAAAJ&amp;hl">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-google"></i>
+      
+      <span class="sidebar-button-desc">Google Scholar</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.researchgate.net/profile/Jeffrey_Walker4/contributions">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Research Gate</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.middleprofessor.com">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-university"></i>
+      
+      <span class="sidebar-button-desc">Research/Teaching</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-11-29T00:00:00Z">
+        
+  November 29, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+
+<p>keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects</p>
+<p>This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?</p>
+<p>The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.</p>
+<ol style="list-style-type: decimal">
+<li>In many of these articles, the researchers interpret the main effects terms of a full-factorial ANOVA table computed from Type III sums of squares (a practice that is highly controversial among statisticians). These may be followed up with estimates of conditional effects but this is much less common that I would expect (and wish)</li>
+<li>Much less commonly, researchers interpret the main effects term of the ANOVA table refit with only additive terms (or Type II sums of squares).</li>
+</ol>
+<p>But why ANOVA (other than it was easy to compute 60 years ago without a computer). Why not simply estimate relevant contrasts? If the design is factorial, the relevant contrasts are generally the conditional effects (or “simple” effects) but could be the marginal effects computed from the additive model (marginal effects are computed as contrasts of marginal means). The advantage of estimation over ANOVA is that estimates and uncertainty matter (how can we predict the consequences of CO2 and warming with F statistics and p-values)</p>
+<p>The first part of this doodle compares inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. As shown below, the first is equivalent to computing the marginal effects of the full model (which means that computing marginal effects from a full factorial model should be as controversial as the interpretation of main effects in an ANOVA table with Type III sum of squares). The second is equivalent to computing the marginal effects of the additive model. When the data are balanced, the estimate of a marginal effect is independent of the model (full or additive) but the SEs and DF differ, and consequently, the p-value. When the data are not balanced, the estimate of a marginal effect is not independent of the model.</p>
+<div id="comparing-marginal-effects-to-main-effect-terms-in-an-anova-table" class="section level1">
+<h1>Comparing marginal effects to main effect terms in an ANOVA table</h1>
+<div id="first-some-fake-data" class="section level2">
+<h2>First, some fake data</h2>
+<pre class="r"><code>set.seed(1)
+n &lt;- 10
+
+# get random error
+sigma &lt;- 2.5
+
+snail_levels &lt;- c(&quot;low&quot;,&quot;high&quot;)
+crab_levels &lt;- c(&quot;absent&quot;, &quot;present&quot;)
+fake_data &lt;- data.table(
+  snail = factor(rep(snail_levels, each=n*2),
+                snail_levels),
+  crab = factor(rep(rep(crab_levels, each=n), 2), crab_levels)
+)
+X &lt;- model.matrix(~snail*crab, data=fake_data)
+beta &lt;- c(15, -3.5, 1.5, -3)
+
+# find a pretty good match of parameters
+done &lt;- FALSE
+seed_i &lt;- 0
+tol &lt;- 0.1
+while(done==FALSE){
+  seed_i &lt;- seed_i + 1
+  set.seed(seed_i)
+  epsilon &lt;- rnorm(n*2*2, sd=sigma)
+  fake_data[, algae := (X%*%beta)[,1] + epsilon]
+  fit &lt;- lm(algae ~ snail*crab, data=fake_data)
+  coef_i &lt;- coef(fit)
+  if(abs(coef_i[2] - beta[2]) &lt; tol &amp;
+     abs(coef_i[3] - beta[3]) &lt; tol &amp;
+     abs(coef_i[4] - beta[4]) &lt; tol){done &lt;- TRUE}
+}
+
+# the fake data
+set.seed(seed_i)
+epsilon &lt;- rnorm(n*2*2, sd=sigma)
+fake_data[, algae := (X%*%beta)[,1] + epsilon]</code></pre>
+<p>Coefficients of the model</p>
+<pre class="r"><code>fit &lt;- lm(algae ~ snail*crab, data=fake_data)
+coef(summary(fit))</code></pre>
+<pre><code>##                        Estimate Std. Error   t value     Pr(&gt;|t|)
+## (Intercept)           15.517280  0.8621397 17.998568 1.391597e-19
+## snailhigh             -3.498986  1.2192496 -2.869786 6.834572e-03
+## crabpresent            1.562369  1.2192496  1.281418 2.082394e-01
+## snailhigh:crabpresent -2.919097  1.7242794 -1.692937 9.910554e-02</code></pre>
+<p>Conditional (simple) effects</p>
+<pre class="r"><code>fit.emm &lt;- emmeans(fit, specs=c(&quot;snail&quot;, &quot;crab&quot;))
+fit.pairs &lt;- contrast(fit.emm,
+                      method=&quot;revpairwise&quot;,
+                      simple=&quot;each&quot;,
+                      combine=TRUE,
+                      adjust=&quot;none&quot;)
+knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">crab</th>
+<th align="left">snail</th>
+<th align="left">contrast</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">absent</td>
+<td align="left">.</td>
+<td align="left">high - low</td>
+<td align="right">-3.50</td>
+<td align="right">1.22</td>
+<td align="right">36</td>
+<td align="right">-2.87</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="even">
+<td align="left">present</td>
+<td align="left">.</td>
+<td align="left">high - low</td>
+<td align="right">-6.42</td>
+<td align="right">1.22</td>
+<td align="right">36</td>
+<td align="right">-5.26</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">.</td>
+<td align="left">low</td>
+<td align="left">present - absent</td>
+<td align="right">1.56</td>
+<td align="right">1.22</td>
+<td align="right">36</td>
+<td align="right">1.28</td>
+<td align="right">0.208</td>
+</tr>
+<tr class="even">
+<td align="left">.</td>
+<td align="left">high</td>
+<td align="left">present - absent</td>
+<td align="right">-1.36</td>
+<td align="right">1.22</td>
+<td align="right">36</td>
+<td align="right">-1.11</td>
+<td align="right">0.273</td>
+</tr>
+</tbody>
+</table>
+<p>What the data look like</p>
+<pre class="r"><code>set.seed(1)
+pd &lt;- position_dodge(0.8)
+gg_response &lt;- ggerrorplot(
+  x = &quot;snail&quot;,
+  y = &quot;algae&quot;,
+  color = &quot;crab&quot;,
+  add = c(&quot;mean_ci&quot;, &quot;jitter&quot;),
+  alpha=0.5,
+  position = pd,
+  palette = &quot;jco&quot;,
+  data = fake_data
+) +
+  #geom_point(data=fit.emm, aes(x=snail, y=emmean, fill=crab),
+  #          position=pd, size=3) +
+  geom_line(data=summary(fit.emm), aes(x=snail, y=emmean, group=crab),
+            position=pd) +
+  NULL
+
+gg_response</code></pre>
+<p><img src="/post/2019-11-29-estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="comparison-of-marginal-effects-vs.-main-effects-term-of-anova-table-when-data-are-balanced" class="section level2">
+<h2>Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced</h2>
+<pre class="r"><code>m1 &lt;- lm(algae ~ snail*crab, data=fake_data)
+m2 &lt;- lm(algae ~ snail + crab, data=fake_data)
+m1_emm &lt;- emmeans(m1, specs=&quot;snail&quot;)
+m2_emm &lt;- emmeans(m2, specs=&quot;snail&quot;)
+m1_marginal &lt;- contrast(m1_emm, method=&quot;revpairwise&quot;, adjust=&quot;none&quot;)
+m2_marginal &lt;- contrast(m2_emm, method=&quot;revpairwise&quot;, adjust=&quot;none&quot;)
+
+con3 &lt;- list(snail=contr.sum, crab=contr.sum)
+m3 &lt;- lm(algae ~ snail*crab, data=fake_data, contrasts=con3)
+m4 &lt;- lm(algae ~ snail + crab, data=fake_data, contrasts=con3)
+m3_coef &lt;- coef(summary(m3))
+m4_coef &lt;- coef(summary(m4))
+m3_anova &lt;- Anova(m3, type=&quot;3&quot;)
+m4_anova &lt;- Anova(m4, type=&quot;3&quot;)
+
+# res_table &lt;- data.table(&quot; &quot;=c(&quot;Estimate&quot;, &quot;SE&quot;, &quot;df&quot;, &quot;statistic&quot;, &quot;p-value&quot;),
+#   &quot;marginal (full)&quot;=unlist(summary(m1_marginal)[1, c(2:6)]),
+#   &quot;ANOVA (full)&quot;=c(NA, NA, round(m3_anova[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m3_anova[2, 3:4])),
+#   &quot;marginal (add)&quot;=unlist(summary(m2_marginal)[1, c(2:6)]),
+#   &quot;ANOVA (add)&quot;=c(NA, NA, round(m4_anova[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m4_anova[2, 3:4]))
+# )
+
+col_names &lt;- c(&quot;Estimate&quot;, &quot;SE&quot;, &quot;df&quot;, &quot;statistic&quot;, &quot;p-value&quot;)
+row_names &lt;- c(&quot;marginal (full)&quot;, &quot;marginal (add)&quot;, &quot;ANOVA (full)&quot;, &quot;ANOVA (add)&quot;)
+res_table &lt;- data.table(t(matrix(c(
+  unlist(summary(m1_marginal)[1, c(2:6)]),
+  unlist(summary(m2_marginal)[1, c(2:6)]),
+  c(NA, NA, round(m3_anova[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m3_anova[2, 3:4])),
+  c(NA, NA, round(m4_anova[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m4_anova[2, 3:4]))),
+  nrow=5, ncol=4
+)))
+setnames(res_table, old=colnames(res_table), new=col_names)
+res_table &lt;- cbind(method=row_names, res_table)
+
+knitr::kable(res_table, digits=5, caption=&quot;Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail term of the ANOVA table from the full-factorial and additive models&quot;)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-4">Table 1: </span>Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail term of the ANOVA table from the full-factorial and additive models</caption>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="right">Estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">statistic</th>
+<th align="right">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">marginal (full)</td>
+<td align="right">-4.95853</td>
+<td align="right">0.86214</td>
+<td align="right">36</td>
+<td align="right">-5.75143</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">marginal (add)</td>
+<td align="right">-4.95853</td>
+<td align="right">0.88361</td>
+<td align="right">37</td>
+<td align="right">-5.61166</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">ANOVA (full)</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">36</td>
+<td align="right">33.07892</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">ANOVA (add)</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">37</td>
+<td align="right">31.49073</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="comparison-of-marginal-effects-vs.-main-effects-term-of-anova-table-when-data-are-unbalanced" class="section level2">
+<h2>Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced</h2>
+<p>Delete some data</p>
+<pre class="r"><code>set.seed(1)
+inc &lt;- c(1:10,
+         sample(11:20, 6),
+         sample(21:30, 8),
+         sample(31:40, 5))
+fake_data_missing &lt;- fake_data[inc,]
+knitr::kable(fake_data_missing[, .(N=.N), by=c(&quot;snail&quot;, &quot;crab&quot;)])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">snail</th>
+<th align="left">crab</th>
+<th align="right">N</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">low</td>
+<td align="left">absent</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">low</td>
+<td align="left">present</td>
+<td align="right">6</td>
+</tr>
+<tr class="odd">
+<td align="left">high</td>
+<td align="left">absent</td>
+<td align="right">8</td>
+</tr>
+<tr class="even">
+<td align="left">high</td>
+<td align="left">present</td>
+<td align="right">5</td>
+</tr>
+</tbody>
+</table>
+<p>Marginal effects v ANOVA table main effects</p>
+<pre class="r"><code>m0 &lt;- lm(algae ~ snail, data=fake_data_missing)
+m1 &lt;- lm(algae ~ snail*crab, data=fake_data_missing)
+m2 &lt;- lm(algae ~ snail + crab, data=fake_data_missing)
+m1_emm &lt;- emmeans(m1, specs=&quot;snail&quot;)
+m2_emm &lt;- emmeans(m2, specs=&quot;snail&quot;)
+m1_marginal &lt;- contrast(m1_emm, method=&quot;revpairwise&quot;, adjust=&quot;none&quot;)
+m2_marginal &lt;- contrast(m2_emm, method=&quot;revpairwise&quot;, adjust=&quot;none&quot;)
+
+con3 &lt;- list(snail=contr.sum, crab=contr.sum)
+m3 &lt;- lm(algae ~ snail*crab, data=fake_data_missing, contrasts=con3)
+m4 &lt;- lm(algae ~ snail + crab, data=fake_data_missing, contrasts=con3)
+m3_coef &lt;- coef(summary(m3))
+m4_coef &lt;- coef(summary(m4))
+m3_anova &lt;- Anova(m3, type=&quot;3&quot;)
+m4_anova &lt;- Anova(m4, type=&quot;3&quot;)
+m4_anova_2 &lt;- Anova(m4, type=&quot;2&quot;)
+m2_anova_2 &lt;- Anova(m2, type=&quot;2&quot;)
+m3_anova_2 &lt;- Anova(m3, type=&quot;2&quot;)
+
+# res_table &lt;- data.table(&quot; &quot;=c(&quot;Estimate&quot;, &quot;SE&quot;, &quot;df&quot;, &quot;statistic&quot;, &quot;p-value&quot;),
+#   &quot;marginal (full)&quot;=unlist(summary(m1_marginal)[1, c(2:6)]),
+#   &quot;ANOVA (full)&quot;=c(NA, NA, round(m3_anova[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m3_anova[2, 3:4])),
+#   &quot;marginal (add)&quot;=unlist(summary(m2_marginal)[1, c(2:6)]),
+#   &quot;ANOVA (add)&quot;=c(NA, NA, round(m4_anova[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m4_anova[2, 3:4]))
+# )
+
+col_names &lt;- c(&quot;Estimate&quot;, &quot;SE&quot;, &quot;df&quot;, &quot;statistic&quot;, &quot;p-value&quot;)
+row_names &lt;- c(&quot;marginal (full)&quot;, &quot;marginal (add)&quot;, &quot;ANOVA (full)&quot;, &quot;ANOVA (add)&quot;)
+res_table &lt;- data.table(t(matrix(c(
+  unlist(summary(m1_marginal)[1, c(2:6)]),
+  unlist(summary(m2_marginal)[1, c(2:6)]),
+  c(NA, NA, round(m3_anova[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m3_anova[2, 3:4])),
+  c(NA, NA, round(m4_anova[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m4_anova[2, 3:4]))),
+  nrow=5, ncol=4
+)))
+setnames(res_table, old=colnames(res_table), new=col_names)
+res_table &lt;- cbind(method=row_names, res_table)
+
+knitr::kable(res_table, digits=5, caption=&quot;Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail \&quot;main effect\&quot; term of the ANOVA table from the full-factorial and additive models&quot;)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-6">Table 2: </span>Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail “main effect” term of the ANOVA table from the full-factorial and additive models</caption>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="right">Estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">statistic</th>
+<th align="right">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">marginal (full)</td>
+<td align="right">-5.71571</td>
+<td align="right">1.01894</td>
+<td align="right">25</td>
+<td align="right">-5.60946</td>
+<td align="right">1e-05</td>
+</tr>
+<tr class="even">
+<td align="left">marginal (add)</td>
+<td align="right">-5.32370</td>
+<td align="right">1.01895</td>
+<td align="right">26</td>
+<td align="right">-5.22469</td>
+<td align="right">2e-05</td>
+</tr>
+<tr class="odd">
+<td align="left">ANOVA (full)</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">25</td>
+<td align="right">31.46601</td>
+<td align="right">1e-05</td>
+</tr>
+<tr class="even">
+<td align="left">ANOVA (add)</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">26</td>
+<td align="right">27.29736</td>
+<td align="right">2e-05</td>
+</tr>
+</tbody>
+</table>
+<p>Different ways of computing marginal effects in R</p>
+<ol style="list-style-type: decimal">
+<li>Marginal effects of additive model from emmeans (dummy coding)</li>
+<li>Type II ANOVA of additive model from car (dummy coding)</li>
+<li>Type II ANOVA of additive model from car (effects coding)</li>
+<li>Type III ANOVA of additive model from car (effects coding)</li>
+<li>Type II ANOVA of factorial model from car (effects coding)</li>
+</ol>
+<pre class="r"><code>col_names &lt;- c(&quot;Estimate&quot;, &quot;SE&quot;, &quot;df&quot;, &quot;statistic&quot;, &quot;p-value&quot;)
+row_names &lt;- c(&quot;1. marginal effects (additive, dummy coding)&quot;,
+               &quot;2. Type 2 ANOVA (additive, dummy coding)&quot;, 
+               &quot;3. Type 2 ANOVA  (additive, effects coding)&quot;,
+               &quot;4. Type 3 ANOVA  (additive, effects coding)&quot;,
+               &quot;5. Type 2 ANOVA  (full, effects coding)&quot;)
+type_2_table &lt;- data.table(t(matrix(c(
+  unlist(summary(m2_marginal)[1, c(2:6)]),
+  c(NA, NA, round(m2_anova_2[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m2_anova_2[1, 3:4])),
+  c(NA, NA, round(m4_anova_2[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m4_anova_2[1, 3:4])),
+  c(NA, NA, round(m4_anova[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m4_anova[2, 3:4])),
+  c(NA, NA, round(m3_anova_2[&quot;Residuals&quot;, &quot;Df&quot;],0), unlist(m3_anova_2[1, 3:4]))),
+  nrow=5, ncol=5
+)))
+setnames(type_2_table, old=colnames(type_2_table), new=col_names)
+type_2_table &lt;- cbind(method=row_names, type_2_table)
+
+knitr::kable(type_2_table)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="right">Estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">statistic</th>
+<th align="right">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1. marginal effects (additive, dummy coding)</td>
+<td align="right">-5.323701</td>
+<td align="right">1.018951</td>
+<td align="right">26</td>
+<td align="right">-5.224687</td>
+<td align="right">1.86e-05</td>
+</tr>
+<tr class="even">
+<td align="left">2. Type 2 ANOVA (additive, dummy coding)</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">26</td>
+<td align="right">27.297359</td>
+<td align="right">1.86e-05</td>
+</tr>
+<tr class="odd">
+<td align="left">3. Type 2 ANOVA (additive, effects coding)</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">26</td>
+<td align="right">27.297359</td>
+<td align="right">1.86e-05</td>
+</tr>
+<tr class="even">
+<td align="left">4. Type 3 ANOVA (additive, effects coding)</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">26</td>
+<td align="right">27.297359</td>
+<td align="right">1.86e-05</td>
+</tr>
+<tr class="odd">
+<td align="left">5. Type 2 ANOVA (full, effects coding)</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">25</td>
+<td align="right">28.958022</td>
+<td align="right">1.39e-05</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="when-to-estimate-marginal-effects" class="section level1">
+<h1>When to estimate marginal effects</h1>
+<p>Interactions effects are ubiquitous if not universal. Consequently, the decision to estimate and present marginal effects, as opposed to conditional effects, should not be in the service of a futile effort to learn the “true” model but should depend only on how much one wants to simplify a working model of a system.</p>
+<p>I would tend to not estimate marginal effects given the data analyzed above. The data are noisy but are consistant with an interesting interaction and, consequently, an interesting pattern of conditional effects. Namely, the effect of crab removal decreases algae cover when snail density is low but increases algae cover when snail density is high. Again, the data are too noisy to estimate the effects with much certainty, and good practice would be a set of replication experiemnts to estimate these effects with more precision. If the model were reduced and only the marginal effects were estimated, the possibility of this more complex model of how the system functions would be masked.</p>
+<p>The data in the right side of the figure below are precisely those in the analysis above (and reproduced in the left figure below) except the effect of crab removal is increased from -2 to -5. The effect of increasing snail density is the same. The interaction is the same. The residuals are the same.</p>
+<p>Even though the interaction effect is the same as that above, relative to the treatment effects of both snail density and crab removal, it is relatively small. Consequently at both levels of snail density, crab removal results in large decrease in algae cover. As long as we don’t have any theory that is quantitative enough to predict this pattern, there is not much loss of understanding if we simply reduce this to the additive model. We don’t claim in the paper that “there is no interaction” or that the effects of crab removal are the same at both levels of snail density, but only that the reduced model and the computation of the marginal effects is a good “working model” of what is going on.</p>
+<pre class="r"><code>#beta &lt;- c(15, -3.5, -2, 2)
+beta2 &lt;- c(15, -3.5, -5, 2)
+fake_data[, algae2 := (X%*%beta2)[,1] + epsilon]
+
+fit &lt;- lm(algae2 ~ snail*crab, data=fake_data)
+coef(summary(fit))</code></pre>
+<pre><code>##                        Estimate Std. Error   t value     Pr(&gt;|t|)
+## (Intercept)           15.517280  0.8621397 17.998568 1.391597e-19
+## snailhigh             -3.498986  1.2192496 -2.869786 6.834572e-03
+## crabpresent           -4.937631  1.2192496 -4.049730 2.606853e-04
+## snailhigh:crabpresent  2.080903  1.7242794  1.206825 2.353700e-01</code></pre>
+<pre class="r"><code>fit.emm &lt;- emmeans(fit, specs=c(&quot;snail&quot;, &quot;crab&quot;))
+fit.pairs &lt;- contrast(fit.emm,
+                      method=&quot;revpairwise&quot;,
+                      simple=&quot;each&quot;,
+                      combine=TRUE,
+                      adjust=&quot;none&quot;)
+knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">crab</th>
+<th align="left">snail</th>
+<th align="left">contrast</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">absent</td>
+<td align="left">.</td>
+<td align="left">high - low</td>
+<td align="right">-3.50</td>
+<td align="right">1.22</td>
+<td align="right">36</td>
+<td align="right">-2.87</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="even">
+<td align="left">present</td>
+<td align="left">.</td>
+<td align="left">high - low</td>
+<td align="right">-1.42</td>
+<td align="right">1.22</td>
+<td align="right">36</td>
+<td align="right">-1.16</td>
+<td align="right">0.252</td>
+</tr>
+<tr class="odd">
+<td align="left">.</td>
+<td align="left">low</td>
+<td align="left">present - absent</td>
+<td align="right">-4.94</td>
+<td align="right">1.22</td>
+<td align="right">36</td>
+<td align="right">-4.05</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">.</td>
+<td align="left">high</td>
+<td align="left">present - absent</td>
+<td align="right">-2.86</td>
+<td align="right">1.22</td>
+<td align="right">36</td>
+<td align="right">-2.34</td>
+<td align="right">0.025</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>set.seed(1)
+pd &lt;- position_dodge(0.8)
+gg_response_2 &lt;- ggerrorplot(
+  x = &quot;snail&quot;,
+  y = &quot;algae2&quot;,
+  color = &quot;crab&quot;,
+  add = c(&quot;mean_ci&quot;, &quot;jitter&quot;),
+  alpha=0.5,
+  position = pd,
+  palette = &quot;jco&quot;,
+  data = fake_data
+) +
+  #geom_point(data=fit.emm, aes(x=snail, y=emmean, fill=crab),
+  #          position=pd, size=3) +
+  geom_line(data=summary(fit.emm), aes(x=snail, y=emmean, group=crab),
+            position=pd) +
+  NULL
+
+
+plot_grid(gg_response, gg_response_2)</code></pre>
+<p><img src="/post/2019-11-29-estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/anova/">anova</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/interaction/">interaction</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/10/can-a-linear-model-reproduce-a-welch-t-test/" data-tooltip="Can a linear model reproduce a Welch t-test?">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/10/can-a-linear-model-reproduce-a-welch-t-test/" data-tooltip="Can a linear model reproduce a Welch t-test?">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F11%2Festimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F11%2Festimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F11%2Festimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/7bbef046c3aca6a4dce979b577e3e165?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+    
+      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Jeff Walker, Professor of Biological Sciences
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        University of Southern Maine, Portland, Maine, United States
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+                <h3 class="media-heading">Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Nov 11, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
+The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/10/can-a-linear-model-reproduce-a-welch-t-test/">
+                <h3 class="media-heading">Can a linear model reproduce a Welch t-test?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This doodle was motivated Jake Westfall’s answer to a Cross-Validated question.
+The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the t-value reproduces, not the df and p-value. Jake notes the reason for this in his answer on Cross-Validated.
+To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/10/normalization-results-in-regression-to-the-mean/">
+                <h3 class="media-heading">Normalization results in regression to the mean and inflated Type I error conditional on the reference values</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Fig 1C of the Replication Study: Melanoma exosomes educate bone marrow progenitor cells toward a pro-metastatic phenotype through MET uses an odd (to me) three stage normalization procedure for the quantified western blots. The authors compared blot values between a treatment (shMet cells) and a control (shScr cells) using GAPDH to normalize the values. The three stages of the normalization are
+first, the value for the Antibody levels were normalized by the value of a reference (GAPDH) for each Set.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/10/a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease/">
+                <h3 class="media-heading">A comment on the novel transformation of the response in &#34; Senolytics decrease senescent cells in humans: Preliminary report from a clinical trial of Dasatinib plus Quercetin in individuals with diabetic kidney disease&#34;</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivation: https://pubpeer.com/publications/8DF6E66FEFAA2C3C7D5BD9C3FC45A2#2 and https://twitter.com/CGATist/status/1175015246282539009
+tl;dr: Given the transformation done by the authors, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error with an unpaired t-test. The transformation is necessary and sufficient to produce the result (meaning even in conditions where a paired t-test isn’t needed, the transformation still produces elevated Type I error).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/08/what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power/">
+                <h3 class="media-heading">What is the consequence of a Shapiro-Wilk test-of-normality filter on Type I error and Power?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Aug 8, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Set up Normal distribution Type I error Power  Right skewed continuous – lognormal What the parameterizations look like Type I error Power    This 1990-wants-you-back doodle explores the effects of a Normality Filter – using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
+                <h3 class="media-heading">What is the bias in the estimation of an effect given an omitted interaction term?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
+\[\begin{equation} y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
+The total effect of \(x_1\) on \(y\) is \(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
+If \(x_3\) (the interaction) is missing, its component on the total efffect is added to the coefficient of \(x_1\).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">
+                <h3 class="media-heading">Is the power to test an interaction effect less than that for a main effect?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">I was googling around and somehow landed on a page that stated “When effect coding is used, statistical power is the same for all regression coefficients of the same size, whether they correspond to main effects or interactions, and irrespective of the order of the interaction”. Really? How could this be? The p-value for an interaction effect is the same regardless of dummy or effects coding, and, with dummy coding (R’s default), the power of the interaction effect is less than that of the coefficients for the main factors when they have the same magnitude, so my intuition said this statement must be wrong.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/analyze-the-mean-or-median-and-not-the-max-response/">
+                <h3 class="media-heading">Analyze the mean (or median) and not the max response</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is an update of Paired t-test as a special case of linear model and hierarchical model
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/paired-t-test-as-a-special-case-of-linear-model-and-hierarchical-linear-mixed-model/">
+                <h3 class="media-heading">Paired t-test as a special case of linear model and hierarchical (linear mixed) model</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Update – Fig. 2A is an analysis of the maximum endurance over three trials. This has consequences.
+Figure 2A of the paper Meta-omics analysis of elite athletes identifies a performance-enhancing microbe that functions via lactate metabolism uses a paired t-test to compare endurance performance in mice treated with a control microbe (Lactobacillus bulgaricus) and a test microbe (Veillonella atypica) in a cross-over design (so each mouse was treated with both bacteria).</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/06/what-does-cell-biology-data-look-like/">
+                <h3 class="media-heading">What does cell biology data look like?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         34 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('/images/Jackson%20copy%202.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2019\/11\/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments\/';
+          
+            this.page.identifier = '\/2019\/11\/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+<script src="//yihui.name/js/math-code.js"></script>
+<script async
+src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    
+  </body>
+</html>
+

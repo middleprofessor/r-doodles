@@ -6,10 +6,21 @@
     <description>Recent content in Stats 101 on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 27 Oct 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 29 Nov 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/stats-101/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments</title>
+      <link>/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/</link>
+      <pubDate>Fri, 29 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/</guid>
+      <description>keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
+The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.</description>
+    </item>
     
     <item>
       <title>Can a linear model reproduce a Welch t-test?</title>
