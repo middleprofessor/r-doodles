@@ -1,0 +1,91 @@
+---
+title: '"Nested" random factors in mixed (multilevel or hierarchical) models'
+author: Jeff Walker
+date: '2019-11-30'
+slug: nested-random-factors-in-mixed-multilevel-or-hierarchical-models
+categories:
+  - stats 101
+tags:
+  - generalized linear models
+  - linear mixed model
+keywords:
+  - tech
+---
+This is a skeletal post to show the equivalency of different ways of thinking about "nested" factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice -- from farmed raised or wild salmon. response are "days pos". A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms. There were multiple measures for each tank, so there is non-independence within tanks. There were also differences in setup between rooms so we expect non-independence within rooms. There are two ways to think about this non-independence
+
+1. the classical "nested" way of thinking: tanks is "nested within" room. 
+2. the lme4 (Bates xxx) way of thinking: room and a factor of the combinations of tanks and rooms are crossed.
+
+Source article [Mennerat, A., Ugelvik, M.S., Håkonsrud Jensen, C. and Skorping, A., 2017. Invest more and die faster: The life history of a parasite on intensive farms. Evolutionary applications, 10(9), pp.890-896.](https://onlinelibrary.wiley.com/doi/full/10.1111/eva.12488)
+
+Source data [Data from: Invest more and die faster: the life history of a parasite on intensive farms](https://datadryad.org/stash/dataset/doi:10.5061/dryad.4db01)
+
+# Setup
+```{r setup}
+library(janitor)
+library(data.table)
+library(lmerTest)
+library(here)
+here <- here::here
+
+folder <- "Data from Invest more and die faster - the life history of a parasite on intensive farms"
+
+```
+
+# Import
+
+```{r}
+fn <- "timing_ES1to5.txt"
+file_path <- here('data',folder, fn)
+file_path <- paste('../data', folder, fn, sep="/")
+timing <- clean_names(fread(file_path))
+setnames(timing, old="exp", new="room")
+```
+
+# Models
+
+I follow the authors of the source paper and use a generalized linear mixed model with Poisson family and log-link. The column "tank" contains the tank ID 1-30 in each room. As a consequence the tank "2" is not unique but occurs in both room 1 and room 2. The column "tank2" has a unique name for every tank. The value is simply the combination of "room" and "tank".
+
+## as crossed factors using tank2
+
+```{r}
+m1 <- glmer(days_pi ~ status*es + (1|room) + (1|tank2), family = "poisson", data = timing)
+coef(summary(m1))
+```
+
+## as nested using tank
+
+```{r}
+m2 <- glmer(days_pi ~ status*es + (1|room/tank), family = "poisson", data = timing)
+coef(summary(m2))
+```
+
+## as crossed (using lme4 to create the combinations)
+```{r}
+m3 <- glmer(days_pi ~ status*es + (1|room) + (1|room:tank), family = "poisson", data = timing)
+coef(summary(m3))
+
+```
+
+## A safer (lme4) way to create the combinations of room and tank:
+The `room:tank` specification may create combinations that do not exist in the data. A safer way to do this is to create a column that combines "room" and "tank" so that each tank has a unique name. This is the same concept as "tank2" in the original data
+
+```{r}
+# to emphasize that this only works if room and tank are factors
+timing[, room:=factor(room)]
+timing[, tank:=factor(tank)]
+timing[, tank_id := factor(room:tank)] # same concept as "tank2"
+m4 <- glmer(days_pi ~ status*es + (1|room) + (1|tank_id), family = "poisson", data = timing)
+coef(summary(m4))
+```
+
+## Don't do this
+This doesn't work because the column "tank" contains the same set of tank IDs in each room, that is, tank ID is not unique. This implies that tank "2" is the same in both rooms or that "2" has the "same" meaning.
+
+```{r}
+
+m5 <- glmer(days_pi ~ status*es + (1|room) + (1|tank), family = "poisson", data = timing)
+coef(summary(m5))
+
+```
+

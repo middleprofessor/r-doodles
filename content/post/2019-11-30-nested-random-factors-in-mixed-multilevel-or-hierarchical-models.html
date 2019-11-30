@@ -1,0 +1,117 @@
+---
+title: '"Nested" random factors in mixed (multilevel or hierarchical) models'
+author: Jeff Walker
+date: '2019-11-30'
+slug: nested-random-factors-in-mixed-multilevel-or-hierarchical-models
+categories:
+  - stats 101
+tags:
+  - generalized linear models
+  - linear mixed model
+keywords:
+  - tech
+---
+
+
+
+<p>This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms. There were multiple measures for each tank, so there is non-independence within tanks. There were also differences in setup between rooms so we expect non-independence within rooms. There are two ways to think about this non-independence</p>
+<ol style="list-style-type: decimal">
+<li>the classical “nested” way of thinking: tanks is “nested within” room.</li>
+<li>the lme4 (Bates xxx) way of thinking: room and a factor of the combinations of tanks and rooms are crossed.</li>
+</ol>
+<p>Source article <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/eva.12488">Mennerat, A., Ugelvik, M.S., Håkonsrud Jensen, C. and Skorping, A., 2017. Invest more and die faster: The life history of a parasite on intensive farms. Evolutionary applications, 10(9), pp.890-896.</a></p>
+<p>Source data <a href="https://datadryad.org/stash/dataset/doi:10.5061/dryad.4db01">Data from: Invest more and die faster: the life history of a parasite on intensive farms</a></p>
+<div id="setup" class="section level1">
+<h1>Setup</h1>
+<pre class="r"><code>library(janitor)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;janitor&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     chisq.test, fisher.test</code></pre>
+<pre class="r"><code>library(data.table)
+library(lmerTest)</code></pre>
+<pre><code>## Loading required package: lme4</code></pre>
+<pre><code>## Loading required package: Matrix</code></pre>
+<pre><code>## 
+## Attaching package: &#39;lmerTest&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:lme4&#39;:
+## 
+##     lmer</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     step</code></pre>
+<pre class="r"><code>library(here)</code></pre>
+<pre><code>## here() starts at /Users/jwalker/Documents/Github projects/R doodles</code></pre>
+<pre class="r"><code>here &lt;- here::here
+
+folder &lt;- &quot;Data from Invest more and die faster - the life history of a parasite on intensive farms&quot;</code></pre>
+</div>
+<div id="import" class="section level1">
+<h1>Import</h1>
+<pre class="r"><code>fn &lt;- &quot;timing_ES1to5.txt&quot;
+file_path &lt;- here(&#39;data&#39;,folder, fn)
+file_path &lt;- paste(&#39;../data&#39;, folder, fn, sep=&quot;/&quot;)
+timing &lt;- clean_names(fread(file_path))
+setnames(timing, old=&quot;exp&quot;, new=&quot;room&quot;)</code></pre>
+</div>
+<div id="models" class="section level1">
+<h1>Models</h1>
+<p>I follow the authors of the source paper and use a generalized linear mixed model with Poisson family and log-link. The column “tank” contains the tank ID 1-30 in each room. As a consequence the tank “2” is not unique but occurs in both room 1 and room 2. The column “tank2” has a unique name for every tank. The value is simply the combination of “room” and “tank”.</p>
+<div id="as-crossed-factors-using-tank2" class="section level2">
+<h2>as crossed factors using tank2</h2>
+<pre class="r"><code>m1 &lt;- glmer(days_pi ~ status*es + (1|room) + (1|tank2), family = &quot;poisson&quot;, data = timing)
+coef(summary(m1))</code></pre>
+<pre><code>##                   Estimate  Std. Error   z value   Pr(&gt;|z|)
+## (Intercept)    3.981916916 0.072950431 54.583871 0.00000000
+## statuswild    -0.037870115 0.018418902 -2.056046 0.03977806
+## es             0.135835163 0.003406919 39.870382 0.00000000
+## statuswild:es  0.006370614 0.005207202  1.223424 0.22116972</code></pre>
+</div>
+<div id="as-nested-using-tank" class="section level2">
+<h2>as nested using tank</h2>
+<pre class="r"><code>m2 &lt;- glmer(days_pi ~ status*es + (1|room/tank), family = &quot;poisson&quot;, data = timing)
+coef(summary(m2))</code></pre>
+<pre><code>##                   Estimate  Std. Error   z value   Pr(&gt;|z|)
+## (Intercept)    3.981916916 0.072950431 54.583871 0.00000000
+## statuswild    -0.037870115 0.018418902 -2.056046 0.03977806
+## es             0.135835163 0.003406919 39.870382 0.00000000
+## statuswild:es  0.006370614 0.005207202  1.223424 0.22116972</code></pre>
+</div>
+<div id="as-crossed-using-lme4-to-create-the-combinations" class="section level2">
+<h2>as crossed (using lme4 to create the combinations)</h2>
+<pre class="r"><code>m3 &lt;- glmer(days_pi ~ status*es + (1|room) + (1|room:tank), family = &quot;poisson&quot;, data = timing)
+coef(summary(m3))</code></pre>
+<pre><code>##                   Estimate  Std. Error   z value   Pr(&gt;|z|)
+## (Intercept)    3.981916916 0.072950431 54.583871 0.00000000
+## statuswild    -0.037870115 0.018418902 -2.056046 0.03977806
+## es             0.135835163 0.003406919 39.870382 0.00000000
+## statuswild:es  0.006370614 0.005207202  1.223424 0.22116972</code></pre>
+</div>
+<div id="a-safer-lme4-way-to-create-the-combinations-of-room-and-tank" class="section level2">
+<h2>A safer (lme4) way to create the combinations of room and tank:</h2>
+<p>The <code>room:tank</code> specification may create combinations that do not exist in the data. A safer way to do this is to create a column that combines “room” and “tank” so that each tank has a unique name. This is the same concept as “tank2” in the original data</p>
+<pre class="r"><code># to emphasize that this only works if room and tank are factors
+timing[, room:=factor(room)]
+timing[, tank:=factor(tank)]
+timing[, tank_id := factor(room:tank)] # same concept as &quot;tank2&quot;
+m4 &lt;- glmer(days_pi ~ status*es + (1|room) + (1|tank_id), family = &quot;poisson&quot;, data = timing)
+coef(summary(m4))</code></pre>
+<pre><code>##                   Estimate  Std. Error   z value   Pr(&gt;|z|)
+## (Intercept)    3.981916916 0.072950431 54.583871 0.00000000
+## statuswild    -0.037870115 0.018418902 -2.056046 0.03977806
+## es             0.135835163 0.003406919 39.870382 0.00000000
+## statuswild:es  0.006370614 0.005207202  1.223424 0.22116972</code></pre>
+</div>
+<div id="dont-do-this" class="section level2">
+<h2>Don’t do this</h2>
+<p>This doesn’t work because the column “tank” contains the same set of tank IDs in each room, that is, tank ID is not unique. This implies that tank “2” is the same in both rooms or that “2” has the “same” meaning.</p>
+<pre class="r"><code>m5 &lt;- glmer(days_pi ~ status*es + (1|room) + (1|tank), family = &quot;poisson&quot;, data = timing)
+coef(summary(m5))</code></pre>
+<pre><code>##                   Estimate  Std. Error   z value   Pr(&gt;|z|)
+## (Intercept)    3.981048359 0.073559994 54.119748 0.00000000
+## statuswild    -0.035657150 0.018364165 -1.941670 0.05217705
+## es             0.135696317 0.003407198 39.826363 0.00000000
+## statuswild:es  0.006427319 0.005201244  1.235727 0.21655993</code></pre>
+</div>
+</div>
