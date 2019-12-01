@@ -21,7 +21,7 @@ Source article [Mennerat, A., Ugelvik, M.S., Håkonsrud Jensen, C. and Skorping,
 Source data [Data from: Invest more and die faster: the life history of a parasite on intensive farms](https://datadryad.org/stash/dataset/doi:10.5061/dryad.4db01)
 
 # Setup
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
 library(janitor)
 library(data.table)
 library(lmerTest)
