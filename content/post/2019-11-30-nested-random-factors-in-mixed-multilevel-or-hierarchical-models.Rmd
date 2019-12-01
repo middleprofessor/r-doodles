@@ -49,7 +49,7 @@ setnames(timing, old="exp", new="room")
 
 I follow the authors of the source paper and use a generalized linear mixed model with Poisson family and log-link. The column "tank" contains the tank ID 1-30 in each room. As a consequence a tank with id "6" is not unique but occurs in both room 1 and room 2. The column "tank2" has a unique name for every tank. The value is simply the combination of "room" and "tank".
 
-## as nested using tank
+## as nested using "tank" nested within "room"
 
 ```{r}
 m2 <- glmer(days_pi ~ status*es + (1|room/tank), family = "poisson", data = timing)
@@ -63,7 +63,7 @@ coef(summary(m3))
 
 ```
 
-## A safer (lme4) way to create the combinations of room and tank:
+## A safer (lme4) way to create the combinations of "room" and "tank":
 The `room:tank` specification may create combinations that do not exist in the data. A safer way to do this is to create a column that combines "room" and "tank" so that each tank has a unique name. This is the same concept as "tank2" in the original data.
 
 ```{r}
@@ -75,7 +75,7 @@ m4 <- glmer(days_pi ~ status*es + (1|room) + (1|tank_id), family = "poisson", da
 coef(summary(m4))
 ```
 
-## as two random itercepts using tank2
+## as two random intercepts using "tank2"
 "tank2" is the author's version of the combination, created using something like `paste0(room,tank)`. This is effectively like the "safe" way to create the combinations above.
 
 ```{r}

@@ -21,10 +21,10 @@ output:
 <li><a href="#setup">Setup</a></li>
 <li><a href="#import">Import</a></li>
 <li><a href="#models">Models</a><ul>
-<li><a href="#as-nested-using-tank">as nested using tank</a></li>
+<li><a href="#as-nested-using-tank-nested-within-room">as nested using “tank” nested within “room”</a></li>
 <li><a href="#as-two-random-intercepts-using-lme4-to-create-the-combinations">as two random intercepts (using lme4 to create the combinations)</a></li>
-<li><a href="#a-safer-lme4-way-to-create-the-combinations-of-room-and-tank">A safer (lme4) way to create the combinations of room and tank:</a></li>
-<li><a href="#as-two-random-itercepts-using-tank2">as two random itercepts using tank2</a></li>
+<li><a href="#a-safer-lme4-way-to-create-the-combinations-of-room-and-tank">A safer (lme4) way to create the combinations of “room” and “tank”:</a></li>
+<li><a href="#as-two-random-intercepts-using-tank2">as two random intercepts using “tank2”</a></li>
 <li><a href="#dont-do-this">Don’t do this</a></li>
 </ul></li>
 </ul>
@@ -58,8 +58,8 @@ setnames(timing, old=&quot;exp&quot;, new=&quot;room&quot;)</code></pre>
 <div id="models" class="section level1">
 <h1>Models</h1>
 <p>I follow the authors of the source paper and use a generalized linear mixed model with Poisson family and log-link. The column “tank” contains the tank ID 1-30 in each room. As a consequence a tank with id “6” is not unique but occurs in both room 1 and room 2. The column “tank2” has a unique name for every tank. The value is simply the combination of “room” and “tank”.</p>
-<div id="as-nested-using-tank" class="section level2">
-<h2>as nested using tank</h2>
+<div id="as-nested-using-tank-nested-within-room" class="section level2">
+<h2>as nested using “tank” nested within “room”</h2>
 <pre class="r"><code>m2 &lt;- glmer(days_pi ~ status*es + (1|room/tank), family = &quot;poisson&quot;, data = timing)
 coef(summary(m2))</code></pre>
 <pre><code>##                   Estimate  Std. Error   z value   Pr(&gt;|z|)
@@ -79,7 +79,7 @@ coef(summary(m3))</code></pre>
 ## statuswild:es  0.006370614 0.005207202  1.223424 0.22116972</code></pre>
 </div>
 <div id="a-safer-lme4-way-to-create-the-combinations-of-room-and-tank" class="section level2">
-<h2>A safer (lme4) way to create the combinations of room and tank:</h2>
+<h2>A safer (lme4) way to create the combinations of “room” and “tank”:</h2>
 <p>The <code>room:tank</code> specification may create combinations that do not exist in the data. A safer way to do this is to create a column that combines “room” and “tank” so that each tank has a unique name. This is the same concept as “tank2” in the original data.</p>
 <pre class="r"><code># to emphasize that this only works if room and tank are factors
 timing[, room:=factor(room)]
@@ -93,8 +93,8 @@ coef(summary(m4))</code></pre>
 ## es             0.135835163 0.003406919 39.870382 0.00000000
 ## statuswild:es  0.006370614 0.005207202  1.223424 0.22116972</code></pre>
 </div>
-<div id="as-two-random-itercepts-using-tank2" class="section level2">
-<h2>as two random itercepts using tank2</h2>
+<div id="as-two-random-intercepts-using-tank2" class="section level2">
+<h2>as two random intercepts using “tank2”</h2>
 <p>“tank2” is the author’s version of the combination, created using something like <code>paste0(room,tank)</code>. This is effectively like the “safe” way to create the combinations above.</p>
 <pre class="r"><code>m1 &lt;- glmer(days_pi ~ status*es + (1|room) + (1|tank2), family = &quot;poisson&quot;, data = timing)
 coef(summary(m1))</code></pre>
