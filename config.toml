@@ -40,10 +40,10 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
   job = "Jeff Walker, Professor of Biological Sciences"
   location = "University of Southern Maine, Portland, Maine, United States"
   # Your Gravatar email. Overwrite `author.picture` everywhere in the blog
-  gravatarEmail = "walker@maine.edu"
+  # gravatarEmail = "walker@maine.edu"
   # Your profile picture
   # Overwritten by your gravatar image if `author.gravatarEmail` is filled
-  #picture = "xxx.png"
+  picture = "images/fire.png"
   # Your Twitter username without the @. E.g : thibaudlepretre
  twitter = "jwalkrunski"
   # Your google plus profile id. E.g : +ThibaudLepretre or 114625208755123718311
