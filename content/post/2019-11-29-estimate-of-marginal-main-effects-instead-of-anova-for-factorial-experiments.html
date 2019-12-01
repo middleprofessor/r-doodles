@@ -33,7 +33,7 @@ output:
 <h1>Background</h1>
 <p>I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to “The removal of crabs strongly decreased algae cover (<span class="math inline">\(F_{1,36} = 17.4\)</span>, <span class="math inline">\(p &lt; 0.001\)</span>)” (I’ve made the data for this table up. The actual experiment had nothing to do with crabs or algae).</p>
 <table>
-<caption>(#tab:anova table)ANOVA of crab experiment</caption>
+<caption><span id="tab:anova-table">Table 1: </span>ANOVA table of crab experiment.</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -247,7 +247,7 @@ res_table &lt;- cbind(method=row_names, res_table)
 
 knitr::kable(res_table, digits=5, caption=&quot;Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail term of the ANOVA table from the full-factorial and additive models&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-4">Table 1: </span>Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail term of the ANOVA table from the full-factorial and additive models</caption>
+<caption><span id="tab:unnamed-chunk-4">Table 2: </span>Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail term of the ANOVA table from the full-factorial and additive models</caption>
 <thead>
 <tr class="header">
 <th align="left">method</th>
@@ -376,7 +376,7 @@ res_table &lt;- cbind(method=row_names, res_table)
 
 knitr::kable(res_table, digits=5, caption=&quot;Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail \&quot;main effect\&quot; term of the ANOVA table from the full-factorial and additive models&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-6">Table 2: </span>Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail “main effect” term of the ANOVA table from the full-factorial and additive models</caption>
+<caption><span id="tab:unnamed-chunk-6">Table 3: </span>Marginal effects of Snail (pooled across levels of crab) computed from the full-factorial and additive models. ANOVA columns are from the Snail “main effect” term of the ANOVA table from the full-factorial and additive models</caption>
 <thead>
 <tr class="header">
 <th align="left">method</th>

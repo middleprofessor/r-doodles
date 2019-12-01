@@ -77,7 +77,7 @@ fake_data[, algae := (X%*%beta)[,1] + epsilon]
 
 I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to "The removal of crabs strongly decreased algae cover ($F_{1,36} = 17.4$, $p < 0.001$)" (I've made the data for this table up. The actual experiment had nothing to do with crabs or algae).
 
-```{r anova table, echo=FALSE}
+```{r anova-table, echo=FALSE}
 
 # t3 anova
 con3 <- list(snail=contr.sum, crab=contr.sum)
@@ -86,7 +86,7 @@ m3_coef <- coef(summary(m3))
 m3_anova <- Anova(m3, type="3")
 m3_table <- m3_anova[2:4, 2:4]
 m3_table$Df <- m3_anova[5, "Df"]
-knitr::kable(m3_table, digits=c(0,1,6), caption="ANOVA of crab experiment")
+knitr::kable(m3_table, digits=c(0,1,6), caption="ANOVA table of crab experiment.")
 ```
 
 This is a Type III ANOVA table, so the "crab" term in the ANOVA table is a "main" effect, which can be thought of as the average of the effects of crab removal at low snail density and at high snail density^[the sum of squares is based on marginal means, so the effect is really a difference in marginal means]. It's not wrong to say "crab removal reduced algae cover" but it is misleading if not meaningless. Because it's an average, a main effect is hard to interpret without looking at the values going into that average, which can be inspected with a plot.
