@@ -8,18 +8,18 @@
 <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
 <meta name="keywords" content="tech">
-<meta name="description" content="This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms.">
+<meta name="description" content="Setup Import Models as crossed factors using tank2 as nested using tank as crossed (using lme4 to create the combinations) A safer (lme4) way to create the combinations of room and tank: Don’t do this    This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon.">
 
 
-<meta property="og:description" content="This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms.">
+<meta property="og:description" content="Setup Import Models as crossed factors using tank2 as nested using tank as crossed (using lme4 to create the combinations) A safer (lme4) way to create the combinations of room and tank: Don’t do this    This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="&#34;Nested&#34; random factors in mixed (multilevel or hierarchical) models">
 <meta name="twitter:title" content="&#34;Nested&#34; random factors in mixed (multilevel or hierarchical) models">
 <meta property="og:url" content="/2019/11/nested-random-factors-in-mixed-multilevel-or-hierarchical-models/">
 <meta property="twitter:url" content="/2019/11/nested-random-factors-in-mixed-multilevel-or-hierarchical-models/">
 <meta property="og:site_name" content="R Doodles">
-<meta property="og:description" content="This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms.">
-<meta name="twitter:description" content="This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms.">
+<meta property="og:description" content="Setup Import Models as crossed factors using tank2 as nested using tank as crossed (using lme4 to create the combinations) A safer (lme4) way to create the combinations of room and tank: Don’t do this    This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon.">
+<meta name="twitter:description" content="Setup Import Models as crossed factors using tank2 as nested using tank as crossed (using lme4 to create the combinations) A safer (lme4) way to create the combinations of room and tank: Don’t do this    This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon.">
 <meta property="og:locale" content="en-us">
 
   
@@ -302,6 +302,19 @@ if (!doNotTrack) {
             <div class="main-content-wrap">
               
 
+<div id="TOC">
+<ul>
+<li><a href="#setup">Setup</a></li>
+<li><a href="#import">Import</a></li>
+<li><a href="#models">Models</a><ul>
+<li><a href="#as-crossed-factors-using-tank2">as crossed factors using tank2</a></li>
+<li><a href="#as-nested-using-tank">as nested using tank</a></li>
+<li><a href="#as-crossed-using-lme4-to-create-the-combinations">as crossed (using lme4 to create the combinations)</a></li>
+<li><a href="#a-safer-lme4-way-to-create-the-combinations-of-room-and-tank">A safer (lme4) way to create the combinations of room and tank:</a></li>
+<li><a href="#dont-do-this">Don’t do this</a></li>
+</ul></li>
+</ul>
+</div>
 
 <p>This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms. There were multiple measures for each tank, so there is non-independence within tanks. There were also differences in setup between rooms so we expect non-independence within rooms. There are two ways to think about this non-independence</p>
 <ol style="list-style-type: decimal">
@@ -650,7 +663,7 @@ coef(summary(m5))</code></pre>
                   Nov 11, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms.</div>
+              <div class="media-content hide-xs font-merryweather">Setup Import Models as crossed factors using tank2 as nested using tank as crossed (using lme4 to create the combinations) A safer (lme4) way to create the combinations of room and tank: Don’t do this    This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -667,9 +680,8 @@ coef(summary(m5))</code></pre>
                   Nov 11, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
-The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.</div>
+              <div class="media-content hide-xs font-merryweather">Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

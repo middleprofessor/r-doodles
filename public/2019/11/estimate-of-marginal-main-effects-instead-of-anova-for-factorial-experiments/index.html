@@ -8,26 +8,22 @@
 <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
 <meta name="keywords" content="tech">
-<meta name="description" content="keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
-The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.">
+<meta name="description" content="Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.">
 
 
-<meta property="og:description" content="keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
-The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.">
+<meta property="og:description" content="Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments">
 <meta name="twitter:title" content="Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments">
 <meta property="og:url" content="/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
 <meta property="twitter:url" content="/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
 <meta property="og:site_name" content="R Doodles">
-<meta property="og:description" content="keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
-The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.">
-<meta name="twitter:description" content="keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
-The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.">
+<meta property="og:description" content="Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.">
+<meta name="twitter:description" content="Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.">
 <meta property="og:locale" content="en-us">
 
   
@@ -310,6 +306,16 @@ if (!doNotTrack) {
             <div class="main-content-wrap">
               
 
+<div id="TOC">
+<ul>
+<li><a href="#comparing-marginal-effects-to-main-effect-terms-in-an-anova-table">Comparing marginal effects to main effect terms in an ANOVA table</a><ul>
+<li><a href="#first-some-fake-data">First, some fake data</a></li>
+<li><a href="#comparison-of-marginal-effects-vs.-main-effects-term-of-anova-table-when-data-are-balanced">Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced</a></li>
+<li><a href="#comparison-of-marginal-effects-vs.-main-effects-term-of-anova-table-when-data-are-unbalanced">Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced</a></li>
+</ul></li>
+<li><a href="#when-to-estimate-marginal-effects">When to estimate marginal effects</a></li>
+</ul>
+</div>
 
 <p>keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects</p>
 <p>This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?</p>
@@ -1113,7 +1119,7 @@ plot_grid(gg_response, gg_response_2)</code></pre>
                   Nov 11, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms.</div>
+              <div class="media-content hide-xs font-merryweather">Setup Import Models as crossed factors using tank2 as nested using tank as crossed (using lme4 to create the combinations) A safer (lme4) way to create the combinations of room and tank: Don’t do this    This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -1130,9 +1136,8 @@ plot_grid(gg_response, gg_response_2)</code></pre>
                   Nov 11, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
-The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.</div>
+              <div class="media-content hide-xs font-merryweather">Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

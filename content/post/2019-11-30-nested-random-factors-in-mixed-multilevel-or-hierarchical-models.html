@@ -10,9 +10,25 @@ tags:
   - linear mixed model
 keywords:
   - tech
+output:
+  blogdown::html_page:
+    toc: true
 ---
 
 
+<div id="TOC">
+<ul>
+<li><a href="#setup">Setup</a></li>
+<li><a href="#import">Import</a></li>
+<li><a href="#models">Models</a><ul>
+<li><a href="#as-crossed-factors-using-tank2">as crossed factors using tank2</a></li>
+<li><a href="#as-nested-using-tank">as nested using tank</a></li>
+<li><a href="#as-crossed-using-lme4-to-create-the-combinations">as crossed (using lme4 to create the combinations)</a></li>
+<li><a href="#a-safer-lme4-way-to-create-the-combinations-of-room-and-tank">A safer (lme4) way to create the combinations of room and tank:</a></li>
+<li><a href="#dont-do-this">Don’t do this</a></li>
+</ul></li>
+</ul>
+</div>
 
 <p>This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms. There were multiple measures for each tank, so there is non-independence within tanks. There were also differences in setup between rooms so we expect non-independence within rooms. There are two ways to think about this non-independence</p>
 <ol style="list-style-type: decimal">

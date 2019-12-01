@@ -878,7 +878,7 @@ knitr::kable(sim_table_long[effect!=0 &amp; estimate &gt; 0 &amp; p_table_long[,
                   Nov 11, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms.</div>
+              <div class="media-content hide-xs font-merryweather">Setup Import Models as crossed factors using tank2 as nested using tank as crossed (using lme4 to create the combinations) A safer (lme4) way to create the combinations of room and tank: Don’t do this    This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
@@ -895,9 +895,8 @@ knitr::kable(sim_table_long[effect!=0 &amp; estimate &gt; 0 &amp; p_table_long[,
                   Nov 11, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?
-The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.</div>
+              <div class="media-content hide-xs font-merryweather">Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
+This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
