@@ -21,10 +21,10 @@ output:
 <li><a href="#setup">Setup</a></li>
 <li><a href="#import">Import</a></li>
 <li><a href="#models">Models</a><ul>
-<li><a href="#as-crossed-factors-using-tank2">as crossed factors using tank2</a></li>
 <li><a href="#as-nested-using-tank">as nested using tank</a></li>
-<li><a href="#as-crossed-using-lme4-to-create-the-combinations">as crossed (using lme4 to create the combinations)</a></li>
+<li><a href="#as-two-random-intercepts-using-lme4-to-create-the-combinations">as two random intercepts (using lme4 to create the combinations)</a></li>
 <li><a href="#a-safer-lme4-way-to-create-the-combinations-of-room-and-tank">A safer (lme4) way to create the combinations of room and tank:</a></li>
+<li><a href="#as-two-random-itercepts-using-tank2">as two random itercepts using tank2</a></li>
 <li><a href="#dont-do-this">Don’t do this</a></li>
 </ul></li>
 </ul>
@@ -33,7 +33,7 @@ output:
 <p>This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. The response variable analyzed here is the date of production of the egg string in units of “days post-infection”. A second fixed-factor is the reproductive event number (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms. There were multiple measures for each tank, so there is non-independence within tanks. There were also differences in setup between rooms so we expect non-independence within rooms. There are two ways to think about this non-independence</p>
 <ol style="list-style-type: decimal">
 <li>the classical “nested” way of thinking: tanks is “nested within” room.</li>
-<li>the lme4 (Bates xxx) way of thinking: room and a factor of the combinations of tanks and rooms are crossed.</li>
+<li>the lme4 (Bates xxx) way of thinking: the single nested effect is decomposed into two random effects: room and a factor of the combinations of tanks and rooms.</li>
 </ol>
 <p>Source article <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/eva.12488">Mennerat, A., Ugelvik, M.S., Håkonsrud Jensen, C. and Skorping, A., 2017. Invest more and die faster: The life history of a parasite on intensive farms. Evolutionary applications, 10(9), pp.890-896.</a></p>
 <p>Source data <a href="https://datadryad.org/stash/dataset/doi:10.5061/dryad.4db01">Data from: Invest more and die faster: the life history of a parasite on intensive farms</a></p>
@@ -57,17 +57,7 @@ setnames(timing, old=&quot;exp&quot;, new=&quot;room&quot;)</code></pre>
 </div>
 <div id="models" class="section level1">
 <h1>Models</h1>
-<p>I follow the authors of the source paper and use a generalized linear mixed model with Poisson family and log-link. The column “tank” contains the tank ID 1-30 in each room. As a consequence the tank “2” is not unique but occurs in both room 1 and room 2. The column “tank2” has a unique name for every tank. The value is simply the combination of “room” and “tank”.</p>
-<div id="as-crossed-factors-using-tank2" class="section level2">
-<h2>as crossed factors using tank2</h2>
-<pre class="r"><code>m1 &lt;- glmer(days_pi ~ status*es + (1|room) + (1|tank2), family = &quot;poisson&quot;, data = timing)
-coef(summary(m1))</code></pre>
-<pre><code>##                   Estimate  Std. Error   z value   Pr(&gt;|z|)
-## (Intercept)    3.981916916 0.072950431 54.583871 0.00000000
-## statuswild    -0.037870115 0.018418902 -2.056046 0.03977806
-## es             0.135835163 0.003406919 39.870382 0.00000000
-## statuswild:es  0.006370614 0.005207202  1.223424 0.22116972</code></pre>
-</div>
+<p>I follow the authors of the source paper and use a generalized linear mixed model with Poisson family and log-link. The column “tank” contains the tank ID 1-30 in each room. As a consequence a tank with id “6” is not unique but occurs in both room 1 and room 2. The column “tank2” has a unique name for every tank. The value is simply the combination of “room” and “tank”.</p>
 <div id="as-nested-using-tank" class="section level2">
 <h2>as nested using tank</h2>
 <pre class="r"><code>m2 &lt;- glmer(days_pi ~ status*es + (1|room/tank), family = &quot;poisson&quot;, data = timing)
@@ -78,8 +68,8 @@ coef(summary(m2))</code></pre>
 ## es             0.135835163 0.003406919 39.870382 0.00000000
 ## statuswild:es  0.006370614 0.005207202  1.223424 0.22116972</code></pre>
 </div>
-<div id="as-crossed-using-lme4-to-create-the-combinations" class="section level2">
-<h2>as crossed (using lme4 to create the combinations)</h2>
+<div id="as-two-random-intercepts-using-lme4-to-create-the-combinations" class="section level2">
+<h2>as two random intercepts (using lme4 to create the combinations)</h2>
 <pre class="r"><code>m3 &lt;- glmer(days_pi ~ status*es + (1|room) + (1|room:tank), family = &quot;poisson&quot;, data = timing)
 coef(summary(m3))</code></pre>
 <pre><code>##                   Estimate  Std. Error   z value   Pr(&gt;|z|)
@@ -90,13 +80,24 @@ coef(summary(m3))</code></pre>
 </div>
 <div id="a-safer-lme4-way-to-create-the-combinations-of-room-and-tank" class="section level2">
 <h2>A safer (lme4) way to create the combinations of room and tank:</h2>
-<p>The <code>room:tank</code> specification may create combinations that do not exist in the data. A safer way to do this is to create a column that combines “room” and “tank” so that each tank has a unique name. This is the same concept as “tank2” in the original data</p>
+<p>The <code>room:tank</code> specification may create combinations that do not exist in the data. A safer way to do this is to create a column that combines “room” and “tank” so that each tank has a unique name. This is the same concept as “tank2” in the original data.</p>
 <pre class="r"><code># to emphasize that this only works if room and tank are factors
 timing[, room:=factor(room)]
 timing[, tank:=factor(tank)]
 timing[, tank_id := factor(room:tank)] # same concept as &quot;tank2&quot;
 m4 &lt;- glmer(days_pi ~ status*es + (1|room) + (1|tank_id), family = &quot;poisson&quot;, data = timing)
 coef(summary(m4))</code></pre>
+<pre><code>##                   Estimate  Std. Error   z value   Pr(&gt;|z|)
+## (Intercept)    3.981916916 0.072950431 54.583871 0.00000000
+## statuswild    -0.037870115 0.018418902 -2.056046 0.03977806
+## es             0.135835163 0.003406919 39.870382 0.00000000
+## statuswild:es  0.006370614 0.005207202  1.223424 0.22116972</code></pre>
+</div>
+<div id="as-two-random-itercepts-using-tank2" class="section level2">
+<h2>as two random itercepts using tank2</h2>
+<p>“tank2” is the author’s version of the combination, created using something like <code>paste0(room,tank)</code>. This is effectively like the “safe” way to create the combinations above.</p>
+<pre class="r"><code>m1 &lt;- glmer(days_pi ~ status*es + (1|room) + (1|tank2), family = &quot;poisson&quot;, data = timing)
+coef(summary(m1))</code></pre>
 <pre><code>##                   Estimate  Std. Error   z value   Pr(&gt;|z|)
 ## (Intercept)    3.981916916 0.072950431 54.583871 0.00000000
 ## statuswild    -0.037870115 0.018418902 -2.056046 0.03977806

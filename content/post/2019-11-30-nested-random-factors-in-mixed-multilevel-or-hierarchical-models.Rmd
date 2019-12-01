@@ -17,7 +17,7 @@ output:
 This is a skeletal post to show the equivalency of different ways of thinking about "nested" factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice -- from farmed raised or wild salmon. The response variable analyzed here is the date of production of the egg string in units of "days post-infection". A second fixed-factor is the  reproductive event number (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms. There were multiple measures for each tank, so there is non-independence within tanks. There were also differences in setup between rooms so we expect non-independence within rooms. There are two ways to think about this non-independence
 
 1. the classical "nested" way of thinking: tanks is "nested within" room. 
-2. the lme4 (Bates xxx) way of thinking: room and a factor of the combinations of tanks and rooms are crossed.
+2. the lme4 (Bates xxx) way of thinking: the single nested effect is decomposed into two random effects: room and a factor of the combinations of tanks and rooms.
 
 Source article [Mennerat, A., Ugelvik, M.S., Håkonsrud Jensen, C. and Skorping, A., 2017. Invest more and die faster: The life history of a parasite on intensive farms. Evolutionary applications, 10(9), pp.890-896.](https://onlinelibrary.wiley.com/doi/full/10.1111/eva.12488)
 
@@ -47,14 +47,7 @@ setnames(timing, old="exp", new="room")
 
 # Models
 
-I follow the authors of the source paper and use a generalized linear mixed model with Poisson family and log-link. The column "tank" contains the tank ID 1-30 in each room. As a consequence the tank "2" is not unique but occurs in both room 1 and room 2. The column "tank2" has a unique name for every tank. The value is simply the combination of "room" and "tank".
-
-## as crossed factors using tank2
-
-```{r}
-m1 <- glmer(days_pi ~ status*es + (1|room) + (1|tank2), family = "poisson", data = timing)
-coef(summary(m1))
-```
+I follow the authors of the source paper and use a generalized linear mixed model with Poisson family and log-link. The column "tank" contains the tank ID 1-30 in each room. As a consequence a tank with id "6" is not unique but occurs in both room 1 and room 2. The column "tank2" has a unique name for every tank. The value is simply the combination of "room" and "tank".
 
 ## as nested using tank
 
@@ -63,7 +56,7 @@ m2 <- glmer(days_pi ~ status*es + (1|room/tank), family = "poisson", data = timi
 coef(summary(m2))
 ```
 
-## as crossed (using lme4 to create the combinations)
+## as two random intercepts (using lme4 to create the combinations)
 ```{r}
 m3 <- glmer(days_pi ~ status*es + (1|room) + (1|room:tank), family = "poisson", data = timing)
 coef(summary(m3))
@@ -71,7 +64,7 @@ coef(summary(m3))
 ```
 
 ## A safer (lme4) way to create the combinations of room and tank:
-The `room:tank` specification may create combinations that do not exist in the data. A safer way to do this is to create a column that combines "room" and "tank" so that each tank has a unique name. This is the same concept as "tank2" in the original data
+The `room:tank` specification may create combinations that do not exist in the data. A safer way to do this is to create a column that combines "room" and "tank" so that each tank has a unique name. This is the same concept as "tank2" in the original data.
 
 ```{r}
 # to emphasize that this only works if room and tank are factors
@@ -80,6 +73,14 @@ timing[, tank:=factor(tank)]
 timing[, tank_id := factor(room:tank)] # same concept as "tank2"
 m4 <- glmer(days_pi ~ status*es + (1|room) + (1|tank_id), family = "poisson", data = timing)
 coef(summary(m4))
+```
+
+## as two random itercepts using tank2
+"tank2" is the author's version of the combination, created using something like `paste0(room,tank)`. This is effectively like the "safe" way to create the combinations above.
+
+```{r}
+m1 <- glmer(days_pi ~ status*es + (1|room) + (1|tank2), family = "poisson", data = timing)
+coef(summary(m1))
 ```
 
 ## Don't do this

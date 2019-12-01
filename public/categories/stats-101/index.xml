@@ -17,7 +17,7 @@
       <pubDate>Sat, 30 Nov 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/11/nested-random-factors-in-mixed-multilevel-or-hierarchical-models/</guid>
-      <description>Setup Import Models as crossed factors using tank2 as nested using tank as crossed (using lme4 to create the combinations) A safer (lme4) way to create the combinations of room and tank: Don’t do this    This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon.</description>
+      <description>Setup Import Models as nested using tank as two random intercepts (using lme4 to create the combinations) A safer (lme4) way to create the combinations of room and tank: as two random itercepts using tank2 Don’t do this    This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon.</description>
     </item>
     
     <item>
