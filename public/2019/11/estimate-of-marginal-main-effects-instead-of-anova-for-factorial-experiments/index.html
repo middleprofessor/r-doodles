@@ -8,22 +8,22 @@
 <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
 <meta name="keywords" content="tech">
-<meta name="description" content="Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.">
+<meta name="description" content="Background Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model simplification, conditional effects, marginal effects
+Background I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to “The removal of crabs strongly decreased algae cover (\(F_{1,36} = 17.">
 
 
-<meta property="og:description" content="Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.">
+<meta property="og:description" content="Background Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model simplification, conditional effects, marginal effects
+Background I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to “The removal of crabs strongly decreased algae cover (\(F_{1,36} = 17.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments">
 <meta name="twitter:title" content="Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments">
 <meta property="og:url" content="/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
 <meta property="twitter:url" content="/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
 <meta property="og:site_name" content="R Doodles">
-<meta property="og:description" content="Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.">
-<meta name="twitter:description" content="Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.">
+<meta property="og:description" content="Background Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model simplification, conditional effects, marginal effects
+Background I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to “The removal of crabs strongly decreased algae cover (\(F_{1,36} = 17.">
+<meta name="twitter:description" content="Background Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model simplification, conditional effects, marginal effects
+Background I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to “The removal of crabs strongly decreased algae cover (\(F_{1,36} = 17.">
 <meta property="og:locale" content="en-us">
 
   
@@ -308,6 +308,7 @@ if (!doNotTrack) {
 
 <div id="TOC">
 <ul>
+<li><a href="#background">Background</a></li>
 <li><a href="#comparing-marginal-effects-to-main-effect-terms-in-an-anova-table">Comparing marginal effects to main effect terms in an ANOVA table</a><ul>
 <li><a href="#first-some-fake-data">First, some fake data</a></li>
 <li><a href="#comparison-of-marginal-effects-vs.-main-effects-term-of-anova-table-when-data-are-balanced">Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced</a></li>
@@ -317,15 +318,53 @@ if (!doNotTrack) {
 </ul>
 </div>
 
-<p>keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects</p>
-<p>This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?</p>
-<p>The motivation here is the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.</p>
+<p>keywords: estimation, ANOVA, factorial, model simplification, conditional effects, marginal effects</p>
+<div id="background" class="section level1">
+<h1>Background</h1>
+<p>I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to “The removal of crabs strongly decreased algae cover (<span class="math inline">\(F_{1,36} = 17.4\)</span>, <span class="math inline">\(p &lt; 0.001\)</span>)” (I’ve made the data for this table up. The actual experiment had nothing to do with crabs or algae).</p>
+<table>
+<caption>(#tab:anova table)ANOVA of crab experiment</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Df</th>
+<th align="right">F value</th>
+<th align="right">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>snail</td>
+<td align="right">36</td>
+<td align="right">26.7</td>
+<td align="right">0.000009</td>
+</tr>
+<tr class="even">
+<td>crab</td>
+<td align="right">36</td>
+<td align="right">17.4</td>
+<td align="right">0.000182</td>
+</tr>
+<tr class="odd">
+<td>snail:crab</td>
+<td align="right">36</td>
+<td align="right">16.1</td>
+<td align="right">0.000290</td>
+</tr>
+</tbody>
+</table>
+<p>This is a Type III ANOVA table, so the “crab” term in the ANOVA table is a “main” effect, which can be thought of as the average of the effects of crab removal at low snail density and at high snail density<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. It’s not wrong to say “crab removal reduced algae cover” but it is misleading if not meaningless. Because it’s an average, a main effect is hard to interpret without looking at the values going into that average, which can be inspected with a plot.</p>
+<p><img src="/post/2019-11-29-estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments_files/figure-html/plot-1.png" width="672" /></p>
+<p>The plot shows a large interaction – the observed effect of crab removal is large when snail density is high but small when snail density is low <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. It is very misleading to conclude that crab removal decreases algae cover when the data support this conclusion only when snail density is high. It’s not wrong – the average effect is decreased algae – but I don’t think the average effect has much meaning here.</p>
+<p>I’ve heard two general rules of thumb for interpreting main effects of an ANOVA table: 1) if there is a significant interaction, do not interpret the main effects, and 2) only interpret the main effects after looking at the plot. I explore these below in “When to estimate marginal effects”. A more important question that this example raises is, <strong>Do ANOVA tables encourage this kind of misleading interpretation and communication?</strong> On most days, I woud say “yes.” And this raises a second question: <strong>Would we have similar misleading interpretations if researchers used an estimation approach to analysis instead of ANOVA/testing approach?</strong></p>
+<p>Motivated by these questions, this doodle has two parts. In part one, I compare the mapping of the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. The second part probes the questions, why/when would we even want to estimate marginal effects?</p>
+<p>The motivation is, more generally, the great majority of papers that I read in experimental ecology/evolution while looking for motivating examples and data to teach.</p>
 <ol style="list-style-type: decimal">
 <li>In many of these articles, the researchers interpret the main effects terms of a full-factorial ANOVA table computed from Type III sums of squares (a practice that is highly controversial among statisticians). These may be followed up with estimates of conditional effects but this is much less common that I would expect (and wish)</li>
 <li>Much less commonly, researchers interpret the main effects term of the ANOVA table refit with only additive terms (or Type II sums of squares).</li>
 </ol>
 <p>But why ANOVA (other than it was easy to compute 60 years ago without a computer). Why not simply estimate relevant contrasts? If the design is factorial, the relevant contrasts are generally the conditional effects (or “simple” effects) but could be the marginal effects computed from the additive model (marginal effects are computed as contrasts of marginal means). The advantage of estimation over ANOVA is that estimates and uncertainty matter (how can we predict the consequences of CO2 and warming with F statistics and p-values)</p>
-<p>The first part of this doodle compares inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table. As shown below, the first is equivalent to computing the marginal effects of the full model (which means that computing marginal effects from a full factorial model should be as controversial as the interpretation of main effects in an ANOVA table with Type III sum of squares). The second is equivalent to computing the marginal effects of the additive model. When the data are balanced, the estimate of a marginal effect is independent of the model (full or additive) but the SEs and DF differ, and consequently, the p-value. When the data are not balanced, the estimate of a marginal effect is not independent of the model.</p>
+</div>
 <div id="comparing-marginal-effects-to-main-effect-terms-in-an-anova-table" class="section level1">
 <h1>Comparing marginal effects to main effect terms in an ANOVA table</h1>
 <div id="first-some-fake-data" class="section level2">
@@ -337,7 +376,7 @@ n &lt;- 10
 sigma &lt;- 2.5
 
 snail_levels &lt;- c(&quot;low&quot;,&quot;high&quot;)
-crab_levels &lt;- c(&quot;absent&quot;, &quot;present&quot;)
+crab_levels &lt;- c(&quot;present&quot;, &quot;absent&quot;)
 fake_data &lt;- data.table(
   snail = factor(rep(snail_levels, each=n*2),
                 snail_levels),
@@ -369,11 +408,11 @@ fake_data[, algae := (X%*%beta)[,1] + epsilon]</code></pre>
 <p>Coefficients of the model</p>
 <pre class="r"><code>fit &lt;- lm(algae ~ snail*crab, data=fake_data)
 coef(summary(fit))</code></pre>
-<pre><code>##                        Estimate Std. Error   t value     Pr(&gt;|t|)
-## (Intercept)           15.517280  0.8621397 17.998568 1.391597e-19
-## snailhigh             -3.498986  1.2192496 -2.869786 6.834572e-03
-## crabpresent            1.562369  1.2192496  1.281418 2.082394e-01
-## snailhigh:crabpresent -2.919097  1.7242794 -1.692937 9.910554e-02</code></pre>
+<pre><code>##                       Estimate Std. Error   t value     Pr(&gt;|t|)
+## (Intercept)          15.517280  0.8621397 17.998568 1.391597e-19
+## snailhigh            -3.498986  1.2192496 -2.869786 6.834572e-03
+## crababsent            1.562369  1.2192496  1.281418 2.082394e-01
+## snailhigh:crababsent -2.919097  1.7242794 -1.692937 9.910554e-02</code></pre>
 <p>Conditional (simple) effects</p>
 <pre class="r"><code>fit.emm &lt;- emmeans(fit, specs=c(&quot;snail&quot;, &quot;crab&quot;))
 fit.pairs &lt;- contrast(fit.emm,
@@ -397,7 +436,7 @@ knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">absent</td>
+<td align="left">present</td>
 <td align="left">.</td>
 <td align="left">high - low</td>
 <td align="right">-3.50</td>
@@ -407,7 +446,7 @@ knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))</code></pre>
 <td align="right">0.007</td>
 </tr>
 <tr class="even">
-<td align="left">present</td>
+<td align="left">absent</td>
 <td align="left">.</td>
 <td align="left">high - low</td>
 <td align="right">-6.42</td>
@@ -419,7 +458,7 @@ knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))</code></pre>
 <tr class="odd">
 <td align="left">.</td>
 <td align="left">low</td>
-<td align="left">present - absent</td>
+<td align="left">absent - present</td>
 <td align="right">1.56</td>
 <td align="right">1.22</td>
 <td align="right">36</td>
@@ -429,7 +468,7 @@ knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))</code></pre>
 <tr class="even">
 <td align="left">.</td>
 <td align="left">high</td>
-<td align="left">present - absent</td>
+<td align="left">absent - present</td>
 <td align="right">-1.36</td>
 <td align="right">1.22</td>
 <td align="right">36</td>
@@ -566,22 +605,22 @@ knitr::kable(fake_data_missing[, .(N=.N), by=c(&quot;snail&quot;, &quot;crab&quo
 <tbody>
 <tr class="odd">
 <td align="left">low</td>
-<td align="left">absent</td>
+<td align="left">present</td>
 <td align="right">10</td>
 </tr>
 <tr class="even">
 <td align="left">low</td>
-<td align="left">present</td>
+<td align="left">absent</td>
 <td align="right">6</td>
 </tr>
 <tr class="odd">
 <td align="left">high</td>
-<td align="left">absent</td>
+<td align="left">present</td>
 <td align="right">8</td>
 </tr>
 <tr class="even">
 <td align="left">high</td>
-<td align="left">present</td>
+<td align="left">absent</td>
 <td align="right">5</td>
 </tr>
 </tbody>
@@ -758,20 +797,20 @@ knitr::kable(type_2_table)</code></pre>
 <div id="when-to-estimate-marginal-effects" class="section level1">
 <h1>When to estimate marginal effects</h1>
 <p>Interactions effects are ubiquitous if not universal. Consequently, the decision to estimate and present marginal effects, as opposed to conditional effects, should not be in the service of a futile effort to learn the “true” model but should depend only on how much one wants to simplify a working model of a system.</p>
-<p>I would tend to not estimate marginal effects given the data analyzed above. The data are noisy but are consistant with an interesting interaction and, consequently, an interesting pattern of conditional effects. Namely, the effect of crab removal decreases algae cover when snail density is low but increases algae cover when snail density is high. Again, the data are too noisy to estimate the effects with much certainty, and good practice would be a set of replication experiemnts to estimate these effects with more precision. If the model were reduced and only the marginal effects were estimated, the possibility of this more complex model of how the system functions would be masked.</p>
-<p>The data in the right side of the figure below are precisely those in the analysis above (and reproduced in the left figure below) except the effect of crab removal is increased from -2 to -5. The effect of increasing snail density is the same. The interaction is the same. The residuals are the same.</p>
+<p>I would tend to not estimate marginal effects given the data analyzed above. The data are noisy but are compatible with an interesting interaction and, consequently, an interesting pattern of conditional effects. Namely, the effect of crab removal decreases algae cover when snail density is high but increases algae cover when snail density is low. Again, the data are too noisy to estimate the effects with much certainty, and good practice would be a set of replication experiments to estimate these effects with more precision. If the model were reduced and only the marginal effects were estimated, the possibility of this more complex model of how the system functions would be masked.</p>
+<p>The data in the right side of the figure below are precisely those in the analysis above (and reproduced in the left figure below) except the effect of crab removal (at the reference level of <em>snail</em>) is changed from +1.5 to -5. The effect of increasing snail density is the same. The interaction is the same. The residuals are the same.</p>
 <p>Even though the interaction effect is the same as that above, relative to the treatment effects of both snail density and crab removal, it is relatively small. Consequently at both levels of snail density, crab removal results in large decrease in algae cover. As long as we don’t have any theory that is quantitative enough to predict this pattern, there is not much loss of understanding if we simply reduce this to the additive model. We don’t claim in the paper that “there is no interaction” or that the effects of crab removal are the same at both levels of snail density, but only that the reduced model and the computation of the marginal effects is a good “working model” of what is going on.</p>
-<pre class="r"><code>#beta &lt;- c(15, -3.5, -2, 2)
-beta2 &lt;- c(15, -3.5, -5, 2)
+<pre class="r"><code>#beta &lt;- c(15, -3.5, 1.5, -3)
+beta2 &lt;- c(15, -3.5, -5, -3)
 fake_data[, algae2 := (X%*%beta2)[,1] + epsilon]
 
 fit &lt;- lm(algae2 ~ snail*crab, data=fake_data)
 coef(summary(fit))</code></pre>
-<pre><code>##                        Estimate Std. Error   t value     Pr(&gt;|t|)
-## (Intercept)           15.517280  0.8621397 17.998568 1.391597e-19
-## snailhigh             -3.498986  1.2192496 -2.869786 6.834572e-03
-## crabpresent           -4.937631  1.2192496 -4.049730 2.606853e-04
-## snailhigh:crabpresent  2.080903  1.7242794  1.206825 2.353700e-01</code></pre>
+<pre><code>##                       Estimate Std. Error   t value     Pr(&gt;|t|)
+## (Intercept)          15.517280  0.8621397 17.998568 1.391597e-19
+## snailhigh            -3.498986  1.2192496 -2.869786 6.834572e-03
+## crababsent           -4.937631  1.2192496 -4.049730 2.606853e-04
+## snailhigh:crababsent -2.919097  1.7242794 -1.692937 9.910554e-02</code></pre>
 <pre class="r"><code>fit.emm &lt;- emmeans(fit, specs=c(&quot;snail&quot;, &quot;crab&quot;))
 fit.pairs &lt;- contrast(fit.emm,
                       method=&quot;revpairwise&quot;,
@@ -794,7 +833,7 @@ knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">absent</td>
+<td align="left">present</td>
 <td align="left">.</td>
 <td align="left">high - low</td>
 <td align="right">-3.50</td>
@@ -804,19 +843,19 @@ knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))</code></pre>
 <td align="right">0.007</td>
 </tr>
 <tr class="even">
-<td align="left">present</td>
+<td align="left">absent</td>
 <td align="left">.</td>
 <td align="left">high - low</td>
-<td align="right">-1.42</td>
+<td align="right">-6.42</td>
 <td align="right">1.22</td>
 <td align="right">36</td>
-<td align="right">-1.16</td>
-<td align="right">0.252</td>
+<td align="right">-5.26</td>
+<td align="right">0.000</td>
 </tr>
 <tr class="odd">
 <td align="left">.</td>
 <td align="left">low</td>
-<td align="left">present - absent</td>
+<td align="left">absent - present</td>
 <td align="right">-4.94</td>
 <td align="right">1.22</td>
 <td align="right">36</td>
@@ -826,12 +865,12 @@ knitr::kable(summary(fit.pairs), digits=c(0,0,0,2, 2, 0, 2, 3))</code></pre>
 <tr class="even">
 <td align="left">.</td>
 <td align="left">high</td>
-<td align="left">present - absent</td>
-<td align="right">-2.86</td>
+<td align="left">absent - present</td>
+<td align="right">-7.86</td>
 <td align="right">1.22</td>
 <td align="right">36</td>
-<td align="right">-2.34</td>
-<td align="right">0.025</td>
+<td align="right">-6.44</td>
+<td align="right">0.000</td>
 </tr>
 </tbody>
 </table>
@@ -856,6 +895,13 @@ gg_response_2 &lt;- ggerrorplot(
 
 plot_grid(gg_response, gg_response_2)</code></pre>
 <p><img src="/post/2019-11-29-estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>the sum of squares is based on marginal means, so the effect is really a difference in marginal means<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>This interaction shows up in the ANOVA table but its magnitude is impossible to reconstruct from an <em>F</em>-ratio or <em>p</em>-value. Regardless, the average is intermediate, but big enough to result in a very small <em>p</em>-value in the ANOVA table.<a href="#fnref2">↩</a></p></li>
+</ol>
 </div>
 
               
@@ -1136,8 +1182,8 @@ plot_grid(gg_response, gg_response_2)</code></pre>
                   Nov 11, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.</div>
+              <div class="media-content hide-xs font-merryweather">Background Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model simplification, conditional effects, marginal effects
+Background I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to “The removal of crabs strongly decreased algae cover (\(F_{1,36} = 17.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

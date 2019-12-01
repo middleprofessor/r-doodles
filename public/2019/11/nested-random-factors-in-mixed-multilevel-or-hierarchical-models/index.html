@@ -316,7 +316,7 @@ if (!doNotTrack) {
 </ul>
 </div>
 
-<p>This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. response are “days pos”. A second fixed-factor is reproductive event (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms. There were multiple measures for each tank, so there is non-independence within tanks. There were also differences in setup between rooms so we expect non-independence within rooms. There are two ways to think about this non-independence</p>
+<p>This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon. The treatment is the source of lice – from farmed raised or wild salmon. The response variable analyzed here is the date of production of the egg string in units of “days post-infection”. A second fixed-factor is the reproductive event number (the lice went through five successive rounds of reproduction following infection). The salmon were raised in 30 tanks in each of two rooms. There were multiple measures for each tank, so there is non-independence within tanks. There were also differences in setup between rooms so we expect non-independence within rooms. There are two ways to think about this non-independence</p>
 <ol style="list-style-type: decimal">
 <li>the classical “nested” way of thinking: tanks is “nested within” room.</li>
 <li>the lme4 (Bates xxx) way of thinking: room and a factor of the combinations of tanks and rooms are crossed.</li>
@@ -680,8 +680,8 @@ coef(summary(m5))</code></pre>
                   Nov 11, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model reduction, conditional effects, marginal effects
-This doodle has two parts. In part one, I compare the inference from the estimation of marginal effects of a factorial design to inference from the “main” effects of an ANOVA table.</div>
+              <div class="media-content hide-xs font-merryweather">Background Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model simplification, conditional effects, marginal effects
+Background I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to “The removal of crabs strongly decreased algae cover (\(F_{1,36} = 17.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
