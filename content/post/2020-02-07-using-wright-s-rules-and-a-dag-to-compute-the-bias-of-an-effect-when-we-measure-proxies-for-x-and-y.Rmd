@@ -88,7 +88,7 @@ ystar <- a2*Y + sqrt(1-R2_ystar)*rnorm(n, sd=sigma_ystar)
 3. third is another way to return the expected estimated effect. This is a function of the true effect so the long first part is the bias, which `rho_a1*sigma_A/sigma_Y*rho_a2*sigma_ystar/sigma_astar` or
 
 \begin{equation}
-k = \rho_{a_1} \frac{\sigma_A}{\sigma_Y} \rho_{a_2} \frac{sigma_{Y^\star}}{sigma_{A^\star}}
+k = \rho_{a_1} \frac{\sigma_A}{\sigma_Y} \rho_{a_2} \frac{\sigma_{Y^\star}}{\sigma_{A^\star}}
 \end{equation}
 
 the bias is $k$. The bias can magnify (not dilute) the true value if, for example, either of the ratios is  >>1. My parameterization is an example.
