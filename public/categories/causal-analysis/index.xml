@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Causal Analysis on R Doodles</title>
+    <link>/categories/causal-analysis/</link>
+    <description>Recent content in Causal Analysis on R Doodles</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 07 Feb 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/causal-analysis/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Using Wright&#39;s rules and a DAG to compute the bias of an effect when we measure proxies for X and Y</title>
+      <link>/2020/02/using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y/</link>
+      <pubDate>Fri, 07 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/02/using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y/</guid>
+      <description>This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this panel A from this figure
+fn &amp;lt;- &amp;quot;proxy_dag.jpg&amp;quot; fig_path &amp;lt;- here::here(&amp;quot;content/images&amp;quot;) knitr::include_graphics(fig_path) the question is I want to know about A-&amp;gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
+If the data are standardized (everything as unit variance) This is easy and just uses Wright’s rules of adding up effects along a path</description>
+    </item>
+    
+  </channel>
+</rss>

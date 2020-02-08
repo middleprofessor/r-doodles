@@ -1,0 +1,50 @@
+---
+title: "Untitled"
+author: "Jeff Walker"
+date: "12/7/2019"
+output: html_document
+---
+
+```{r}
+n <- 10
+sigma <- 1
+(delta <- power.t.test(n = n, 
+             #delta = 1, 
+             sd = sigma,
+             power=.9,
+             alternative="one.sided")$delta)
+se <- sigma*sqrt(2/n)
+(t <- delta/se)
+(1 - pt(t, df=(2*n-2)))
+
+1 - pt(power.t.test(n = 10, sd = 1, power=.9, alternative="one.sided")$delta/(1*sqrt(2/10)), df=(18))
+
+
+# or in one line
+```
+
+```{r}
+beta <- 1.361253
+y1 <- scale(rnorm(n, mean=0, sd=sigma))
+y2 <- scale(rnorm(n, mean=0, sd=sigma)) + beta
+t.test(y1, y2, var.equal = TRUE, alternative="less")
+```
+
+```{r}
+niter <- 10^4
+y1 <- matrix(rnorm(niter*n, mean=0, sd=sigma), nrow=n)
+y2 <- matrix(rnorm(niter*n, mean=0, sd=sigma), nrow=n) + beta
+sd1 <- apply(y1, 2, sd)
+sd2 <- apply(y2, 2, sd)
+delta <- apply(y2, 2, mean) - apply(y1, 2, mean)
+tol <- 0.02
+inc <- which(abs(sd1-sigma) < tol & abs(sd2-sigma) < tol & abs(delta-beta) < tol)
+#inc <- which(abs(delta-beta) < tol)
+p <- numeric(niter)
+for(j in 1:niter){
+  p[j] <- t.test(y1[,j], y2[,j], var.equal = TRUE, alternative="less")$p.value
+}
+sum(p < 0.05)/niter
+p[inc]
+```
+

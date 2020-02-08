@@ -6,10 +6,21 @@
     <description>Recent content in Posts on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 30 Nov 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 07 Feb 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Using Wright&#39;s rules and a DAG to compute the bias of an effect when we measure proxies for X and Y</title>
+      <link>/2020/02/using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y/</link>
+      <pubDate>Fri, 07 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/02/using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y/</guid>
+      <description>This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this panel A from this figure
+fn &amp;lt;- &amp;quot;proxy_dag.jpg&amp;quot; fig_path &amp;lt;- here::here(&amp;quot;content/images&amp;quot;) knitr::include_graphics(fig_path) the question is I want to know about A-&amp;gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
+If the data are standardized (everything as unit variance) This is easy and just uses Wright’s rules of adding up effects along a path</description>
+    </item>
     
     <item>
       <title>&#34;Nested&#34; random factors in mixed (multilevel or hierarchical) models</title>
@@ -188,7 +199,8 @@ In an experiment, do we adjust for covariates that differ between treatment leve
       <pubDate>Thu, 31 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/01/what-to-write-and-not-write-in-a-results-section-an-ever-growing-list/</guid>
-      <description>“GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” – Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.</description>
+      <description>“GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability.” If we know these are not significant due to low sampe size and high variability, why even do the test?
+“TRE led to a modest, but not significant, increase in sleep duration to 449.</description>
     </item>
     
     <item>

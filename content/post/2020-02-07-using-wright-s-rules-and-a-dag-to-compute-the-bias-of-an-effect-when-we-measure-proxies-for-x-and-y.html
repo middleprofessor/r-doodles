@@ -1,0 +1,118 @@
+---
+title: Using Wright's rules and a DAG to compute the bias of an effect when we measure
+  proxies for X and Y
+author: Jeff Walker
+date: '2020-02-07'
+slug: using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y
+categories:
+  - causal analysis
+tags:
+  - causal graph
+  - fake data
+  - Wright style path analysis
+keywords:
+  - tech
+---
+
+
+
+<p>This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this panel A from this figure</p>
+<pre class="r"><code>fn &lt;- &quot;proxy_dag.jpg&quot;
+fig_path &lt;- here::here(&quot;content/images&quot;)
+knitr::include_graphics(fig_path)</code></pre>
+<p><img src="/Users/jwalker/Documents/Github%20projects/R%20doodles/content/images" /><!-- --></p>
+<p>the question is <code>I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?</code></p>
+<div id="if-the-data-are-standardized-everything-as-unit-variance" class="section level1">
+<h1>If the data are standardized (everything as unit variance)</h1>
+<p>This is easy and just uses Wright’s rules of adding up effects along a path</p>
+<pre class="r"><code>n &lt;- 10^6
+b &lt;- 0.6 # true effect
+a1 &lt;- 0.9 # standardized effect of A on A* -- this is the correlation of A with proxy
+a2 &lt;- 0.8 # standardized effect of Y o Y* -- this is the correlation of Y with proxy
+A &lt;- rnorm(n)
+Y &lt;- b*A + sqrt(1 - b^2)*rnorm(n)
+astar &lt;- a1*A + sqrt(1 - a1^2)*rnorm(n) # proxy for A
+ystar &lt;- a2*Y + sqrt(1 - a2^2)*rnorm(n) # proxy for Y</code></pre>
+<p>b is the true effect so a1*a2 is the bias. Note this isn’t added to the true effect as in ommitted variable bias (confounding)</p>
+<pre class="r"><code>a1*a2*b # expected measured effect</code></pre>
+<pre><code>## [1] 0.432</code></pre>
+<pre class="r"><code>coef(lm(ystar ~ astar)) # measured effect</code></pre>
+<pre><code>##  (Intercept)        astar 
+## -0.001646619  0.431009486</code></pre>
+<p>check some other measures</p>
+<pre class="r"><code>var(A) # should be 1</code></pre>
+<pre><code>## [1] 1.00047</code></pre>
+<pre class="r"><code>var(Y) # should be 1</code></pre>
+<pre><code>## [1] 1.000106</code></pre>
+<pre class="r"><code>var(astar) # should be 1</code></pre>
+<pre><code>## [1] 1.000417</code></pre>
+<pre class="r"><code>var(ystar) # should be 1</code></pre>
+<pre><code>## [1] 0.9991666</code></pre>
+<pre class="r"><code>cor(ystar, astar) # should be equal to expected measured effect</code></pre>
+<pre><code>## [1] 0.4312791</code></pre>
+</div>
+<div id="if-the-data-are-not-standardized" class="section level1">
+<h1>if the data are not standardized</h1>
+<pre class="r"><code>n &lt;- 10^5
+rho_a1 &lt;- 0.9 # correlation of A and A*
+rho_a2 &lt;- 0.8 # correlation of Y and Y*
+rho_b &lt;- 0.6 # standardized true effect of A on Y
+sigma_A &lt;- 2 # total variation in A
+sigma_Y &lt;- 10 # total variation in Y
+sigma_astar &lt;- 2.2 # total variation in A*
+sigma_ystar &lt;- 20 # total variation in Y* 
+a1 &lt;- rho_a1*sigma_astar/sigma_A # effect of A on astar
+a2 &lt;- rho_a2*sigma_ystar/sigma_Y # effect of Y on ystar
+b &lt;- rho_b*sigma_Y/sigma_A # effect of A on Y (the thing we want)
+A &lt;- rnorm(n, sd=sigma_A)
+R2_Y &lt;- (b*sigma_A)^2/sigma_Y^2
+Y &lt;- b*A + sqrt(1-R2_Y)*rnorm(n, sd=sigma_Y)
+R2_astar &lt;- (a1*sigma_A)^2/sigma_astar^2
+astar &lt;- a1*A + sqrt(1-R2_astar)*rnorm(n, sd=sigma_astar)
+R2_ystar &lt;- (a2*sigma_Y)^2/sigma_ystar^2
+ystar &lt;- a2*Y + sqrt(1-R2_ystar)*rnorm(n, sd=sigma_ystar)</code></pre>
+<ol style="list-style-type: decimal">
+<li>first line returns the estimated effect of A on Y using the proxies</li>
+<li>second is one way to return the expected estimated effect</li>
+<li>third is another way to return the expected estimated effect. This is a function of the true effect so the long first part is the bias, which is <code>rho_a1*sigma_A/sigma_Y*rho_a2*sigma_ystar/sigma_astar</code></li>
+</ol>
+<p>Make either ratio in the bias &gt;&gt; 1 and the bias will magnify the estimate.</p>
+<pre class="r"><code>coef(lm(ystar ~ astar))</code></pre>
+<pre><code>## (Intercept)       astar 
+## -0.02532057  3.93427815</code></pre>
+<pre class="r"><code>rho_a1*rho_a2*rho_b*sigma_ystar/sigma_astar</code></pre>
+<pre><code>## [1] 3.927273</code></pre>
+<pre class="r"><code>rho_a1*sigma_A/sigma_Y*rho_a2*sigma_ystar/sigma_astar*b</code></pre>
+<pre><code>## [1] 3.927273</code></pre>
+<pre class="r"><code>b</code></pre>
+<pre><code>## [1] 3</code></pre>
+<p>Some other checks</p>
+<pre class="r"><code>coef(lm(ystar ~ Y))</code></pre>
+<pre><code>## (Intercept)           Y 
+## -0.01263345  1.60016447</code></pre>
+<pre class="r"><code>a2</code></pre>
+<pre><code>## [1] 1.6</code></pre>
+<pre class="r"><code>coef(lm(ystar ~ A))</code></pre>
+<pre><code>## (Intercept)           A 
+## -0.02728287  4.81920125</code></pre>
+<pre class="r"><code>a2*b</code></pre>
+<pre><code>## [1] 4.8</code></pre>
+<pre class="r"><code>coef(lm(astar ~ A))</code></pre>
+<pre><code>##  (Intercept)            A 
+## -0.001437433  0.987097870</code></pre>
+<pre class="r"><code>a1</code></pre>
+<pre><code>## [1] 0.99</code></pre>
+<pre class="r"><code>sd(A)</code></pre>
+<pre><code>## [1] 2.002111</code></pre>
+<pre class="r"><code>sd(Y)</code></pre>
+<pre><code>## [1] 10.01455</code></pre>
+<pre class="r"><code>sd(astar)</code></pre>
+<pre><code>## [1] 2.1982</code></pre>
+<pre class="r"><code>sd(ystar)</code></pre>
+<pre><code>## [1] 20.01014</code></pre>
+<pre class="r"><code>cor(A, astar)</code></pre>
+<pre><code>## [1] 0.8990445</code></pre>
+<pre class="r"><code>cor(Y, ystar)</code></pre>
+<pre><code>## [1] 0.8008399</code></pre>
+<p>```</p>
+</div>

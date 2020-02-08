@@ -8,4 +8,12 @@ categories:
 tags: []
 ---
 
-"GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); however, these differences were not significant due to low sample sizes and high variability." -- Subalusky, A.L., Dutton, C.L., Njoroge, L., Rosi, E.J., and Post, D.M. (2018). Organic matter and nutrient inputs from large wildlife influence ecosystem function in the Mara River, Africa. Ecology 99, 2558–2574.
+"GPP (n=4 per site) increased from the No Wildlife site to the Hippo site but was lowest at the Hippo + WB site (Fig. 6); *however, these differences were not significant due to low sample sizes and high variability.*" **If we know these are not significant due to low sampe size and high variability, why even do the test?**
+
+"TRE *led to* a modest, but not significant, increase in sleep duration to 449.93 ± 60.87 min for the entire cohort (+12.45 ± 49.58 min of sleep, p = 0.302)". **The researchers observed a modest difference in means**
+
+"We also did not find significant changes in an objective measure of sleep efficiency (percent time asleep during sleep interval, −0.17% ± 1.99%, p = 0.728). *However, this is likely due to large differences between participants at baseline.*"
+
+"Likewise, *there was a trend toward a decrease *in the variance of sleep onset from 3.05 h during baseline to 2.05 h during intervention (p = 0.142; Figure 2)"
+
+"*There was a small but non-significant trend toward* improved sleep (decreased score) as reported on the PSQI (−0.68 ± 2.06, p = 0.164)"

@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2020/02/using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y/</loc>
+    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/11/nested-random-factors-in-mixed-multilevel-or-hierarchical-models/</loc>
     <lastmod>2019-11-30T00:00:00+00:00</lastmod>
   </url>
@@ -222,8 +227,14 @@
   </url>
   
   <url>
+    <loc>/categories/causal-analysis/</loc>
+    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/tags/causal-graph/</loc>
-    <lastmod>2019-07-31T00:00:00+00:00</lastmod>
+    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -264,7 +275,7 @@
   
   <url>
     <loc>/tags/fake-data/</loc>
-    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
+    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -372,7 +383,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2019-11-30T00:00:00+00:00</lastmod>
+    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -390,7 +401,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-11-30T00:00:00+00:00</lastmod>
+    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -450,7 +461,7 @@
   
   <url>
     <loc>/tags/wright-style-path-analysis/</loc>
-    <lastmod>2019-07-31T00:00:00+00:00</lastmod>
+    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
