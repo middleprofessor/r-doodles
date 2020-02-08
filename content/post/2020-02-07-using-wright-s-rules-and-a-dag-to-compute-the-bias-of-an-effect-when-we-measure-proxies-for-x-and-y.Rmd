@@ -18,7 +18,8 @@ This is a skeletal post to work up an answer to a twitter question using Wright'
 
 ```{r, echo=FALSE}
 fn <- "proxy_dag.jpg"
-fig_path <- here::here("static/images", fn)
+#fig_path <- here::here("images", fn)
+fig_path <- paste0("images/", fn)
 knitr::include_graphics(fig_path)
 ```
 
