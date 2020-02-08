@@ -16,18 +16,20 @@ keywords:
 
 This is a skeletal post to work up an answer to a twitter question using Wright's rules of path models. Using this panel A from this figure
 
-```{r}
+```{r, echo=FALSE}
 fn <- "proxy_dag.jpg"
-fig_path <- here::here("content/images")
+fig_path <- here::here("static/images", fn)
 knitr::include_graphics(fig_path)
 ```
 
 the question is `I want to know about A->Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?`
 
+We want to estimate $b$, the true effect of $A$ on $Y$. We have measured the proxies, $A^\star$ and $Y^\star$. The true effect of $A$ on $A^\star$ is $a_1$ and the true effect of $Y$ on $Y^\star$ is $a_2$.
+
 # If the data are standardized (everything as unit variance)
 This is easy and just uses Wright's rules of adding up effects along a path
 
-```{r}
+```{r standardized fake data}
 n <- 10^6
 b <- 0.6 # true effect
 a1 <- 0.9 # standardized effect of A on A* -- this is the correlation of A with proxy
@@ -38,10 +40,10 @@ astar <- a1*A + sqrt(1 - a1^2)*rnorm(n) # proxy for A
 ystar <- a2*Y + sqrt(1 - a2^2)*rnorm(n) # proxy for Y
 ```
 
-b is the true effect so a1*a2 is the bias. Note this isn't added to the true effect as in ommitted variable bias (confounding)
+$b$ is the true effect and the expected estimated effect is $a_1 b a_2$ (using Wright rules) so $a_1 a_2$ is the bias. Note this isn't added to the true effect as in ommitted variable bias (confounding). We can check this with the fake data.
 
-```{r}
-a1*a2*b # expected measured effect
+```{r check the bias for standardized data}
+a1*b*a2 # expected measured effect
 coef(lm(ystar ~ astar)) # measured effect
 ```
 
@@ -59,7 +61,7 @@ cor(ystar, astar) # should be equal to expected measured effect
 
 # if the data are not standardized
 
-```{r}
+```{r non-standardized fake data}
 n <- 10^5
 rho_a1 <- 0.9 # correlation of A and A*
 rho_a2 <- 0.8 # correlation of Y and Y*
@@ -72,26 +74,31 @@ a1 <- rho_a1*sigma_astar/sigma_A # effect of A on astar
 a2 <- rho_a2*sigma_ystar/sigma_Y # effect of Y on ystar
 b <- rho_b*sigma_Y/sigma_A # effect of A on Y (the thing we want)
 A <- rnorm(n, sd=sigma_A)
-R2_Y <- (b*sigma_A)^2/sigma_Y^2
+R2_Y <- (b*sigma_A)^2/sigma_Y^2 # R^2 for E(Y|A)
 Y <- b*A + sqrt(1-R2_Y)*rnorm(n, sd=sigma_Y)
-R2_astar <- (a1*sigma_A)^2/sigma_astar^2
+R2_astar <- (a1*sigma_A)^2/sigma_astar^2 # R^2 for E(astar|A)
 astar <- a1*A + sqrt(1-R2_astar)*rnorm(n, sd=sigma_astar)
-R2_ystar <- (a2*sigma_Y)^2/sigma_ystar^2
+R2_ystar <- (a2*sigma_Y)^2/sigma_ystar^2 # R^2 for E(ystar|Y)
 ystar <- a2*Y + sqrt(1-R2_ystar)*rnorm(n, sd=sigma_ystar)
 ```
 
 1. first line returns the estimated effect of A on Y using the proxies
 2. second is one way to return the expected estimated effect
-3. third is another way to return the expected estimated effect. This is a function of the true effect so the long first part is the bias, which is `rho_a1*sigma_A/sigma_Y*rho_a2*sigma_ystar/sigma_astar`
+3. third is another way to return the expected estimated effect. This is a function of the true effect so the long first part is the bias, which `rho_a1*sigma_A/sigma_Y*rho_a2*sigma_ystar/sigma_astar` or
 
-Make either ratio in the bias >> 1 and the bias will magnify the estimate.
+\begin{equation}
+k = \rho_{a_1} \frac{\sigma_A}{\sigma_Y} \rho_{a_2} \frac{sigma_{Y^\star}}{sigma_{A^\star}}
+\end{equation}
 
-```{r}
+the bias is $k$. The bias can magnify (not dilute) the true value if, for example, either of the ratios is  >>1. My parameterization is an example.
+
+```{r check the results for non-standardized data}
 coef(lm(ystar ~ astar))
 rho_a1*rho_a2*rho_b*sigma_ystar/sigma_astar
 rho_a1*sigma_A/sigma_Y*rho_a2*sigma_ystar/sigma_astar*b
 b
 ```
+The first result is the estimated effect. The second is one to compute the expected estimated effect (but this doesn't give the bias). The third is the way to compute the expected estimated effect using *k*, the measure of bias. The fourth result is the true effect.
 
 Some other checks
 ```{r}

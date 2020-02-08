@@ -9,13 +9,13 @@
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
 <meta name="keywords" content="tech">
 <meta name="description" content="This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this panel A from this figure
-fn &lt;- &quot;proxy_dag.jpg&quot; fig_path &lt;- here::here(&quot;content/images&quot;) knitr::include_graphics(fig_path) the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
-If the data are standardized (everything as unit variance) This is easy and just uses Wright’s rules of adding up effects along a path">
+the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
+We want to estimate \(b\), the true effect of \(A\) on \(Y\).">
 
 
 <meta property="og:description" content="This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this panel A from this figure
-fn &lt;- &quot;proxy_dag.jpg&quot; fig_path &lt;- here::here(&quot;content/images&quot;) knitr::include_graphics(fig_path) the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
-If the data are standardized (everything as unit variance) This is easy and just uses Wright’s rules of adding up effects along a path">
+the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
+We want to estimate \(b\), the true effect of \(A\) on \(Y\).">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Using Wright&#39;s rules and a DAG to compute the bias of an effect when we measure proxies for X and Y">
 <meta name="twitter:title" content="Using Wright&#39;s rules and a DAG to compute the bias of an effect when we measure proxies for X and Y">
@@ -23,11 +23,11 @@ If the data are standardized (everything as unit variance) This is easy and just
 <meta property="twitter:url" content="/2020/02/using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y/">
 <meta property="og:site_name" content="R Doodles">
 <meta property="og:description" content="This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this panel A from this figure
-fn &lt;- &quot;proxy_dag.jpg&quot; fig_path &lt;- here::here(&quot;content/images&quot;) knitr::include_graphics(fig_path) the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
-If the data are standardized (everything as unit variance) This is easy and just uses Wright’s rules of adding up effects along a path">
+the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
+We want to estimate \(b\), the true effect of \(A\) on \(Y\).">
 <meta name="twitter:description" content="This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this panel A from this figure
-fn &lt;- &quot;proxy_dag.jpg&quot; fig_path &lt;- here::here(&quot;content/images&quot;) knitr::include_graphics(fig_path) the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
-If the data are standardized (everything as unit variance) This is easy and just uses Wright’s rules of adding up effects along a path">
+the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
+We want to estimate \(b\), the true effect of \(A\) on \(Y\).">
 <meta property="og:locale" content="en-us">
 
   
@@ -314,11 +314,9 @@ if (!doNotTrack) {
 
 
 <p>This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this panel A from this figure</p>
-<pre class="r"><code>fn &lt;- &quot;proxy_dag.jpg&quot;
-fig_path &lt;- here::here(&quot;content/images&quot;)
-knitr::include_graphics(fig_path)</code></pre>
-<p><img src="/Users/jwalker/Documents/Github%20projects/R%20doodles/content/images" /><!-- --></p>
+<p><img src="/Users/jwalker/Documents/Github%20projects/R%20doodles/static/images/proxy_dag.jpg" width="260" /></p>
 <p>the question is <code>I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?</code></p>
+<p>We want to estimate <span class="math inline">\(b\)</span>, the true effect of <span class="math inline">\(A\)</span> on <span class="math inline">\(Y\)</span>. We have measured the proxies, <span class="math inline">\(A^\star\)</span> and <span class="math inline">\(Y^\star\)</span>. The true effect of <span class="math inline">\(A\)</span> on <span class="math inline">\(A^\star\)</span> is <span class="math inline">\(a_1\)</span> and the true effect of <span class="math inline">\(Y\)</span> on <span class="math inline">\(Y^\star\)</span> is <span class="math inline">\(a_2\)</span>.</p>
 <div id="if-the-data-are-standardized-everything-as-unit-variance" class="section level1">
 <h1>If the data are standardized (everything as unit variance)</h1>
 <p>This is easy and just uses Wright’s rules of adding up effects along a path</p>
@@ -330,23 +328,23 @@ A &lt;- rnorm(n)
 Y &lt;- b*A + sqrt(1 - b^2)*rnorm(n)
 astar &lt;- a1*A + sqrt(1 - a1^2)*rnorm(n) # proxy for A
 ystar &lt;- a2*Y + sqrt(1 - a2^2)*rnorm(n) # proxy for Y</code></pre>
-<p>b is the true effect so a1*a2 is the bias. Note this isn’t added to the true effect as in ommitted variable bias (confounding)</p>
-<pre class="r"><code>a1*a2*b # expected measured effect</code></pre>
+<p><span class="math inline">\(b\)</span> is the true effect and the expected estimated effect is <span class="math inline">\(a_1 b a_2\)</span> (using Wright rules) so <span class="math inline">\(a_1 a_2\)</span> is the bias. Note this isn’t added to the true effect as in ommitted variable bias (confounding). We can check this with the fake data.</p>
+<pre class="r"><code>a1*b*a2 # expected measured effect</code></pre>
 <pre><code>## [1] 0.432</code></pre>
 <pre class="r"><code>coef(lm(ystar ~ astar)) # measured effect</code></pre>
-<pre><code>##  (Intercept)        astar 
-## -0.001646619  0.431009486</code></pre>
+<pre><code>##   (Intercept)         astar 
+## -0.0004966664  0.4326462653</code></pre>
 <p>check some other measures</p>
 <pre class="r"><code>var(A) # should be 1</code></pre>
-<pre><code>## [1] 1.00047</code></pre>
+<pre><code>## [1] 1.001082</code></pre>
 <pre class="r"><code>var(Y) # should be 1</code></pre>
-<pre><code>## [1] 1.000106</code></pre>
+<pre><code>## [1] 1.002777</code></pre>
 <pre class="r"><code>var(astar) # should be 1</code></pre>
-<pre><code>## [1] 1.000417</code></pre>
+<pre><code>## [1] 0.9991639</code></pre>
 <pre class="r"><code>var(ystar) # should be 1</code></pre>
-<pre><code>## [1] 0.9991666</code></pre>
+<pre><code>## [1] 1.000284</code></pre>
 <pre class="r"><code>cor(ystar, astar) # should be equal to expected measured effect</code></pre>
-<pre><code>## [1] 0.4312791</code></pre>
+<pre><code>## [1] 0.432404</code></pre>
 </div>
 <div id="if-the-data-are-not-standardized" class="section level1">
 <h1>if the data are not standardized</h1>
@@ -362,55 +360,59 @@ a1 &lt;- rho_a1*sigma_astar/sigma_A # effect of A on astar
 a2 &lt;- rho_a2*sigma_ystar/sigma_Y # effect of Y on ystar
 b &lt;- rho_b*sigma_Y/sigma_A # effect of A on Y (the thing we want)
 A &lt;- rnorm(n, sd=sigma_A)
-R2_Y &lt;- (b*sigma_A)^2/sigma_Y^2
+R2_Y &lt;- (b*sigma_A)^2/sigma_Y^2 # R^2 for E(Y|A)
 Y &lt;- b*A + sqrt(1-R2_Y)*rnorm(n, sd=sigma_Y)
-R2_astar &lt;- (a1*sigma_A)^2/sigma_astar^2
+R2_astar &lt;- (a1*sigma_A)^2/sigma_astar^2 # R^2 for E(astar|A)
 astar &lt;- a1*A + sqrt(1-R2_astar)*rnorm(n, sd=sigma_astar)
-R2_ystar &lt;- (a2*sigma_Y)^2/sigma_ystar^2
+R2_ystar &lt;- (a2*sigma_Y)^2/sigma_ystar^2 # R^2 for E(ystar|Y)
 ystar &lt;- a2*Y + sqrt(1-R2_ystar)*rnorm(n, sd=sigma_ystar)</code></pre>
 <ol style="list-style-type: decimal">
 <li>first line returns the estimated effect of A on Y using the proxies</li>
 <li>second is one way to return the expected estimated effect</li>
-<li>third is another way to return the expected estimated effect. This is a function of the true effect so the long first part is the bias, which is <code>rho_a1*sigma_A/sigma_Y*rho_a2*sigma_ystar/sigma_astar</code></li>
+<li>third is another way to return the expected estimated effect. This is a function of the true effect so the long first part is the bias, which <code>rho_a1*sigma_A/sigma_Y*rho_a2*sigma_ystar/sigma_astar</code> or</li>
 </ol>
-<p>Make either ratio in the bias &gt;&gt; 1 and the bias will magnify the estimate.</p>
+<span class="math display">\[\begin{equation}
+k = \rho_{a_1} \frac{\sigma_A}{\sigma_Y} \rho_{a_2} \frac{sigma_{Y^\star}}{sigma_{A^\star}}
+\end{equation}\]</span>
+<p>the bias is <span class="math inline">\(k\)</span>. The bias can magnify (not dilute) the true value if, for example, either of the ratios is &gt;&gt;1. My parameterization is an example.</p>
 <pre class="r"><code>coef(lm(ystar ~ astar))</code></pre>
 <pre><code>## (Intercept)       astar 
-## -0.02532057  3.93427815</code></pre>
+##  0.07007929  3.93871063</code></pre>
 <pre class="r"><code>rho_a1*rho_a2*rho_b*sigma_ystar/sigma_astar</code></pre>
 <pre><code>## [1] 3.927273</code></pre>
 <pre class="r"><code>rho_a1*sigma_A/sigma_Y*rho_a2*sigma_ystar/sigma_astar*b</code></pre>
 <pre><code>## [1] 3.927273</code></pre>
 <pre class="r"><code>b</code></pre>
 <pre><code>## [1] 3</code></pre>
+<p>The first result is the estimated effect. The second is one to compute the expected estimated effect (but this doesn’t give the bias). The third is the way to compute the expected estimated effect using <em>k</em>, the measure of bias. The fourth result is the true effect.</p>
 <p>Some other checks</p>
 <pre class="r"><code>coef(lm(ystar ~ Y))</code></pre>
 <pre><code>## (Intercept)           Y 
-## -0.01263345  1.60016447</code></pre>
+##  0.01757774  1.59785889</code></pre>
 <pre class="r"><code>a2</code></pre>
 <pre><code>## [1] 1.6</code></pre>
 <pre class="r"><code>coef(lm(ystar ~ A))</code></pre>
 <pre><code>## (Intercept)           A 
-## -0.02728287  4.81920125</code></pre>
+##  0.04864765  4.81167115</code></pre>
 <pre class="r"><code>a2*b</code></pre>
 <pre><code>## [1] 4.8</code></pre>
 <pre class="r"><code>coef(lm(astar ~ A))</code></pre>
 <pre><code>##  (Intercept)            A 
-## -0.001437433  0.987097870</code></pre>
+## -0.005207585  0.989643279</code></pre>
 <pre class="r"><code>a1</code></pre>
 <pre><code>## [1] 0.99</code></pre>
 <pre class="r"><code>sd(A)</code></pre>
-<pre><code>## [1] 2.002111</code></pre>
+<pre><code>## [1] 2.00421</code></pre>
 <pre class="r"><code>sd(Y)</code></pre>
-<pre><code>## [1] 10.01455</code></pre>
+<pre><code>## [1] 10.00026</code></pre>
 <pre class="r"><code>sd(astar)</code></pre>
-<pre><code>## [1] 2.1982</code></pre>
+<pre><code>## [1] 2.203657</code></pre>
 <pre class="r"><code>sd(ystar)</code></pre>
-<pre><code>## [1] 20.01014</code></pre>
+<pre><code>## [1] 19.982</code></pre>
 <pre class="r"><code>cor(A, astar)</code></pre>
-<pre><code>## [1] 0.8990445</code></pre>
+<pre><code>## [1] 0.9000735</code></pre>
 <pre class="r"><code>cor(Y, ystar)</code></pre>
-<pre><code>## [1] 0.8008399</code></pre>
+<pre><code>## [1] 0.7996701</code></pre>
 <p>```</p>
 </div>
 
@@ -678,8 +680,8 @@ ystar &lt;- a2*Y + sqrt(1-R2_ystar)*rnorm(n, sd=sigma_ystar)</code></pre>
                 </span>
               </span>
               <div class="media-content hide-xs font-merryweather">This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this panel A from this figure
-fn &lt;- &quot;proxy_dag.jpg&quot; fig_path &lt;- here::here(&quot;content/images&quot;) knitr::include_graphics(fig_path) the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
-If the data are standardized (everything as unit variance) This is easy and just uses Wright’s rules of adding up effects along a path</div>
+the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
+We want to estimate \(b\), the true effect of \(A\) on \(Y\).</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
