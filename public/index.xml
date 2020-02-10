@@ -17,9 +17,9 @@
       <pubDate>Fri, 07 Feb 2020 00:00:00 +0000</pubDate>
       
       <guid>/2020/02/using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y/</guid>
-      <description>This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this panel A from this figure
-the question is I want to know about A-&amp;gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?
-We want to estimate \(b\), the true effect of \(A\) on \(Y\).</description>
+      <description>This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this figure
+from Panel A of a figure from Hernan and Cole. The scribbled red path coefficients are added
+ the question is I want to know about A-&amp;gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?</description>
     </item>
     
     <item>
