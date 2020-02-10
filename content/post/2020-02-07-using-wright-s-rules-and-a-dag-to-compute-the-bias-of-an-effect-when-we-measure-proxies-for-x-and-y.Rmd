@@ -47,7 +47,7 @@ so the bias is
 k = \alpha_1 \alpha_2 \frac{\sigma_A^2}{\sigma_{A^\star}^2}
 \end{equation}
 
-The deriviation is scratched out here:
+The derivation is scratched out here:
 
 ![Old fashion doodle deriving the bias of the estimate of $\beta$ when proxies of A and Y are measured. The bias is k.](/post/2020-02-07-using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y_files/dag of proxy derivation.png)
 
@@ -121,13 +121,13 @@ And the expected estimated effect using just the standardized coefficients
 rho_alpha_1*rho_alpha_2*rho_b*sigma_ystar/sigma_astar
 ```
 
-And the expected estimated effect using the equation $k \beta$, where k is the bias (and equal to everything in )
+And the expected estimated effect using the equation $k \beta$, where k is the bias (this is in the top image of the derivation)
 ```{r}
 k <- rho_alpha_1*sigma_A/sigma_Y*rho_alpha_2*sigma_ystar/sigma_astar
 k*beta
 ```
 
-And finally, the expected estimated effect using the bias as a function of the unstandardized variables (derived in the part 2 image above)
+And finally, the expected estimated effect using the bias as a function of the unstandardized variables (this is in the bottom -- part 2-- image of the derivation)
 
 ```{r}
 k <- alpha_1*alpha_2*sigma_A^2/sigma_astar^2

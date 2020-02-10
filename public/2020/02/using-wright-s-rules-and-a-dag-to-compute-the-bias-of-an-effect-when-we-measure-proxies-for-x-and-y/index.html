@@ -331,7 +331,7 @@ if (!doNotTrack) {
 <span class="math display">\[\begin{equation}
 k = \alpha_1 \alpha_2 \frac{\sigma_A^2}{\sigma_{A^\star}^2}
 \end{equation}\]</span>
-<p>The deriviation is scratched out here:</p>
+<p>The derivation is scratched out here:</p>
 <div class="figure">
 <img src="/post/2020-02-07-using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y_files/dag%20of%20proxy%20derivation.png" alt="Old fashion doodle deriving the bias of the estimate of \beta when proxies of A and Y are measured. The bias is k." />
 <p class="caption">Old fashion doodle deriving the bias of the estimate of <span class="math inline">\(\beta\)</span> when proxies of A and Y are measured. The bias is k.</p>
@@ -356,18 +356,18 @@ ystar &lt;- alpha_2*Y + sqrt(1 - alpha_2^2)*rnorm(n) # proxy for Y</code></pre>
 <pre><code>## [1] 0.432</code></pre>
 <pre class="r"><code>coef(lm(ystar ~ astar)) # measured effect</code></pre>
 <pre><code>##  (Intercept)        astar 
-## 0.0009880155 0.4320459036</code></pre>
+## 0.0007277386 0.4313778378</code></pre>
 <p>check some other measures</p>
 <pre class="r"><code>var(A) # should be 1</code></pre>
-<pre><code>## [1] 0.9977761</code></pre>
+<pre><code>## [1] 1.002161</code></pre>
 <pre class="r"><code>var(Y) # should be 1</code></pre>
-<pre><code>## [1] 1.000967</code></pre>
+<pre><code>## [1] 1.001362</code></pre>
 <pre class="r"><code>var(astar) # should be 1</code></pre>
-<pre><code>## [1] 0.999318</code></pre>
+<pre><code>## [1] 1.00204</code></pre>
 <pre class="r"><code>var(ystar) # should be 1</code></pre>
-<pre><code>## [1] 1.00027</code></pre>
+<pre><code>## [1] 0.998893</code></pre>
 <pre class="r"><code>cor(ystar, astar) # should be equal to expected measured effect</code></pre>
-<pre><code>## [1] 0.4318403</code></pre>
+<pre><code>## [1] 0.4320569</code></pre>
 </div>
 <div id="if-the-data-are-not-standardized" class="section level1">
 <h1>if the data are not standardized</h1>
@@ -392,15 +392,15 @@ ystar &lt;- alpha_2*Y + sqrt(1-R2_ystar)*rnorm(n, sd=sigma_ystar)</code></pre>
 <p>Now let’s check our math in the figure above. Here is the estimated effect</p>
 <pre class="r"><code>coef(lm(ystar ~ astar))</code></pre>
 <pre><code>## (Intercept)       astar 
-##  -0.1351318   3.9528800</code></pre>
+## 0.004357835 3.950256435</code></pre>
 <p>And the expected estimated effect using just the standardized coefficients</p>
 <pre class="r"><code>rho_alpha_1*rho_alpha_2*rho_b*sigma_ystar/sigma_astar</code></pre>
 <pre><code>## [1] 3.927273</code></pre>
-<p>And the expected estimated effect using the equation <span class="math inline">\(k \beta\)</span>, where k is the bias (and equal to everything in )</p>
+<p>And the expected estimated effect using the equation <span class="math inline">\(k \beta\)</span>, where k is the bias (this is in the top image of the derivation)</p>
 <pre class="r"><code>k &lt;- rho_alpha_1*sigma_A/sigma_Y*rho_alpha_2*sigma_ystar/sigma_astar
 k*beta</code></pre>
 <pre><code>## [1] 3.927273</code></pre>
-<p>And finally, the expected estimated effect using the bias as a function of the unstandardized variables (derived in the part 2 image above)</p>
+<p>And finally, the expected estimated effect using the bias as a function of the unstandardized variables (this is in the bottom – part 2– image of the derivation)</p>
 <pre class="r"><code>k &lt;- alpha_1*alpha_2*sigma_A^2/sigma_astar^2
 k*beta</code></pre>
 <pre><code>## [1] 3.927273</code></pre>
@@ -410,31 +410,31 @@ k*beta</code></pre>
 <p>Some other checks</p>
 <pre class="r"><code>coef(lm(ystar ~ Y))</code></pre>
 <pre><code>## (Intercept)           Y 
-## -0.06598482  1.59744783</code></pre>
+## -0.03612649  1.60271514</code></pre>
 <pre class="r"><code>alpha_2</code></pre>
 <pre><code>## [1] 1.6</code></pre>
 <pre class="r"><code>coef(lm(ystar ~ A))</code></pre>
 <pre><code>## (Intercept)           A 
-##   -0.138674    4.824727</code></pre>
+## -0.00254846  4.80956599</code></pre>
 <pre class="r"><code>alpha_2*beta</code></pre>
 <pre><code>## [1] 4.8</code></pre>
 <pre class="r"><code>coef(lm(astar ~ A))</code></pre>
-<pre><code>## (Intercept)           A 
-## 0.001544059 0.988688112</code></pre>
+<pre><code>##  (Intercept)            A 
+## -0.002796505  0.991465329</code></pre>
 <pre class="r"><code>alpha_1</code></pre>
 <pre><code>## [1] 0.99</code></pre>
 <pre class="r"><code>sd(A)</code></pre>
-<pre><code>## [1] 2.012419</code></pre>
+<pre><code>## [1] 2.014547</code></pre>
 <pre class="r"><code>sd(Y)</code></pre>
-<pre><code>## [1] 10.07306</code></pre>
+<pre><code>## [1] 10.04232</code></pre>
 <pre class="r"><code>sd(astar)</code></pre>
-<pre><code>## [1] 2.210716</code></pre>
+<pre><code>## [1] 2.215202</code></pre>
 <pre class="r"><code>sd(ystar)</code></pre>
-<pre><code>## [1] 20.07595</code></pre>
+<pre><code>## [1] 20.09823</code></pre>
 <pre class="r"><code>cor(A, astar)</code></pre>
-<pre><code>## [1] 0.9000048</code></pre>
+<pre><code>## [1] 0.9016573</code></pre>
 <pre class="r"><code>cor(Y, ystar)</code></pre>
-<pre><code>## [1] 0.8015155</code></pre>
+<pre><code>## [1] 0.8008157</code></pre>
 <p>```</p>
 </div>
 
