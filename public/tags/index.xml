@@ -6,7 +6,7 @@
     <description>Recent content in Tags on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 16 Oct 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 19 Mar 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,7 +14,7 @@
     <item>
       <title>Ancova</title>
       <link>/tags/ancova/</link>
-      <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 19 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/ancova/</guid>
       <description></description>
@@ -66,6 +66,15 @@
     </item>
     
     <item>
+      <title>Clda</title>
+      <link>/tags/clda/</link>
+      <pubDate>Thu, 19 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/clda/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Confidence Interval</title>
       <link>/tags/confidence-interval/</link>
       <pubDate>Wed, 14 Nov 2018 00:00:00 +0000</pubDate>
@@ -113,7 +122,7 @@
     <item>
       <title>Fake Data</title>
       <link>/tags/fake-data/</link>
-      <pubDate>Fri, 07 Feb 2020 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 19 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/fake-data/</guid>
       <description></description>
@@ -158,7 +167,7 @@
     <item>
       <title>Linear Mixed Model</title>
       <link>/tags/linear-mixed-model/</link>
-      <pubDate>Sat, 30 Nov 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 19 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/linear-mixed-model/</guid>
       <description></description>
@@ -212,7 +221,7 @@
     <item>
       <title>Nhst</title>
       <link>/tags/nhst/</link>
-      <pubDate>Thu, 08 Aug 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 19 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/nhst/</guid>
       <description></description>
@@ -257,7 +266,7 @@
     <item>
       <title>Power</title>
       <link>/tags/power/</link>
-      <pubDate>Thu, 08 Aug 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 19 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/power/</guid>
       <description></description>
@@ -266,7 +275,7 @@
     <item>
       <title>Pre Post</title>
       <link>/tags/pre-post/</link>
-      <pubDate>Thu, 08 Mar 2018 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 19 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/pre-post/</guid>
       <description></description>

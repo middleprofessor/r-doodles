@@ -6,10 +6,22 @@
     <description>Recent content on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 07 Feb 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 19 Mar 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Analyzing longitudinal data -- a simple pre-post design</title>
+      <link>/2020/03/analyzing-longitudinal-data-a-simple-pre-post-design/</link>
+      <pubDate>Thu, 19 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/03/analyzing-longitudinal-data-a-simple-pre-post-design/</guid>
+      <description>A skeletal response to a twitter question:
+“ANOVA (time point x group) or ANCOVA (group with time point as a covariate) for intervention designs? Discuss.”
+follow-up “Only 2 time points in this case (pre- and post-intervention), and would wanna basically answer the question of whether out of the 3 intervention groups, some improve on measure X more than others after the intervention”
+Here I compare five methods using fake pre-post data, including</description>
+    </item>
     
     <item>
       <title>Using Wright&#39;s rules and a DAG to compute the bias of an effect when we measure proxies for X and Y</title>

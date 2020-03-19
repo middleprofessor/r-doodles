@@ -6,10 +6,22 @@
     <description>Recent content in Pre Post on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 08 Mar 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 19 Mar 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/pre-post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Analyzing longitudinal data -- a simple pre-post design</title>
+      <link>/2020/03/analyzing-longitudinal-data-a-simple-pre-post-design/</link>
+      <pubDate>Thu, 19 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/03/analyzing-longitudinal-data-a-simple-pre-post-design/</guid>
+      <description>A skeletal response to a twitter question:
+“ANOVA (time point x group) or ANCOVA (group with time point as a covariate) for intervention designs? Discuss.”
+follow-up “Only 2 time points in this case (pre- and post-intervention), and would wanna basically answer the question of whether out of the 3 intervention groups, some improve on measure X more than others after the intervention”
+Here I compare five methods using fake pre-post data, including</description>
+    </item>
     
     <item>
       <title>Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study</title>

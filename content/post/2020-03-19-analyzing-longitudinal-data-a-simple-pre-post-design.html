@@ -1,0 +1,479 @@
+---
+title: Analyzing longitudinal data -- a simple pre-post design
+author: Jeff Walker
+date: '2020-03-19'
+slug: analyzing-longitudinal-data-a-simple-pre-post-design
+categories:
+  - stats 101
+tags:
+  - ancova
+  - fake data
+  - linear mixed model
+  - NHST
+  - power
+  - pre-post
+  - clda
+keywords:
+  - tech
+---
+
+
+
+<p>A skeletal response to a twitter question:</p>
+<p>“ANOVA (time point x group) or ANCOVA (group with time point as a covariate) for intervention designs? Discuss.”</p>
+<p>follow-up “Only 2 time points in this case (pre- and post-intervention), and would wanna basically answer the question of whether out of the 3 intervention groups, some improve on measure X more than others after the intervention”</p>
+<p>Here I compare five methods using fake pre-post data, including</p>
+<ol style="list-style-type: decimal">
+<li>lm-cov. A linear model with baseline as a covariate. This is “ANCOVA” in the ANOVA-world.</li>
+<li>clda. constrained longitudinal data analysis (cLDA). A linear mixed model in which the intercept is constrained to be equal (no treatment effect at time 0).</li>
+<li>rmanova. Repeated measures ANOVA.</li>
+<li>lmm. A linear mixed model version of rmanova. A difference is the rmanova will use a sphericity correction.</li>
+<li>two-way. Linear model with Treatment and Time and their interaction as fixed factors. Equivalent to a Two-way fixed effects ANOVA in ANOVA-world.</li>
+</ol>
+<p>I use a simulation to compute Type I error rate and Power. This is far from a comprehensive simulation. Like I said, its skeletal.</p>
+<p>TL;DR. At the risk of concluding anything from a very skeletal simulation:</p>
+<ul>
+<li>lm-cov has best performance in since of combining control of Type I error and relative power</li>
+<li>smaller SE in clda comes at a cost of relatively high Type I error but increased powers. Do with this what you will.</li>
+<li>rmanova has smaller power than lm-cov</li>
+</ul>
+<p>Not included: I didn’t save the results necessary to plot type I error conditional on baseline difference, which is well controlled by lm-cov (and clda) but not by lmm or rmanova.</p>
+<div id="libraries" class="section level1">
+<h1>libraries</h1>
+<pre class="r"><code>library(data.table)
+library(nlme)
+library(emmeans)
+library(afex)
+library(ggpubr)
+library(ggsci)
+library(cowplot)</code></pre>
+</div>
+<div id="simulation-functions" class="section level1">
+<h1>simulation functions</h1>
+<div id="pre-post-fake-data-generator" class="section level2">
+<h2>pre-post fake data generator</h2>
+<p>My general algorithm for creating pre-post data with a single post time point differs from how I create pre-post data with multiplee post time points.</p>
+<pre class="r"><code>generate_pre_post &lt;- function(
+  n = 6, # if vector then sample per group
+  sigma_0 = 1, # error at time 0
+  sigma_1 = 1, # error at time 1
+  rho = 0.6, # correlation between time 0 and 1
+  beta_0 = 10, # control mean at time 0
+  beta_1 = 1, # treatment effect at time 1
+  beta_2 = 5 # time effect at time 1
+){
+  
+  if(length(n) == 1){n &lt;- rep(n,2)} # set n = n for all groups
+  N &lt;- sum(n)
+  
+  fd &lt;- data.table(
+    treatment = factor(rep(c(&quot;cn&quot;, &quot;tr&quot;), n))
+  )
+  X &lt;- model.matrix(~treatment, data=fd)
+  
+  z &lt;- rnorm(N) # z is the common factor giving correlation at time 0 and 1. This
+  # is easier for me than making glucose_1 = glucose_0 + treatment + noise
+  fd[, glucose_0 := beta_0 + sqrt(rho)*z + sqrt(1 - rho)*rnorm(N, sd=sigma_0)]
+  fd[, glucose_1 := beta_0 + sqrt(rho)*z*sigma_1 + sqrt(1 - rho)*rnorm(N, sd=sigma_1) +
+       X[,2]*beta_1 + # add treatment effect
+       beta_2 # add time effect
+     ]
+  fd[, change := glucose_1 - glucose_0] # change score
+  fd[, id := factor(1:.N)]
+  return(fd)
+}</code></pre>
+</div>
+<div id="test-fdg" class="section level2">
+<h2>test FDG</h2>
+<pre class="r"><code>fd &lt;- generate_pre_post(
+  n = c(10^5, 10^5),
+  sigma_0 = 1,
+  sigma_1 = 2,
+  rho = 0.6, 
+  beta_0 = 10, 
+  beta_1 = 1 
+)
+
+m1 &lt;- lm(glucose_1 ~ treatment, data = fd)
+fd[, glucose_1_cond := coef(m1)[1] + residuals(m1)]
+coef(summary(m1))</code></pre>
+<pre><code>##               Estimate  Std. Error   t value Pr(&gt;|t|)
+## (Intercept) 15.0086453 0.006318270 2375.4359        0
+## treatmenttr  0.9873514 0.008935383  110.4991        0</code></pre>
+<pre class="r"><code>cov(fd[, .SD, .SDcols=c(&quot;glucose_0&quot;, &quot;glucose_1_cond&quot;)])</code></pre>
+<pre><code>##                glucose_0 glucose_1_cond
+## glucose_0        1.00213       1.197850
+## glucose_1_cond   1.19785       3.992034</code></pre>
+<pre class="r"><code>cor(fd[, .SD, .SDcols=c(&quot;glucose_0&quot;, &quot;glucose_1_cond&quot;)])</code></pre>
+<pre><code>##                glucose_0 glucose_1_cond
+## glucose_0       1.000000       0.598885
+## glucose_1_cond  0.598885       1.000000</code></pre>
+<pre class="r"><code>coef(summary(lm(glucose_1 ~ glucose_0 + treatment, data=fd)))</code></pre>
+<pre><code>##              Estimate  Std. Error   t value Pr(&gt;|t|)
+## (Intercept) 3.0529788 0.036105062  84.55819        0
+## glucose_0   1.1953072 0.003574099 334.43596        0
+## treatmenttr 0.9911134 0.007155790 138.50511        0</code></pre>
+</div>
+<div id="fake-data-wide-to-long" class="section level2">
+<h2>fake data wide to long</h2>
+<pre class="r"><code>wide_to_long &lt;- function(
+  dt, #data.table,
+  measure_prefix = &quot;glucose&quot;
+){
+# measure _prefix is the prefix of the measurement columns that will be melted. A &quot;_&quot; between the prefix and a time value is assumed. So with measure vars like glucose_0, glucose_15, glucose_20, the measure prefix is &quot;glucose&quot;
+  dt &lt;- data.table(dt)
+  dt_long &lt;- melt(dt, 
+                  id.vars=c(&quot;treatment&quot;, &quot;id&quot;), 
+                  measure.vars=patterns(paste0(measure_prefix, &quot;_&quot;)), 
+                  variable.name = &quot;time&quot;,
+                  value.name = measure_prefix)
+  return(dt_long)
+}</code></pre>
+</div>
+</div>
+<div id="fit-model-functions" class="section level1">
+<h1>Fit model functions</h1>
+<div id="two-way-anova" class="section level2">
+<h2>two-way anova</h2>
+<pre class="r"><code>two_way &lt;- function(dt_long){
+  fit &lt;- lm(glucose ~ time*treatment, data=dt_long)
+  return(fit)
+}</code></pre>
+</div>
+<div id="repeated-measures-anova" class="section level2">
+<h2>repeated measures anova</h2>
+<pre class="r"><code>rmanova &lt;- function(dt_long){
+  fit &lt;- aov_4(glucose ~ time*treatment + (time|id),
+               data=dt_long)
+  return(fit)
+}</code></pre>
+</div>
+<div id="linear-model-with-baseline-as-covariate" class="section level2">
+<h2>linear model with baseline as covariate</h2>
+<pre class="r"><code>lm_cov &lt;- function(dt){
+  fit &lt;- lm(glucose_1 ~ glucose_0 + treatment, data = dt)
+  return(fit)
+}</code></pre>
+</div>
+<div id="linear-mixed-model" class="section level2">
+<h2>linear mixed model</h2>
+<pre class="r"><code>lmm &lt;- function(dt_long){
+  fit &lt;- lme(glucose ~ time*treatment,
+             random = ~1|id,
+             data = dt_long,
+             weights = varIdent(form= ~ 1 | time),
+             correlation= corSymm(form=~ 1 | id))
+  return(fit)
+}</code></pre>
+</div>
+<div id="clda-functions" class="section level2">
+<h2>cLDA functions</h2>
+<p>Two equivalent functions for CLDA</p>
+<div id="clda-1" class="section level3">
+<h3>clda-1</h3>
+<pre class="r"><code>clda1 &lt;- function(dt_long){
+  design &lt;- model.matrix( ~ time + treatment:time, data = dt_long)
+  # remove intercept column and effect of tr at time 0
+  X &lt;- design[, -c(1, which(colnames(design) == &quot;timeglucose_0:treatmenttr&quot;))]
+  colnames(X)[2] &lt;- &quot;timeglucose_1_treatmenttr&quot;
+  dt_long_x &lt;- cbind(dt_long, X)
+  form &lt;- formula(paste0(&quot;glucose ~ &quot;, paste(colnames(X), collapse = &quot; + &quot;)))
+  fit &lt;- gls(form,
+            data = dt_long_x,
+            weights = varIdent(form= ~ 1 | time),
+            correlation= corSymm(form=~ 1| id))
+  return(fit)
+}</code></pre>
+</div>
+<div id="clda-2" class="section level3">
+<h3>clda-2</h3>
+<pre class="r"><code>clda2 &lt;- function(dt_long){
+  dt_clda &lt;- copy(dt_long)
+  dt_clda[, time.treatment := ifelse(time != &quot;glucose_0&quot; &amp; treatment==&quot;tr&quot;, paste0(time, &quot;:tr&quot;), &quot;cont&quot;)]
+  dt_clda[, time.treatment := factor(time.treatment, c(&quot;cont&quot;,&quot;glucose_1:tr&quot;))]
+  fit &lt;- gls(glucose ~ time + time.treatment,
+            data = dt_clda,
+            weights = varIdent(form= ~ 1 | time),
+            correlation= corSymm(form=~ 1| id))
+  return(fit)
+}</code></pre>
+</div>
+</div>
+<div id="test-functions" class="section level2">
+<h2>test functions</h2>
+<p>Some equivalents</p>
+<ol style="list-style-type: decimal">
+<li>cLDA is equivalent estimate to the linear model with baseline covariate but has a smaller standard error.</li>
+<li>the two-way (fixed) ANOVA and lmm have equivalent estimates but SE is larger</li>
+<li>the lmm and rmanova have the same p-value (assuming sphericity)</li>
+</ol>
+<pre class="r"><code>fd &lt;- generate_pre_post(
+  n = 6,
+  sigma_0 = 1,
+  sigma_1 = 1,
+  rho = 0.6, 
+  beta_0 = 10, 
+  beta_1 = 1 
+)
+
+fd_long &lt;- wide_to_long(fd,
+                        measure_prefix = &quot;glucose&quot;
+                        )
+
+m1 &lt;- lm_cov(fd)
+m2 &lt;- clda1(fd_long)
+m3 &lt;- clda2(fd_long)
+m4 &lt;- lmm(fd_long)
+m5 &lt;- two_way(fd_long)
+m6 &lt;- rmanova(fd_long)</code></pre>
+<p>linear model with baseline covariate</p>
+<pre class="r"><code>coef(summary(m1))</code></pre>
+<pre><code>##              Estimate Std. Error  t value   Pr(&gt;|t|)
+## (Intercept) 9.4423880  3.3526784 2.816372 0.02016613
+## glucose_0   0.5799923  0.3490826 1.661476 0.13098439
+## treatmenttr 0.7087883  0.4448445 1.593340 0.14554812</code></pre>
+<p>cLDA (both R methods)</p>
+<pre class="r"><code>coef(summary(m2))</code></pre>
+<pre><code>##                               Value Std.Error   t-value      p-value
+## (Intercept)               9.6663085 0.1921116 50.316108 2.223746e-23
+## timeglucose_1             5.3824640 0.3053176 17.629063 4.601669e-14
+## timeglucose_1_treatmenttr 0.7087883 0.4164331  1.702046 1.035060e-01</code></pre>
+<pre class="r"><code>coef(summary(m3))</code></pre>
+<pre><code>##                                Value Std.Error   t-value      p-value
+## (Intercept)                9.6663085 0.1921116 50.316108 2.223746e-23
+## timeglucose_1              5.3824640 0.3053176 17.629063 4.601669e-14
+## time.treatmentglucose_1:tr 0.7087883 0.4164331  1.702046 1.035060e-01</code></pre>
+<p>two-way (fixed effect) linear model</p>
+<pre class="r"><code>coef(summary(m5))</code></pre>
+<pre><code>##                            Estimate Std. Error    t value     Pr(&gt;|t|)
+## (Intercept)               9.5630065  0.3101326 30.8352174 2.449397e-18
+## timeglucose_1             5.4258517  0.4385937 12.3710192 7.923275e-11
+## treatmenttr               0.2066040  0.4385937  0.4710601 6.426952e-01
+## timeglucose_1:treatmenttr 0.6220131  0.6202652  1.0028179 3.279282e-01</code></pre>
+<p>linear mixed model</p>
+<pre class="r"><code>coef(summary(m4))</code></pre>
+<pre><code>##                               Value Std.Error DF    t-value      p-value
+## (Intercept)               9.5630065 0.2811776 10 34.0105547 1.142426e-11
+## timeglucose_1             5.4258517 0.3172619 10 17.1021224 9.855274e-09
+## treatmenttr               0.2066040 0.3976452 10  0.5195688 6.146692e-01
+## timeglucose_1:treatmenttr 0.6220131 0.4486761 10  1.3863299 1.957756e-01</code></pre>
+<p>repeated measures ANOVA</p>
+<pre class="r"><code>summary(m6)</code></pre>
+<pre><code>## 
+## Univariate Type III Repeated-Measures ANOVA Assuming Sphericity
+## 
+##                Sum Sq num Df Error SS den Df   F value    Pr(&gt;F)    
+## (Intercept)    3770.9      1   8.5222     10 4424.7551 1.436e-14 ***
+## treatment         1.6      1   8.5222     10    1.8863    0.1996    
+## time            197.5      1   3.0197     10  653.9468 1.919e-10 ***
+## treatment:time    0.6      1   3.0197     10    1.9219    0.1958    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+</div>
+<div id="simulations" class="section level1">
+<h1>simulations</h1>
+<div id="single-post-time-point-pre-post" class="section level2">
+<h2>single post time point (“pre-post”)</h2>
+<pre class="r"><code>simulate_pre_post &lt;- function(
+  niter = 1000, # number of iterations
+  n = 6, # if vector then sample per group
+  sigma_0 = 1, # error at time 0
+  sigma_1 = 1, # error at time 1
+  rho = 0.6, # correlation between time 0 and 1
+  beta_0 = 10, # control mean at time 0
+  beta_1 = 1, # treatment effect at time 1
+  beta_2 = 5 # time effect at time 1
+){
+  
+  if(length(n) == 1){n &lt;- rep(n,2)} # set n = n for all groups
+  method_list &lt;- c(&quot;lm_cov&quot;, &quot;clda&quot;, &quot;lmm&quot;, &quot;rmanova&quot;)
+  prob_wide &lt;- data.table(matrix(-9999, nrow=niter, ncol=length(method_list)))
+  colnames(prob_wide) &lt;- method_list
+  for(iter in 1:niter){
+    fd &lt;- generate_pre_post(
+      n = n,
+      sigma_0 = sigma_0,
+      sigma_1 = sigma_1,
+      rho = rho, 
+      beta_0 = beta_0, 
+      beta_1 = beta_1 
+    )
+    
+    fd_long &lt;- wide_to_long(fd,
+                            measure_prefix = &quot;glucose&quot;
+    )
+    
+    m1 &lt;- lm_cov(fd)
+    m2 &lt;- clda1(fd_long)
+    m3 &lt;- clda2(fd_long)
+    m4 &lt;- lmm(fd_long)
+    m5 &lt;- two_way(fd_long)
+    m6 &lt;- rmanova(fd_long)
+    
+    prob_wide[iter, lm_cov := coef(summary(m1))[&quot;treatmenttr&quot;, &quot;Pr(&gt;|t|)&quot;]]
+    prob_wide[iter, clda := coef(summary(m2))[&quot;timeglucose_1_treatmenttr&quot;, &quot;p-value&quot;]]
+    prob_wide[iter, lmm := coef(summary(m4))[&quot;timeglucose_1:treatmenttr&quot;, &quot;p-value&quot;]]
+    prob_wide[iter, rmanova := summary(m6)$univariate.tests[&quot;treatment:time&quot;, &quot;Pr(&gt;F)&quot;]]
+    
+  }
+  
+  prob &lt;- melt(prob_wide,
+               id.vars = NULL,
+               measure.vars = method_list,
+               variable.name = &quot;method&quot;,
+               value.name = &quot;p_value&quot;)
+  return(prob)
+}</code></pre>
+</div>
+<div id="summary-statistics" class="section level2">
+<h2>Summary statistics</h2>
+<pre class="r"><code>p_summary &lt;- function(prob, niter){
+  prob_summary &lt;- prob[, .(freq_lt_05 = sum(p_value &lt; 0.05)/max(niter)),
+          by = .(method)]
+  return(prob_summary)
+}</code></pre>
+</div>
+<div id="plot" class="section level2">
+<h2>Plot:</h2>
+<pre class="r"><code>plot_it &lt;- function(prob){
+  jco_pal &lt;- pal_jco()(6)
+  group_colors &lt;- jco_pal[c(2,5,4,6)]
+  group_shapes &lt;- c(15, 16, 17,  18)
+  
+  pd &lt;- position_dodge(0.8)
+  gg1 &lt;- ggplot(data = prob,
+                aes(x=method, y=freq_lt_05, color=method, shape=method)) +
+    geom_point(position = pd) +
+    scale_color_manual(values = group_colors) +
+    scale_shape_manual(values = group_shapes) +
+    ylab(&quot;Frequency p &lt; 0.05&quot;) +
+    xlab(&quot;&quot;) +
+    theme_pubr() +
+    theme(legend.position=&quot;none&quot;) +
+    guides(col = guide_legend(ncol = 5, byrow = FALSE)) +
+    NULL
+  return(gg1)
+}</code></pre>
+</div>
+<div id="type-i-error" class="section level2">
+<h2>Type I error</h2>
+<pre class="r"><code># parameters of simulation
+  niter = 1000 # number of iterations
+  n = 6 # if vector then sample per group
+  sigma_0 = 1 # error at time 0
+  sigma_1 = 1 # error at time 1
+  rho = 0.6 # correlation between time 0 and 1
+  beta_0 = 10 # control mean at time 0
+  beta_1 = 0 # treatment effect at time 1
+  beta_2 = 5 # time effect at time 1
+  
+  prob_type1 &lt;- simulate_pre_post(niter = niter,
+                                  n = n,
+                                  sigma_0 = sigma_0,
+                                  sigma_1 = sigma_1,
+                                  rho = rho,
+                                  beta_0 = beta_0,
+                                  beta_1 = beta_1,
+                                  beta_2 = beta_2)
+
+prob_type1_sum &lt;- p_summary(prob_type1, niter)</code></pre>
+</div>
+<div id="power" class="section level2">
+<h2>Power</h2>
+<pre class="r"><code># parameters of simulation
+  niter = 1000 # number of iterations
+  n = 6 # if vector then sample per group
+  sigma_0 = 1 # error at time 0
+  sigma_1 = 1 # error at time 1
+  rho = 0.6 # correlation between time 0 and 1
+  beta_0 = 10 # control mean at time 0
+  beta_1 = 1 # treatment effect at time 1
+  beta_2 = 5 # time effect at time 1
+
+  prob_power &lt;- simulate_pre_post(niter = niter,
+                              n = n,
+                              sigma_0 = sigma_0,
+                              sigma_1 = sigma_1,
+                              rho = rho,
+                              beta_0 = beta_0,
+                              beta_1 = beta_1,
+                              beta_2 = beta_2)
+  
+  prob_power_sum &lt;- p_summary(prob_power, niter)</code></pre>
+</div>
+</div>
+<div id="tables" class="section level1">
+<h1>Tables</h1>
+<div id="type-i-error-rates" class="section level2">
+<h2>Type I error rates</h2>
+<pre class="r"><code>table1 &lt;- prob_type1_sum
+colnames(table1)[2] &lt;- &quot;Type I error rate&quot;
+knitr::kable(table1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="right">Type I error rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">lm_cov</td>
+<td align="right">0.055</td>
+</tr>
+<tr class="even">
+<td align="left">clda</td>
+<td align="right">0.099</td>
+</tr>
+<tr class="odd">
+<td align="left">lmm</td>
+<td align="right">0.040</td>
+</tr>
+<tr class="even">
+<td align="left">rmanova</td>
+<td align="right">0.040</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="power-1" class="section level2">
+<h2>Power</h2>
+<pre class="r"><code>table2 &lt;- prob_power_sum
+colnames(table2)[2] &lt;- &quot;Power&quot;
+knitr::kable(table2, digits = 2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="right">Power</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">lm_cov</td>
+<td align="right">0.43</td>
+</tr>
+<tr class="even">
+<td align="left">clda</td>
+<td align="right">0.57</td>
+</tr>
+<tr class="odd">
+<td align="left">lmm</td>
+<td align="right">0.41</td>
+</tr>
+<tr class="even">
+<td align="left">rmanova</td>
+<td align="right">0.41</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="plots" class="section level1">
+<h1>Plots</h1>
+<pre class="r"><code>gg_a &lt;- plot_it(prob_type1_sum)
+gg_b &lt;- plot_it(prob_power_sum)
+plot_grid(gg_a, gg_b, ncol=2)</code></pre>
+<p><img src="/post/2020-03-19-analyzing-longitudinal-data-a-simple-pre-post-design_files/figure-html/plots-1.png" width="672" /></p>
+</div>

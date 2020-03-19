@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2020/03/analyzing-longitudinal-data-a-simple-pre-post-design/</loc>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2020/02/using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y/</loc>
     <lastmod>2020-02-07T00:00:00+00:00</lastmod>
   </url>
@@ -188,7 +193,7 @@
   
   <url>
     <loc>/tags/ancova/</loc>
-    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -239,6 +244,12 @@
   </url>
   
   <url>
+    <loc>/tags/clda/</loc>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/tags/confidence-interval/</loc>
     <lastmod>2018-11-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
@@ -275,7 +286,7 @@
   
   <url>
     <loc>/tags/fake-data/</loc>
-    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -311,7 +322,7 @@
   
   <url>
     <loc>/tags/linear-mixed-model/</loc>
-    <lastmod>2019-11-30T00:00:00+00:00</lastmod>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -353,7 +364,7 @@
   
   <url>
     <loc>/tags/nhst/</loc>
-    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -383,25 +394,25 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/power/</loc>
-    <lastmod>2019-08-08T00:00:00+00:00</lastmod>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/pre-post/</loc>
-    <lastmod>2018-03-08T00:00:00+00:00</lastmod>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/</loc>
-    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -437,13 +448,13 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2019-11-30T00:00:00+00:00</lastmod>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/</loc>
-    <lastmod>2019-10-16T00:00:00+00:00</lastmod>
+    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

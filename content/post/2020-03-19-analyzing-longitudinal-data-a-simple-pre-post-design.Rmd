@@ -1,0 +1,439 @@
+---
+title: Analyzing longitudinal data -- a simple pre-post design
+author: Jeff Walker
+date: '2020-03-19'
+slug: analyzing-longitudinal-data-a-simple-pre-post-design
+categories:
+  - stats 101
+tags:
+  - ancova
+  - fake data
+  - linear mixed model
+  - NHST
+  - power
+  - pre-post
+  - clda
+keywords:
+  - tech
+---
+
+
+A skeletal response to a twitter question:
+
+"ANOVA (time point x group) or ANCOVA (group with time point as a covariate) for intervention designs? Discuss."
+
+follow-up "Only 2 time points in this case  (pre- and post-intervention), and would wanna basically answer the question of whether out of the 3 intervention groups, some improve on measure X more than others after the intervention"
+
+Here I compare five methods using fake pre-post data, including
+
+1. lm-cov. A linear model with baseline as a covariate. This is "ANCOVA" in the ANOVA-world.
+2. clda. constrained longitudinal data analysis (cLDA). A linear mixed model in which the intercept is constrained to be equal (no treatment effect at time 0).
+3. rmanova. Repeated measures ANOVA.
+4. lmm. A linear mixed model version of rmanova. A difference is the rmanova will use a sphericity correction.
+5. two-way. Linear model with Treatment and Time and their interaction as fixed factors. Equivalent to a Two-way fixed effects ANOVA in ANOVA-world.
+
+I use a simulation to compute Type I error rate and Power. This is far from a comprehensive simulation. Like I said, its skeletal. 
+
+TL;DR. At the risk of concluding anything from a very skeletal simulation:
+
+* lm-cov has best performance in since of combining control of Type I error and relative power
+* smaller SE in clda comes at a cost of relatively high Type I error but increased powers. Do with this what you will.
+* rmanova has smaller power than lm-cov
+
+Not included: I didn't save the results necessary to plot type I error conditional on baseline difference, which is well controlled by lm-cov (and clda) but not by lmm or rmanova.
+
+# libraries
+```{r libraries, message=FALSE, warning=FALSE}
+library(data.table)
+library(nlme)
+library(emmeans)
+library(afex)
+library(ggpubr)
+library(ggsci)
+library(cowplot)
+```
+
+# simulation functions
+## pre-post fake data generator 
+
+My general algorithm for creating pre-post data with a single post time point differs from how I create pre-post data with multiplee post time points.
+
+```{r pre-post-FDG}
+
+generate_pre_post <- function(
+  n = 6, # if vector then sample per group
+  sigma_0 = 1, # error at time 0
+  sigma_1 = 1, # error at time 1
+  rho = 0.6, # correlation between time 0 and 1
+  beta_0 = 10, # control mean at time 0
+  beta_1 = 1, # treatment effect at time 1
+  beta_2 = 5 # time effect at time 1
+){
+  
+  if(length(n) == 1){n <- rep(n,2)} # set n = n for all groups
+  N <- sum(n)
+  
+  fd <- data.table(
+    treatment = factor(rep(c("cn", "tr"), n))
+  )
+  X <- model.matrix(~treatment, data=fd)
+  
+  z <- rnorm(N) # z is the common factor giving correlation at time 0 and 1. This
+  # is easier for me than making glucose_1 = glucose_0 + treatment + noise
+  fd[, glucose_0 := beta_0 + sqrt(rho)*z + sqrt(1 - rho)*rnorm(N, sd=sigma_0)]
+  fd[, glucose_1 := beta_0 + sqrt(rho)*z*sigma_1 + sqrt(1 - rho)*rnorm(N, sd=sigma_1) +
+       X[,2]*beta_1 + # add treatment effect
+       beta_2 # add time effect
+     ]
+  fd[, change := glucose_1 - glucose_0] # change score
+  fd[, id := factor(1:.N)]
+  return(fd)
+}
+
+```
+
+## test FDG
+
+```{r test pre-post-FDG}
+fd <- generate_pre_post(
+  n = c(10^5, 10^5),
+  sigma_0 = 1,
+  sigma_1 = 2,
+  rho = 0.6, 
+  beta_0 = 10, 
+  beta_1 = 1 
+)
+
+m1 <- lm(glucose_1 ~ treatment, data = fd)
+fd[, glucose_1_cond := coef(m1)[1] + residuals(m1)]
+coef(summary(m1))
+cov(fd[, .SD, .SDcols=c("glucose_0", "glucose_1_cond")])
+cor(fd[, .SD, .SDcols=c("glucose_0", "glucose_1_cond")])
+coef(summary(lm(glucose_1 ~ glucose_0 + treatment, data=fd)))
+
+```
+
+
+## fake data wide to long
+
+```{r wide-to-long}
+wide_to_long <- function(
+  dt, #data.table,
+  measure_prefix = "glucose"
+){
+# measure _prefix is the prefix of the measurement columns that will be melted. A "_" between the prefix and a time value is assumed. So with measure vars like glucose_0, glucose_15, glucose_20, the measure prefix is "glucose"
+  dt <- data.table(dt)
+  dt_long <- melt(dt, 
+                  id.vars=c("treatment", "id"), 
+                  measure.vars=patterns(paste0(measure_prefix, "_")), 
+                  variable.name = "time",
+                  value.name = measure_prefix)
+  return(dt_long)
+}
+```
+
+# Fit model functions
+## two-way anova
+
+```{r two-way anova}
+two_way <- function(dt_long){
+  fit <- lm(glucose ~ time*treatment, data=dt_long)
+  return(fit)
+}
+```
+
+## repeated measures anova
+
+```{r repeated-measures-anova, message=FALSE}
+rmanova <- function(dt_long){
+  fit <- aov_4(glucose ~ time*treatment + (time|id),
+               data=dt_long)
+  return(fit)
+}
+```
+
+## linear model with baseline as covariate
+
+```{r lm-cov}
+lm_cov <- function(dt){
+  fit <- lm(glucose_1 ~ glucose_0 + treatment, data = dt)
+  return(fit)
+}
+```
+
+## linear mixed model
+
+```{r lmm}
+lmm <- function(dt_long){
+  fit <- lme(glucose ~ time*treatment,
+             random = ~1|id,
+             data = dt_long,
+             weights = varIdent(form= ~ 1 | time),
+             correlation= corSymm(form=~ 1 | id))
+  return(fit)
+}
+```
+
+## cLDA functions
+
+Two equivalent functions for CLDA
+
+### clda-1
+
+```{r clda-1}
+clda1 <- function(dt_long){
+  design <- model.matrix( ~ time + treatment:time, data = dt_long)
+  # remove intercept column and effect of tr at time 0
+  X <- design[, -c(1, which(colnames(design) == "timeglucose_0:treatmenttr"))]
+  colnames(X)[2] <- "timeglucose_1_treatmenttr"
+  dt_long_x <- cbind(dt_long, X)
+  form <- formula(paste0("glucose ~ ", paste(colnames(X), collapse = " + ")))
+  fit <- gls(form,
+            data = dt_long_x,
+            weights = varIdent(form= ~ 1 | time),
+            correlation= corSymm(form=~ 1| id))
+  return(fit)
+}
+```
+
+### clda-2
+
+```{r clda-2}
+clda2 <- function(dt_long){
+  dt_clda <- copy(dt_long)
+  dt_clda[, time.treatment := ifelse(time != "glucose_0" & treatment=="tr", paste0(time, ":tr"), "cont")]
+  dt_clda[, time.treatment := factor(time.treatment, c("cont","glucose_1:tr"))]
+  fit <- gls(glucose ~ time + time.treatment,
+            data = dt_clda,
+            weights = varIdent(form= ~ 1 | time),
+            correlation= corSymm(form=~ 1| id))
+  return(fit)
+}
+
+```
+
+## test functions
+
+Some equivalents
+
+1. cLDA is equivalent estimate to the linear model with baseline covariate but has a smaller standard error.
+2. the two-way (fixed) ANOVA and lmm have equivalent estimates but SE is larger
+3. the lmm and rmanova have the same p-value (assuming sphericity)
+
+```{r test, message=FALSE}
+fd <- generate_pre_post(
+  n = 6,
+  sigma_0 = 1,
+  sigma_1 = 1,
+  rho = 0.6, 
+  beta_0 = 10, 
+  beta_1 = 1 
+)
+
+fd_long <- wide_to_long(fd,
+                        measure_prefix = "glucose"
+                        )
+
+m1 <- lm_cov(fd)
+m2 <- clda1(fd_long)
+m3 <- clda2(fd_long)
+m4 <- lmm(fd_long)
+m5 <- two_way(fd_long)
+m6 <- rmanova(fd_long)
+```
+
+linear model with baseline covariate
+```{r test-results-lm-cov}
+coef(summary(m1))
+```
+
+cLDA (both R methods)
+```{r test-results-clda}
+coef(summary(m2))
+coef(summary(m3))
+```
+
+two-way (fixed effect) linear model
+```{r test-results-2-way-fixed}
+coef(summary(m5))
+```
+
+linear mixed model
+```{r test-results-lmm}
+coef(summary(m4))
+```
+
+
+repeated measures ANOVA
+```{r test-results-rmanova}
+summary(m6)
+```
+
+# simulations
+## single post time point ("pre-post")
+
+```{r simulation-single-post-time-point, message=FALSE}
+
+simulate_pre_post <- function(
+  niter = 1000, # number of iterations
+  n = 6, # if vector then sample per group
+  sigma_0 = 1, # error at time 0
+  sigma_1 = 1, # error at time 1
+  rho = 0.6, # correlation between time 0 and 1
+  beta_0 = 10, # control mean at time 0
+  beta_1 = 1, # treatment effect at time 1
+  beta_2 = 5 # time effect at time 1
+){
+  
+  if(length(n) == 1){n <- rep(n,2)} # set n = n for all groups
+  method_list <- c("lm_cov", "clda", "lmm", "rmanova")
+  prob_wide <- data.table(matrix(-9999, nrow=niter, ncol=length(method_list)))
+  colnames(prob_wide) <- method_list
+  for(iter in 1:niter){
+    fd <- generate_pre_post(
+      n = n,
+      sigma_0 = sigma_0,
+      sigma_1 = sigma_1,
+      rho = rho, 
+      beta_0 = beta_0, 
+      beta_1 = beta_1 
+    )
+    
+    fd_long <- wide_to_long(fd,
+                            measure_prefix = "glucose"
+    )
+    
+    m1 <- lm_cov(fd)
+    m2 <- clda1(fd_long)
+    m3 <- clda2(fd_long)
+    m4 <- lmm(fd_long)
+    m5 <- two_way(fd_long)
+    m6 <- rmanova(fd_long)
+    
+    prob_wide[iter, lm_cov := coef(summary(m1))["treatmenttr", "Pr(>|t|)"]]
+    prob_wide[iter, clda := coef(summary(m2))["timeglucose_1_treatmenttr", "p-value"]]
+    prob_wide[iter, lmm := coef(summary(m4))["timeglucose_1:treatmenttr", "p-value"]]
+    prob_wide[iter, rmanova := summary(m6)$univariate.tests["treatment:time", "Pr(>F)"]]
+    
+  }
+  
+  prob <- melt(prob_wide,
+               id.vars = NULL,
+               measure.vars = method_list,
+               variable.name = "method",
+               value.name = "p_value")
+  return(prob)
+}
+```
+
+## Summary statistics
+
+```{r summary stats}
+p_summary <- function(prob, niter){
+  prob_summary <- prob[, .(freq_lt_05 = sum(p_value < 0.05)/max(niter)),
+          by = .(method)]
+  return(prob_summary)
+}
+
+```
+
+## Plot: 
+
+```{r plot-it}
+plot_it <- function(prob){
+  jco_pal <- pal_jco()(6)
+  group_colors <- jco_pal[c(2,5,4,6)]
+  group_shapes <- c(15, 16, 17,  18)
+  
+  pd <- position_dodge(0.8)
+  gg1 <- ggplot(data = prob,
+                aes(x=method, y=freq_lt_05, color=method, shape=method)) +
+    geom_point(position = pd) +
+    scale_color_manual(values = group_colors) +
+    scale_shape_manual(values = group_shapes) +
+    ylab("Frequency p < 0.05") +
+    xlab("") +
+    theme_pubr() +
+    theme(legend.position="none") +
+    guides(col = guide_legend(ncol = 5, byrow = FALSE)) +
+    NULL
+  return(gg1)
+}
+```
+
+## Type I error
+
+```{r type I, message=FALSE, eval=TRUE}
+# parameters of simulation
+  niter = 1000 # number of iterations
+  n = 6 # if vector then sample per group
+  sigma_0 = 1 # error at time 0
+  sigma_1 = 1 # error at time 1
+  rho = 0.6 # correlation between time 0 and 1
+  beta_0 = 10 # control mean at time 0
+  beta_1 = 0 # treatment effect at time 1
+  beta_2 = 5 # time effect at time 1
+  
+  prob_type1 <- simulate_pre_post(niter = niter,
+                                  n = n,
+                                  sigma_0 = sigma_0,
+                                  sigma_1 = sigma_1,
+                                  rho = rho,
+                                  beta_0 = beta_0,
+                                  beta_1 = beta_1,
+                                  beta_2 = beta_2)
+
+prob_type1_sum <- p_summary(prob_type1, niter)
+```
+
+## Power
+
+```{r Power sim, message=FALSE, eval=TRUE}
+# parameters of simulation
+  niter = 1000 # number of iterations
+  n = 6 # if vector then sample per group
+  sigma_0 = 1 # error at time 0
+  sigma_1 = 1 # error at time 1
+  rho = 0.6 # correlation between time 0 and 1
+  beta_0 = 10 # control mean at time 0
+  beta_1 = 1 # treatment effect at time 1
+  beta_2 = 5 # time effect at time 1
+
+  prob_power <- simulate_pre_post(niter = niter,
+                              n = n,
+                              sigma_0 = sigma_0,
+                              sigma_1 = sigma_1,
+                              rho = rho,
+                              beta_0 = beta_0,
+                              beta_1 = beta_1,
+                              beta_2 = beta_2)
+  
+  prob_power_sum <- p_summary(prob_power, niter)
+```
+
+# Tables
+## Type I error rates
+```{r type I table, eval=TRUE}
+table1 <- prob_type1_sum
+colnames(table1)[2] <- "Type I error rate"
+knitr::kable(table1)
+```
+
+## Power
+
+```{r power table, eval=TRUE}
+table2 <- prob_power_sum
+colnames(table2)[2] <- "Power"
+knitr::kable(table2, digits = 2)
+```
+
+# Plots
+```{r plots}
+  
+gg_a <- plot_it(prob_type1_sum)
+gg_b <- plot_it(prob_power_sum)
+plot_grid(gg_a, gg_b, ncol=2)
+
+```
+
+
