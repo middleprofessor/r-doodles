@@ -60,7 +60,7 @@ T2Q2 <- colnames(dt)[grep("Topic2.Question2", colnames(dt))]
 dt_long <- melt(dt, 
                 id.vars = c("Id"),
                 measure.vars = list(T1Q1, T1Q2, T2Q1, T2Q2),
-                variable.name <- "Time",
+                variable.name = "Time",
                 value.name = c("T1Q1", "T1Q2", "T2Q1", "T2Q2"))
 # View(dt_long)
 ```

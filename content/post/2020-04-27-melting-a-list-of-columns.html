@@ -53,7 +53,7 @@ T2Q2 &lt;- colnames(dt)[grep(&quot;Topic2.Question2&quot;, colnames(dt))]
 dt_long &lt;- melt(dt, 
                 id.vars = c(&quot;Id&quot;),
                 measure.vars = list(T1Q1, T1Q2, T2Q1, T2Q2),
-                variable.name &lt;- &quot;Time&quot;,
+                variable.name = &quot;Time&quot;,
                 value.name = c(&quot;T1Q1&quot;, &quot;T1Q2&quot;, &quot;T2Q1&quot;, &quot;T2Q2&quot;))
 # View(dt_long)</code></pre>
 <div id="notes-on-my-code" class="section level2">
