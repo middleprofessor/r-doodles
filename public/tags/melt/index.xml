@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Melt on R Doodles</title>
+    <link>/tags/melt/</link>
+    <description>Recent content in Melt on R Doodles</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 27 Apr 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/melt/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Melting a list of columns</title>
+      <link>/2020/04/melting-a-list-of-columns/</link>
+      <pubDate>Mon, 27 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/04/melting-a-list-of-columns/</guid>
+      <description>An answer to this tweet “Are there any #Rstats tidy expeRts who’d be interested in improving the efficiency of this code that gathers multiple variables from wide to long?
+This works but it’s not pretty. There must be a prettier way…&amp;quot;
+Wide data frame has three time points where participants answer two questions on two topics.
+create data from original code #Simmed data Time1.Topic1.Question1 &amp;lt;- rnorm(500) data &amp;lt;- data.frame(Time1.Topic1.Question1) data$Time1.</description>
+    </item>
+    
+  </channel>
+</rss>

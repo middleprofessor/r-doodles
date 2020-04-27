@@ -1,0 +1,135 @@
+---
+title: Melting a list of columns
+author: Jeff Walker
+date: '2020-04-27'
+slug: melting-a-list-of-columns
+categories:
+  - data wrangling
+tags:
+  - data.table
+  - melt
+keywords:
+  - tech
+---
+
+
+
+<p><a href="https://twitter.com/lpsatchell/status/1254763204061716484">An answer to this tweet</a> “Are there any #Rstats tidy expeRts who’d be interested in improving the efficiency of this code that gathers multiple variables from wide to long?</p>
+<p>This works but it’s not pretty. There must be a prettier way…&quot;</p>
+<p>Wide data frame has three time points where participants answer two questions on two topics.</p>
+<div id="create-data-from-original-code" class="section level1">
+<h1>create data from original code</h1>
+<pre class="r"><code>#Simmed data
+Time1.Topic1.Question1 &lt;- rnorm(500)
+data &lt;- data.frame(Time1.Topic1.Question1)
+data$Time1.TOpic1.Question2 &lt;- rnorm(500)
+data$Time1.Topic2.Question1 &lt;- rnorm(500)
+data$Time1.Topic2.Question2 &lt;- rnorm(500)
+data$Time2.Topic1.Question1 &lt;- rnorm(500)
+data$Time2.Topic1.Question2 &lt;- rnorm(500)
+data$Time2.Topic2.Question1 &lt;- rnorm(500)
+data$Time2.Topic2.Question2 &lt;- rnorm(500)
+data$Time3.Topic1.Question1 &lt;- rnorm(500)
+data$Time3.Topic1.Question2 &lt;- rnorm(500)
+data$Time3.Topic2.Question1 &lt;- rnorm(500)
+data$Time3.Topic2.Question2 &lt;- rnorm(500)
+data &lt;- tibble::rowid_to_column(data, &quot;Id&quot;)
+data$Condition &lt;- sample(x = 1:5, size=500, replace=TRUE)
+
+#Starting data
+View(data)</code></pre>
+</div>
+<div id="my-code-to-melt-on-a-list-of-columns" class="section level1">
+<h1>My code to melt on a list of columns</h1>
+<p>My code is a data.table solution. Melt is a beutiful function and data.table made it better. I follow the original code (below) and name the columns using “T” for topic (e.g. T1Q1) but the future me might think this stands for “Time” and not “Topic”. I’d probably name the columns something like “topic_1_Q_1”</p>
+<pre class="r"><code>library(data.table)
+dt &lt;- data.table(data)
+setnames(dt, &quot;Time1.TOpic1.Question2&quot;, &quot;Time1.Topic1.Question2&quot;)
+T1Q1 &lt;- colnames(dt)[grep(&quot;Topic1.Question1&quot;, colnames(dt))]
+T1Q2 &lt;- colnames(dt)[grep(&quot;Topic1.Question2&quot;, colnames(dt))]
+T2Q1 &lt;- colnames(dt)[grep(&quot;Topic2.Question1&quot;, colnames(dt))]
+T2Q2 &lt;- colnames(dt)[grep(&quot;Topic2.Question2&quot;, colnames(dt))]
+
+dt_long &lt;- melt(dt, 
+                id.vars = c(&quot;Id&quot;),
+                measure.vars = list(T1Q1, T1Q2, T2Q1, T2Q2),
+                variable.name &lt;- &quot;Time&quot;,
+                value.name = c(&quot;T1Q1&quot;, &quot;T1Q2&quot;, &quot;T2Q1&quot;, &quot;T2Q2&quot;))
+View(dt_long)</code></pre>
+</div>
+<div id="original-code" class="section level1">
+<h1>Original code</h1>
+<pre class="r"><code>#Needs to become a long data frame for time, but independent columnsfor topic and question.
+#The clunky way to do this is my solution below. Is there a more efficient solution?
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:data.table&#39;:
+## 
+##     between, first, last</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(tidyr)
+
+#Simmed data
+Time1.Topic1.Question1 &lt;- rnorm(500)
+data &lt;- data.frame(Time1.Topic1.Question1)
+data$Time1.TOpic1.Question2 &lt;- rnorm(500)
+data$Time1.Topic2.Question1 &lt;- rnorm(500)
+data$Time1.Topic2.Question2 &lt;- rnorm(500)
+data$Time2.Topic1.Question1 &lt;- rnorm(500)
+data$Time2.Topic1.Question2 &lt;- rnorm(500)
+data$Time2.Topic2.Question1 &lt;- rnorm(500)
+data$Time2.Topic2.Question2 &lt;- rnorm(500)
+data$Time3.Topic1.Question1 &lt;- rnorm(500)
+data$Time3.Topic1.Question2 &lt;- rnorm(500)
+data$Time3.Topic2.Question1 &lt;- rnorm(500)
+data$Time3.Topic2.Question2 &lt;- rnorm(500)
+data &lt;- tibble::rowid_to_column(data, &quot;Id&quot;)
+data$Condition &lt;- sample(x = 1:5, size=500, replace=TRUE)
+
+#Starting data
+View(data)
+
+#Pull out sections and long-ify Topics
+data %&gt;% select(Id, ends_with(&quot;Topic1.Question1&quot;)) -&gt; T1.Q1.data 
+T1.Q1.data &lt;- gather(T1.Q1.data, Time, T1Q1, 2:4, factor_key = TRUE)
+
+data %&gt;% select(Id, ends_with(&quot;Topic1.Question2&quot;)) -&gt; T1.Q2.data 
+T1.Q2.data &lt;- gather(T1.Q2.data, Time, T1Q2, 2:4, factor_key = TRUE)
+
+data %&gt;% select(Id, ends_with(&quot;Topic2.Question1&quot;)) -&gt; T2.Q1.data 
+T2.Q1.data &lt;- gather(T2.Q1.data, Time, T2Q1, 2:4, factor_key = TRUE)
+
+data %&gt;% select(Id, ends_with(&quot;Topic2.Question2&quot;)) -&gt; T2.Q2.data 
+T2.Q2.data &lt;- gather(T2.Q2.data, Time, T2Q2, 2:4, factor_key = TRUE)
+
+#Create a time coded variable that doesn&#39;t contain mess of column title names 
+data %&gt;% select(Id) -&gt; time.data
+time.data$Baseline &lt;- 0
+time.data$TimeOne &lt;- 1
+time.data$Timetwo &lt;- 2
+time.data &lt;- gather(time.data, Time, Timepoint, 2:4, factor_key = TRUE)
+
+#Drop uneededs
+time.data %&gt;% select(-(Time)) -&gt; time.data
+T1.Q1.data %&gt;% select(-(Time)) -&gt; T1.Q1.data
+T1.Q2.data %&gt;% select(-(Time)) -&gt; T1.Q2.data
+T2.Q1.data %&gt;% select(-(Time)) -&gt; T2.Q1.data
+T2.Q2.data %&gt;% select(-(Time)) -&gt; T2.Q2.data
+
+#Merge
+data %&gt;% select(Id, Condition) -&gt; idcond.data 
+longdata &lt;- merge(idcond.data,time.data,by=&quot;Id&quot;)
+longdata &lt;- merge(longdata,T1.Q1.data,by=&quot;Id&quot;)
+longdata &lt;- merge(longdata,T1.Q2.data,by=&quot;Id&quot;)
+longdata &lt;- merge(longdata,T2.Q1.data,by=&quot;Id&quot;)
+longdata &lt;- merge(longdata,T2.Q2.data,by=&quot;Id&quot;)
+
+#View
+View(longdata)</code></pre>
+</div>

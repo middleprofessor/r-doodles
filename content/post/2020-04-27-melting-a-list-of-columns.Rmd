@@ -1,0 +1,133 @@
+---
+title: Melting a list of columns
+author: Jeff Walker
+date: '2020-04-27'
+slug: melting-a-list-of-columns
+categories:
+  - data wrangling
+tags:
+  - data.table
+  - melt
+keywords:
+  - tech
+---
+
+[An answer to this tweet](https://twitter.com/lpsatchell/status/1254763204061716484)
+"Are there any #Rstats tidy expeRts who'd be interested in improving the efficiency of this code that gathers multiple variables from wide to long?
+
+This works but it's not pretty. There must be a prettier way..."
+
+
+Wide data frame has three time points where participants answer two questions on two topics.
+
+# create data from original code
+
+```{r}
+#Simmed data
+Time1.Topic1.Question1 <- rnorm(500)
+data <- data.frame(Time1.Topic1.Question1)
+data$Time1.TOpic1.Question2 <- rnorm(500)
+data$Time1.Topic2.Question1 <- rnorm(500)
+data$Time1.Topic2.Question2 <- rnorm(500)
+data$Time2.Topic1.Question1 <- rnorm(500)
+data$Time2.Topic1.Question2 <- rnorm(500)
+data$Time2.Topic2.Question1 <- rnorm(500)
+data$Time2.Topic2.Question2 <- rnorm(500)
+data$Time3.Topic1.Question1 <- rnorm(500)
+data$Time3.Topic1.Question2 <- rnorm(500)
+data$Time3.Topic2.Question1 <- rnorm(500)
+data$Time3.Topic2.Question2 <- rnorm(500)
+data <- tibble::rowid_to_column(data, "Id")
+data$Condition <- sample(x = 1:5, size=500, replace=TRUE)
+
+#Starting data
+View(data)
+```
+
+# My code to melt on a list of columns
+
+My code is a data.table solution. Melt is a beutiful function and data.table made it better. I follow the original code (below) and name the columns using "T" for topic (e.g. T1Q1) but the future me might think this stands for "Time" and not "Topic". I'd probably name the columns something like "topic_1_Q_1"
+
+```{r}
+library(data.table)
+dt <- data.table(data)
+setnames(dt, "Time1.TOpic1.Question2", "Time1.Topic1.Question2")
+T1Q1 <- colnames(dt)[grep("Topic1.Question1", colnames(dt))]
+T1Q2 <- colnames(dt)[grep("Topic1.Question2", colnames(dt))]
+T2Q1 <- colnames(dt)[grep("Topic2.Question1", colnames(dt))]
+T2Q2 <- colnames(dt)[grep("Topic2.Question2", colnames(dt))]
+
+dt_long <- melt(dt, 
+                id.vars = c("Id"),
+                measure.vars = list(T1Q1, T1Q2, T2Q1, T2Q2),
+                variable.name <- "Time",
+                value.name = c("T1Q1", "T1Q2", "T2Q1", "T2Q2"))
+View(dt_long)
+```
+
+# Original code
+```{r}
+
+#Needs to become a long data frame for time, but independent columnsfor topic and question.
+#The clunky way to do this is my solution below. Is there a more efficient solution?
+library(dplyr)
+library(tidyr)
+
+#Simmed data
+Time1.Topic1.Question1 <- rnorm(500)
+data <- data.frame(Time1.Topic1.Question1)
+data$Time1.TOpic1.Question2 <- rnorm(500)
+data$Time1.Topic2.Question1 <- rnorm(500)
+data$Time1.Topic2.Question2 <- rnorm(500)
+data$Time2.Topic1.Question1 <- rnorm(500)
+data$Time2.Topic1.Question2 <- rnorm(500)
+data$Time2.Topic2.Question1 <- rnorm(500)
+data$Time2.Topic2.Question2 <- rnorm(500)
+data$Time3.Topic1.Question1 <- rnorm(500)
+data$Time3.Topic1.Question2 <- rnorm(500)
+data$Time3.Topic2.Question1 <- rnorm(500)
+data$Time3.Topic2.Question2 <- rnorm(500)
+data <- tibble::rowid_to_column(data, "Id")
+data$Condition <- sample(x = 1:5, size=500, replace=TRUE)
+
+#Starting data
+View(data)
+
+#Pull out sections and long-ify Topics
+data %>% select(Id, ends_with("Topic1.Question1")) -> T1.Q1.data 
+T1.Q1.data <- gather(T1.Q1.data, Time, T1Q1, 2:4, factor_key = TRUE)
+
+data %>% select(Id, ends_with("Topic1.Question2")) -> T1.Q2.data 
+T1.Q2.data <- gather(T1.Q2.data, Time, T1Q2, 2:4, factor_key = TRUE)
+
+data %>% select(Id, ends_with("Topic2.Question1")) -> T2.Q1.data 
+T2.Q1.data <- gather(T2.Q1.data, Time, T2Q1, 2:4, factor_key = TRUE)
+
+data %>% select(Id, ends_with("Topic2.Question2")) -> T2.Q2.data 
+T2.Q2.data <- gather(T2.Q2.data, Time, T2Q2, 2:4, factor_key = TRUE)
+
+#Create a time coded variable that doesn't contain mess of column title names 
+data %>% select(Id) -> time.data
+time.data$Baseline <- 0
+time.data$TimeOne <- 1
+time.data$Timetwo <- 2
+time.data <- gather(time.data, Time, Timepoint, 2:4, factor_key = TRUE)
+
+#Drop uneededs
+time.data %>% select(-(Time)) -> time.data
+T1.Q1.data %>% select(-(Time)) -> T1.Q1.data
+T1.Q2.data %>% select(-(Time)) -> T1.Q2.data
+T2.Q1.data %>% select(-(Time)) -> T2.Q1.data
+T2.Q2.data %>% select(-(Time)) -> T2.Q2.data
+
+#Merge
+data %>% select(Id, Condition) -> idcond.data 
+longdata <- merge(idcond.data,time.data,by="Id")
+longdata <- merge(longdata,T1.Q1.data,by="Id")
+longdata <- merge(longdata,T1.Q2.data,by="Id")
+longdata <- merge(longdata,T2.Q1.data,by="Id")
+longdata <- merge(longdata,T2.Q2.data,by="Id")
+
+#View
+View(longdata)
+```

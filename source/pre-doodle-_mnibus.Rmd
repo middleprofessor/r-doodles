@@ -1,0 +1,47 @@
+---
+title: "Untitled"
+author: "Jeffrey A. Walker"
+date: "4/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+```
+
+```{r}
+set.seed(1)
+niter <- 10^4
+n <- 5
+treatment <- rep(c("cn","sham","tr"), each=n)
+X <- model.matrix(~ treatment)
+beta <- c(0, 0, 0.1)
+y_mod <- X%*%beta
+prob_names <- c("omni", "sham", "tr")
+prob <- data.table(matrix(-9999, nrow=niter, ncol=length(prob_names)))
+colnames(prob) <- prob_names
+for(iter in 1:niter){
+  y <- y_mod + rnorm(n*3, sd=1)
+  fit <- lm(y ~ treatment)
+  prob[iter, omni := anova(fit)["treatment","Pr(>F)"]]
+  prob[iter, sham := coef(summary(fit))["treatmentsham","Pr(>|t|)"]]
+  prob[iter, tr := coef(summary(fit))["treatmenttr","Pr(>|t|)"]]
+}
+type1 <- which(prob[, sham] < 0.05)
+type2 <- which(prob[, tr] < 0.05)
+type1b <- which(prob[, omni] > 0.05 & prob[, tr] < 0.05)
+type1c <- which(prob[, omni] < 0.05 & prob[, tr] > 0.05)
+type1_2s <- which(prob[, omni] < 0.05 & prob[, sham] < 0.05)
+type2_2s <- which(prob[, omni] < 0.05 & prob[, tr] < 0.05)
+# type 1
+length(type1)/niter
+# 2-s type 1
+length(type1_2s)/niter
+# power 1-stage
+length(type2)/niter
+# power 2-stage
+length(type2_2s)/niter
+
+
+```
+
