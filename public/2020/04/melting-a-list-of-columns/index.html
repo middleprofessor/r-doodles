@@ -338,7 +338,7 @@ data &lt;- tibble::rowid_to_column(data, &quot;Id&quot;)
 data$Condition &lt;- sample(x = 1:5, size=500, replace=TRUE)
 
 #Starting data
-View(data)</code></pre>
+# View(data)</code></pre>
 </div>
 <div id="my-code-to-melt-on-a-list-of-columns" class="section level1">
 <h1>My code to melt on a list of columns</h1>
@@ -356,7 +356,15 @@ dt_long &lt;- melt(dt,
                 measure.vars = list(T1Q1, T1Q2, T2Q1, T2Q2),
                 variable.name &lt;- &quot;Time&quot;,
                 value.name = c(&quot;T1Q1&quot;, &quot;T1Q2&quot;, &quot;T2Q1&quot;, &quot;T2Q2&quot;))
-View(dt_long)</code></pre>
+# View(dt_long)</code></pre>
+<div id="notes-on-my-code" class="section level2">
+<h2>notes on my code</h2>
+<p>The grep statements are key. <code>grep(&quot;Topic1.Question1&quot;, colnames(dt))</code> finds the columns in which the column name includes the text in the quotes. Then embedding this within <code>colnames(dt)[]</code> returns the names of the indexed columns. For example, <code>grep(&quot;Topic1.Question1&quot;, colnames(dt))</code> returns the vector</p>
+<pre><code>## [1]  2  6 10</code></pre>
+<p>and <code>colnames(dt)[grep(&quot;Topic1.Question1&quot;, colnames(dt))]</code> returns the vector</p>
+<pre><code>## [1] &quot;Time1.Topic1.Question1&quot; &quot;Time2.Topic1.Question1&quot;
+## [3] &quot;Time3.Topic1.Question1&quot;</code></pre>
+</div>
 </div>
 <div id="original-code" class="section level1">
 <h1>Original code</h1>
@@ -394,7 +402,7 @@ data &lt;- tibble::rowid_to_column(data, &quot;Id&quot;)
 data$Condition &lt;- sample(x = 1:5, size=500, replace=TRUE)
 
 #Starting data
-View(data)
+# View(data)
 
 #Pull out sections and long-ify Topics
 data %&gt;% select(Id, ends_with(&quot;Topic1.Question1&quot;)) -&gt; T1.Q1.data 
@@ -432,7 +440,7 @@ longdata &lt;- merge(longdata,T2.Q1.data,by=&quot;Id&quot;)
 longdata &lt;- merge(longdata,T2.Q2.data,by=&quot;Id&quot;)
 
 #View
-View(longdata)</code></pre>
+# View(longdata)</code></pre>
 </div>
 
               

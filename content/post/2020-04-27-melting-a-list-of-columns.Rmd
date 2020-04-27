@@ -41,7 +41,7 @@ data <- tibble::rowid_to_column(data, "Id")
 data$Condition <- sample(x = 1:5, size=500, replace=TRUE)
 
 #Starting data
-View(data)
+# View(data)
 ```
 
 # My code to melt on a list of columns
@@ -62,7 +62,21 @@ dt_long <- melt(dt,
                 measure.vars = list(T1Q1, T1Q2, T2Q1, T2Q2),
                 variable.name <- "Time",
                 value.name = c("T1Q1", "T1Q2", "T2Q1", "T2Q2"))
-View(dt_long)
+# View(dt_long)
+```
+
+## notes on my code
+
+The grep statements are key. `grep("Topic1.Question1", colnames(dt))` finds the columns in which the column name includes the text in the quotes. Then embedding this within `colnames(dt)[]` returns the names of the indexed columns. For example, `grep("Topic1.Question1", colnames(dt))` returns the vector
+
+```{r echo=FALSE}
+grep("Topic1.Question1", colnames(dt))
+```
+
+and `colnames(dt)[grep("Topic1.Question1", colnames(dt))]` returns the vector
+
+```{r echo=FALSE}
+colnames(dt)[grep("Topic1.Question1", colnames(dt))]
 ```
 
 # Original code
@@ -91,7 +105,7 @@ data <- tibble::rowid_to_column(data, "Id")
 data$Condition <- sample(x = 1:5, size=500, replace=TRUE)
 
 #Starting data
-View(data)
+# View(data)
 
 #Pull out sections and long-ify Topics
 data %>% select(Id, ends_with("Topic1.Question1")) -> T1.Q1.data 
@@ -129,5 +143,5 @@ longdata <- merge(longdata,T2.Q1.data,by="Id")
 longdata <- merge(longdata,T2.Q2.data,by="Id")
 
 #View
-View(longdata)
+# View(longdata)
 ```
