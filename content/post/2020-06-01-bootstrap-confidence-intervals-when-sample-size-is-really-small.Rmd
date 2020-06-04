@@ -21,7 +21,7 @@ This is a small simulation to explore how well a bootstrap performs for estimati
 
 The data are platelet counts and look they come from a distribution with a strong right skew and variance proportional to the mean (poisson, negative binomial). I approximate the data by sampling from a negative binomial distribution. Then I ask, "does the distribution matter" and re-run the simulation by sampling from a normal distribution with heterogeneity in variance (equal to that in the two groups).
 
-TL;DR -- [seee the plot](#plot) and go to the [summary].
+TL;DR -- [see the plot](#plot) and go to the [summary].
 
 # Setup
 

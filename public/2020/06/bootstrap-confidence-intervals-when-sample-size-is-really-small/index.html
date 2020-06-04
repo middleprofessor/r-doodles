@@ -309,7 +309,7 @@ if (!doNotTrack) {
 <p>I’ve been using the bootstrap to generate CIs for over 25 years and am embarrassed to admit that I don’t know how well it performs with small samples sizes…on the order of n = 5 or 10, which is really common in bench biology. A problem with small sample size is that any one sample may not be very representative of what the distribution looks like.</p>
 <p>This is a small simulation to explore how well a bootstrap performs for estimating CIs of both means and the difference in means. The question pursued is: “do the CIs of a x% bootstrap interval actually cover the mean x% of the time?” The data simulate those in Figure 1F in <a href="https://www.nature.com/articles/s41467-019-14178-y">β4GALT1 controls β1 integrin function to govern thrombopoiesis and hematopoietic stem cell homeostasis</a>.</p>
 <p>The data are platelet counts and look they come from a distribution with a strong right skew and variance proportional to the mean (poisson, negative binomial). I approximate the data by sampling from a negative binomial distribution. Then I ask, “does the distribution matter” and re-run the simulation by sampling from a normal distribution with heterogeneity in variance (equal to that in the two groups).</p>
-<p>TL;DR – <a href="#plot">seee the plot</a> and go to the <a href="#summary">summary</a>.</p>
+<p>TL;DR – <a href="#plot">see the plot</a> and go to the <a href="#summary">summary</a>.</p>
 <div id="setup" class="section level1">
 <h1>Setup</h1>
 <pre class="r"><code>knitr::opts_chunk$set(echo = TRUE, message=FALSE)
