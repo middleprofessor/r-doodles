@@ -21,7 +21,9 @@ This is a small simulation to explore how well a bootstrap performs for estimati
 
 The data are platelet counts and look they come from a distribution with a strong right skew and variance proportional to the mean (poisson, negative binomial). I approximate the data by sampling from a negative binomial distribution. Then I ask, "does the distribution matter" and re-run the simulation by sampling from a normal distribution with heterogeneity in variance (equal to that in the two groups).
 
-TL;DR -- Go to the [summary].
+TL;DR -- [seee the plot](#plot) and go to the [summary].
+
+# Setup
 
 ```{r setup, message = FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE)
@@ -51,6 +53,7 @@ output_folder <- "content/output"
 run_simulation <- FALSE
 ```
 
+# Import
 ```{r import}
 file_folder <- "β4GALT1 controls β1 integrin function to govern thrombopoiesis and hematopoietic stem cell homeostasis"
 fn <- "41467_2019_14178_MOESM4_ESM.xlsx"
@@ -66,22 +69,23 @@ fig1f <- read_excel(file_path,
 fig1f[, treatment := word(x1, 1)]
 fig1f[, treatment := factor(treatment, c("Control", "b4GalT1-/-"))]
 setnames(fig1f, old="platelets_e14_5", new="platelets")
-fig1f[, platelets_orig := round(platelets*10^9)]
+fig1f[, platelet_count := round(platelets*10^9)]
 ```
 
+# Stripchart with mean and raw 95% CIs
 
 ```{r fig1f}
-fig1f_means <- fig1f[, .(platelets = mean(platelets),
-                         SD = sd(platelets),
-                         SE = sd(platelets/sqrt(.N)),
+fig1f_means <- fig1f[, .(platelet_count = mean(platelet_count),
+                         SD = sd(platelet_count),
+                         SE = sd(platelet_count/sqrt(.N)),
                          N = .N)
                      , by = treatment]
-fig1f_means[, lower := platelets + SE*qt(.025, (N-1))]
-fig1f_means[, upper := platelets + SE*qt(.975, (N-1))]
+fig1f_means[, lower := platelet_count + SE*qt(.025, (N-1))]
+fig1f_means[, upper := platelet_count + SE*qt(.975, (N-1))]
 
 set.seed(1)
 gg_points <- ggplot(data = fig1f, 
-                 aes(x = treatment, y = platelets)) +
+                 aes(x = treatment, y = platelet_count)) +
   geom_sina(alpha=0.4) +
   theme_pubr() +
   NULL
@@ -89,7 +93,7 @@ gg_points <- ggplot(data = fig1f,
 set.seed(1)
 gg_raw <- gg_points +
   geom_point(data = fig1f_means,
-             aes(y = platelets),
+             aes(y = platelet_count),
              size = 3,
              color = c("#3DB7E9", "#e69f00")) +
   geom_errorbar(data = fig1f_means,
@@ -102,9 +106,9 @@ gg_raw <- gg_points +
 #gg_raw
 ```
 
-
 # A bootstrap function
-This function returns two sets of CIs for the 1) modeled means of the observed fit and the 2) parameters of the observed fit. The first set is from a residual bootstrap. This seems weird because if there is heterogeneity, then a residual bootstrap spreads this heterogeneity among all groups. The second is from a stratified bootstrap.
+
+This function returns two sets of CIs for the 1) modeled means of the observed fit and the 2) parameters of the observed fit. The first set is from a residual bootstrap. This seems weird because if there is heterogeneity, then a residual bootstrap spreads this heterogeneity among all groups. The second is from a stratified bootstrap. But if the differences in sample variance is due to noise, then a stratified bootstrap will mimic this noise.
 
 ```{r}
 
@@ -169,7 +173,7 @@ boot_lm_test <- function(obs_fit,
 
 # Bootstrap CIs
 ```{r}
-m1 <- lm(platelets ~ treatment, data = fig1f)
+m1 <- lm(platelet_count ~ treatment, data = fig1f)
 m1_boot <- boot_lm_test(m1)
 
 fig1f_means[, lower.boot := m1_boot$ci_strat_mu["2.5%",]]
@@ -178,7 +182,7 @@ fig1f_means[, upper.boot := m1_boot$ci_strat_mu["97.5%",]]
 set.seed(1)
 gg_boot <- gg_points +
   geom_point(data = fig1f_means,
-             aes(y = platelets),
+             aes(y = platelet_count),
              size = 3,
              color = c("#3DB7E9", "#e69f00")) +
   geom_errorbar(data = fig1f_means,
@@ -192,9 +196,10 @@ gg_boot <- gg_points +
 
 ```
 
-# plot of data, raw CIs, bootstrap CIs
-```{r}
-plot_grid(gg_raw, gg_boot, ncol=2)
+# plot of data, raw CIs, bootstrap CIs {#plot}
+
+```{r plot, fig.cap = "A. Raw 95% CI, B. Bootstrap 95% CI"}
+plot_grid(gg_raw, gg_boot, ncol=2, labels = "AUTO")
 ```
 
 Not a big difference. 
@@ -283,9 +288,9 @@ n_sim <- 2000
 n_boot <- 1000
 n_list <- c(5, 10, 20, 40, 80)
 
-lm_obs <- lm(platelets_orig ~ treatment, data = fig1f)
+lm_obs <- lm(platelet_count ~ treatment, data = fig1f)
 lm_obs_sigma <- summary(lm_obs)$sigma
-glm_obs <- glm.nb(platelets_orig ~ treatment, data = fig1f)
+glm_obs <- glm.nb(platelet_count ~ treatment, data = fig1f)
 glm_obs_fitted <- glm_obs$fitted.values
 glm_obs_theta  <- glm_obs$theta
 
@@ -357,25 +362,25 @@ boot_ci_sim_normal$coverage_table_beta
 
 ```{r summary-results-mu-nb, echo=FALSE}
 
-knitr::kable(boot_ci_sim_nb$coverage_table_mu, caption = "Coverage of the estimate of the mean, for data sampled from a negative binomial distribution")
+knitr::kable(boot_ci_sim_nb$coverage_table_mu, caption = "Coverage of the 95% bootstrap CI of the mean, for data sampled from a negative binomial distribution")
 ```
 
 ## coefficients, sampled from negative binomial
 
 ```{r summary-results-beta-nb, echo=FALSE}
-knitr::kable(boot_ci_sim_nb$coverage_table_beta, caption = "Coverage of the estimate of the difference in means, for data sampled from a negative binomial distribution")
+knitr::kable(boot_ci_sim_nb$coverage_table_beta, caption = "Coverage of the 95% bootstrap CI of the model parameters, for data sampled from a negative binomial distribution")
 ```
 
 ## group means, sampled from normal
 
 ```{r summary-results-mu-normal, echo=FALSE}
-knitr::kable(boot_ci_sim_normal$coverage_table_mu, caption = "Coverage of the estimate of the mean, for data sampled from normal distribution")
+knitr::kable(boot_ci_sim_normal$coverage_table_mu, caption = "Coverage of the 95% bootstrap CI of the mean, for data sampled from normal distribution")
 ```
 
 ## coefficients, sampled from normal
 
 ```{r summary-results-beta-normal, echo=FALSE}
-knitr::kable(boot_ci_sim_normal$coverage_table_beta, caption = "Coverage of the estimate of the difference in means, for data sampled from a normal distribution")
+knitr::kable(boot_ci_sim_normal$coverage_table_beta, caption = "Coverage of the 95% bootstrap CI of the model parameters, for data sampled from a normal distribution")
 
 ```
 
