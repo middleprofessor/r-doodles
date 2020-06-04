@@ -348,12 +348,28 @@ boot_ci_sim_normal$coverage_table_beta
 
 # Summary
 
-```{r summary-results-normal, echo=FALSE}
+## group means, sampled from negative binomial
+
+```{r summary-results-mu-nb, echo=FALSE}
 
 knitr::kable(boot_ci_sim_nb$coverage_table_mu, caption = "Coverage of the estimate of the mean, for data sampled from a negative binomial distribution")
-knitr::kable(boot_ci_sim_nb$coverage_table_beta, caption = "Coverage of the estimate of the difference in means, for data sampled from a negative binomial distribution")
+```
 
+## coefficients, sampled from negative binomial
+
+```{r summary-results-beta-nb, echo=FALSE}
+knitr::kable(boot_ci_sim_nb$coverage_table_beta, caption = "Coverage of the estimate of the difference in means, for data sampled from a negative binomial distribution")
+```
+
+## group means, sampled from normal
+
+```{r summary-results-mu-normal, echo=FALSE}
 knitr::kable(boot_ci_sim_normal$coverage_table_mu, caption = "Coverage of the estimate of the mean, for data sampled from normal distribution")
+```
+
+## coefficients, sampled from normal
+
+```{r summary-results-beta-normal, echo=FALSE}
 knitr::kable(boot_ci_sim_normal$coverage_table_beta, caption = "Coverage of the estimate of the difference in means, for data sampled from a normal distribution")
 
 ```
