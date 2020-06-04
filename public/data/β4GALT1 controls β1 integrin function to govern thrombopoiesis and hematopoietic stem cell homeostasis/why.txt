@@ -1,0 +1,3 @@
+why downloaded?
+1E E14.5 counts with small n, expect CI to go below zero
+1F counts with heterogeneity of variance, 

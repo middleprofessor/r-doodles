@@ -1,0 +1,119 @@
+---
+title: What is the consequence of normalizing by each case in the control?
+author: Jeff Walker
+date: '2020-05-18'
+slug: what-is-the-consequence-of-normalizing-by-each-case-in-the-control
+categories:
+  - stats 101
+tags:
+  - normalization
+  - p-values
+  - NHST
+keywords:
+  - tech
+---
+[Novel metabolic role for BDNF in pancreatic β-cell insulin secretion](https://www.nature.com/articles/s41467-020-15833-5)
+
+```{r}
+library(tidyverse)
+library(data.table)
+library(mvtnorm)
+library(lmerTest)
+```
+
+# normal response
+```{r}
+niter <- 2000
+n <- 9
+treatment_levels <- c("cn", "high", "high_bdnf")
+insulin <- data.table(treatment = rep(treatment_levels, each=n))
+X <- model.matrix(~ treatment, data=insulin)
+beta <- c(0,0,0) # no effects
+
+# the three responses are taken from the same cluster of cells and so have expected
+# correlation rho. This means we need a correlated error
+rho <- 0.8
+Rho <- matrix(c(c(1, rho, rho), c(rho, 1, rho), c(rho, rho, 1)), nrow=3)
+mu <- c(beta[1], beta[1]+beta[2], beta[1]+beta[3])
+
+prob <- matrix(-9999, nrow=niter, ncol=3)
+colnames(prob) <- c("raw", "norm", "oneway")
+
+for(iter in 1:niter){
+  fd_wide <- rmvnorm(n, mu, sigma = Rho) %>%
+    data.table()
+  setnames(fd_wide, old=colnames(fd_wide), new=treatment_levels)
+  fd_wide[, cn.norm := cn/cn]
+  fd_wide[, high.norm := high/cn]
+  fd_wide[, high_bdnf.norm := high_bdnf/cn]
+  fd_wide[, id := factor(paste0("id_",1:.N))]
+  
+  fd <- melt(fd_wide, id.vars = "id",
+             measure.vars = list(treatment_levels,
+                                          paste0(treatment_levels, ".norm")),
+             value.name = c("insulin", "insulin.norm"))
+  fd[, treatment := treatment_levels[variable]]
+  fit <- lmer(insulin ~ treatment + (1|id), data = fd)
+  prob[iter, "raw"] <- coef(summary(fit))["treatmenthigh", "Pr(>|t|)"]
+
+  fit <- lm(insulin.norm ~ treatment, data = fd)
+  prob[iter, "norm"] <- coef(summary(fit))["treatmenthigh", "Pr(>|t|)"]
+  
+  fit <- t.test(fd[treatment == "high",insulin.norm], mu=1)
+  prob[iter, "oneway"] <- fit$p.value
+}
+
+apply(prob, 2, function(x) sum(x < 0.05)/niter)
+```
+
+# neg binomial response
+
+```{r}
+
+```
+
+
+```{r}
+niter <- 2000
+n <- 9
+treatment_levels <- c("cn", "high", "high_bdnf")
+insulin <- data.table(treatment = rep(treatment_levels, each=n))
+X <- model.matrix(~ treatment, data=insulin)
+beta <- c(0,0,0) # no effects
+
+# the three responses are taken from the same cluster of cells and so have expected
+# correlation rho. This means we need a correlated error
+rho <- 0.8
+Rho <- matrix(c(c(1, rho, rho), c(rho, 1, rho), c(rho, rho, 1)), nrow=3)
+mu <- c(beta[1], beta[1]+beta[2], beta[1]+beta[3])
+
+prob <- matrix(-9999, nrow=niter, ncol=3)
+colnames(prob) <- c("raw", "norm", "oneway")
+
+for(iter in 1:niter){
+  fd_wide <- rmvnorm(n, mu, sigma = Rho) %>%
+    data.table()
+  setnames(fd_wide, old=colnames(fd_wide), new=treatment_levels)
+  fd_wide[, cn.norm := cn/cn]
+  fd_wide[, high.norm := high/cn]
+  fd_wide[, high_bdnf.norm := high_bdnf/cn]
+  fd_wide[, id := factor(paste0("id_",1:.N))]
+  
+  fd <- melt(fd_wide, id.vars = "id",
+             measure.vars = list(treatment_levels,
+                                          paste0(treatment_levels, ".norm")),
+             value.name = c("insulin", "insulin.norm"))
+  fd[, treatment := treatment_levels[variable]]
+  fit <- lmer(insulin ~ treatment + (1|id), data = fd)
+  prob[iter, "raw"] <- coef(summary(fit))["treatmenthigh", "Pr(>|t|)"]
+
+  fit <- lm(insulin.norm ~ treatment, data = fd)
+  prob[iter, "norm"] <- coef(summary(fit))["treatmenthigh", "Pr(>|t|)"]
+  
+  fit <- t.test(fd[treatment == "high",insulin.norm], mu=1)
+  prob[iter, "oneway"] <- fit$p.value
+}
+
+apply(prob, 2, function(x) sum(x < 0.05)/niter)
+```
+

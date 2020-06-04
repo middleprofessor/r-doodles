@@ -1,0 +1,361 @@
+---
+title: Bootstrap confidence intervals when sample size is really small
+author: Jeff Walker
+date: '2020-06-01'
+slug: bootstrap-confidence-intervals-when-sample-size-is-really-small
+categories:
+  - stats 101
+tags:
+  - confidence interval
+  - fake data
+  - generalized linear models
+keywords:
+  - tech
+---
+
+This is part II of how to represent uncertainty in the mean response of each treatment level. A 1 SE bar, where the SE is computed for each group independently, is nearly universal in much of biology. Part I explains why I prefer confidence intervals to SE bars and explores several alternative methods for computing a CI. One alternative is a non-parametric bootstrap. I like the bootstrap -- it is extremely useful for learning and teaching what "frequentist" means. It is not dependent on any distribution. It can be used to compute CIs for statistics where no paramtric CI exists. And its (fairly) easy to implement!
+
+I've been using the bootstrap to generate CIs for over 25 years and am embarrassed to admit that I don't know how well it performs with small samples sizes...on the order of n = 5 or 10, which is really common in bench biology. A problem with small sample size is that any one sample may not be very representative of what the distribution looks like.
+
+This is a small simulation to explore how well a bootstrap performs for estimating CIs of both means and the difference in means. The question pursued is: "do the CIs of a x% bootstrap interval actually cover the mean x% of the time?" The data simulate those in Figure 1F in [β4GALT1 controls β1 integrin function to govern thrombopoiesis and hematopoietic stem cell homeostasis](https://www.nature.com/articles/s41467-019-14178-y). 
+
+The data are platelet counts and look they come from a distribution with a strong right skew and variance proportional to the mean (poisson, negative binomial). I approximate the data by sampling from a negative binomial distribution. Then I ask, "does the distribution matter" and re-run the simulation by sampling from a normal distribution with heterogeneity in variance (equal to that in the two groups).
+
+TL;DR -- Go to the summary.
+
+```{r setup, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE)
+# wrangling packages
+library(here)
+library(janitor)
+library(readxl)
+library(data.table)
+library(stringr)
+
+# analysis packages
+library(MASS)
+library(lmerTest)
+library(emmeans)
+library(boot)
+
+# graphing packages
+library(ggsci)
+library(ggpubr)
+library(ggforce)
+library(cowplot)
+
+here <- here::here()
+data_folder <- "content/data"
+output_folder <- "content/output"
+
+run_simulation <- FALSE
+```
+
+```{r import}
+file_folder <- "β4GALT1 controls β1 integrin function to govern thrombopoiesis and hematopoietic stem cell homeostasis"
+fn <- "41467_2019_14178_MOESM4_ESM.xlsx"
+file_path <- here(data_folder, file_folder, fn)
+
+# Fig 1F
+fig1f <- read_excel(file_path,
+                    sheet = "Figure 1",
+                    range = "I5:J47") %>%
+  clean_names()  %>%
+  data.table() %>%
+  na.omit() # git rid of blank row. there are no NA
+fig1f[, treatment := word(x1, 1)]
+fig1f[, treatment := factor(treatment, c("Control", "b4GalT1-/-"))]
+setnames(fig1f, old="platelets_e14_5", new="platelets")
+fig1f[, platelets_orig := round(platelets*10^9)]
+```
+
+
+```{r fig1f}
+fig1f_means <- fig1f[, .(platelets = mean(platelets),
+                         SD = sd(platelets),
+                         SE = sd(platelets/sqrt(.N)),
+                         N = .N)
+                     , by = treatment]
+fig1f_means[, lower := platelets + SE*qt(.025, (N-1))]
+fig1f_means[, upper := platelets + SE*qt(.975, (N-1))]
+
+gg_points <- ggplot(data = fig1f, 
+                 aes(x = treatment, y = platelets)) +
+  geom_sina(alpha=0.4) +
+  theme_pubr() +
+  NULL
+
+set.seed(1)
+gg_raw <- gg_points +
+  geom_point(data = fig1f_means,
+             aes(y = platelets),
+             size = 3,
+             color = c("#3DB7E9", "#e69f00")) +
+  geom_errorbar(data = fig1f_means,
+                aes(ymin = lower, ymax = upper),
+                width = 0.04,
+                size = 1,
+                color = c("#3DB7E9", "#e69f00")) +
+  NULL
+
+#gg_raw
+```
+
+
+# A bootstrap function
+This function returns two sets of CIs for the 1) modeled means of the observed fit and the 2) parameters of the observed fit. The first set is from a residual bootstrap. This seems weird because if there is heterogeneity, then a residual bootstrap spreads this heterogeneity among all groups. The second is from a stratified bootstrap.
+
+```{r}
+
+# # # # # # # # #
+# This function returns two sets of CIs for the 1) modeld means of the observed fit
+# and the 2) parameters of the observed fit. The first set is from a residual bootstrap.
+# This seems weird because if there is heterogeneity, then a residual bootstrap spreads
+# this heterogeneity among all groups. The second is from a stratified bootstrap
+# # # # # # # # #
+boot_lm_test <- function(obs_fit,
+                         n_boot = 1000,
+                         ci = 0.95,
+                         method = "stratified"){
+  ci_lo <- (1-ci)/2
+  ci_hi <- 1 - (1-ci)/2
+  boot_dt <- data.table(obs_fit$model)
+  boot_dt[, id:=.I]
+  x_label <- names(obs_fit$xlevels)[1]
+  group_first_row <- boot_dt[, .(bfr = min(id)), by=get(x_label)][,bfr]
+
+  obs_beta <- coef(obs_fit)
+  obs_error <- residuals(obs_fit)
+  obs_yhat <- fitted(obs_fit)
+  obs_y <- obs_fit$model[,1]
+  obs_x <- obs_fit$model[,2]
+  X <- model.matrix(obs_fit)
+  xtxixt <- solve(t(X)%*%X)%*%t(X)
+  N <- nrow(obs_fit$model)
+  inc_resid <- 1:N
+  inc_strat <- 1:N
+  beta_resid <- matrix(NA, nrow=n_boot, ncol=length(obs_beta))
+  beta_strat <- matrix(NA, nrow=n_boot, ncol=length(obs_beta))
+  mu_resid <- matrix(NA, nrow=n_boot, ncol=length(obs_beta))
+  mu_strat <- matrix(NA, nrow=n_boot, ncol=length(obs_beta))
+  for(iter in 1:n_boot){
+
+    # y_resamp_residuals <- obs_yhat + obs_error[inc_resid]
+    # beta_resid[iter,] <- (xtxixt%*%y_resamp_residuals)[,1]
+    # mu_resid[iter, ] <- (X%*%beta_resid[iter,])[group_first_row, 1]
+    
+    y_resamp_strat <- obs_y[inc_strat]
+    beta_strat[iter,] <- (xtxixt%*%y_resamp_strat)[,1]
+    mu_strat[iter, ] <- (X%*%beta_strat[iter,])[group_first_row, 1]
+    
+    inc_resid <- sample(1:N, replace = TRUE)
+    inc_strat <- with(boot_dt, ave(id, get(x_label), FUN=function(x) {sample(x, replace=TRUE)}))
+  }
+  
+  # ci_resid_beta <- apply(beta_resid, 2, quantile, c(ci_lo, ci_hi))
+  # ci_resid_mu <- apply(mu_resid, 2, quantile, c(ci_lo, ci_hi))
+  ci_strat_mu <- apply(mu_strat, 2, quantile, c(ci_lo, ci_hi))
+  ci_strat_beta <- apply(beta_strat, 2, quantile, c(ci_lo, ci_hi))
+  
+  return(list(
+    # ci_resid_beta = ci_resid_beta,
+    # ci_resid_mu = ci_resid_mu,
+    ci_strat_beta = ci_strat_beta,
+    ci_strat_mu = ci_strat_mu
+  ))
+}
+```
+
+# Bootstrap CIs
+```{r}
+m1 <- lm(platelets ~ treatment, data = fig1f)
+m1_boot <- boot_lm_test(m1)
+
+fig1f_means[, lower.boot := m1_boot$ci_strat_mu["2.5%",]]
+fig1f_means[, upper.boot := m1_boot$ci_strat_mu["97.5%",]]
+
+gg_boot <- gg_points +
+  geom_point(data = fig1f_means,
+             aes(y = platelets),
+             size = 3,
+             color = c("#3DB7E9", "#e69f00")) +
+  geom_errorbar(data = fig1f_means,
+                aes(ymin = lower.boot, ymax = upper.boot),
+                width = 0.04,
+                size = 1,
+                color = c("#3DB7E9", "#e69f00")) +
+  NULL
+
+#gg_boot
+
+```
+
+```{r}
+plot_grid(gg_raw, gg_boot, ncol=2)
+```
+
+# Simulation
+
+```{r boot_sim-function}
+boot_sim <- function(
+  mu, # mean of each level
+  model = "nb", # distribution of the data, normal or nb
+  theta = 1, #theta for nb
+  sigma = 1, # sd of each level for normal
+  beta, # coefficients of model
+  n_sim = 1000, # iterations of simulation
+  n_boot = 1000, # number of bootstrap resamples
+  n_list = 30, # vector of sample sizes per level. Whole sim run for each n
+  method = "stratified" # stratified, residual, or both
+){
+  k <- length(mu)
+  treatment_levels <- c("cn", paste0("tr", 1:(k-1)))
+
+  coverage_table_mu <- data.table(group = names(mu))
+  coverage_table_beta <- data.table(parameter = names(beta))
+  
+  
+  for(n in n_list){
+    N <- k*n
+    # vector of parameters for sampling function
+    sim_mu <- rep(mu, each=n)
+    sim_sigma <- rep(sigma, each=n)
+    
+    fd <- data.table(
+      treatment = rep(treatment_levels, each=n)
+    )
+    
+    boot_ci_strat_mu<- matrix(FALSE, nrow = n_sim, ncol=k)
+    boot_ci_strat_beta <- matrix(FALSE, nrow = n_sim, ncol=k)
+    
+    for(iter in 1:n_sim){
+      if(model=="nb"){
+        fd[, y_fake := rnegbin(N, sim_mu, theta)]
+      }
+      if(model=="normal"){
+        fd[, y_fake := rnorm(N, sim_mu, sim_sigma)]
+      }
+      
+      fit_fake <- lm(y_fake ~ treatment, data=fd)
+      ci_list <- boot_lm_test(fit_fake, 
+                              n_boot = n_boot, 
+                              ci=0.95,
+                              method = method)
+      ci_strat_i_mu <- ci_list$ci_strat_mu
+      ci_strat_i_beta <- ci_list$ci_strat_beta
+      
+      boot_ci_strat_beta[iter,] <- beta > ci_strat_i_beta[1,] & 
+        beta < ci_strat_i_beta[2,]
+      boot_ci_strat_mu[iter,] <- mu > ci_strat_i_mu[1,] & 
+        mu < ci_strat_i_mu[2,]
+    }
+    coverage_table_mu <- cbind(coverage_table_mu,
+                               x = apply(boot_ci_strat_mu, 2, sum)/n_sim*100)
+    setnames(coverage_table_mu, "x", paste0("n=", n))
+    
+    coverage_table_beta <- cbind(coverage_table_beta,
+                                 x = apply(boot_ci_strat_beta, 2, sum)/n_sim*100)
+    setnames(coverage_table_beta, "x", paste0("n=", n))
+  }
+  
+  return(list(
+    coverage_table_mu = coverage_table_mu,
+    coverage_table_beta = coverage_table_beta
+    )
+  )
+}
+```
+
+```{r seed-simulation}
+# # # # # # # # #
+# This script explores "do the CIs of a x% bootstrap interval actually cover the mean x%
+# of the time". The sample is from a negative binomial distribution so there is
+# heterogeneity of variance.
+# # # # # # # # #
+
+set.seed(1)
+n_sim <- 2000
+n_boot <- 1000
+n_list <- c(5, 10, 20, 40, 80)
+
+lm_obs <- lm(platelets_orig ~ treatment, data = fig1f)
+lm_obs_sigma <- summary(lm_obs)$sigma
+glm_obs <- glm.nb(platelets_orig ~ treatment, data = fig1f)
+glm_obs_fitted <- glm_obs$fitted.values
+glm_obs_theta  <- glm_obs$theta
+
+mu_levels <- summary(emmeans(lm_obs, specs = "treatment"))[, "emmean"]
+names(mu_levels) <- summary(emmeans(lm_obs, specs = "treatment"))[, "treatment"]
+beta <- coef(lm_obs)
+theta <- glm_obs_theta
+sigma_raw <- fig1f_means[, SD]
+names(sigma_raw) <- fig1f_means[, treatment]
+
+```
+
+
+```{r nb-distribution}
+out_file <- "boot_ci-nb.Rds"
+save_file_path <- here(output_folder, out_file)
+
+if(run_simulation == TRUE){
+  boot_ci_sim_nb <- boot_sim(
+    mu = mu_levels, # mean of each level
+    model = "nb", # distribution of the data, normal or nb
+    theta = theta, #theta for nb
+    sigma = sigma_raw, # sd of each level for normal
+    beta = beta, # coefficients
+    n_sim = n_sim, # iterations of simulation
+    n_boot = n_boot, # number of bootstrap resamples
+    n_list = n_list, # vector of sample sizes per level. Whole sim run for each n
+    method = "stratified" # stratified, residual, or both
+  )
+  saveRDS(object = boot_ci_sim_nb, file = save_file_path)
+}else{
+  boot_ci_sim_nb <- readRDS(save_file_path)
+}
+
+boot_ci_sim_nb$coverage_table_mu
+boot_ci_sim_nb$coverage_table_beta
+```
+
+
+```{r normal-distribution}
+
+out_file <- "boot_ci-normal.Rds"
+save_file_path <- here(output_folder, out_file)
+
+if(run_simulation == TRUE){
+  boot_ci_sim_normal <- boot_sim(
+    mu = mu_levels, # mean of each level
+    model = "normal", # distribution of the data, normal or nb
+    theta = theta, #theta for nb
+    sigma = sigma_raw, # sd of each level for normal
+    beta = beta, # coefficients
+    n_sim = n_sim, # iterations of simulation
+    n_boot = n_boot, # number of bootstrap resamples
+    n_list = n_list, # vector of sample sizes per level. Whole sim run for each n
+    method = "stratified" # stratified, residual, or both
+  )
+  saveRDS(object = boot_ci_sim_normal, file = save_file_path)
+}else{
+  boot_ci_sim_normal <- readRDS(save_file_path)
+}
+
+boot_ci_sim_normal$coverage_table_mu
+boot_ci_sim_normal$coverage_table_beta
+```
+
+# Summary
+
+```{r summary-results-normal, echo=FALSE}
+
+knitr::kable(boot_ci_sim_nb$coverage_table_mu, caption = "Coverage of the estimate of the mean, for data sampled from a negative binomial distribution")
+knitr::kable(boot_ci_sim_nb$coverage_table_beta, caption = "Coverage of the estimate of the difference in means, for data sampled from a negative binomial distribution")
+
+knitr::kable(boot_ci_sim_normal$coverage_table_mu, caption = "Coverage of the estimate of the mean, for data sampled from normal distribution")
+knitr::kable(boot_ci_sim_normal$coverage_table_beta, caption = "Coverage of the estimate of the difference in means, for data sampled from a normal distribution")
+
+```
+
+Huh. Yes, books on the bootstrap do cover small sample issues and potential solutions. But I'm surprised by how little I've seen references to this, or maybe I've just selectively filtered it out.

@@ -6,10 +6,19 @@
     <description>Recent content in Generalized Linear Models on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 30 Nov 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 01 Jun 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/generalized-linear-models/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Bootstrap confidence intervals when sample size is really small</title>
+      <link>/2020/06/bootstrap-confidence-intervals-when-sample-size-is-really-small/</link>
+      <pubDate>Mon, 01 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/06/bootstrap-confidence-intervals-when-sample-size-is-really-small/</guid>
+      <description>This is part II of how to represent uncertainty in the mean response of each treatment level. A 1 SE bar, where the SE is computed for each group independently, is nearly universal in much of biology. Part I explains why I prefer confidence intervals to SE bars and explores several alternative methods for computing a CI. One alternative is a non-parametric bootstrap. I like the bootstrap – it is extremely useful for learning and teaching what “frequentist” means.</description>
+    </item>
     
     <item>
       <title>&#34;Nested&#34; random factors in mixed (multilevel or hierarchical) models</title>

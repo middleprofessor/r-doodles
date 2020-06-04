@@ -656,6 +656,41 @@ coef(summary(m5))</code></pre>
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2020/06/bootstrap-confidence-intervals-when-sample-size-is-really-small/">
+                <h3 class="media-heading">Bootstrap confidence intervals when sample size is really small</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is part II of how to represent uncertainty in the mean response of each treatment level. A 1 SE bar, where the SE is computed for each group independently, is nearly universal in much of biology. Part I explains why I prefer confidence intervals to SE bars and explores several alternative methods for computing a CI. One alternative is a non-parametric bootstrap. I like the bootstrap – it is extremely useful for learning and teaching what “frequentist” means.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/05/what-is-the-consequence-of-normalizing-by-each-case-in-the-control/">
+                <h3 class="media-heading">What is the consequence of normalizing by each case in the control?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Novel metabolic role for BDNF in pancreatic β-cell insulin secretion
+library(tidyverse) ## ── Attaching packages ──────────────────────────────────────────────────── tidyverse 1.2.1 ── ## ✔ ggplot2 3.3.0 ✔ purrr 0.3.3 ## ✔ tibble 3.0.1 ✔ dplyr 0.8.5 ## ✔ tidyr 1.0.0 ✔ stringr 1.4.0 ## ✔ readr 1.3.1 ✔ forcats 0.4.0 ## ── Conflicts ─────────────────────────────────────────────────────── tidyverse_conflicts() ── ## ✖ dplyr::filter() masks stats::filter() ## ✖ dplyr::lag() masks stats::lag() library(data.table) ## ## Attaching package: &#39;data.table&#39; ## The following objects are masked from &#39;package:dplyr&#39;: ## ## between, first, last ## The following object is masked from &#39;package:purrr&#39;: ## ## transpose library(mvtnorm) library(lmerTest) ## Loading required package: lme4 ## Loading required package: Matrix ## ## Attaching package: &#39;Matrix&#39; ## The following objects are masked from &#39;package:tidyr&#39;: ## ## expand, pack, unpack ## ## Attaching package: &#39;lmerTest&#39; ## The following object is masked from &#39;package:lme4&#39;: ## ## lmer ## The following object is masked from &#39;package:stats&#39;: ## ## step normal response niter &lt;- 2000 n &lt;- 9 treatment_levels &lt;- c(&quot;cn&quot;, &quot;high&quot;, &quot;high_bdnf&quot;) insulin &lt;- data.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2020/04/melting-a-list-of-columns/">
                 <h3 class="media-heading">Melting a list of columns</h3>
               </a>
@@ -802,43 +837,6 @@ tl;dr: Given the transformation done by the authors, for any response in day_0 t
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/08/what-is-the-consequence-of-a-shapiro-wilk-test-of-normality-filter-on-type-i-error-and-power/">
-                <h3 class="media-heading">What is the consequence of a Shapiro-Wilk test-of-normality filter on Type I error and Power?</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Aug 8, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">Set up Normal distribution Type I error Power  Right skewed continuous – lognormal What the parameterizations look like Type I error Power    This 1990-wants-you-back doodle explores the effects of a Normality Filter – using a Shapiro-Wilk (SW) test as a decision rule for using either a t-test or some alternative such as a 1) non-parametric Mann-Whitney-Wilcoxon (MWW) test, or 2) a t-test on the log-transformed response.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/07/what-is-bias-in-the-estimation-of-an-effect-giving-an-omitted-interaction-term/">
-                <h3 class="media-heading">What is the bias in the estimation of an effect given an omitted interaction term?</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Jul 7, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">Some background (due to Sewall Wright’s method of path analysis) Given a generating model:
-\[\begin{equation} y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 \end{equation}\] where \(x_3 = x_1 x_2\); that is, it is an interaction variable.
-The total effect of \(x_1\) on \(y\) is \(\beta_1 + \frac{\mathrm{COV}(x_1, x_2)}{\mathrm{VAR}(x_1)} \beta_2 + \frac{\mathrm{COV}(x_1, x_3)}{\mathrm{VAR}(x_1)} \beta_3\).
-If \(x_3\) (the interaction) is missing, its component on the total efffect is added to the coefficient of \(x_1\).</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -846,7 +844,7 @@ If \(x_3\) (the interaction) is missing, its component on the total efffect is a
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         38 posts found
+         40 posts found
       </p>
     </div>
   </div>

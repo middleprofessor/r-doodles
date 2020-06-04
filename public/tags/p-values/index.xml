@@ -6,10 +6,20 @@
     <description>Recent content in P Values on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 27 Oct 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 18 May 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/p-values/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>What is the consequence of normalizing by each case in the control?</title>
+      <link>/2020/05/what-is-the-consequence-of-normalizing-by-each-case-in-the-control/</link>
+      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/05/what-is-the-consequence-of-normalizing-by-each-case-in-the-control/</guid>
+      <description>Novel metabolic role for BDNF in pancreatic β-cell insulin secretion
+library(tidyverse) ## ── Attaching packages ──────────────────────────────────────────────────── tidyverse 1.2.1 ── ## ✔ ggplot2 3.3.0 ✔ purrr 0.3.3 ## ✔ tibble 3.0.1 ✔ dplyr 0.8.5 ## ✔ tidyr 1.0.0 ✔ stringr 1.4.0 ## ✔ readr 1.3.1 ✔ forcats 0.4.0 ## ── Conflicts ─────────────────────────────────────────────────────── tidyverse_conflicts() ── ## ✖ dplyr::filter() masks stats::filter() ## ✖ dplyr::lag() masks stats::lag() library(data.table) ## ## Attaching package: &amp;#39;data.table&amp;#39; ## The following objects are masked from &amp;#39;package:dplyr&amp;#39;: ## ## between, first, last ## The following object is masked from &amp;#39;package:purrr&amp;#39;: ## ## transpose library(mvtnorm) library(lmerTest) ## Loading required package: lme4 ## Loading required package: Matrix ## ## Attaching package: &amp;#39;Matrix&amp;#39; ## The following objects are masked from &amp;#39;package:tidyr&amp;#39;: ## ## expand, pack, unpack ## ## Attaching package: &amp;#39;lmerTest&amp;#39; ## The following object is masked from &amp;#39;package:lme4&amp;#39;: ## ## lmer ## The following object is masked from &amp;#39;package:stats&amp;#39;: ## ## step normal response niter &amp;lt;- 2000 n &amp;lt;- 9 treatment_levels &amp;lt;- c(&amp;quot;cn&amp;quot;, &amp;quot;high&amp;quot;, &amp;quot;high_bdnf&amp;quot;) insulin &amp;lt;- data.</description>
+    </item>
     
     <item>
       <title>Can a linear model reproduce a Welch t-test?</title>
