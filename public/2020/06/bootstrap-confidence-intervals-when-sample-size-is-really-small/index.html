@@ -309,7 +309,7 @@ if (!doNotTrack) {
 <p>I’ve been using the bootstrap to generate CIs for over 25 years and am embarrassed to admit that I don’t know how well it performs with small samples sizes…on the order of n = 5 or 10, which is really common in bench biology. A problem with small sample size is that any one sample may not be very representative of what the distribution looks like.</p>
 <p>This is a small simulation to explore how well a bootstrap performs for estimating CIs of both means and the difference in means. The question pursued is: “do the CIs of a x% bootstrap interval actually cover the mean x% of the time?” The data simulate those in Figure 1F in <a href="https://www.nature.com/articles/s41467-019-14178-y">β4GALT1 controls β1 integrin function to govern thrombopoiesis and hematopoietic stem cell homeostasis</a>.</p>
 <p>The data are platelet counts and look they come from a distribution with a strong right skew and variance proportional to the mean (poisson, negative binomial). I approximate the data by sampling from a negative binomial distribution. Then I ask, “does the distribution matter” and re-run the simulation by sampling from a normal distribution with heterogeneity in variance (equal to that in the two groups).</p>
-<p>TL;DR – Go to the summary.</p>
+<p>TL;DR – Go to the <a href="#summary">summary</a>.</p>
 <pre class="r"><code>knitr::opts_chunk$set(echo = TRUE, message=FALSE)
 # wrangling packages
 library(here)
@@ -358,6 +358,7 @@ fig1f[, platelets_orig := round(platelets*10^9)]</code></pre>
 fig1f_means[, lower := platelets + SE*qt(.025, (N-1))]
 fig1f_means[, upper := platelets + SE*qt(.975, (N-1))]
 
+set.seed(1)
 gg_points &lt;- ggplot(data = fig1f, 
                  aes(x = treatment, y = platelets)) +
   geom_sina(alpha=0.4) +
@@ -447,6 +448,7 @@ m1_boot &lt;- boot_lm_test(m1)
 fig1f_means[, lower.boot := m1_boot$ci_strat_mu[&quot;2.5%&quot;,]]
 fig1f_means[, upper.boot := m1_boot$ci_strat_mu[&quot;97.5%&quot;,]]
 
+set.seed(1)
 gg_boot &lt;- gg_points +
   geom_point(data = fig1f_means,
              aes(y = platelets),
@@ -460,8 +462,12 @@ gg_boot &lt;- gg_points +
   NULL
 
 #gg_boot</code></pre>
+</div>
+<div id="plot-of-data-raw-cis-bootstrap-cis" class="section level1">
+<h1>plot of data, raw CIs, bootstrap CIs</h1>
 <pre class="r"><code>plot_grid(gg_raw, gg_boot, ncol=2)</code></pre>
 <p><img src="/post/2020-06-01-bootstrap-confidence-intervals-when-sample-size-is-really-small_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Not a big difference.</p>
 </div>
 <div id="simulation" class="section level1">
 <h1>Simulation</h1>
@@ -749,7 +755,7 @@ boot_ci_sim_normal$coverage_table_mu</code></pre>
 </tr>
 </tbody>
 </table>
-<p>Huh. Yes, books on the bootstrap do cover small sample issues and potential solutions. But I’m surprised by how little I’ve seen references to this, or maybe I’ve just selectively filtered it out.</p>
+<p>Huh. The bootstrap intervals are very…optimistic at sample sizes typical of bench biology. Yes, books on the bootstrap do cover small sample issues and potential solutions. But I’m surprised by how little I’ve seen references to this, or maybe I’ve just selectively filtered it out.</p>
 </div>
 </div>
 

@@ -21,7 +21,7 @@ This is a small simulation to explore how well a bootstrap performs for estimati
 
 The data are platelet counts and look they come from a distribution with a strong right skew and variance proportional to the mean (poisson, negative binomial). I approximate the data by sampling from a negative binomial distribution. Then I ask, "does the distribution matter" and re-run the simulation by sampling from a normal distribution with heterogeneity in variance (equal to that in the two groups).
 
-TL;DR -- Go to the summary.
+TL;DR -- Go to the [summary].
 
 ```{r setup, message = FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE)
@@ -79,6 +79,7 @@ fig1f_means <- fig1f[, .(platelets = mean(platelets),
 fig1f_means[, lower := platelets + SE*qt(.025, (N-1))]
 fig1f_means[, upper := platelets + SE*qt(.975, (N-1))]
 
+set.seed(1)
 gg_points <- ggplot(data = fig1f, 
                  aes(x = treatment, y = platelets)) +
   geom_sina(alpha=0.4) +
@@ -174,6 +175,7 @@ m1_boot <- boot_lm_test(m1)
 fig1f_means[, lower.boot := m1_boot$ci_strat_mu["2.5%",]]
 fig1f_means[, upper.boot := m1_boot$ci_strat_mu["97.5%",]]
 
+set.seed(1)
 gg_boot <- gg_points +
   geom_point(data = fig1f_means,
              aes(y = platelets),
@@ -190,9 +192,12 @@ gg_boot <- gg_points +
 
 ```
 
+# plot of data, raw CIs, bootstrap CIs
 ```{r}
 plot_grid(gg_raw, gg_boot, ncol=2)
 ```
+
+Not a big difference. 
 
 # Simulation
 
@@ -374,4 +379,4 @@ knitr::kable(boot_ci_sim_normal$coverage_table_beta, caption = "Coverage of the 
 
 ```
 
-Huh. Yes, books on the bootstrap do cover small sample issues and potential solutions. But I'm surprised by how little I've seen references to this, or maybe I've just selectively filtered it out.
+Huh. The bootstrap intervals are very...optimistic at sample sizes typical of bench biology. Yes, books on the bootstrap do cover small sample issues and potential solutions. But I'm surprised by how little I've seen references to this, or maybe I've just selectively filtered it out.
