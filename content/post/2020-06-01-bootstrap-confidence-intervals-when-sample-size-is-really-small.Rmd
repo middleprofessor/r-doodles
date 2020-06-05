@@ -75,6 +75,7 @@ fig1f[, platelet_count := round(platelets*10^9)]
 # Stripchart with mean and raw 95% CIs
 
 ```{r fig1f}
+# response
 fig1f_means <- fig1f[, .(platelet_count = mean(platelet_count),
                          SD = sd(platelet_count),
                          SE = sd(platelet_count/sqrt(.N)),
@@ -103,7 +104,6 @@ gg_raw <- gg_points +
                 color = c("#3DB7E9", "#e69f00")) +
   NULL
 
-#gg_raw
 ```
 
 # A bootstrap function

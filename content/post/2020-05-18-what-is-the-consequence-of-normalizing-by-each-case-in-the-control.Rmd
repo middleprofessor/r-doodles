@@ -12,9 +12,13 @@ tags:
 keywords:
   - tech
 ---
-[Novel metabolic role for BDNF in pancreatic β-cell insulin secretion](https://www.nature.com/articles/s41467-020-15833-5)
+Motivator: [Novel metabolic role for BDNF in pancreatic β-cell insulin secretion](https://www.nature.com/articles/s41467-020-15833-5)
 
-```{r}
+I'll finish this some day...
+
+```{r, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE)
+
 library(tidyverse)
 library(data.table)
 library(mvtnorm)

@@ -68,7 +68,8 @@ fig1f[, platelet_count := round(platelets*10^9)]</code></pre>
 </div>
 <div id="stripchart-with-mean-and-raw-95-cis" class="section level1">
 <h1>Stripchart with mean and raw 95% CIs</h1>
-<pre class="r"><code>fig1f_means &lt;- fig1f[, .(platelet_count = mean(platelet_count),
+<pre class="r"><code># response
+fig1f_means &lt;- fig1f[, .(platelet_count = mean(platelet_count),
                          SD = sd(platelet_count),
                          SE = sd(platelet_count/sqrt(.N)),
                          N = .N)
@@ -94,9 +95,7 @@ gg_raw &lt;- gg_points +
                 width = 0.04,
                 size = 1,
                 color = c(&quot;#3DB7E9&quot;, &quot;#e69f00&quot;)) +
-  NULL
-
-#gg_raw</code></pre>
+  NULL</code></pre>
 </div>
 <div id="a-bootstrap-function" class="section level1">
 <h1>A bootstrap function</h1>

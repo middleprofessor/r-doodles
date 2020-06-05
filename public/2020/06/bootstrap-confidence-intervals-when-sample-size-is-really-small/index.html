@@ -358,7 +358,8 @@ fig1f[, platelet_count := round(platelets*10^9)]</code></pre>
 </div>
 <div id="stripchart-with-mean-and-raw-95-cis" class="section level1">
 <h1>Stripchart with mean and raw 95% CIs</h1>
-<pre class="r"><code>fig1f_means &lt;- fig1f[, .(platelet_count = mean(platelet_count),
+<pre class="r"><code># response
+fig1f_means &lt;- fig1f[, .(platelet_count = mean(platelet_count),
                          SD = sd(platelet_count),
                          SE = sd(platelet_count/sqrt(.N)),
                          N = .N)
@@ -384,9 +385,7 @@ gg_raw &lt;- gg_points +
                 width = 0.04,
                 size = 1,
                 color = c(&quot;#3DB7E9&quot;, &quot;#e69f00&quot;)) +
-  NULL
-
-#gg_raw</code></pre>
+  NULL</code></pre>
 </div>
 <div id="a-bootstrap-function" class="section level1">
 <h1>A bootstrap function</h1>
@@ -1053,8 +1052,9 @@ boot_ci_sim_normal$coverage_table_mu</code></pre>
                   May 5, 2020
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Novel metabolic role for BDNF in pancreatic β-cell insulin secretion
-library(tidyverse) ## ── Attaching packages ──────────────────────────────────────────────────── tidyverse 1.2.1 ── ## ✔ ggplot2 3.3.0 ✔ purrr 0.3.3 ## ✔ tibble 3.0.1 ✔ dplyr 0.8.5 ## ✔ tidyr 1.0.0 ✔ stringr 1.4.0 ## ✔ readr 1.3.1 ✔ forcats 0.4.0 ## ── Conflicts ─────────────────────────────────────────────────────── tidyverse_conflicts() ── ## ✖ dplyr::filter() masks stats::filter() ## ✖ dplyr::lag() masks stats::lag() library(data.table) ## ## Attaching package: &#39;data.table&#39; ## The following objects are masked from &#39;package:dplyr&#39;: ## ## between, first, last ## The following object is masked from &#39;package:purrr&#39;: ## ## transpose library(mvtnorm) library(lmerTest) ## Loading required package: lme4 ## Loading required package: Matrix ## ## Attaching package: &#39;Matrix&#39; ## The following objects are masked from &#39;package:tidyr&#39;: ## ## expand, pack, unpack ## ## Attaching package: &#39;lmerTest&#39; ## The following object is masked from &#39;package:lme4&#39;: ## ## lmer ## The following object is masked from &#39;package:stats&#39;: ## ## step normal response niter &lt;- 2000 n &lt;- 9 treatment_levels &lt;- c(&quot;cn&quot;, &quot;high&quot;, &quot;high_bdnf&quot;) insulin &lt;- data.</div>
+              <div class="media-content hide-xs font-merryweather">Motivator: Novel metabolic role for BDNF in pancreatic β-cell insulin secretion
+I’ll finish this some day…
+knitr::opts_chunk$set(echo = TRUE, message=FALSE) library(tidyverse) library(data.table) library(mvtnorm) library(lmerTest) normal response niter &lt;- 2000 n &lt;- 9 treatment_levels &lt;- c(&quot;cn&quot;, &quot;high&quot;, &quot;high_bdnf&quot;) insulin &lt;- data.table(treatment = rep(treatment_levels, each=n)) X &lt;- model.matrix(~ treatment, data=insulin) beta &lt;- c(0,0,0) # no effects # the three responses are taken from the same cluster of cells and so have expected # correlation rho.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
