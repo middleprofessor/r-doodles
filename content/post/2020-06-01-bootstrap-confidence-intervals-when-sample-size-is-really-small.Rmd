@@ -13,15 +13,60 @@ keywords:
   - tech
 ---
 
-This is part II of how to represent uncertainty in the mean response of each treatment level. A 1 SE bar, where the SE is computed for each group independently, is nearly universal in much of biology. Part I explains why I prefer confidence intervals to SE bars and explores several alternative methods for computing a CI. One alternative is a non-parametric bootstrap. I like the bootstrap -- it is extremely useful for learning and teaching what "frequentist" means. It is not dependent on any distribution. It can be used to compute CIs for statistics where no paramtric CI exists. And its (fairly) easy to implement!
+# TL;DR
 
-I've been using the bootstrap to generate CIs for over 25 years and am embarrassed to admit that I don't know how well it performs with small samples sizes...on the order of n = 5 or 10, which is really common in bench biology. A problem with small sample size is that any one sample may not be very representative of what the distribution looks like.
+A sample table from the [full results](#summary) for data that [look like this](#plot)
 
-This is a small simulation to explore how well a bootstrap performs for estimating CIs of both means and the difference in means. The question pursued is: "do the CIs of a x% bootstrap interval actually cover the mean x% of the time?" The data simulate those in Figure 1F in [β4GALT1 controls β1 integrin function to govern thrombopoiesis and hematopoietic stem cell homeostasis](https://www.nature.com/articles/s41467-019-14178-y). 
+```{r tldr-table, echo=FALSE, message=FALSE}
+library(kableExtra)
+library(here)
+library(data.table)
+output_folder <- "content/output"
+out_file <- "boot_ci-nb.Rds"
+save_file_path <- here(output_folder, out_file)
+boot_ci_sim_nb <- readRDS(save_file_path)
+boot_ci_sim_nb <- readRDS(save_file_path)
 
-The data are platelet counts and look they come from a distribution with a strong right skew and variance proportional to the mean (poisson, negative binomial). I approximate the data by sampling from a negative binomial distribution. Then I ask, "does the distribution matter" and re-run the simulation by sampling from a normal distribution with heterogeneity in variance (equal to that in the two groups).
+```
 
-TL;DR -- [see the plot](#plot) and go to the [summary].
+```{r summary-results-nb-hide, echo=FALSE}
+ci_nb_bca <- boot_ci_sim_nb$coverage_table_bca
+boot_ci_table <- rbind(data.table(interval = "nb", ci_nb_bca))
+
+kable(ci_nb_bca, caption = "Coverage of 95% bca CIs.",
+      digits=1) %>%
+  kable_styling("striped", full_width = F) %>%
+  pack_rows("means", 1, 2) %>%
+  pack_rows("difference in means", 3, 3)
+```
+
+Bootstrap CIs are extremely optimistic (too narrow) with data that look like the modeled data when *n* is 5 (coverage of a 95% interval is 81-83%) and remain optimistic even at n=20, which is a uncommonly large sample size in many bench biology experiments. This result convinces me that the bootstrap should not be *generally* recommended.
+
+# Background
+
+This is part II of how to represent uncertainty in the mean response of each treatment level. A 1 SE bar, where the SE is computed for each group independently, is nearly universal in much of biology. Part I explains why I prefer confidence intervals to SE bars and explores several alternative methods for computing a CI. One alternative is a non-parametric bootstrap. I like the bootstrap -- it is extremely useful for learning and teaching what "frequentist" means. It is not dependent on any distribution. It can be used to compute CIs for statistics where no parametric CI exists. And its (fairly) easy to implement!
+
+I am embarrassed to admit that I don't know how well bootstrap CIs perform with really small sample sizes, say 5 or 10, which are common in experimental (and especially wet-bench) biology. By "perform", I mean coverage -- the actual number of intervals that contain the parameter (true value). If the nominal value is 95% and the coverage is 80%, our results aren't what we think they are. Part of my ignorance is because the focus on on errors related to the *presence* of an effect (Type I, Power, FDR) and not on errors related to the magnitude of an effect (Type "S", Type "M", coverage of CIs). But part of my ignorance is also because I just don't recall any source making a big deal about any issues with bootstrap CIs for small samples, at least in the "how-to" literature and not technical literature (like books explicitly on the bootstrap)
+
+The question pursued here is, what is the coverage (the actual frequency of intervals that include the statistic) of a bootstrap interval for really small samples sizes...on the order of n = 5 or 10, which is really common in bench biology? Coverage is important -- when we take the time to understand the consequences of a particular 95% interval, we hope the interval was constructed by a method that actually includes the statistic with a frequency close to 95% (we can argue what "close to" means).
+
+To explore, this, I use a small simulation. The simulation creates fake data that simulate platelet count from Figure 1F of [β4GALT1 controls β1 integrin function to govern thrombopoiesis and hematopoietic stem cell homeostasis](https://www.nature.com/articles/s41467-019-14178-y). Jump to the [plot](#plot) of the data, the mean, and the raw and bootstrap intervals to get a feel for the data.
+
+The platelet count data look they come from a distribution with a strong right skew and variance proportional to the mean (poisson, negative binomial). I approximate the data by sampling from a negative binomial distribution. Does this distribution matter? I lightly explore this by re-running the simulation and sampling from a normal distribution with heterogeneity in variance (equal to that in the two groups).
+
+## How is the bootstrap presented in the "how to" literature for experimental biology?
+
+The results also motivated me to google around for how the bootstrap is presented in material that is targeted to experimental (and especially wet-bench) biology -- so not textbooks or technical papers on the bootstrap 
+
+[Explorations in statistics: the bootstrap](https://journals.physiology.org/doi/full/10.1152/advan.00062.2009) is a nice introduction to bootstrapped means and CIs. The piece does state that if *n* is too small, then "normal-theory and percentile confidence intervals are likely to be inaccurate" and then introduces bca intervals. There are many ways to be inaccurate, and overly-optimistic intervals are not mentioned. And, the take-home message seems to be that bca intervals are a solution to issues with small *n*. The piece explicitly has a section on limitations, and states "As useful as the bootstrap is, it cannot always salvage the statistical analysis of a small sample. Why not? If the sample is too small, then it may be atypical of the underlying population. When this happens, the bootstrap distribution will not mirror the theoretical distribution of the sample statistic." Again, overly-optimistic intervals are not mentioned.
+
+[A better bar](https://thenode.biologists.com/a-better-bar/education/) recommends the bootstrap CI but fails to mention anything about small samples.
+
+[A biologist's guide to statistical thinking and analysis](http://www.wormbook.org/chapters/www_statisticalanalysis/statisticalanalysis.html) has a section [Fear not the bootstrap](http://www.wormbook.org/chapters/www_statisticalanalysis/statisticalanalysis.html#sec6-7) fails to mention anything about small sample size.
+
+[Effect size, confidence interval and statistical significance: a practical guide for biologists](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1469-185x.2007.00027.x) is a well known review paper within my field of ecology/evolution. The paper simply states that "It should be noted that small sample size will often give incorrect coverage of CIs", which fails to explicitly state a problem of small *n* is overly-optimistic CIs.
+
+A newer how-to paper on resampling methods, also from organismal/ecology/evolution, simply states "For small samples or skewed distributions, better methods [than percentile bootstrap intervals] exist (citations)", which fails to explicitly state a problem of small *n* is overly-optimistic CIs.
 
 # Setup
 
@@ -45,6 +90,10 @@ library(ggsci)
 library(ggpubr)
 library(ggforce)
 library(cowplot)
+
+# table packages
+library(knitr)
+library(kableExtra)
 
 here <- here::here()
 data_folder <- "content/data"
@@ -171,6 +220,71 @@ boot_lm_test <- function(obs_fit,
 }
 ```
 
+# using boot
+```{r}
+boot_diff <- function(dt, inc){ # original code
+  means <- dt[inc, .(platelet_count = mean(platelet_count)), by = .(treatment, level)]
+  setorder(means, level) # reorder to correct order of factor levels
+  c(means[, platelet_count], diff(means$platelet_count))
+}
+
+# changing where the index is specified speeds this up. huh.
+boot_diff2 <- function(dt, inc){ 
+  dt_inc <- dt[inc, ]
+  means <- dt_inc[, .(platelet_count = mean(platelet_count)), by = .(treatment, level)]
+  setorder(means, level) # reorder to correct order of factor levels
+  c(means[, platelet_count], diff(means$platelet_count))
+}
+
+# trying something differt slows everything down. Maybe the == ?
+boot_diff3 <- function(dt, inc){
+  dt_inc <- dt[inc, ]
+  ybar1 <- mean(dt_inc[level==1, platelet_count])
+  ybar2 <- mean(dt_inc[level==2, platelet_count])
+  diff <- ybar2-ybar1
+   c(ybar1, ybar2, diff)
+}
+
+# remembering the lm.fit function but then thinking why bother.
+# lets just do the math
+boot_diff4 <- function(dat, inc){ 
+  X <- dat[inc, 1:2]
+  y <- dat[inc, 3]
+  b <- (solve(t(X)%*%X)%*%t(X)%*%y)[,1]
+  c(b[1], b[1]+b[2], b[2])
+}
+
+# but then thought, well maybe lm.fit is super optimized and %*% isn't
+boot_diff5 <- function(dat, inc){ 
+  X <- dat[inc, 1:2]
+  y <- dat[inc, 3]
+  b <- coef(lm.fit(X,y))
+  c(b[1], b[1]+b[2], b[2])
+}
+
+# then found .lm.fit when I ?lm.fit
+boot_diff6 <- function(dat, inc){ 
+  X <- dat[inc, 1:2]
+  y <- dat[inc, 3]
+  b <- coef(.lm.fit(X,y))
+  c(b[1], b[1]+b[2], b[2])
+}
+
+```
+
+```{r microbenchmark-boot-diff}
+# test
+fd <- data.table(treatment = factor(rep(c("cn", "tr"), each=5)),
+                 platelet_count = rnorm(10))
+fd[, level := as.integer(treatment)]
+X_i <- cbind(model.matrix(~ treatment, fd), platelet_count = fd$platelet_count)
+microbenchmark::microbenchmark(boot(fd, statistic = boot_diff, R = 0, strata = fd$level),
+                               boot(X_i, statistic = boot_diff4, R = 0, strata = X_i[,2]),
+                               boot(X_i, statistic = boot_diff5, R = 0, strata = X_i[,2]),
+                               boot(X_i, statistic = boot_diff6, R = 0, strata = X_i[,2]),
+                               times=1000)
+```
+
 # Bootstrap CIs
 ```{r}
 m1 <- lm(platelet_count ~ treatment, data = fig1f)
@@ -219,10 +333,10 @@ boot_sim <- function(
   method = "stratified" # stratified, residual, or both
 ){
   k <- length(mu)
-  treatment_levels <- c("cn", paste0("tr", 1:(k-1)))
+  treatment_levels <- names(mu)
 
-  coverage_table_mu <- data.table(group = names(mu))
-  coverage_table_beta <- data.table(parameter = names(beta))
+  coverage_table_bca <- data.table(parameter = c(treatment_levels, "diff"))
+  coverage_table_perc <- data.table(parameter = c(treatment_levels, "diff"))
   
   
   for(n in n_list){
@@ -234,49 +348,61 @@ boot_sim <- function(
     fd <- data.table(
       treatment = rep(treatment_levels, each=n)
     )
+    fd[, treatment := factor(treatment, treatment_levels)]
+    fd[, level := as.integer(treatment)]
     
-    boot_ci_strat_mu<- matrix(FALSE, nrow = n_sim, ncol=k)
-    boot_ci_strat_beta <- matrix(FALSE, nrow = n_sim, ncol=k)
-    
+    boot_ci_bca<- matrix(FALSE, nrow = n_sim, ncol=3)
+    colnames(boot_ci_bca) <- c(treatment_levels, "diff")
+    boot_ci_perc <- matrix(FALSE, nrow = n_sim, ncol=3)
+    colnames(boot_ci_perc) <- c(treatment_levels, "diff")
+   
     for(iter in 1:n_sim){
       if(model=="nb"){
-        fd[, y_fake := rnegbin(N, sim_mu, theta)]
+        fd[, platelet_count := rnegbin(N, sim_mu, theta)]
       }
       if(model=="normal"){
-        fd[, y_fake := rnorm(N, sim_mu, sim_sigma)]
+        fd[, platelet_count := rnorm(N, sim_mu, sim_sigma)]
       }
       
-      fit_fake <- lm(y_fake ~ treatment, data=fd)
-      ci_list <- boot_lm_test(fit_fake, 
-                              n_boot = n_boot, 
-                              ci=0.95,
-                              method = method)
-      ci_strat_i_mu <- ci_list$ci_strat_mu
-      ci_strat_i_beta <- ci_list$ci_strat_beta
-      
-      boot_ci_strat_beta[iter,] <- beta > ci_strat_i_beta[1,] & 
-        beta < ci_strat_i_beta[2,]
-      boot_ci_strat_mu[iter,] <- mu > ci_strat_i_mu[1,] & 
-        mu < ci_strat_i_mu[2,]
+      X_i <- cbind(model.matrix(~ treatment, data=fd), fd$platelet_count)
+      boot_out <- boot(X_i,
+                 strata = X_i[,2],
+                 boot_diff4,
+                 R = n_boot)
+      # bca intervals
+      ci_mean_cn <- boot.ci(boot_out, index = 1, conf=0.95, type=c("bca"))$bca[4:5]
+      ci_mean_tr <- boot.ci(boot_out, index = 2, conf=0.95, type=c("bca"))$bca[4:5]
+      ci_diff <- boot.ci(boot_out, index = 3, conf=0.95, type=c("bca"))$bca[4:5]
+      boot_ci_bca[iter, 1] <- between(mu[1], ci_mean_cn[1], ci_mean_cn[2])
+      boot_ci_bca[iter, 2] <- between(mu[2], ci_mean_tr[1], ci_mean_tr[2])
+      boot_ci_bca[iter, 3] <- between(beta[2], ci_diff[1], ci_diff[2])
+
+      # percent intervals
+      ci_mean_cn <- boot.ci(boot_out, index = 1, conf=0.95, type=c("perc"))$perc[4:5]
+      ci_mean_tr <- boot.ci(boot_out, index = 2, conf=0.95, type=c("perc"))$perc[4:5]
+      ci_diff <- boot.ci(boot_out, index = 3, conf=0.95, type=c("perc"))$perc[4:5]
+      boot_ci_perc[iter, 1] <- between(mu[1], ci_mean_cn[1], ci_mean_cn[2])
+      boot_ci_perc[iter, 2] <- between(mu[2], ci_mean_tr[1], ci_mean_tr[2])
+      boot_ci_perc[iter, 3] <- between(beta[2], ci_diff[1], ci_diff[2])
     }
-    coverage_table_mu <- cbind(coverage_table_mu,
-                               x = apply(boot_ci_strat_mu, 2, sum)/n_sim*100)
-    setnames(coverage_table_mu, "x", paste0("n=", n))
+    coverage_table_bca <- cbind(coverage_table_bca,
+                               x = apply(boot_ci_bca, 2, sum)/n_sim*100)
+    setnames(coverage_table_bca, "x", paste0("n=", n))
     
-    coverage_table_beta <- cbind(coverage_table_beta,
-                                 x = apply(boot_ci_strat_beta, 2, sum)/n_sim*100)
-    setnames(coverage_table_beta, "x", paste0("n=", n))
+    coverage_table_perc <- cbind(coverage_table_perc,
+                                 x = apply(boot_ci_perc, 2, sum)/n_sim*100)
+    setnames(coverage_table_perc, "x", paste0("n=", n))
   }
   
   return(list(
-    coverage_table_mu = coverage_table_mu,
-    coverage_table_beta = coverage_table_beta
+    coverage_table_bca = coverage_table_bca,
+    coverage_table_perc = coverage_table_perc
     )
   )
 }
 ```
 
-```{r seed-simulation}
+```{r parameterize-simulation}
 # # # # # # # # #
 # This script explores "do the CIs of a x% bootstrap interval actually cover the mean x%
 # of the time". The sample is from a negative binomial distribution so there is
@@ -325,8 +451,8 @@ if(run_simulation == TRUE){
   boot_ci_sim_nb <- readRDS(save_file_path)
 }
 
-boot_ci_sim_nb$coverage_table_mu
-boot_ci_sim_nb$coverage_table_beta
+boot_ci_sim_nb$coverage_table_bca
+boot_ci_sim_nb$coverage_table_perc
 ```
 
 
@@ -352,36 +478,43 @@ if(run_simulation == TRUE){
   boot_ci_sim_normal <- readRDS(save_file_path)
 }
 
-boot_ci_sim_normal$coverage_table_mu
-boot_ci_sim_normal$coverage_table_beta
+boot_ci_sim_normal$coverage_table_bca
+boot_ci_sim_normal$coverage_table_perc
 ```
 
 # Summary
 
-## group means, sampled from negative binomial
+## Coverage tables for bca
 
-```{r summary-results-mu-nb, echo=FALSE}
+```{r summary-results-nb}
+ci_nb_bca <- boot_ci_sim_nb$coverage_table_bca
+ci_normal_bca <- boot_ci_sim_normal$coverage_table_bca
+ycols <- colnames(ci_nb_bca)
+boot_ci_table <- rbind(data.table(interval = "nb", ci_nb_bca),
+                       data.table(interval = "normal", ci_normal_bca))
 
-knitr::kable(boot_ci_sim_nb$coverage_table_mu, caption = "Coverage of the 95% bootstrap CI of the mean, for data sampled from a negative binomial distribution")
+kable(boot_ci_table[, .SD, .SDcols = ycols],
+      caption = "Coverage of 95% bca CIs",
+      digits=1) %>%
+  kable_styling("striped", full_width = F) %>%
+  pack_rows("negative binomial", 1, 3) %>%
+  pack_rows("normal", 4, 6)
 ```
 
-## coefficients, sampled from negative binomial
+## Coverage tables for perc
 
-```{r summary-results-beta-nb, echo=FALSE}
-knitr::kable(boot_ci_sim_nb$coverage_table_beta, caption = "Coverage of the 95% bootstrap CI of the model parameters, for data sampled from a negative binomial distribution")
+```{r summary-results-normal}
+ci_nb_perc <- boot_ci_sim_nb$coverage_table_perc
+ci_normal_perc <- boot_ci_sim_normal$coverage_table_perc
+ycols <- colnames(ci_nb_bca)
+boot_ci_table <- rbind(data.table(interval = "nb", ci_nb_perc),
+                       data.table(interval = "normal", ci_normal_perc))
+
+kable(boot_ci_table[, .SD, .SDcols = ycols],
+      caption = "Coverage of 95% percentile CIs",
+      digits=1) %>%
+  kable_styling("striped", full_width = F) %>%
+  pack_rows("negative binomial", 1, 3) %>%
+  pack_rows("normal", 4, 6)
 ```
 
-## group means, sampled from normal
-
-```{r summary-results-mu-normal, echo=FALSE}
-knitr::kable(boot_ci_sim_normal$coverage_table_mu, caption = "Coverage of the 95% bootstrap CI of the mean, for data sampled from normal distribution")
-```
-
-## coefficients, sampled from normal
-
-```{r summary-results-beta-normal, echo=FALSE}
-knitr::kable(boot_ci_sim_normal$coverage_table_beta, caption = "Coverage of the 95% bootstrap CI of the model parameters, for data sampled from a normal distribution")
-
-```
-
-Huh. The bootstrap intervals are very...optimistic at sample sizes typical of bench biology. Yes, books on the bootstrap do cover small sample issues and potential solutions. But I'm surprised by how little I've seen references to this, or maybe I've just selectively filtered it out.

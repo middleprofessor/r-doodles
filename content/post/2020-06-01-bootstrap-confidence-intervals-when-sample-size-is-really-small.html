@@ -13,13 +13,130 @@ keywords:
   - tech
 ---
 
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 
-<p>This is part II of how to represent uncertainty in the mean response of each treatment level. A 1 SE bar, where the SE is computed for each group independently, is nearly universal in much of biology. Part I explains why I prefer confidence intervals to SE bars and explores several alternative methods for computing a CI. One alternative is a non-parametric bootstrap. I like the bootstrap – it is extremely useful for learning and teaching what “frequentist” means. It is not dependent on any distribution. It can be used to compute CIs for statistics where no paramtric CI exists. And its (fairly) easy to implement!</p>
-<p>I’ve been using the bootstrap to generate CIs for over 25 years and am embarrassed to admit that I don’t know how well it performs with small samples sizes…on the order of n = 5 or 10, which is really common in bench biology. A problem with small sample size is that any one sample may not be very representative of what the distribution looks like.</p>
-<p>This is a small simulation to explore how well a bootstrap performs for estimating CIs of both means and the difference in means. The question pursued is: “do the CIs of a x% bootstrap interval actually cover the mean x% of the time?” The data simulate those in Figure 1F in <a href="https://www.nature.com/articles/s41467-019-14178-y">β4GALT1 controls β1 integrin function to govern thrombopoiesis and hematopoietic stem cell homeostasis</a>.</p>
-<p>The data are platelet counts and look they come from a distribution with a strong right skew and variance proportional to the mean (poisson, negative binomial). I approximate the data by sampling from a negative binomial distribution. Then I ask, “does the distribution matter” and re-run the simulation by sampling from a normal distribution with heterogeneity in variance (equal to that in the two groups).</p>
-<p>TL;DR – <a href="#plot">see the plot</a> and go to the <a href="#summary">summary</a>.</p>
+<div id="tldr" class="section level1">
+<h1>TL;DR</h1>
+<p>A sample table from the <a href="#summary">full results</a> for data that <a href="#plot">look like this</a></p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:summary-results-nb-hide">Table 1: </span>Coverage of 95% bca CIs.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+parameter
+</th>
+<th style="text-align:right;">
+n=5
+</th>
+<th style="text-align:right;">
+n=10
+</th>
+<th style="text-align:right;">
+n=20
+</th>
+<th style="text-align:right;">
+n=40
+</th>
+<th style="text-align:right;">
+n=80
+</th>
+</tr>
+</thead>
+<tbody>
+<tr grouplength="2">
+<td colspan="6" style="border-bottom: 1px solid;">
+<strong>means</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Control
+</td>
+<td style="text-align:right;">
+81.4
+</td>
+<td style="text-align:right;">
+87.6
+</td>
+<td style="text-align:right;">
+92.2
+</td>
+<td style="text-align:right;">
+93.0
+</td>
+<td style="text-align:right;">
+93.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+b4GalT1-/-
+</td>
+<td style="text-align:right;">
+81.3
+</td>
+<td style="text-align:right;">
+90.2
+</td>
+<td style="text-align:right;">
+90.8
+</td>
+<td style="text-align:right;">
+93.0
+</td>
+<td style="text-align:right;">
+93.8
+</td>
+</tr>
+<tr grouplength="1">
+<td colspan="6" style="border-bottom: 1px solid;">
+<strong>difference in means</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+diff
+</td>
+<td style="text-align:right;">
+83.3
+</td>
+<td style="text-align:right;">
+87.9
+</td>
+<td style="text-align:right;">
+91.8
+</td>
+<td style="text-align:right;">
+92.9
+</td>
+<td style="text-align:right;">
+93.8
+</td>
+</tr>
+</tbody>
+</table>
+<p>Bootstrap CIs are extremely optimistic (too narrow) with data that look like the modeled data when <em>n</em> is 5 (coverage of a 95% interval is 81-83%) and remain optimistic even at n=20, which is a uncommonly large sample size in many bench biology experiments. This result convinces me that the bootstrap should not be <em>generally</em> recommended.</p>
+</div>
+<div id="background" class="section level1">
+<h1>Background</h1>
+<p>This is part II of how to represent uncertainty in the mean response of each treatment level. A 1 SE bar, where the SE is computed for each group independently, is nearly universal in much of biology. Part I explains why I prefer confidence intervals to SE bars and explores several alternative methods for computing a CI. One alternative is a non-parametric bootstrap. I like the bootstrap – it is extremely useful for learning and teaching what “frequentist” means. It is not dependent on any distribution. It can be used to compute CIs for statistics where no parametric CI exists. And its (fairly) easy to implement!</p>
+<p>I am embarrassed to admit that I don’t know how well bootstrap CIs perform with really small sample sizes, say 5 or 10, which are common in experimental (and especially wet-bench) biology. By “perform”, I mean coverage – the actual number of intervals that contain the parameter (true value). If the nominal value is 95% and the coverage is 80%, our results aren’t what we think they are. Part of my ignorance is because the focus on on errors related to the <em>presence</em> of an effect (Type I, Power, FDR) and not on errors related to the magnitude of an effect (Type “S”, Type “M”, coverage of CIs). But part of my ignorance is also because I just don’t recall any source making a big deal about any issues with bootstrap CIs for small samples, at least in the “how-to” literature and not technical literature (like books explicitly on the bootstrap)</p>
+<p>The question pursued here is, what is the coverage (the actual frequency of intervals that include the statistic) of a bootstrap interval for really small samples sizes…on the order of n = 5 or 10, which is really common in bench biology? Coverage is important – when we take the time to understand the consequences of a particular 95% interval, we hope the interval was constructed by a method that actually includes the statistic with a frequency close to 95% (we can argue what “close to” means).</p>
+<p>To explore, this, I use a small simulation. The simulation creates fake data that simulate platelet count from Figure 1F of <a href="https://www.nature.com/articles/s41467-019-14178-y">β4GALT1 controls β1 integrin function to govern thrombopoiesis and hematopoietic stem cell homeostasis</a>. Jump to the <a href="#plot">plot</a> of the data, the mean, and the raw and bootstrap intervals to get a feel for the data.</p>
+<p>The platelet count data look they come from a distribution with a strong right skew and variance proportional to the mean (poisson, negative binomial). I approximate the data by sampling from a negative binomial distribution. Does this distribution matter? I lightly explore this by re-running the simulation and sampling from a normal distribution with heterogeneity in variance (equal to that in the two groups).</p>
+<div id="how-is-the-bootstrap-presented-in-the-how-to-literature-for-experimental-biology" class="section level2">
+<h2>How is the bootstrap presented in the “how to” literature for experimental biology?</h2>
+<p>The results also motivated me to google around for how the bootstrap is presented in material that is targeted to experimental (and especially wet-bench) biology – so not textbooks or technical papers on the bootstrap</p>
+<p><a href="https://journals.physiology.org/doi/full/10.1152/advan.00062.2009">Explorations in statistics: the bootstrap</a> is a nice introduction to bootstrapped means and CIs. The piece does state that if <em>n</em> is too small, then “normal-theory and percentile confidence intervals are likely to be inaccurate” and then introduces bca intervals. There are many ways to be inaccurate, and overly-optimistic intervals are not mentioned. And, the take-home message seems to be that bca intervals are a solution to issues with small <em>n</em>. The piece explicitly has a section on limitations, and states “As useful as the bootstrap is, it cannot always salvage the statistical analysis of a small sample. Why not? If the sample is too small, then it may be atypical of the underlying population. When this happens, the bootstrap distribution will not mirror the theoretical distribution of the sample statistic.” Again, overly-optimistic intervals are not mentioned.</p>
+<p><a href="https://thenode.biologists.com/a-better-bar/education/">A better bar</a> recommends the bootstrap CI but fails to mention anything about small samples.</p>
+<p><a href="http://www.wormbook.org/chapters/www_statisticalanalysis/statisticalanalysis.html">A biologist’s guide to statistical thinking and analysis</a> has a section <a href="http://www.wormbook.org/chapters/www_statisticalanalysis/statisticalanalysis.html#sec6-7">Fear not the bootstrap</a> fails to mention anything about small sample size.</p>
+<p><a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1469-185x.2007.00027.x">Effect size, confidence interval and statistical significance: a practical guide for biologists</a> is a well known review paper within my field of ecology/evolution. The paper simply states that “It should be noted that small sample size will often give incorrect coverage of CIs”, which fails to explicitly state a problem of small <em>n</em> is overly-optimistic CIs.</p>
+<p>A newer how-to paper on resampling methods, also from organismal/ecology/evolution, simply states “For small samples or skewed distributions, better methods [than percentile bootstrap intervals] exist (citations)”, which fails to explicitly state a problem of small <em>n</em> is overly-optimistic CIs.</p>
+</div>
+</div>
 <div id="setup" class="section level1">
 <h1>Setup</h1>
 <pre class="r"><code>knitr::opts_chunk$set(echo = TRUE, message=FALSE)
@@ -41,6 +158,10 @@ library(ggsci)
 library(ggpubr)
 library(ggforce)
 library(cowplot)
+
+# table packages
+library(knitr)
+library(kableExtra)
 
 here &lt;- here::here()
 data_folder &lt;- &quot;content/data&quot;
@@ -158,6 +279,77 @@ boot_lm_test &lt;- function(obs_fit,
   ))
 }</code></pre>
 </div>
+<div id="using-boot" class="section level1">
+<h1>using boot</h1>
+<pre class="r"><code>boot_diff &lt;- function(dt, inc){ # original code
+  means &lt;- dt[inc, .(platelet_count = mean(platelet_count)), by = .(treatment, level)]
+  setorder(means, level) # reorder to correct order of factor levels
+  c(means[, platelet_count], diff(means$platelet_count))
+}
+
+# changing where the index is specified speeds this up. huh.
+boot_diff2 &lt;- function(dt, inc){ 
+  dt_inc &lt;- dt[inc, ]
+  means &lt;- dt_inc[, .(platelet_count = mean(platelet_count)), by = .(treatment, level)]
+  setorder(means, level) # reorder to correct order of factor levels
+  c(means[, platelet_count], diff(means$platelet_count))
+}
+
+# trying something differt slows everything down. Maybe the == ?
+boot_diff3 &lt;- function(dt, inc){
+  dt_inc &lt;- dt[inc, ]
+  ybar1 &lt;- mean(dt_inc[level==1, platelet_count])
+  ybar2 &lt;- mean(dt_inc[level==2, platelet_count])
+  diff &lt;- ybar2-ybar1
+   c(ybar1, ybar2, diff)
+}
+
+# remembering the lm.fit function but then thinking why bother.
+# lets just do the math
+boot_diff4 &lt;- function(dat, inc){ 
+  X &lt;- dat[inc, 1:2]
+  y &lt;- dat[inc, 3]
+  b &lt;- (solve(t(X)%*%X)%*%t(X)%*%y)[,1]
+  c(b[1], b[1]+b[2], b[2])
+}
+
+# but then thought, well maybe lm.fit is super optimized and %*% isn&#39;t
+boot_diff5 &lt;- function(dat, inc){ 
+  X &lt;- dat[inc, 1:2]
+  y &lt;- dat[inc, 3]
+  b &lt;- coef(lm.fit(X,y))
+  c(b[1], b[1]+b[2], b[2])
+}
+
+# then found .lm.fit when I ?lm.fit
+boot_diff6 &lt;- function(dat, inc){ 
+  X &lt;- dat[inc, 1:2]
+  y &lt;- dat[inc, 3]
+  b &lt;- coef(.lm.fit(X,y))
+  c(b[1], b[1]+b[2], b[2])
+}</code></pre>
+<pre class="r"><code># test
+fd &lt;- data.table(treatment = factor(rep(c(&quot;cn&quot;, &quot;tr&quot;), each=5)),
+                 platelet_count = rnorm(10))
+fd[, level := as.integer(treatment)]
+X_i &lt;- cbind(model.matrix(~ treatment, fd), platelet_count = fd$platelet_count)
+microbenchmark::microbenchmark(boot(fd, statistic = boot_diff, R = 0, strata = fd$level),
+                               boot(X_i, statistic = boot_diff4, R = 0, strata = X_i[,2]),
+                               boot(X_i, statistic = boot_diff5, R = 0, strata = X_i[,2]),
+                               boot(X_i, statistic = boot_diff6, R = 0, strata = X_i[,2]),
+                               times=1000)</code></pre>
+<pre><code>## Unit: microseconds
+##                                                         expr      min
+##    boot(fd, statistic = boot_diff, R = 0, strata = fd$level) 1081.020
+##  boot(X_i, statistic = boot_diff4, R = 0, strata = X_i[, 2])  282.200
+##  boot(X_i, statistic = boot_diff5, R = 0, strata = X_i[, 2])  266.393
+##  boot(X_i, statistic = boot_diff6, R = 0, strata = X_i[, 2])  238.987
+##         lq      mean    median        uq       max neval cld
+##  1177.6590 1399.5462 1280.0265 1529.3950  6499.395  1000   c
+##   303.9350  378.0795  327.4805  401.1145  5542.391  1000  b 
+##   285.7365  397.0335  304.1910  373.1170 29591.940  1000  b 
+##   255.8175  304.6711  271.4505  328.6715  4182.329  1000 a</code></pre>
+</div>
 <div id="bootstrap-cis" class="section level1">
 <h1>Bootstrap CIs</h1>
 <pre class="r"><code>m1 &lt;- lm(platelet_count ~ treatment, data = fig1f)
@@ -206,10 +398,10 @@ Figure 1: A. Raw 95% CI, B. Bootstrap 95% CI
   method = &quot;stratified&quot; # stratified, residual, or both
 ){
   k &lt;- length(mu)
-  treatment_levels &lt;- c(&quot;cn&quot;, paste0(&quot;tr&quot;, 1:(k-1)))
+  treatment_levels &lt;- names(mu)
 
-  coverage_table_mu &lt;- data.table(group = names(mu))
-  coverage_table_beta &lt;- data.table(parameter = names(beta))
+  coverage_table_bca &lt;- data.table(parameter = c(treatment_levels, &quot;diff&quot;))
+  coverage_table_perc &lt;- data.table(parameter = c(treatment_levels, &quot;diff&quot;))
   
   
   for(n in n_list){
@@ -221,43 +413,55 @@ Figure 1: A. Raw 95% CI, B. Bootstrap 95% CI
     fd &lt;- data.table(
       treatment = rep(treatment_levels, each=n)
     )
+    fd[, treatment := factor(treatment, treatment_levels)]
+    fd[, level := as.integer(treatment)]
     
-    boot_ci_strat_mu&lt;- matrix(FALSE, nrow = n_sim, ncol=k)
-    boot_ci_strat_beta &lt;- matrix(FALSE, nrow = n_sim, ncol=k)
-    
+    boot_ci_bca&lt;- matrix(FALSE, nrow = n_sim, ncol=3)
+    colnames(boot_ci_bca) &lt;- c(treatment_levels, &quot;diff&quot;)
+    boot_ci_perc &lt;- matrix(FALSE, nrow = n_sim, ncol=3)
+    colnames(boot_ci_perc) &lt;- c(treatment_levels, &quot;diff&quot;)
+   
     for(iter in 1:n_sim){
       if(model==&quot;nb&quot;){
-        fd[, y_fake := rnegbin(N, sim_mu, theta)]
+        fd[, platelet_count := rnegbin(N, sim_mu, theta)]
       }
       if(model==&quot;normal&quot;){
-        fd[, y_fake := rnorm(N, sim_mu, sim_sigma)]
+        fd[, platelet_count := rnorm(N, sim_mu, sim_sigma)]
       }
       
-      fit_fake &lt;- lm(y_fake ~ treatment, data=fd)
-      ci_list &lt;- boot_lm_test(fit_fake, 
-                              n_boot = n_boot, 
-                              ci=0.95,
-                              method = method)
-      ci_strat_i_mu &lt;- ci_list$ci_strat_mu
-      ci_strat_i_beta &lt;- ci_list$ci_strat_beta
-      
-      boot_ci_strat_beta[iter,] &lt;- beta &gt; ci_strat_i_beta[1,] &amp; 
-        beta &lt; ci_strat_i_beta[2,]
-      boot_ci_strat_mu[iter,] &lt;- mu &gt; ci_strat_i_mu[1,] &amp; 
-        mu &lt; ci_strat_i_mu[2,]
+      X_i &lt;- cbind(model.matrix(~ treatment, data=fd), fd$platelet_count)
+      boot_out &lt;- boot(X_i,
+                 strata = X_i[,2],
+                 boot_diff4,
+                 R = n_boot)
+      # bca intervals
+      ci_mean_cn &lt;- boot.ci(boot_out, index = 1, conf=0.95, type=c(&quot;bca&quot;))$bca[4:5]
+      ci_mean_tr &lt;- boot.ci(boot_out, index = 2, conf=0.95, type=c(&quot;bca&quot;))$bca[4:5]
+      ci_diff &lt;- boot.ci(boot_out, index = 3, conf=0.95, type=c(&quot;bca&quot;))$bca[4:5]
+      boot_ci_bca[iter, 1] &lt;- between(mu[1], ci_mean_cn[1], ci_mean_cn[2])
+      boot_ci_bca[iter, 2] &lt;- between(mu[2], ci_mean_tr[1], ci_mean_tr[2])
+      boot_ci_bca[iter, 3] &lt;- between(beta[2], ci_diff[1], ci_diff[2])
+
+      # percent intervals
+      ci_mean_cn &lt;- boot.ci(boot_out, index = 1, conf=0.95, type=c(&quot;perc&quot;))$perc[4:5]
+      ci_mean_tr &lt;- boot.ci(boot_out, index = 2, conf=0.95, type=c(&quot;perc&quot;))$perc[4:5]
+      ci_diff &lt;- boot.ci(boot_out, index = 3, conf=0.95, type=c(&quot;perc&quot;))$perc[4:5]
+      boot_ci_perc[iter, 1] &lt;- between(mu[1], ci_mean_cn[1], ci_mean_cn[2])
+      boot_ci_perc[iter, 2] &lt;- between(mu[2], ci_mean_tr[1], ci_mean_tr[2])
+      boot_ci_perc[iter, 3] &lt;- between(beta[2], ci_diff[1], ci_diff[2])
     }
-    coverage_table_mu &lt;- cbind(coverage_table_mu,
-                               x = apply(boot_ci_strat_mu, 2, sum)/n_sim*100)
-    setnames(coverage_table_mu, &quot;x&quot;, paste0(&quot;n=&quot;, n))
+    coverage_table_bca &lt;- cbind(coverage_table_bca,
+                               x = apply(boot_ci_bca, 2, sum)/n_sim*100)
+    setnames(coverage_table_bca, &quot;x&quot;, paste0(&quot;n=&quot;, n))
     
-    coverage_table_beta &lt;- cbind(coverage_table_beta,
-                                 x = apply(boot_ci_strat_beta, 2, sum)/n_sim*100)
-    setnames(coverage_table_beta, &quot;x&quot;, paste0(&quot;n=&quot;, n))
+    coverage_table_perc &lt;- cbind(coverage_table_perc,
+                                 x = apply(boot_ci_perc, 2, sum)/n_sim*100)
+    setnames(coverage_table_perc, &quot;x&quot;, paste0(&quot;n=&quot;, n))
   }
   
   return(list(
-    coverage_table_mu = coverage_table_mu,
-    coverage_table_beta = coverage_table_beta
+    coverage_table_bca = coverage_table_bca,
+    coverage_table_perc = coverage_table_perc
     )
   )
 }</code></pre>
@@ -304,14 +508,16 @@ if(run_simulation == TRUE){
   boot_ci_sim_nb &lt;- readRDS(save_file_path)
 }
 
-boot_ci_sim_nb$coverage_table_mu</code></pre>
-<pre><code>##         group  n=5  n=10 n=20 n=40  n=80
-## 1:    Control 80.6 86.15 90.4 92.2 94.20
-## 2: b4GalT1-/- 79.4 87.10 91.0 92.3 93.55</code></pre>
-<pre class="r"><code>boot_ci_sim_nb$coverage_table_beta</code></pre>
-<pre><code>##              parameter   n=5  n=10 n=20  n=40  n=80
-## 1:         (Intercept) 80.60 86.15 90.4 92.20 94.20
-## 2: treatmentb4GalT1-/- 82.85 87.60 91.2 92.65 93.65</code></pre>
+boot_ci_sim_nb$coverage_table_bca</code></pre>
+<pre><code>##     parameter   n=5  n=10  n=20  n=40  n=80
+## 1:    Control 81.40 87.60 92.20 93.00 93.60
+## 2: b4GalT1-/- 81.35 90.20 90.75 93.05 93.80
+## 3:       diff 83.30 87.95 91.85 92.90 93.75</code></pre>
+<pre class="r"><code>boot_ci_sim_nb$coverage_table_perc</code></pre>
+<pre><code>##     parameter   n=5 n=10  n=20  n=40  n=80
+## 1:    Control 80.90 86.8 92.10 92.40 94.00
+## 2: b4GalT1-/- 80.40 88.8 90.35 92.55 93.20
+## 3:       diff 83.35 88.2 92.10 93.10 93.85</code></pre>
 <pre class="r"><code>out_file &lt;- &quot;boot_ci-normal.Rds&quot;
 save_file_path &lt;- here(output_folder, out_file)
 
@@ -332,152 +538,365 @@ if(run_simulation == TRUE){
   boot_ci_sim_normal &lt;- readRDS(save_file_path)
 }
 
-boot_ci_sim_normal$coverage_table_mu</code></pre>
-<pre><code>##         group   n=5  n=10  n=20 n=40  n=80
-## 1:    Control 83.55 89.20 92.65 94.3 94.80
-## 2: b4GalT1-/- 84.50 89.95 92.40 93.9 95.85</code></pre>
-<pre class="r"><code>boot_ci_sim_normal$coverage_table_beta</code></pre>
-<pre><code>##              parameter   n=5  n=10  n=20  n=40 n=80
-## 1:         (Intercept) 83.55 89.20 92.65 94.30 94.8
-## 2: treatmentb4GalT1-/- 84.65 89.65 92.85 94.05 95.2</code></pre>
+boot_ci_sim_normal$coverage_table_bca</code></pre>
+<pre><code>##     parameter   n=5  n=10  n=20  n=40  n=80
+## 1:    Control 82.45 89.90 93.00 94.25 94.20
+## 2: b4GalT1-/- 84.05 90.85 91.25 93.75 93.65
+## 3:       diff 84.05 89.80 93.25 93.60 94.15</code></pre>
+<pre class="r"><code>boot_ci_sim_normal$coverage_table_perc</code></pre>
+<pre><code>##     parameter   n=5  n=10  n=20  n=40  n=80
+## 1:    Control 82.10 90.45 92.95 94.35 94.65
+## 2: b4GalT1-/- 84.20 90.85 91.60 93.70 93.30
+## 3:       diff 84.15 90.40 93.40 93.35 94.50</code></pre>
 </div>
 <div id="summary" class="section level1">
 <h1>Summary</h1>
-<div id="group-means-sampled-from-negative-binomial" class="section level2">
-<h2>group means, sampled from negative binomial</h2>
-<table>
-<caption><span id="tab:summary-results-mu-nb">Table 1: </span>Coverage of the 95% bootstrap CI of the mean, for data sampled from a negative binomial distribution</caption>
+<div id="coverage-tables-for-bca" class="section level2">
+<h2>Coverage tables for bca</h2>
+<pre class="r"><code>ci_nb_bca &lt;- boot_ci_sim_nb$coverage_table_bca
+ci_normal_bca &lt;- boot_ci_sim_normal$coverage_table_bca
+ycols &lt;- colnames(ci_nb_bca)
+boot_ci_table &lt;- rbind(data.table(interval = &quot;nb&quot;, ci_nb_bca),
+                       data.table(interval = &quot;normal&quot;, ci_normal_bca))
+
+kable(boot_ci_table[, .SD, .SDcols = ycols],
+      caption = &quot;Coverage of 95% bca CIs&quot;,
+      digits=1) %&gt;%
+  kable_styling(&quot;striped&quot;, full_width = F) %&gt;%
+  pack_rows(&quot;negative binomial&quot;, 1, 3) %&gt;%
+  pack_rows(&quot;normal&quot;, 4, 6)</code></pre>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:summary-results-nb">Table 2: </span>Coverage of 95% bca CIs
+</caption>
 <thead>
-<tr class="header">
-<th align="left">group</th>
-<th align="right">n=5</th>
-<th align="right">n=10</th>
-<th align="right">n=20</th>
-<th align="right">n=40</th>
-<th align="right">n=80</th>
+<tr>
+<th style="text-align:left;">
+parameter
+</th>
+<th style="text-align:right;">
+n=5
+</th>
+<th style="text-align:right;">
+n=10
+</th>
+<th style="text-align:right;">
+n=20
+</th>
+<th style="text-align:right;">
+n=40
+</th>
+<th style="text-align:right;">
+n=80
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">Control</td>
-<td align="right">80.6</td>
-<td align="right">86.15</td>
-<td align="right">90.4</td>
-<td align="right">92.2</td>
-<td align="right">94.20</td>
+<tr grouplength="3">
+<td colspan="6" style="border-bottom: 1px solid;">
+<strong>negative binomial</strong>
+</td>
 </tr>
-<tr class="even">
-<td align="left">b4GalT1-/-</td>
-<td align="right">79.4</td>
-<td align="right">87.10</td>
-<td align="right">91.0</td>
-<td align="right">92.3</td>
-<td align="right">93.55</td>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Control
+</td>
+<td style="text-align:right;">
+81.4
+</td>
+<td style="text-align:right;">
+87.6
+</td>
+<td style="text-align:right;">
+92.2
+</td>
+<td style="text-align:right;">
+93.0
+</td>
+<td style="text-align:right;">
+93.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+b4GalT1-/-
+</td>
+<td style="text-align:right;">
+81.3
+</td>
+<td style="text-align:right;">
+90.2
+</td>
+<td style="text-align:right;">
+90.8
+</td>
+<td style="text-align:right;">
+93.0
+</td>
+<td style="text-align:right;">
+93.8
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+diff
+</td>
+<td style="text-align:right;">
+83.3
+</td>
+<td style="text-align:right;">
+87.9
+</td>
+<td style="text-align:right;">
+91.8
+</td>
+<td style="text-align:right;">
+92.9
+</td>
+<td style="text-align:right;">
+93.8
+</td>
+</tr>
+<tr grouplength="3">
+<td colspan="6" style="border-bottom: 1px solid;">
+<strong>normal</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Control
+</td>
+<td style="text-align:right;">
+82.5
+</td>
+<td style="text-align:right;">
+89.9
+</td>
+<td style="text-align:right;">
+93.0
+</td>
+<td style="text-align:right;">
+94.2
+</td>
+<td style="text-align:right;">
+94.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+b4GalT1-/-
+</td>
+<td style="text-align:right;">
+84.0
+</td>
+<td style="text-align:right;">
+90.8
+</td>
+<td style="text-align:right;">
+91.2
+</td>
+<td style="text-align:right;">
+93.8
+</td>
+<td style="text-align:right;">
+93.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+diff
+</td>
+<td style="text-align:right;">
+84.0
+</td>
+<td style="text-align:right;">
+89.8
+</td>
+<td style="text-align:right;">
+93.2
+</td>
+<td style="text-align:right;">
+93.6
+</td>
+<td style="text-align:right;">
+94.2
+</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div id="coefficients-sampled-from-negative-binomial" class="section level2">
-<h2>coefficients, sampled from negative binomial</h2>
-<table>
-<caption><span id="tab:summary-results-beta-nb">Table 2: </span>Coverage of the 95% bootstrap CI of the model parameters, for data sampled from a negative binomial distribution</caption>
+<div id="coverage-tables-for-perc" class="section level2">
+<h2>Coverage tables for perc</h2>
+<pre class="r"><code>ci_nb_perc &lt;- boot_ci_sim_nb$coverage_table_perc
+ci_normal_perc &lt;- boot_ci_sim_normal$coverage_table_perc
+ycols &lt;- colnames(ci_nb_bca)
+boot_ci_table &lt;- rbind(data.table(interval = &quot;nb&quot;, ci_nb_perc),
+                       data.table(interval = &quot;normal&quot;, ci_normal_perc))
+
+kable(boot_ci_table[, .SD, .SDcols = ycols],
+      caption = &quot;Coverage of 95% percentile CIs&quot;,
+      digits=1) %&gt;%
+  kable_styling(&quot;striped&quot;, full_width = F) %&gt;%
+  pack_rows(&quot;negative binomial&quot;, 1, 3) %&gt;%
+  pack_rows(&quot;normal&quot;, 4, 6)</code></pre>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:summary-results-normal">Table 3: </span>Coverage of 95% percentile CIs
+</caption>
 <thead>
-<tr class="header">
-<th align="left">parameter</th>
-<th align="right">n=5</th>
-<th align="right">n=10</th>
-<th align="right">n=20</th>
-<th align="right">n=40</th>
-<th align="right">n=80</th>
+<tr>
+<th style="text-align:left;">
+parameter
+</th>
+<th style="text-align:right;">
+n=5
+</th>
+<th style="text-align:right;">
+n=10
+</th>
+<th style="text-align:right;">
+n=20
+</th>
+<th style="text-align:right;">
+n=40
+</th>
+<th style="text-align:right;">
+n=80
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="right">80.60</td>
-<td align="right">86.15</td>
-<td align="right">90.4</td>
-<td align="right">92.20</td>
-<td align="right">94.20</td>
+<tr grouplength="3">
+<td colspan="6" style="border-bottom: 1px solid;">
+<strong>negative binomial</strong>
+</td>
 </tr>
-<tr class="even">
-<td align="left">treatmentb4GalT1-/-</td>
-<td align="right">82.85</td>
-<td align="right">87.60</td>
-<td align="right">91.2</td>
-<td align="right">92.65</td>
-<td align="right">93.65</td>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Control
+</td>
+<td style="text-align:right;">
+80.9
+</td>
+<td style="text-align:right;">
+86.8
+</td>
+<td style="text-align:right;">
+92.1
+</td>
+<td style="text-align:right;">
+92.4
+</td>
+<td style="text-align:right;">
+94.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+b4GalT1-/-
+</td>
+<td style="text-align:right;">
+80.4
+</td>
+<td style="text-align:right;">
+88.8
+</td>
+<td style="text-align:right;">
+90.3
+</td>
+<td style="text-align:right;">
+92.5
+</td>
+<td style="text-align:right;">
+93.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+diff
+</td>
+<td style="text-align:right;">
+83.4
+</td>
+<td style="text-align:right;">
+88.2
+</td>
+<td style="text-align:right;">
+92.1
+</td>
+<td style="text-align:right;">
+93.1
+</td>
+<td style="text-align:right;">
+93.8
+</td>
+</tr>
+<tr grouplength="3">
+<td colspan="6" style="border-bottom: 1px solid;">
+<strong>normal</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Control
+</td>
+<td style="text-align:right;">
+82.1
+</td>
+<td style="text-align:right;">
+90.5
+</td>
+<td style="text-align:right;">
+93.0
+</td>
+<td style="text-align:right;">
+94.3
+</td>
+<td style="text-align:right;">
+94.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+b4GalT1-/-
+</td>
+<td style="text-align:right;">
+84.2
+</td>
+<td style="text-align:right;">
+90.8
+</td>
+<td style="text-align:right;">
+91.6
+</td>
+<td style="text-align:right;">
+93.7
+</td>
+<td style="text-align:right;">
+93.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+diff
+</td>
+<td style="text-align:right;">
+84.2
+</td>
+<td style="text-align:right;">
+90.4
+</td>
+<td style="text-align:right;">
+93.4
+</td>
+<td style="text-align:right;">
+93.3
+</td>
+<td style="text-align:right;">
+94.5
+</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div id="group-means-sampled-from-normal" class="section level2">
-<h2>group means, sampled from normal</h2>
-<table>
-<caption><span id="tab:summary-results-mu-normal">Table 3: </span>Coverage of the 95% bootstrap CI of the mean, for data sampled from normal distribution</caption>
-<thead>
-<tr class="header">
-<th align="left">group</th>
-<th align="right">n=5</th>
-<th align="right">n=10</th>
-<th align="right">n=20</th>
-<th align="right">n=40</th>
-<th align="right">n=80</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Control</td>
-<td align="right">83.55</td>
-<td align="right">89.20</td>
-<td align="right">92.65</td>
-<td align="right">94.3</td>
-<td align="right">94.80</td>
-</tr>
-<tr class="even">
-<td align="left">b4GalT1-/-</td>
-<td align="right">84.50</td>
-<td align="right">89.95</td>
-<td align="right">92.40</td>
-<td align="right">93.9</td>
-<td align="right">95.85</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="coefficients-sampled-from-normal" class="section level2">
-<h2>coefficients, sampled from normal</h2>
-<table>
-<caption><span id="tab:summary-results-beta-normal">Table 4: </span>Coverage of the 95% bootstrap CI of the model parameters, for data sampled from a normal distribution</caption>
-<thead>
-<tr class="header">
-<th align="left">parameter</th>
-<th align="right">n=5</th>
-<th align="right">n=10</th>
-<th align="right">n=20</th>
-<th align="right">n=40</th>
-<th align="right">n=80</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="right">83.55</td>
-<td align="right">89.20</td>
-<td align="right">92.65</td>
-<td align="right">94.30</td>
-<td align="right">94.8</td>
-</tr>
-<tr class="even">
-<td align="left">treatmentb4GalT1-/-</td>
-<td align="right">84.65</td>
-<td align="right">89.65</td>
-<td align="right">92.85</td>
-<td align="right">94.05</td>
-<td align="right">95.2</td>
-</tr>
-</tbody>
-</table>
-<p>Huh. The bootstrap intervals are very…optimistic at sample sizes typical of bench biology. Yes, books on the bootstrap do cover small sample issues and potential solutions. But I’m surprised by how little I’ve seen references to this, or maybe I’ve just selectively filtered it out.</p>
 </div>
 </div>
