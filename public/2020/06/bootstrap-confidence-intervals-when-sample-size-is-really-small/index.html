@@ -428,7 +428,7 @@ diff
 <p><a href="https://thenode.biologists.com/a-better-bar/education/">A better bar</a> recommends the bootstrap CI but fails to mention anything about small samples.</p>
 <p><a href="http://www.wormbook.org/chapters/www_statisticalanalysis/statisticalanalysis.html">A biologist’s guide to statistical thinking and analysis</a> has a section <a href="http://www.wormbook.org/chapters/www_statisticalanalysis/statisticalanalysis.html#sec6-7">Fear not the bootstrap</a> fails to mention anything about small sample size.</p>
 <p><a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1469-185x.2007.00027.x">Effect size, confidence interval and statistical significance: a practical guide for biologists</a> is a well known review paper within my field of ecology/evolution. The paper simply states that “It should be noted that small sample size will often give incorrect coverage of CIs”, which fails to explicitly state a problem of small <em>n</em> is overly-optimistic CIs.</p>
-<p>A newer how-to paper on resampling methods, also from organismal/ecology/evolution, simply states “For small samples or skewed distributions, better methods [than percentile bootstrap intervals] exist (citations)”, which fails to explicitly state a problem of small <em>n</em> is overly-optimistic CIs.</p>
+<p>A newer how-to paper on resampling methods, <a href="https://peerj.com/articles/9089/?utm_source=TrendMD&amp;utm_campaign=PeerJ_TrendMD_0&amp;utm_medium=TrendMD">Resampling-based methods for biologists</a>, also from organismal/ecology/evolution, simply states “For small samples or skewed distributions, better methods [than percentile bootstrap intervals] exist (citations)”, which fails to explicitly state a problem of small <em>n</em> is overly-optimistic CIs.</p>
 </div>
 </div>
 <div id="setup" class="section level1">
@@ -634,15 +634,15 @@ microbenchmark::microbenchmark(boot(fd, statistic = boot_diff, R = 0, strata = f
                                times=1000)</code></pre>
 <pre><code>## Unit: microseconds
 ##                                                         expr      min
-##    boot(fd, statistic = boot_diff, R = 0, strata = fd$level) 1081.020
-##  boot(X_i, statistic = boot_diff4, R = 0, strata = X_i[, 2])  282.200
-##  boot(X_i, statistic = boot_diff5, R = 0, strata = X_i[, 2])  266.393
-##  boot(X_i, statistic = boot_diff6, R = 0, strata = X_i[, 2])  238.987
+##    boot(fd, statistic = boot_diff, R = 0, strata = fd$level) 1078.595
+##  boot(X_i, statistic = boot_diff4, R = 0, strata = X_i[, 2])  284.977
+##  boot(X_i, statistic = boot_diff5, R = 0, strata = X_i[, 2])  265.222
+##  boot(X_i, statistic = boot_diff6, R = 0, strata = X_i[, 2])  236.312
 ##         lq      mean    median        uq       max neval cld
-##  1177.6590 1399.5462 1280.0265 1529.3950  6499.395  1000   c
-##   303.9350  378.0795  327.4805  401.1145  5542.391  1000  b 
-##   285.7365  397.0335  304.1910  373.1170 29591.940  1000  b 
-##   255.8175  304.6711  271.4505  328.6715  4182.329  1000 a</code></pre>
+##  1143.3200 1307.7339 1200.6010 1392.7820  5814.654  1000   c
+##   300.7305  357.6347  313.4675  362.8635  6547.441  1000  b 
+##   281.6705  375.9555  292.4315  338.1820 33662.418  1000  b 
+##   252.9035  286.6263  262.1175  303.7265  3738.174  1000 a</code></pre>
 </div>
 <div id="bootstrap-cis" class="section level1">
 <h1>Bootstrap CIs</h1>
