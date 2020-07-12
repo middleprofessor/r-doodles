@@ -272,6 +272,63 @@ if (!doNotTrack) {
     
     <div class="postShorten-header">
       <h1 class="postShorten-title" itemprop="headline">
+        <a class="link-unstyled" href="/2019/06/what-does-cell-biology-data-look-like/">
+          What does cell biology data look like?
+        </a>
+      </h1>
+      
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-06-09T00:00:00Z">
+        
+  June 9, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
+  </div>
+
+    </div>
+    <div class="postShorten-excerpt" itemprop="articleBody">
+      
+        If I’m going to evaluate the widespread use of t-tests/ANOVAs on count data in bench biology then I’d like to know what these data look like, specifically the shape (“overdispersion”) parameter.
+Set up library(ggplot2) library(readxl) library(ggpubr) library(cowplot) library(plyr) #mapvalues library(data.table) # glm packages library(MASS) library(pscl) #zeroinfl library(DHARMa) library(mvabund) data_path &lt;- &quot;../data&quot; # notebook, console source(&quot;../../../R/clean_labels.R&quot;) # notebook, console  Data from The enteric nervous system promotes intestinal health by constraining microbiota composition Import read_enteric &lt;- function(sheet_i, range_i, file_path, wide_2_long=TRUE){ dt_wide &lt;- data.
+      
+      <p>
+        <a href="/2019/06/what-does-cell-biology-data-look-like/" class="postShorten-excerpt_link link">Continue reading</a>
+        
+      </p>
+    </div>
+  </div>
+  
+</article>
+
+            
+              
+  
+    
+      
+        
+      
+    
+  
+
+
+  
+
+<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
+  <div class="postShorten-wrap">
+    
+    <div class="postShorten-header">
+      <h1 class="postShorten-title" itemprop="headline">
         <a class="link-unstyled" href="/2019/05/glm-vs-t-tests-vs-non-parametric-tests-if-all-we-care-about-is-nhst-update/">
           GLM vs. t-tests vs. non-parametric tests if all we care about is NHST -- Update
         </a>
@@ -595,64 +652,6 @@ In an experiment, do we adjust for covariates that differ between treatment leve
 </article>
 
             
-              
-  
-    
-      
-        
-      
-    
-  
-
-
-  
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/">
-          GLM vs. t-tests vs. non-parametric tests if all we care about is NHST
-        </a>
-      </h1>
-      
-  <div class="postShorten-meta post-meta">
-    
-      <time itemprop="datePublished" datetime="2019-01-07T00:00:00Z">
-        
-  January 7, 2019
-
-      </time>
-    
-    
-  
-  
-    <span>in</span>
-    
-      <a class="category-link" href="/categories/stats-101">stats 101</a>
-    
-  
-
-  </div>
-
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      
-        This post has been updated.
-A skeleton simulation of different strategies for NHST for count data if all we care about is a p-value, as in bench biology where p-values are used to simply give one confidence that something didn’t go terribly wrong (similar to doing experiments in triplicate – it’s not the effect size that matters only “we have experimental evidence of a replicable effect”).
-tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan have the best performance over the simulation space.
-      
-      <p>
-        <a href="/2019/01/glm-vs-non-parametric-tests-if-all-we-care-about-is-nhst/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
-  
-</article>
-
-            
             
   <div class="pagination-bar">
     <ul class="pagination">
@@ -737,6 +736,24 @@ tl;dr - At least for Type I error at small \(n\), log(response) and Wilcoxan hav
       <div class="no-result text-color-light text-center">no post found</div>
       <div class="results">
         
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/07/ancova-when-the-covariate-is-a-mediator-affected-by-treatment/">
+                <h3 class="media-heading">ANCOVA when the covariate is a mediator affected by treatment</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is fake data that simulates an experiment to measure effect of treatment on fat weight. The treatment is “diet” with two levels: “control” (blue dots) and “treated” (gold dots). Diet has a large effect on total body weight. The simulated data look like that in the plot above (and very much like the real data).
+The question is, what are problems with using an “ancova” linear model to estimate the direct effect of treatment on fat weight?</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
         
           <div class="media">
             
@@ -906,24 +923,6 @@ first, the value for the Antibody levels were normalized by the value of a refer
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/10/a-comment-on-the-novel-transformation-of-the-response-in-senolytics-decrease-senescent-cells-in-humans-preliminary-report-from-a-clinical-trial-of-dasatinib-plus-quercetin-in-individuals-with-diabetic-kidney-disease/">
-                <h3 class="media-heading">A comment on the novel transformation of the response in &#34; Senolytics decrease senescent cells in humans: Preliminary report from a clinical trial of Dasatinib plus Quercetin in individuals with diabetic kidney disease&#34;</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Oct 10, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">Motivation: https://pubpeer.com/publications/8DF6E66FEFAA2C3C7D5BD9C3FC45A2#2 and https://twitter.com/CGATist/status/1175015246282539009
-tl;dr: Given the transformation done by the authors, for any response in day_0 that is unusually small, there is automatically a response in day_14 that is unusually big and vice-versa. Consequently, if the mean for day_0 is unusually small, the mean for day_14 is automatically unusually big, hence the elevated type I error with an unpaired t-test. The transformation is necessary and sufficient to produce the result (meaning even in conditions where a paired t-test isn’t needed, the transformation still produces elevated Type I error).</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -931,7 +930,7 @@ tl;dr: Given the transformation done by the authors, for any response in day_0 t
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         40 posts found
+         41 posts found
       </p>
     </div>
   </div>

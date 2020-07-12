@@ -21,6 +21,7 @@ A sample table from the [full results](#summary) for data that [look like this](
 library(kableExtra)
 library(here)
 library(data.table)
+
 output_folder <- "content/output"
 out_file <- "boot_ci-nb.Rds"
 save_file_path <- here(output_folder, out_file)

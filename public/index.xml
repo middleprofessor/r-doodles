@@ -6,10 +6,20 @@
     <description>Recent content on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 01 Jun 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 12 Jul 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>ANCOVA when the covariate is a mediator affected by treatment</title>
+      <link>/2020/07/ancova-when-the-covariate-is-a-mediator-affected-by-treatment/</link>
+      <pubDate>Sun, 12 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/07/ancova-when-the-covariate-is-a-mediator-affected-by-treatment/</guid>
+      <description>This is fake data that simulates an experiment to measure effect of treatment on fat weight. The treatment is “diet” with two levels: “control” (blue dots) and “treated” (gold dots). Diet has a large effect on total body weight. The simulated data look like that in the plot above (and very much like the real data).
+The question is, what are problems with using an “ancova” linear model to estimate the direct effect of treatment on fat weight?</description>
+    </item>
     
     <item>
       <title>Bootstrap confidence intervals when sample size is really small</title>

@@ -1,0 +1,227 @@
+---
+title: ANCOVA when the covariate is a mediator affected by treatment
+author: Jeff Walker
+date: '2020-07-12'
+slug: ancova-when-the-covariate-is-a-mediator-affected-by-treatment
+categories:
+  - stats 101
+tags:
+  - ancova
+  - causal graph
+  - linear model
+  - Wright style path analysis
+keywords:
+  - tech
+---
+
+```{r setup, echo = FALSE, warning=FALSE, message=FALSE}
+library(data.table)
+library(ggpubr)
+library(lazyWeave) #pvalstring
+
+pal_nature_mod <- c(
+  "#3DB7E9", # summer sky
+  "#e69f00", # gamboge, squash, buttercup
+  "#359B73", # ocean green
+  "#2271B2", # honolulu blue
+  "#f0e442", # holiday, 
+  "#F748A5", # barbi pink
+  "#d55e00" # bamboo
+)
+
+```
+
+```{r, echo=FALSE}
+qplot_ancova <- function(data, x, y, g, interaction = FALSE){
+  dt <- data.table(data)
+  form <- formula(paste(y, "~", g, "+", x, collapse = " "))  
+  fit <- lm(form, data)
+  new_wide <- dt[, .(xmin = min(get(x)), xmax = max(get(x))), by = get(g)]
+  new_long <- melt(new_wide,
+                   measure.vars = c("xmin", "xmax"),
+                   value.name = "x")
+  setnames(new_long, old = c("get", "x"), new = c(g, x))
+  yhat <- predict(fit,
+                  new_long,
+                  interval = "confidence")
+  new_long <- cbind(new_long, yhat)
+  setnames(new_long, old = c("fit"), new = c(y))
+  
+  gg <- ggplot(dt, aes(
+    x = get(x),
+    y = get(y),
+    color = get(g)
+  )) +
+    
+    geom_point() +
+    labs(x = x,
+         y = y,
+         color = g) +
+    NULL
+  
+  g_levels <- unique(dt[, get(g)])
+  new_long[, get := get(g)] # not sure how to avoid this
+  for(g_i in g_levels){
+    gg <- gg +
+      geom_ribbon(data = new_long[get == g_i,],
+                  aes(ymin = lwr,
+                      ymax = upr,
+                      #                     fill = get(g),
+                      linetype = NA
+                  ),
+                  alpha = 0.2,
+                  show.legend = FALSE) +
+      geom_path(data = new_long[get == g_i,],
+                aes(x = get(x),
+                    y = get(y),
+                    color = get(g)
+                ))
+  }
+  
+  gg <-gg +
+    NULL
+  
+  gg
+}
+
+gg_ancova <- function(data,
+                      x_col,
+                      y_col,
+                      cov_col,
+                      cov_label = "covariate (units)",
+                      y_label = "Response (units)",
+                      add_p = TRUE,
+                      p_pos = "center",
+                      p_adjust = "none"){
+  
+  dt <- data.table(data)[, .SD, .SDcols = c(x_col, y_col, cov_col)]
+  
+  xside_1 <- paste(c(cov_col, x_col), collapse = " + ")
+  form1 <- formula(paste(y_col, "~", xside_1))
+  m1 <- lm(form1, data = dt)
+
+  # using model 2 - centered covariate in model
+  m1_coef <- coef(summary(m1))
+  p_list <- m1_coef[3:nrow(m1_coef), "Pr(>|t|)"]
+  p_string_list <- pvalString(p_list)
+
+  g <- x_col
+  y <- y_col
+  x <- cov_col
+  gg <- qplot_ancova(dt,
+                     x = x,
+                     y = y,
+                     g = g) +
+    # aesthetics
+    xlab(cov_label) +
+    ylab(y_label) +
+    scale_color_manual(values=pal_nature_mod) +
+    theme_pubr() +
+    theme(legend.position="none") +
+    
+    NULL
+
+  if(p_pos == "center"){
+    x_p <- mean(range(dt[, get(cov_col)], na.rm = TRUE))
+  }
+  if(p_pos == "left"){
+    x_p <- min(dt[, get(cov_col)], na.rm = TRUE) + diff(range(dt[, get(cov_col)], na.rm = TRUE))/10
+  }
+  if(p_pos == "right"){
+    x_p <- max(dt[, get(cov_col)], na.rm = TRUE) - diff(range(dt[, get(cov_col)], na.rm = TRUE))/10
+  }
+  y_p <- max(dt[, get(y_col)] + diff(range(dt[, get(y_col)], na.rm = TRUE))/10, na.rm = TRUE)
+  
+  if(add_p == TRUE){
+    gg <- gg + annotate("text", x = x_p, y = y_p, label = paste0("p = ", p_string_list[1]))
+  }
+  
+  
+  gg
+  
+  return(gg)
+}
+
+```
+
+```{r, echo = FALSE}
+generate <- function(n){
+  diet_values <- c("cn", "tr")
+  fake_data <- data.table(diet = rep(diet_values, each = n))
+  X <- model.matrix(~ diet, data = fake_data)
+  alpha_0 <- 0 #mean size in control
+  alpha_1 <- -2 #effect of treatment on size
+  alpha <- c(alpha_0, alpha_1)
+  sigma_alpha <- 1
+  fake_data[, size := (X%*%alpha)[, 1] + rnorm(n*2, sd = sigma_alpha)]
+  qplot(diet, size, data = fake_data)
+  
+  a <- 36 # shape
+  s <- 1 # scale
+  a_vec <- rep(c(a, 1.5*a), each = n)
+  s_vec <- rep(c(s, 0.5*s), each = n)
+  # fd <- rgamma(n*2, shape=a_vec, scale = s_vec)
+  # var(fd[1:n])
+  # var(fd[(n+1):(n*2)])
+  # qplot(fd)
+  fake_data[, size := rgamma(n*2, shape=a_vec, scale = s_vec)]
+  qplot(diet, size, data = fake_data)
+  
+  X <- model.matrix(~ size + diet, data = fake_data)
+  beta_0 <- -1.45 # mean fat in treatment
+  beta_1 <- .06 # effect of size on fat
+  beta_2 <- .16 # effect of treatment on fat
+  sigma_beta <- .12
+  beta <- c(beta_0, beta_1, beta_2)
+  fake_data[, fat := (X%*%beta)[, 1] + rnorm(n*2, sd = sigma_beta)]
+  fake_data[, body_weight := size]
+  return(fake_data)
+}
+```
+
+
+```{r, echo = FALSE}
+seeder <- 165
+prob <- 1
+sd_ratio <- 1
+done <- FALSE
+while(done == FALSE){
+  seeder <- seeder + 1
+  set.seed(seeder)
+  n <- 10
+  fake_data <- generate(n)
+  
+  m1 <- lm(fat ~ body_weight + diet, data = fake_data)
+  m1_coef <- coef(summary(m1))
+  prob <- m1_coef["diettr", "Pr(>|t|)"]
+  sd_iter <- fake_data[, .(sd=sd(body_weight)), by=diet]
+  sd_ratio <- sd_iter[2, sd]/sd_iter[1, sd]
+  if(prob < 0.05 & sd_ratio < 0.4){done <- TRUE}
+}
+
+gg_ancova(fake_data, 
+          x_col = "diet",
+          y_col = "fat",
+          cov_col = "body_weight",
+          cov_label = "body weight (g)",
+          y_label = "fat weight (g)",
+          add_p = TRUE,
+          p_pos = "center",
+          p_adjust = "none")
+```
+
+This is fake data that simulates an experiment to measure effect of treatment on fat weight. The treatment is "diet" with two levels: "control" (blue dots) and "treated" (gold dots). Diet has a large effect on total body weight. The simulated data look like that in the plot above (and very much like the real data).
+
+The question is, what are problems with using an "ancova" linear model to estimate the **direct** effect of treatment on fat weight? By ancova linear model I mean
+
+fat ~ body_weight + diet
+
+A common assumption of ANCOVA is no treatment effect on the covariate. This doesn't make any sense, at least if the covariate is a mediator. Here is how I think about the generating model for these data -- or a series of generting models -- encoded by causal diagrams. The effect we're trying to estimate is the **direct** effect of diet on fat ($\beta_2$ in model 1, or $\beta$ in model 5). Model 1 is a typical "mediation" model. I don't care about the mediator, except as a nuissance. Model 2 is a bit more realistic in that body weight is a proxy for "size". Model 3 is thinking like Sewell Wright in his series of papers on "size factors" - which is **the set of foundational papers for causal modeling and DAGs**. Model 4 is just collapsing model 3 and model 5 is collapsing it a bit more (the special size factors aren't measured)
+
+```{r, echo=FALSE}
+knitr::include_graphics("../../../images/models.png")
+```
+
+The fake data were generated using model 1 and the ancova linear model estimates the **direct** effect without bias.
+
+The issue that I see is not the effect of treatment on the covariate but that my covariate is a proxy for the latent factor. How does this bias my estimate of the direct effect of deit on fat? What is the best practice for this problem?

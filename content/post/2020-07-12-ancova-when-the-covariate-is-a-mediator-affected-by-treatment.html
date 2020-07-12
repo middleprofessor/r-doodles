@@ -1,0 +1,26 @@
+---
+title: ANCOVA when the covariate is a mediator affected by treatment
+author: Jeff Walker
+date: '2020-07-12'
+slug: ancova-when-the-covariate-is-a-mediator-affected-by-treatment
+categories:
+  - stats 101
+tags:
+  - ancova
+  - causal graph
+  - linear model
+  - Wright style path analysis
+keywords:
+  - tech
+---
+
+
+
+<p><img src="/post/2020-07-12-ancova-when-the-covariate-is-a-mediator-affected-by-treatment_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>This is fake data that simulates an experiment to measure effect of treatment on fat weight. The treatment is “diet” with two levels: “control” (blue dots) and “treated” (gold dots). Diet has a large effect on total body weight. The simulated data look like that in the plot above (and very much like the real data).</p>
+<p>The question is, what are problems with using an “ancova” linear model to estimate the <strong>direct</strong> effect of treatment on fat weight? By ancova linear model I mean</p>
+<p>fat ~ body_weight + diet</p>
+<p>A common assumption of ANCOVA is no treatment effect on the covariate. This doesn’t make any sense, at least if the covariate is a mediator. Here is how I think about the generating model for these data – or a series of generting models – encoded by causal diagrams. The effect we’re trying to estimate is the <strong>direct</strong> effect of diet on fat (<span class="math inline">\(\beta_2\)</span> in model 1, or <span class="math inline">\(\beta\)</span> in model 5). Model 1 is a typical “mediation” model. I don’t care about the mediator, except as a nuissance. Model 2 is a bit more realistic in that body weight is a proxy for “size”. Model 3 is thinking like Sewell Wright in his series of papers on “size factors” - which is <strong>the set of foundational papers for causal modeling and DAGs</strong>. Model 4 is just collapsing model 3 and model 5 is collapsing it a bit more (the special size factors aren’t measured)</p>
+<p><img src="../../../images/models.png" /><!-- --></p>
+<p>The fake data were generated using model 1 and the ancova linear model estimates the <strong>direct</strong> effect without bias.</p>
+<p>The issue that I see is not the effect of treatment on the covariate but that my covariate is a proxy for the latent factor. How does this bias my estimate of the direct effect of deit on fat? What is the best practice for this problem?</p>

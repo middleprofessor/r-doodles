@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2020/07/ancova-when-the-covariate-is-a-mediator-affected-by-treatment/</loc>
+    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2020/06/bootstrap-confidence-intervals-when-sample-size-is-really-small/</loc>
     <lastmod>2020-06-01T00:00:00+00:00</lastmod>
   </url>
@@ -208,7 +213,7 @@
   
   <url>
     <loc>/tags/ancova/</loc>
-    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
+    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -254,7 +259,7 @@
   
   <url>
     <loc>/tags/causal-graph/</loc>
-    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
+    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -355,7 +360,7 @@
   
   <url>
     <loc>/tags/linear-model/</loc>
-    <lastmod>2019-10-27T00:00:00+00:00</lastmod>
+    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -427,7 +432,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2020-06-01T00:00:00+00:00</lastmod>
+    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -445,7 +450,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2020-06-01T00:00:00+00:00</lastmod>
+    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -481,13 +486,13 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2020-06-01T00:00:00+00:00</lastmod>
+    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/</loc>
-    <lastmod>2020-03-19T00:00:00+00:00</lastmod>
+    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -505,7 +510,7 @@
   
   <url>
     <loc>/tags/wright-style-path-analysis/</loc>
-    <lastmod>2020-02-07T00:00:00+00:00</lastmod>
+    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

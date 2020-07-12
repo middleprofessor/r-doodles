@@ -340,15 +340,15 @@ microbenchmark::microbenchmark(boot(fd, statistic = boot_diff, R = 0, strata = f
                                times=1000)</code></pre>
 <pre><code>## Unit: microseconds
 ##                                                         expr      min
-##    boot(fd, statistic = boot_diff, R = 0, strata = fd$level) 1078.595
-##  boot(X_i, statistic = boot_diff4, R = 0, strata = X_i[, 2])  284.977
-##  boot(X_i, statistic = boot_diff5, R = 0, strata = X_i[, 2])  265.222
-##  boot(X_i, statistic = boot_diff6, R = 0, strata = X_i[, 2])  236.312
+##    boot(fd, statistic = boot_diff, R = 0, strata = fd$level) 1072.991
+##  boot(X_i, statistic = boot_diff4, R = 0, strata = X_i[, 2])  284.331
+##  boot(X_i, statistic = boot_diff5, R = 0, strata = X_i[, 2])  270.266
+##  boot(X_i, statistic = boot_diff6, R = 0, strata = X_i[, 2])  237.303
 ##         lq      mean    median        uq       max neval cld
-##  1143.3200 1307.7339 1200.6010 1392.7820  5814.654  1000   c
-##   300.7305  357.6347  313.4675  362.8635  6547.441  1000  b 
-##   281.6705  375.9555  292.4315  338.1820 33662.418  1000  b 
-##   252.9035  286.6263  262.1175  303.7265  3738.174  1000 a</code></pre>
+##  1176.7485 1355.9981 1247.6625 1474.1500  5459.451  1000   c
+##   304.6715  364.3548  323.4210  380.0295  6026.275  1000 ab 
+##   284.0860  386.6959  299.2115  358.0265 34357.577  1000  b 
+##   255.8765  298.8276  269.9000  323.5945  3868.646  1000 a</code></pre>
 </div>
 <div id="bootstrap-cis" class="section level1">
 <h1>Bootstrap CIs</h1>
