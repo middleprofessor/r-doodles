@@ -232,7 +232,7 @@ Two issues:
 
 What is the best practice for this problem?
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 # unmeasured U going to both size and fat
 
 n <- 10^4
