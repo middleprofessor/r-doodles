@@ -18,6 +18,7 @@ keywords:
 library(data.table)
 library(ggpubr)
 library(lazyWeave) #pvalstring
+library(mediation)
 
 pal_nature_mod <- c(
   "#3DB7E9", # summer sky
@@ -210,13 +211,13 @@ gg_ancova(fake_data,
           p_adjust = "none")
 ```
 
-This is fake data that simulates an experiment to measure effect of treatment on fat weight. The treatment is "diet" with two levels: "control" (blue dots) and "treated" (gold dots). Diet has a large effect on total body weight. The simulated data look like that in the plot above (and very much like the real data).
+This is fake data that simulates an experiment to measure effect of treatment on fat weight in mice. The treatment is "diet" with two levels: "control" (blue dots) and "treated" (gold dots). Diet has a large effect on total body weight. The simulated data are in the plot above - these look very much like the real data.
 
 The question is, what are problems with using an "ancova" linear model to estimate the **direct** effect of treatment on fat weight? By ancova linear model I mean
 
 fat ~ body_weight + diet
 
-A common assumption of ANCOVA is no treatment effect on the covariate. This doesn't make any sense, at least if the covariate is a mediator. Here is how I think about the generating model for these data -- or a series of generting models -- encoded by causal diagrams. The effect we're trying to estimate is the **direct** effect of diet on fat ($\beta_2$ in model 1, or $\beta$ in model 5). Model 1 is a typical "mediation" model. I don't care about the mediator, except as a nuissance. Model 2 is a bit more realistic in that body weight is a proxy for "size". Model 3 is thinking like Sewell Wright in his series of papers on "size factors" - which is **the set of foundational papers for causal modeling and DAGs**. Model 4 is just collapsing model 3 and model 5 is collapsing it a bit more (the special size factors aren't measured)
+A common assumption of ANCOVA is no treatment effect on the covariate. Here is how I think about the generating model for these data -- or a series of generating models -- encoded by causal diagrams. The effect we're trying to estimate is the **direct** effect of diet on fat ($\beta_2$ in model 1, or $\beta$ in model 5). Model 1 is a typical "mediation" model. I don't care about the mediator, except as a nuissance. Model 2 is a bit more realistic in that body weight is a proxy for "size". Model 3 is thinking like Sewell Wright in his series of papers on "size factors" - which is **the set of foundational papers for causal modeling and DAGs**. Model 4 is just collapsing model 3 and model 5 is collapsing it a bit more (the special size factors aren't measured)
 
 ```{r, echo=FALSE}
 knitr::include_graphics("../../../images/models.png")
@@ -224,4 +225,59 @@ knitr::include_graphics("../../../images/models.png")
 
 The fake data were generated using model 1 and the ancova linear model estimates the **direct** effect without bias.
 
-The issue that I see is not the effect of treatment on the covariate but that my covariate is a proxy for the latent factor. How does this bias my estimate of the direct effect of deit on fat? What is the best practice for this problem?
+Two issues:
+
+1. there is an unmeasured variable, U, that has a causal arrow to both body weight and fat weight in model 1.
+2. The covariate is a proxy for the latent factor.
+
+What is the best practice for this problem?
+
+```{r, echo=FALSE}
+# unmeasured U going to both size and fat
+
+n <- 10^4
+
+  diet_values <- c("cn", "tr")
+  fake_data <- data.table(diet = rep(diet_values, each = n))
+  X <- model.matrix(~ diet, data = fake_data)
+  alpha_0 <- 0 #mean size in control
+  alpha_1 <- -2 #effect of treatment on size
+  alpha <- c(alpha_0, alpha_1)
+  sigma_alpha <- 1
+  fake_data[, size := (X%*%alpha)[, 1] + rnorm(n*2, sd = sigma_alpha)]
+  qplot(diet, size, data = fake_data)
+  
+  a <- 36 # shape
+  s <- 1 # scale
+  a_vec <- rep(c(a, 1.5*a), each = n)
+  s_vec <- rep(c(s, 0.5*s), each = n)
+  
+  u <- rnorm(n*2)
+  u_1 <- 3
+  a_vec <- a_vec + u_1*u
+  # fd <- rgamma(n*2, shape=a_vec, scale = s_vec)
+  # var(fd[1:n])
+  # var(fd[(n+1):(n*2)])
+  # qplot(fd)
+  fake_data[, size := rgamma(n*2, shape=a_vec, scale = s_vec)]
+  qplot(diet, size, data = fake_data)
+
+  X <- model.matrix(~ size + diet, data = fake_data)
+  beta_0 <- -1.45 # mean fat in treatment
+  beta_1 <- .06 # effect of size on fat
+  beta_2 <- .16 # effect of treatment on fat
+  sigma_beta <- .12
+  beta <- c(beta_0, beta_1, beta_2)
+  
+  u_2 <- 0.5
+  fake_data[, fat := (X%*%beta)[, 1] + u_2*u + rnorm(n*2, sd = sigma_beta)]
+  fake_data[, body_weight := size]
+
+m1 <- lm(fat ~ size + diet, data = fake_data)
+coef(summary(m1))
+
+m2 <- lm(fat ~ u + size + diet, data = fake_data)
+coef(summary(m2))
+
+```
+
