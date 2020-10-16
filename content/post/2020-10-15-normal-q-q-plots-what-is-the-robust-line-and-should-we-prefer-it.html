@@ -185,11 +185,7 @@ ggplot(data = qq_observed,
 <pre class="r"><code>qnorm_quartiles &lt;- qnorm( c(.25, .75))
 (qnorm_diff &lt;- qnorm_quartiles[2] - qnorm_quartiles[1])</code></pre>
 <pre><code>## [1] 1.34898</code></pre>
-<p>Major: Tristan’s “robust” computation is my “quartiles” computation, which I got from the help page of <code>car::qqPlot</code>. This kinda makes sense. Tristan states</p>
-<blockquote>
-<p>Fox explains that this is a “robust” estimate for the line</p>
-</blockquote>
-<p>and quotes from the author of qqPlot John Fox’s book <a href="https://us.sagepub.com/en-us/nam/applied-regression-analysis-and-generalized-linear-models/book237254" target="_blank">Applied Regression Analysis and Generalized Linear Models</a></p>
+<p>Major: Tristan’s “robust” computation is my “quartiles” computation, which I got from the help page of <code>car::qqPlot</code>. Tristan calls the quartiles line “robust” due to this quote from John Fox, the author of qqPlot and the book <a href="https://us.sagepub.com/en-us/nam/applied-regression-analysis-and-generalized-linear-models/book237254" target="_blank">Applied Regression Analysis and Generalized Linear Models</a></p>
 <blockquote>
 <p>We can alternatively use the median as a robust estimator of [the mean] and the interquartile range / 1.349 as a robust estimator of [the standard deviation]. (The more conventional estimates [of the sample mean and SD] will not work well when the data are substantially non-normal.) [p. 39]</p>
 </blockquote>
