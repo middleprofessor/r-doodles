@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
+<meta name="keywords" content="tech">
+<meta name="description" content="Source: Wellenstein, M.D., Coffelt, S.B., Duits, D.E., van Miltenburg, M.H., Slagter, M., de Rink, I., Henneman, L., Kas, S.M., Prekovic, S., Hau, C.S. and Vrijland, K., 2019. Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis. Nature, 572(7770), pp.538-542.
+Public source
+Data source
+data_from &lt;- &quot;Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis&quot; file_name &lt;- &quot;41586_2019_1450_MOESM3_ESM.xlsx&quot; file_path &lt;- here(data_folder, data_from, file_name) treatment_levels &lt;- c(&quot;Trp53&#43;/&#43;&quot;, &quot;Trp53-/-&quot;) fig1f &lt;- read_excel(file_path, sheet = &quot;Fig.">
+
+
+<meta property="og:description" content="Source: Wellenstein, M.D., Coffelt, S.B., Duits, D.E., van Miltenburg, M.H., Slagter, M., de Rink, I., Henneman, L., Kas, S.M., Prekovic, S., Hau, C.S. and Vrijland, K., 2019. Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis. Nature, 572(7770), pp.538-542.
+Public source
+Data source
+data_from &lt;- &quot;Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis&quot; file_name &lt;- &quot;41586_2019_1450_MOESM3_ESM.xlsx&quot; file_path &lt;- here(data_folder, data_from, file_name) treatment_levels &lt;- c(&quot;Trp53&#43;/&#43;&quot;, &quot;Trp53-/-&quot;) fig1f &lt;- read_excel(file_path, sheet = &quot;Fig.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Normal Q-Q plots - what is the robust line and should we prefer it?">
+<meta name="twitter:title" content="Normal Q-Q plots - what is the robust line and should we prefer it?">
+<meta property="og:url" content="/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+<meta property="twitter:url" content="/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+<meta property="og:site_name" content="R Doodles">
+<meta property="og:description" content="Source: Wellenstein, M.D., Coffelt, S.B., Duits, D.E., van Miltenburg, M.H., Slagter, M., de Rink, I., Henneman, L., Kas, S.M., Prekovic, S., Hau, C.S. and Vrijland, K., 2019. Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis. Nature, 572(7770), pp.538-542.
+Public source
+Data source
+data_from &lt;- &quot;Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis&quot; file_name &lt;- &quot;41586_2019_1450_MOESM3_ESM.xlsx&quot; file_path &lt;- here(data_folder, data_from, file_name) treatment_levels &lt;- c(&quot;Trp53&#43;/&#43;&quot;, &quot;Trp53-/-&quot;) fig1f &lt;- read_excel(file_path, sheet = &quot;Fig.">
+<meta name="twitter:description" content="Source: Wellenstein, M.D., Coffelt, S.B., Duits, D.E., van Miltenburg, M.H., Slagter, M., de Rink, I., Henneman, L., Kas, S.M., Prekovic, S., Hau, C.S. and Vrijland, K., 2019. Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis. Nature, 572(7770), pp.538-542.
+Public source
+Data source
+data_from &lt;- &quot;Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis&quot; file_name &lt;- &quot;41586_2019_1450_MOESM3_ESM.xlsx&quot; file_path &lt;- here(data_folder, data_from, file_name) treatment_levels &lt;- c(&quot;Trp53&#43;/&#43;&quot;, &quot;Trp53-/-&quot;) fig1f &lt;- read_excel(file_path, sheet = &quot;Fig.">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2020-10-15T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2020-10-15T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="stats 101">
+    
+  
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@jwalkrunski">
+
+
+  <meta name="twitter:creator" content="@jwalkrunski">
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="/images/fire.png">
+  <meta property="twitter:image" content="/images/fire.png">
+
+
+    <title>Normal Q-Q plots - what is the robust line and should we prefer it?</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-nnm2spxvve8onlujjlegkkytaehyadd4ksxc1hyzzq9a2wvtrgbljqyulomn.min.css" />
+    
+    
+
+    
+      
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-118821125-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">R Doodles</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="/images/fire.png" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="/images/fire.png" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+        
+          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="//github.com/middleprofessor">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://stats.stackexchange.com/users/119435/jwalker">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-stack-exchange"></i>
+      
+      <span class="sidebar-button-desc">CrossValidated</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://scholar.google.com/citations?user=W58TmakAAAAJ&amp;hl">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-google"></i>
+      
+      <span class="sidebar-button-desc">Google Scholar</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.researchgate.net/profile/Jeffrey_Walker4/contributions">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Research Gate</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.middleprofessor.com">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-university"></i>
+      
+      <span class="sidebar-button-desc">Research/Teaching</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Normal Q-Q plots - what is the robust line and should we prefer it?
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2020-10-15T00:00:00Z">
+        
+  October 15, 2020
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+
+<p>Source: <a href="https://www.nature.com/articles/s41586-019-1450-6" target="_blank">Wellenstein, M.D., Coffelt, S.B., Duits, D.E., van Miltenburg, M.H., Slagter, M., de Rink, I., Henneman, L., Kas, S.M., Prekovic, S., Hau, C.S. and Vrijland, K., 2019. Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis. Nature, 572(7770), pp.538-542.</a></p>
+<p><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6707815/" target="_blank">Public source</a></p>
+<p><a href="https://www.nature.com/articles/s41586-019-1450-6#Sec22" target="_blank">Data source</a></p>
+<pre class="r"><code>data_from &lt;- &quot;Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis&quot;
+file_name &lt;- &quot;41586_2019_1450_MOESM3_ESM.xlsx&quot;
+file_path &lt;- here(data_folder, data_from, file_name)
+  
+treatment_levels &lt;- c(&quot;Trp53+/+&quot;, &quot;Trp53-/-&quot;)
+fig1f &lt;- read_excel(file_path,
+                     sheet = &quot;Fig. 1f&quot;,
+                     range = &quot;A2:B23&quot;) %&gt;%
+  data.table() %&gt;%
+  melt(measure.vars = treatment_levels,
+       variable.name = &quot;treatment&quot;,
+       value.name = &quot;il1beta&quot;)
+fig1f[, treatment := factor(treatment, treatment_levels)]
+
+# be careful of the missing data. This can create mismatch between id and residual unless specified in lm
+
+# head(fig1f)</code></pre>
+<div id="fit-a-linear-model" class="section level2">
+<h2>Fit a linear model</h2>
+<pre class="r"><code>m1 &lt;- lm(il1beta ~ treatment, data = fig1f)
+
+# residuals
+m1_res &lt;- residuals(m1)
+
+# studentized residuals
+sigma_m1_res &lt;- sd(m1_res) # will use this again
+m1_res_st &lt;- m1_res/sigma_m1_res
+
+n &lt;- length(m1_res)</code></pre>
+</div>
+<div id="q-q-plots" class="section level2">
+<h2>Q-Q plots</h2>
+<div id="base-r" class="section level3">
+<h3>Base R</h3>
+<pre class="r"><code># base R plot
+qqnorm(m1_res)
+qqline(m1_res)</code></pre>
+<p><img src="/post/2020-10-15-normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="ggpubr" class="section level3">
+<h3>ggpubr</h3>
+<pre class="r"><code># ggpubr plot
+ggqqplot(data = data.table(m1_res = m1_res),
+         x = &quot;m1_res&quot;)</code></pre>
+<p><img src="/post/2020-10-15-normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+### car qqPlot</p>
+<pre class="r"><code># car plot
+
+qqPlot(m1, 
+       line = &quot;robust&quot;, # this is default
+       simulate = FALSE,
+       id = FALSE)</code></pre>
+<p><img src="/post/2020-10-15-normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Q-Q plots generated by base R, <code>ggpubr::ggqqplot</code> and <code>car::qqPlot</code> are shown. The base R and <code>ggqqplot</code> functions generate the same line. <code>ggplot2::geom_qqline</code> also generates this line (not shown, but try it!). The default <code>qqPlot</code> line differs from these three. This default is <code>line = "robust"</code>. If this argument is changed to <code>line = "quartiles"</code>, the qqPlot line is the same as base R/ggqqplot. The difference between “robust” and base R/ggqqplot/“quartiles” is pretty easy to see with these data. Look at points 2-4 starting from the left. In the base R/ggqqplot, points 2 is slightly above the line, point 3 is slighty below the line, and point 4 is above the line. In the <code>qqPlot</code>, all three points are above the line. Even more striking is the confidence interval. In the ggqqplot, the upper seven (rightmost) points are well outside the interval – we would conclude that a sample from a Normal distribution would be unlikely to generate this pattern of quantiles and we should consider modeling with glm or a transformation, etc. In the qqPlot, these seven points are within or just outside the interval – we would conclude that the a sample from a Normal would result in something like these quantiles at a common enough frequency to not worry about modeling with a glm or transformation or whatever.</p>
+<p>Two different interepretations, two different “decisions”. Which should decision should we decide on? I’ll return to that. But first, some sleuthing.</p>
+</div>
+<div id="what-are-robust-and-quartiles-lines-building-a-q-q-plot-manually" class="section level3">
+<h3>What are “robust” and “quartiles” lines? Building a Q-Q plot manually</h3>
+<p>Being curious what the parameters of these lines are, I went to the source – the help page for <code>qqPlot</code>. The text for the argument <code>line</code> is</p>
+<blockquote>
+<p>“quartiles” to pass a line through the quartile-pairs, or “robust” for a robust-regression line; the latter uses the rlm function in the MASS package.</p>
+</blockquote>
+<p>Okay so let’s make three lines</p>
+<ol style="list-style-type: decimal">
+<li>parametric – the regression line of the sample quantiles on the theoretical quantiles</li>
+<li>quartiles – the regression line through the sample quartiles (the quantiles at 25% and 75%). Not sure what the intercept is. A little exploration indicated this is the median sample quartile. this is obvious in hindsight given the slope is through the quartiles.</li>
+<li>robust – the regression line using <code>MASS::rlm</code>. This function has several arguments. I used the defaults.</li>
+</ol>
+<p>In addition to these, I used a parametric bootstrap to create my own 95% confidence band of the sample quantiles. For this, I sampled <span class="math inline">\(n\)</span> points from a standard, Normal distribution and plotted the Q-Q of this sample. I repeated this 1000 times to generate the distributions of expected sample quantiles for at each of the <span class="math inline">\(n\)</span> theoretical quantile. The 95% CI was computed as the 2.5th and 97.5th percentiles of each of these distributions.</p>
+<pre class="r"><code>normal_qq &lt;- ppoints(n) %&gt;%
+  qnorm()
+sample_qq &lt;- m1_res[order(m1_res)]
+
+# mean + sd
+parametric_slope &lt;- sd(sample_qq)
+parametric_intercept &lt;- mean(sample_qq)
+
+# quartiles
+m1_quartiles &lt;- quantile(m1_res, c(.25, .75))
+qnorm_quartiles &lt;- qnorm( c(.25, .75))
+m1_diff &lt;- m1_quartiles[2] - m1_quartiles[1]
+qnorm_diff &lt;- qnorm_quartiles[2] - qnorm_quartiles[1] # = 1.349
+quartile_slope &lt;- m1_diff/qnorm_diff
+quartile_intercept &lt;- median(sample_qq)
+
+# robust uses MASS:rlm (default arguments?)
+qq_observed &lt;- data.table(normal_qq = normal_qq,
+                    sample_qq = sample_qq)
+m2 &lt;- rlm(sample_qq ~ normal_qq, data = qq_observed)
+robust_intercept &lt;- coef(m2)[1]
+robust_slope &lt;- coef(m2)[2]
+
+# re-sample ribbon
+n_iter &lt;- 1000
+resample_qq &lt;- numeric(n_iter*n)
+inc &lt;- 1:n
+for(iter in 1:n_iter){
+  y &lt;- rnorm(n, sd = sigma_m1_res)
+  y_res &lt;- y - mean(y)
+  resample_qq[inc] &lt;- y_res[order(y_res)]
+  inc &lt;- inc + n
+}
+
+qq_sim &lt;- data.table(normal_qq = normal_qq,
+                     resample_qq = resample_qq)
+
+qq_ci &lt;- qq_sim[, .(median = median(resample_qq),
+                     lower = quantile(resample_qq, 0.025),
+                     upper = quantile(resample_qq, 0.975)),
+                 by = normal_qq]
+
+ggplot(data = qq_observed,
+       aes(x = normal_qq, y = sample_qq)) +
+  
+  # ribbon
+  geom_ribbon(data = qq_ci,
+              aes(ymin = lower,
+                  ymax = upper,
+                  y = median,
+                  fill = &quot;band&quot;),
+              fill = &quot;gray&quot;,
+              alpha = 0.6) +
+  # draw points
+  geom_point() +
+  
+  # ggplot&#39;s qq line
+  geom_qq_line(aes(sample = sample_qq,
+                   color = &quot;geom_qq_line&quot;),
+               show.legend=TRUE,
+               size = 0.75) +
+  # parametric
+  geom_abline(aes(intercept = parametric_intercept,
+                  slope = parametric_slope,
+                  color = &quot;parametric&quot;),
+              show.legend=TRUE,
+              size = 0.75) +
+  # quartile
+  geom_abline(aes(intercept = quartile_intercept,
+                  slope = quartile_slope,
+                  color = &quot;quartile&quot;),
+              show.legend=TRUE,
+              size = 0.75,
+              linetype = &quot;dashed&quot;) +
+  # robust
+  geom_abline(aes(intercept = robust_intercept,
+                  slope = robust_slope,
+                  color = &quot;robust&quot;),
+              show.legend = TRUE,
+              size = 0.75) +
+  
+  
+  scale_color_manual(values = pal_okabe_ito[c(1:2,5:6)]) +
+  theme_minimal_grid() +
+  
+
+  
+  NULL</code></pre>
+<p><img src="/post/2020-10-15-normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code># geom_abline(aes(colour=&quot;best&quot;),intercept=0, slope=1, show_guide=TRUE)+</code></pre>
+<p>Huh! The quartiles line, which is used by base R, ggpubr, and ggplot2, falls well outside the upper half of the 95% confidence band of sample quantiles sampled <em>from a normal distribution</em>. The parametric and robust lines slice more through the middle of the band, with the parametric nearly bisecting the band. This is a pretty good indicator that the <code>line = "robust"</code> option is preferable to the “quartiles” line used by base R/ggpubr/ggplot2.</p>
+</div>
+</div>
+<div id="whats-going-on-in-tristan-mahrs-results" class="section level2">
+<h2>What’s going on in Tristan Mahr’s results?</h2>
+<p>In sleuthing out the parameters defining the lines in the different qqplot functions, in addition to the <code>qqPlot</code> help page, I discoverd Tristan Mahr’s excellent blog post <a href="https://www.tjmahr.com/quantile-quantile-plots-from-scratch/" target="_blank">Q-Q Plots and Worm Plots from Scratch</a>.</p>
+<p>What confused me about Tristan’s results was the equivalence between the car::qqPlot line and a “robust” line that Tristan built by setting the robust slope to the interquartile interval divided by 1.349. This raised one minor and one major question.</p>
+<p>Minor: where does the 1.349 come from? I discovered this somewhat accidentally by looking at the intermediate values in my computation. The 1.349 comes from the denominator of the slope computed by the theoretical quartiles</p>
+<pre class="r"><code>qnorm_quartiles &lt;- qnorm( c(.25, .75))
+(qnorm_diff &lt;- qnorm_quartiles[2] - qnorm_quartiles[1])</code></pre>
+<pre><code>## [1] 1.34898</code></pre>
+<p>Major: Tristan’s “robust” computation is my “quartiles” computation, which I got from the help page of <code>car::qqPlot</code>. This kinda makes sense. Tristan states</p>
+<blockquote>
+<p>Fox explains that this is a “robust” estimate for the line</p>
+</blockquote>
+<p>and quotes from the author of qqPlot John Fox’s book <a href="https://us.sagepub.com/en-us/nam/applied-regression-analysis-and-generalized-linear-models/book237254" target="_blank">Applied Regression Analysis and Generalized Linear Models</a></p>
+<blockquote>
+<p>We can alternatively use the median as a robust estimator of [the mean] and the interquartile range / 1.349 as a robust estimator of [the standard deviation]. (The more conventional estimates [of the sample mean and SD] will not work well when the data are substantially non-normal.) [p. 39]</p>
+</blockquote>
+<p>In my example, the qqPlot default is equivalent to my line computed using robust regression (<code>MASS::rlm</code>), which I got from the qqPlot help page. In Tristan’s code, the qqPlot default is equivalent to his line computed using the sample quartiles. How could these both be TRUE?</p>
+<p>The answer took a bit more sleuthing. In my qqPlot code, I used the S3 method for class ‘lm’ and passed the fit linear model from <code>lm</code>. Tristan used the default s3 method and passed the vector of samples. Curiously, the default line in qqPlot differs between these, and this is in the help page.</p>
+<p>Regardless, the line computed in Tristan’s code is not the “robust” line but the “quartiles” line, despite Fox using the word “robust” in the explanation of the quartiles line.</p>
+</div>
+<div id="simulation" class="section level2">
+<h2>Simulation</h2>
+<p>I’ll work on this tomorrow.</p>
+<pre class="r"><code># https://www.tjmahr.com/quantile-quantile-plots-from-scratch/
+se_z &lt;- function(z, n) {
+  sqrt(pnorm(z) * (1 - pnorm(z)) / n) / dnorm(z)
+}</code></pre>
+<pre class="r"><code>n_iter &lt;- 1000</code></pre>
+</div>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2020/07/ancova-when-the-covariate-is-a-mediator-affected-by-treatment/" data-tooltip="ANCOVA when the covariate is a mediator affected by treatment">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2020 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2020/07/ancova-when-the-covariate-is-a-mediator-affected-by-treatment/" data-tooltip="ANCOVA when the covariate is a mediator affected by treatment">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2020%2F10%2Fnormal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2020%2F10%2Fnormal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2020%2F10%2Fnormal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="/images/fire.png" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+    
+      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Jeff Walker, Professor of Biological Sciences
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        University of Southern Maine, Portland, Maine, United States
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+                <h3 class="media-heading">Normal Q-Q plots - what is the robust line and should we prefer it?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Source: Wellenstein, M.D., Coffelt, S.B., Duits, D.E., van Miltenburg, M.H., Slagter, M., de Rink, I., Henneman, L., Kas, S.M., Prekovic, S., Hau, C.S. and Vrijland, K., 2019. Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis. Nature, 572(7770), pp.538-542.
+Public source
+Data source
+data_from &lt;- &quot;Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis&quot; file_name &lt;- &quot;41586_2019_1450_MOESM3_ESM.xlsx&quot; file_path &lt;- here(data_folder, data_from, file_name) treatment_levels &lt;- c(&quot;Trp53+/+&quot;, &quot;Trp53-/-&quot;) fig1f &lt;- read_excel(file_path, sheet = &quot;Fig.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/07/ancova-when-the-covariate-is-a-mediator-affected-by-treatment/">
+                <h3 class="media-heading">ANCOVA when the covariate is a mediator affected by treatment</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is fake data that simulates an experiment to measure effect of treatment on fat weight in mice. The treatment is “diet” with two levels: “control” (blue dots) and “treated” (gold dots). Diet has a large effect on total body weight. The simulated data are in the plot above - these look very much like the real data.
+The question is, what are problems with using an “ancova” linear model to estimate the direct effect of treatment on fat weight?</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/06/bootstrap-confidence-intervals-when-sample-size-is-really-small/">
+                <h3 class="media-heading">Bootstrap confidence intervals when sample size is really small</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">TL;DR A sample table from the full results for data that look like this
+ Table 1: Coverage of 95% bca CIs.    parameter  n=5  n=10  n=20  n=40  n=80     means    Control  81.4  87.6  92.2  93.0  93.6    b4GalT1-/-  81.3  90.2  90.8  93.0  93.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/05/what-is-the-consequence-of-normalizing-by-each-case-in-the-control/">
+                <h3 class="media-heading">What is the consequence of normalizing by each case in the control?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivator: Novel metabolic role for BDNF in pancreatic β-cell insulin secretion
+I’ll finish this some day…
+knitr::opts_chunk$set(echo = TRUE, message=FALSE) library(tidyverse) library(data.table) library(mvtnorm) library(lmerTest) normal response niter &lt;- 2000 n &lt;- 9 treatment_levels &lt;- c(&quot;cn&quot;, &quot;high&quot;, &quot;high_bdnf&quot;) insulin &lt;- data.table(treatment = rep(treatment_levels, each=n)) X &lt;- model.matrix(~ treatment, data=insulin) beta &lt;- c(0,0,0) # no effects # the three responses are taken from the same cluster of cells and so have expected # correlation rho.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/04/melting-a-list-of-columns/">
+                <h3 class="media-heading">Melting a list of columns</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">An answer to this tweet “Are there any #Rstats tidy expeRts who’d be interested in improving the efficiency of this code that gathers multiple variables from wide to long?
+This works but it’s not pretty. There must be a prettier way…&quot;
+Wide data frame has three time points where participants answer two questions on two topics.
+create data from original code #Simmed data Time1.Topic1.Question1 &lt;- rnorm(500) data &lt;- data.frame(Time1.Topic1.Question1) data$Time1.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/03/analyzing-longitudinal-data-a-simple-pre-post-design/">
+                <h3 class="media-heading">Analyzing longitudinal data -- a simple pre-post design</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">A skeletal response to a twitter question:
+“ANOVA (time point x group) or ANCOVA (group with time point as a covariate) for intervention designs? Discuss.”
+follow-up “Only 2 time points in this case (pre- and post-intervention), and would wanna basically answer the question of whether out of the 3 intervention groups, some improve on measure X more than others after the intervention”
+Here I compare five methods using fake pre-post data, including</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/02/using-wright-s-rules-and-a-dag-to-compute-the-bias-of-an-effect-when-we-measure-proxies-for-x-and-y/">
+                <h3 class="media-heading">Using Wright&#39;s rules and a DAG to compute the bias of an effect when we measure proxies for X and Y</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Feb 2, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is a skeletal post to work up an answer to a twitter question using Wright’s rules of path models. Using this figure
+from Panel A of a figure from Hernan and Cole. The scribbled red path coefficients are added
+ the question is I want to know about A-&gt;Y but I measure A* and Y*. So in figure A, is the bias the backdoor path from A* to Y* through A and Y?</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/11/nested-random-factors-in-mixed-multilevel-or-hierarchical-models/">
+                <h3 class="media-heading">&#34;Nested&#34; random factors in mixed (multilevel or hierarchical) models</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Nov 11, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Setup Import Models as nested using “tank” nested within “room” as two random intercepts (using lme4 to create the combinations) A safer (lme4) way to create the combinations of “room” and “tank”: as two random intercepts using “tank2” Don’t do this    This is a skeletal post to show the equivalency of different ways of thinking about “nested” factors in a mixed model. The data are measures of life history traits in lice that infect salmon.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
+                <h3 class="media-heading">Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Nov 11, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Background Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model simplification, conditional effects, marginal effects
+Background I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to “The removal of crabs strongly decreased algae cover (\(F_{1,36} = 17.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2019/10/can-a-linear-model-reproduce-a-welch-t-test/">
+                <h3 class="media-heading">Can a linear model reproduce a Welch t-test?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2019
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This doodle was motivated Jake Westfall’s answer to a Cross-Validated question.
+The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the t-value reproduces, not the df and p-value. Jake notes the reason for this in his answer on Cross-Validated.
+To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         42 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('/images/Jackson%20copy%202.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2020\/10\/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it\/';
+          
+            this.page.identifier = '\/2020\/10\/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+<script src="//yihui.name/js/math-code.js"></script>
+<script async
+src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    
+  </body>
+</html>
+

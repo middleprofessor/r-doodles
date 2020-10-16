@@ -6,10 +6,22 @@
     <description>Recent content in Posts on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 12 Jul 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 15 Oct 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Normal Q-Q plots - what is the robust line and should we prefer it?</title>
+      <link>/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/</link>
+      <pubDate>Thu, 15 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/</guid>
+      <description>Source: Wellenstein, M.D., Coffelt, S.B., Duits, D.E., van Miltenburg, M.H., Slagter, M., de Rink, I., Henneman, L., Kas, S.M., Prekovic, S., Hau, C.S. and Vrijland, K., 2019. Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis. Nature, 572(7770), pp.538-542.
+Public source
+Data source
+data_from &amp;lt;- &amp;quot;Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis&amp;quot; file_name &amp;lt;- &amp;quot;41586_2019_1450_MOESM3_ESM.xlsx&amp;quot; file_path &amp;lt;- here(data_folder, data_from, file_name) treatment_levels &amp;lt;- c(&amp;quot;Trp53+/+&amp;quot;, &amp;quot;Trp53-/-&amp;quot;) fig1f &amp;lt;- read_excel(file_path, sheet = &amp;quot;Fig.</description>
+    </item>
     
     <item>
       <title>ANCOVA when the covariate is a mediator affected by treatment</title>
