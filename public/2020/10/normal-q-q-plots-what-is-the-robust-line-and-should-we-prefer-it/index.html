@@ -8,18 +8,18 @@
 <meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
 <meta name="keywords" content="q-q plot, model checking">
-<meta name="description" content="# import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below.">
+<meta name="description" content="knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE) # import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through.">
 
 
-<meta property="og:description" content="# import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below.">
+<meta property="og:description" content="knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE) # import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Normal Q-Q plots - what is the robust line and should we prefer it?">
 <meta name="twitter:title" content="Normal Q-Q plots - what is the robust line and should we prefer it?">
 <meta property="og:url" content="/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
 <meta property="twitter:url" content="/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
 <meta property="og:site_name" content="R Doodles">
-<meta property="og:description" content="# import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below.">
-<meta name="twitter:description" content="# import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below.">
+<meta property="og:description" content="knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE) # import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through.">
+<meta name="twitter:description" content="knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE) # import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through.">
 <meta property="og:locale" content="en-us">
 
   
@@ -297,7 +297,10 @@ if (!doNotTrack) {
               
 
 
-<pre class="r"><code># import an messaging
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE,
+                      message=FALSE,
+                      warning = FALSE)
+# import an messaging
 library(here)
 library(janitor)
 library(readxl)
@@ -322,7 +325,8 @@ output_folder &lt;- &quot;content/output&quot;
 ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs
 pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke
 # </code></pre>
-<p>This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below. The plot is not really about interpretation but about <strong>which Q-Q plot?</strong></p>
+<p>Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through. I have not gone back through to economize length. So yeh, some repeated code I’ve turned into functions and others are just repeated.</p>
+<p>This post is not about <em>how</em> to interpret a Q-Q plot but about <strong>which Q-Q plot?</strong> to interpret.</p>
 <p>huh?</p>
 <ul>
 <li><p>base R, ggpubr, ggplot2 compute the Q-Q line using the “quartiles” method - the line goes through the .25th and 0.75th quantiles. This line is a function of 2 of the n points.</p></li>
@@ -681,40 +685,9 @@ for(sim_i in 1:n_sim){
              add_boot_ci = TRUE,
              add_quartiles_ci = TRUE,
              plot_it = FALSE) # return abs slope difference
-}</code></pre>
-<pre><code>## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
+}
 
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps</code></pre>
-<pre class="r"><code>max_i &lt;- which(rank(slope_diff) &gt; 990)
+max_i &lt;- which(rank(slope_diff) &gt; 990)
 # [1] 282 334 534 674 715 774 857 866 923 974
 
 # use these to explore
@@ -1255,7 +1228,7 @@ knitr::kable(coverage_summary)</code></pre>
                   Oct 10, 2020
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather"># import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below.</div>
+              <div class="media-content hide-xs font-merryweather">knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE) # import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

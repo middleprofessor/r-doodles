@@ -12,7 +12,10 @@ keywords:
 
 
 
-<pre class="r"><code># import an messaging
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE,
+                      message=FALSE,
+                      warning = FALSE)
+# import an messaging
 library(here)
 library(janitor)
 library(readxl)
@@ -37,7 +40,8 @@ output_folder &lt;- &quot;content/output&quot;
 ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs
 pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke
 # </code></pre>
-<p>This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below. The plot is not really about interpretation but about <strong>which Q-Q plot?</strong></p>
+<p>Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through. I have not gone back through to economize length. So yeh, some repeated code I’ve turned into functions and others are just repeated.</p>
+<p>This post is not about <em>how</em> to interpret a Q-Q plot but about <strong>which Q-Q plot?</strong> to interpret.</p>
 <p>huh?</p>
 <ul>
 <li><p>base R, ggpubr, ggplot2 compute the Q-Q line using the “quartiles” method - the line goes through the .25th and 0.75th quantiles. This line is a function of 2 of the n points.</p></li>
@@ -396,40 +400,9 @@ for(sim_i in 1:n_sim){
              add_boot_ci = TRUE,
              add_quartiles_ci = TRUE,
              plot_it = FALSE) # return abs slope difference
-}</code></pre>
-<pre><code>## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
+}
 
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps
-
-## Warning in rlm.default(x, y, weights, method = method, wt.method =
-## wt.method, : &#39;rlm&#39; failed to converge in 20 steps</code></pre>
-<pre class="r"><code>max_i &lt;- which(rank(slope_diff) &gt; 990)
+max_i &lt;- which(rank(slope_diff) &gt; 990)
 # [1] 282 334 534 674 715 774 857 866 923 974
 
 # use these to explore
