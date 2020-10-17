@@ -571,10 +571,7 @@ library(ggplot2) library(data.table)  First – create fake data depths &lt;- c(
                   Oct 10, 2020
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Source: Wellenstein, M.D., Coffelt, S.B., Duits, D.E., van Miltenburg, M.H., Slagter, M., de Rink, I., Henneman, L., Kas, S.M., Prekovic, S., Hau, C.S. and Vrijland, K., 2019. Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis. Nature, 572(7770), pp.538-542.
-Public source
-Data source
-data_from &lt;- &quot;Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis&quot; file_name &lt;- &quot;41586_2019_1450_MOESM3_ESM.xlsx&quot; file_path &lt;- here(data_folder, data_from, file_name) treatment_levels &lt;- c(&quot;Trp53+/+&quot;, &quot;Trp53-/-&quot;) fig1f &lt;- read_excel(file_path, sheet = &quot;Fig.</div>
+              <div class="media-content hide-xs font-merryweather"># import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

@@ -17,10 +17,7 @@
       <pubDate>Thu, 15 Oct 2020 00:00:00 +0000</pubDate>
       
       <guid>/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/</guid>
-      <description>Source: Wellenstein, M.D., Coffelt, S.B., Duits, D.E., van Miltenburg, M.H., Slagter, M., de Rink, I., Henneman, L., Kas, S.M., Prekovic, S., Hau, C.S. and Vrijland, K., 2019. Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis. Nature, 572(7770), pp.538-542.
-Public source
-Data source
-data_from &amp;lt;- &amp;quot;Loss of p53 triggers WNT-dependent systemic inflammation to drive breast cancer metastasis&amp;quot; file_name &amp;lt;- &amp;quot;41586_2019_1450_MOESM3_ESM.xlsx&amp;quot; file_path &amp;lt;- here(data_folder, data_from, file_name) treatment_levels &amp;lt;- c(&amp;quot;Trp53+/+&amp;quot;, &amp;quot;Trp53-/-&amp;quot;) fig1f &amp;lt;- read_excel(file_path, sheet = &amp;quot;Fig.</description>
+      <description># import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &amp;lt;- here::here data_folder &amp;lt;- &amp;quot;content/data&amp;quot; output_folder &amp;lt;- &amp;quot;content/output&amp;quot; # Okabe &amp;amp; Ito palette ito_seven &amp;lt;- friendly_pal(&amp;quot;ito_seven&amp;quot;) # ggpubfigs pal_okabe_ito &amp;lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below.</description>
     </item>
     
     <item>
