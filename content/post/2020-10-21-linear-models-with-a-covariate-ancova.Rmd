@@ -1,0 +1,277 @@
+---
+title: Linear models with a covariate ("ANCOVA")
+author: Jeff Walker
+date: '2020-10-21'
+slug: linear-models-with-a-covariate-ancova
+categories:
+  - stats 101
+tags:
+  - ancova
+  - categorical X
+  - linear model
+  - covariates
+keywords:
+  - tech
+---
+
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message=FALSE,
+                      warning = FALSE)
+# import an messaging
+library(here)
+library(janitor)
+library(readxl)
+library(data.table)
+
+# analysis
+library(emmeans)
+
+# graphics and output
+library(ggpubr) # qq plot functions
+library(ggpubfigs) # palette
+library(qqplotr) ## qq plot functions
+library(ggforce)
+library(cowplot)
+library(gganimate)
+
+here <- here::here
+data_folder <- "content/data"
+output_folder <- "content/output"
+
+# Okabe & Ito palette
+pal_ito_seven <- friendly_pal("ito_seven") # ggpubfigs
+pal_okabe_ito <- pal_ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke
+# 
+```
+
+
+```{r import}
+data_from <- "1-Deoxydihydroceramide causes anoxic death by impairing chaperonin-mediated protein folding"
+file_name <- "42255_2019_123_MOESM7_ESM.xlsx"
+file_path <- here(data_folder, data_from, file_name)
+  
+sheet_i <- "Figure 4h"
+fig4h_1 <- read_excel(file_path,
+                         sheet = sheet_i,
+                         range = "A5:B19",
+                         col_names = TRUE) %>%
+  clean_names() %>%
+  data.table()
+fig4h_2 <- read_excel(file_path,
+                         sheet = sheet_i,
+                         range = "D5:E17",
+                         col_names = TRUE) %>%
+  clean_names() %>%
+  data.table()
+fig4h_3 <- read_excel(file_path,
+                         sheet = sheet_i,
+                         range = "G5:H15",
+                         col_names = TRUE) %>%
+  clean_names() %>%
+  data.table()
+
+fig4h <- rbind(data.table(treatment = "Vehicle", fig4h_1),
+                    data.table(treatment = "Myriocin", fig4h_2),
+                    data.table(treatment = "Myriocin + DoxSa", fig4h_3))
+
+# get rid of Myriocin
+fig4h <- fig4h[treatment != "Myriocin"]
+
+treatment_levels <- c("Vehicle", "Myriocin + DoxSa")
+fig4h[, treatment := factor(treatment, levels = treatment_levels)]
+
+```
+
+```{r}
+m1 <- lm(area_of_necrosis ~ treatment, data = fig4h)
+m1_emm <- emmeans(m1, specs = "treatment")
+m1_pairs <- contrast(m1_emm, method = "revpairwise", adjust = "none") %>%
+  summary(infer = TRUE)
+```
+
+```{r}
+gg1 <- ggplot(data = fig4h,
+              aes(x = treatment,
+                  y = area_of_necrosis,
+                  color = treatment)) +
+  # points
+  geom_point(size = 2,
+             alpha = 0.5) +
+  
+  # mean
+  geom_point(data = data.table(summary(m1_emm)),
+              aes(y = emmean),
+              size = 4) +
+  
+  theme_pubr() +
+  
+  scale_color_manual(values = pal_ito_seven) +
+  
+  theme(legend.position="none") +
+  theme(axis.title.x=element_blank()) +
+  
+  NULL
+  
+#gg1
+```
+
+```{r}
+m2 <- lm(area_of_necrosis ~ area_at_risk + treatment, data = fig4h)
+b <- coef(m2)
+m2_emm <- emmeans(m2, specs = "treatment")
+m2_emm_dt <- data.table(summary(m2_emm))
+m2_emm_dt[, intercept := c(b[1], b[1] + b[3])]
+m2_emm_dt[, slope := rep(b[2], 2)]
+
+```
+
+```{r}
+gg2 <- ggplot(data = fig4h,
+              aes(x = area_at_risk,
+                  y = area_of_necrosis,
+                  color = treatment)) +
+  # points
+  geom_point(size = 2) +
+  
+  geom_abline(data = m2_emm_dt,
+              aes(slope = slope,
+                  intercept = intercept,
+                  color = treatment)) +
+  
+  theme_pubr() +
+  
+  scale_color_manual(values = pal_ito_seven) +
+  
+  theme(legend.position="none") +
+  
+  NULL
+  
+# gg2
+```
+
+```{r}
+x_means <- fig4h[, .(mean = mean(area_at_risk)), by = treatment]
+grand_mean <- mean(x_means[, mean])
+
+fig4h[, no_covariate := ifelse(treatment == "Vehicle", -1, 1)]
+fig4h[, covariate := area_at_risk]
+# fig4h[, covariate_line := area_at_risk]
+
+fig4h_animate <- melt(fig4h,
+                      id.vars = c("treatment", "area_of_necrosis"),
+                      measure.vars = c("no_covariate",
+                                       "covariate"),
+                      variable.name = "model",
+                      value.name = "area_at_risk")
+
+# create regression lines as series of yhat at many values
+# of x
+minx <- min(fig4h[, area_at_risk])
+maxx <- max(fig4h[, area_at_risk])
+n_line <- 300
+regression_line_coords <- data.table(treatment = rep(c("Vehicle",
+                                         "Myriocin + DoxSa"),
+                                       each = n_line),
+                       area_at_risk = rep(seq(minx, 
+                                              maxx,
+                                              length.out=n_line),
+                                          2),
+                       model = "covariate")
+regression_line_coords[, area_of_necrosis_hat := predict(m2, newdata = regression_line_coords)]
+  
+# white dots erase the regression lines when "no_covariate"
+# plot is showing
+regression_line_coords_white <- copy(regression_line_coords)
+regression_line_coords_white[, model := "no_covariate"]
+setnames(regression_line_coords_white, "area_of_necrosis_hat", "area_of_necrosis_white")
+
+# create vertical black line indicating treatment effect
+# conditional on Area at Risk
+diff_line_minmax <- regression_line_coords[area_at_risk == minx,
+                            area_of_necrosis_hat]
+diff_line_y <- seq(min(diff_line_minmax),
+                   max(diff_line_minmax),
+                   length.out = 100)
+diff_line_coords <- data.table(area_at_risk = minx-1,
+                               diff_line_y = diff_line_y,
+                               model = "covariate")
+# white dots erase vertical black line when model = "no_covariate"
+diff_line_coords_white <- copy(diff_line_coords)
+diff_line_coords_white[, model := "no_covariate"]
+setnames(diff_line_coords_white,
+         "diff_line_y",
+         "diff_line_y_white")
+
+fig4h_animate <- rbindlist(list(fig4h_animate,
+                                regression_line_coords,
+                                regression_line_coords_white,
+                                diff_line_coords,
+                                diff_line_coords_white),
+                           fill = TRUE)
+# fig4h_animate <- fig4h_animate[model != "covariate"]
+# fig4h_animate[, model := factor(model, levels = c("no_covariate",
+#                                                   "covariate_line"))]
+```
+
+```{r}
+title_str <- "linear model with covariate (ANCOVA) explainer"
+caption_str <- "data source: https://doi.org/10.1038/s42255-019-0123-y"
+sub_title_str<- "Adding a covariate spreads the points along the covariate axis. The result is an effect\nof treatment conditional on (at any value of) Area at Risk. This effect is the difference\nin elevation between the red and blue lines, indicated by the black line."
+
+gg3 <- ggplot(data = fig4h_animate,
+              aes(x = area_at_risk,
+                  y = area_of_necrosis,
+                  color = treatment)) +
+  # points
+  geom_point(size = 2) +
+  
+  # draw colored regression lines
+  geom_point(aes(y = area_of_necrosis_hat),
+             size = 0.25) +
+  
+  # hide regression lines
+  geom_point(aes(y = area_of_necrosis_white),
+             size = 0.25,
+             color = "white") +
+
+  # draw difference line
+  geom_point(aes(y = diff_line_y),
+             size = 0.25,
+             color = "black") +
+  
+  # hide difference line
+  geom_point(aes(y = diff_line_y_white),
+             size = 0.25,
+             color = "white") +
+
+  theme_pubr() +
+  
+  scale_color_manual(values = pal_ito_seven,
+                     na.translate=FALSE) +
+  
+  theme(legend.position="bottom") +
+  ylab("Area of Necrosis (mg)") +
+  xlab("Area at Risk (mg)") +
+  labs(title = title_str,
+       subtitle = sub_title_str,
+       caption = caption_str) +
+
+  coord_cartesian(ylim <- c(-3, 62)) +
+  NULL
+  
+gg3
+```
+
+```{r}
+anim <- gg3 +
+  transition_states(model,
+                    transition_length = 2,
+                    state_length = 1)
+anim
+
+file_out <- here(output_folder, "lm_covariate.gif")
+# anim_save(file_out, animation = last_animation())
+
+```
+

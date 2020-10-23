@@ -6,7 +6,7 @@
     <description>Recent content in Tags on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 12 Jul 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 21 Oct 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,7 +14,7 @@
     <item>
       <title>Ancova</title>
       <link>/tags/ancova/</link>
-      <pubDate>Sun, 12 Jul 2020 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 21 Oct 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/ancova/</guid>
       <description></description>
@@ -23,7 +23,7 @@
     <item>
       <title>Anova</title>
       <link>/tags/anova/</link>
-      <pubDate>Fri, 29 Nov 2019 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 23 Oct 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/anova/</guid>
       <description></description>
@@ -50,7 +50,7 @@
     <item>
       <title>Categorical X</title>
       <link>/tags/categorical-x/</link>
-      <pubDate>Wed, 31 Jul 2019 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 21 Oct 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/categorical-x/</guid>
       <description></description>
@@ -98,6 +98,15 @@
       <pubDate>Wed, 31 Jul 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/covariance/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Covariates</title>
+      <link>/tags/covariates/</link>
+      <pubDate>Wed, 21 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/covariates/</guid>
       <description></description>
     </item>
     
@@ -185,7 +194,7 @@
     <item>
       <title>Linear Model</title>
       <link>/tags/linear-model/</link>
-      <pubDate>Sun, 12 Jul 2020 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 21 Oct 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/linear-model/</guid>
       <description></description>

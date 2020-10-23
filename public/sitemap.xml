@@ -3,6 +3,16 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2020/10/type-3-anova-in-r-an-easy-way-to-publish-wrong-tables/</loc>
+    <lastmod>2020-10-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/2020/10/linear-models-with-a-covariate-ancova/</loc>
+    <lastmod>2020-10-21T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/</loc>
     <lastmod>2020-10-15T00:00:00+00:00</lastmod>
   </url>
@@ -218,13 +228,13 @@
   
   <url>
     <loc>/tags/ancova/</loc>
-    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
+    <lastmod>2020-10-21T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/anova/</loc>
-    <lastmod>2019-11-29T00:00:00+00:00</lastmod>
+    <lastmod>2020-10-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -247,7 +257,7 @@
   
   <url>
     <loc>/tags/categorical-x/</loc>
-    <lastmod>2019-07-31T00:00:00+00:00</lastmod>
+    <lastmod>2020-10-21T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -289,6 +299,12 @@
   <url>
     <loc>/tags/covariance/</loc>
     <lastmod>2019-07-31T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/covariates/</loc>
+    <lastmod>2020-10-21T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -365,7 +381,7 @@
   
   <url>
     <loc>/tags/linear-model/</loc>
-    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
+    <lastmod>2020-10-21T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -437,7 +453,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2020-10-15T00:00:00+00:00</lastmod>
+    <lastmod>2020-10-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -455,7 +471,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2020-10-15T00:00:00+00:00</lastmod>
+    <lastmod>2020-10-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -491,13 +507,13 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2020-10-15T00:00:00+00:00</lastmod>
+    <lastmod>2020-10-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/</loc>
-    <lastmod>2020-07-12T00:00:00+00:00</lastmod>
+    <lastmod>2020-10-21T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

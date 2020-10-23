@@ -1,0 +1,51 @@
+---
+title: Type 3 ANOVA in R -- an easy way to publish wrong tables
+author: Jeff Walker
+date: '2020-10-23'
+slug: type-3-anova-in-r-an-easy-way-to-publish-wrong-tables
+categories:
+  - stats 101
+tags:
+  - anova
+keywords:
+  - tech
+---
+
+In R, so-called "Type I sums of squares" are default. With balanced designs, inferential statistics from Type I, II, and III sums of squares are equal. But you to get the correct Type III statistics, you must set the contrasts in the model matrix to `contr.sum`. Type III sums of squares are returned using `car::Anova` instead of base R `anova`.
+
+Best practice: many google searches will return code that resets the contrasts globally using `options`. I use code that specifies the contrasts only in the linear model that we want to specify `contr.sum`. This is much safer, at least if you like to interpret model coefficients using default R contrasts -- [the coefficients are differences relative to a reference and the interactions are relative to what you would have gotten if things were additive](https://rdoodles.rbind.io/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/). If I reset the contrasts globally using `options`, and then, in code further down the document, fit a linear model and interpret the coefficients as if the model was fit with R default contrasts, then my interpretation of the effects would be wrong. 
+
+```{r}
+library(data.table)
+library(car)
+n <- 5
+fd <- data.table(fac1 = rep(c("cn","tr"), each = n*2*2),
+                 fac2 = rep(rep(c("wt", "ko"), each = n*2), 2),
+                 fac3 = rep(rep(rep(c("f","m"), each = n),2),2),
+                 y = rnorm(n*2*2*2))
+```
+
+# linear model set with R defaults, using anova -- correct Type I
+```{r}
+m1 <- lm(y ~ fac1*fac2*fac3, data = fd)
+anova(m1)
+```
+
+# linear model set with contr.sum, using Anova -- correct Type III
+
+```{r}
+type3 <- list(fac1 = contr.sum, fac2 = contr.sum, fac3 = contr.sum)
+m2 <- lm(y ~ fac1*fac2*fac3, data = fd, contrasts = type3)
+Anova(m2, type = 3) # correct type 3
+```
+
+# linear model set with R defaults, using Anova -- wrong Type III
+
+This is garbage.
+
+```{r}
+m1 <- lm(y ~ fac1*fac2*fac3, data = fd)
+Anova(m1, type = 3) # correct type 3
+```
+
+

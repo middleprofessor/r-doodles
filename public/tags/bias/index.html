@@ -493,6 +493,41 @@ If \(x_3\) (the interaction) is missing, its component on the total efffect is a
           <div class="media">
             
             <div class="media-body">
+              <a class="link-unstyled" href="/2020/10/type-3-anova-in-r-an-easy-way-to-publish-wrong-tables/">
+                <h3 class="media-heading">Type 3 ANOVA in R -- an easy way to publish wrong tables</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">In R, so-called “Type I sums of squares” are default. With balanced designs, inferential statistics from Type I, II, and III sums of squares are equal. But you to get the correct Type III statistics, you must set the contrasts in the model matrix to contr.sum. Type III sums of squares are returned using car::Anova instead of base R anova.
+Best practice: many google searches will return code that resets the contrasts globally using options.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/10/linear-models-with-a-covariate-ancova/">
+                <h3 class="media-heading">Linear models with a covariate (&#34;ANCOVA&#34;)</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather"> </div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
               <a class="link-unstyled" href="/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
                 <h3 class="media-heading">Normal Q-Q plots - what is the robust line and should we prefer it?</h3>
               </a>
@@ -638,43 +673,6 @@ from Panel A of a figure from Hernan and Cole. The scribbled red path coefficien
             <hr>
           </div>
         
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/11/estimate-of-marginal-main-effects-instead-of-anova-for-factorial-experiments/">
-                <h3 class="media-heading">Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Nov 11, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">Background Comparing marginal effects to main effect terms in an ANOVA table First, some fake data Comparison of marginal effects vs. “main” effects term of ANOVA table when data are balanced Comparison of marginal effects vs. “main” effects term of ANOVA table when data are unbalanced  When to estimate marginal effects   keywords: estimation, ANOVA, factorial, model simplification, conditional effects, marginal effects
-Background I recently read a paper from a very good ecology journal that communicated the results of an ANOVA like that below (Table 1) using a statement similar to “The removal of crabs strongly decreased algae cover (\(F_{1,36} = 17.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="/2019/10/can-a-linear-model-reproduce-a-welch-t-test/">
-                <h3 class="media-heading">Can a linear model reproduce a Welch t-test?</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Oct 10, 2019
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather">This doodle was motivated Jake Westfall’s answer to a Cross-Validated question.
-The short answer is yes but most R scripts that I’ve found on the web are unsatisfying because only the t-value reproduces, not the df and p-value. Jake notes the reason for this in his answer on Cross-Validated.
-To get the adjusted df, and the p-value associated with this, one can use the emmeans package by Russell Lenth, as he notes here.</div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
       </div>
     </div>
     <div class="modal-footer">
@@ -682,7 +680,7 @@ To get the adjusted df, and the p-value associated with this, one can use the em
          data-message-zero="no post found"
          data-message-one="1 post found"
          data-message-other="{n} posts found">
-         42 posts found
+         44 posts found
       </p>
     </div>
   </div>

@@ -41,7 +41,7 @@ pal_okabe_ito <- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke
 # 
 ```
 
-Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through. I have not gone back through to economize length. So yeh, some repeated code I've turned into functions and others are just repeated.
+Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through. I have not gone back through to economize length. So yeh, some repeated code I've turned into functions and other repeated code is repeated.
 
 This post is not about *how* to interpret a Q-Q plot but about **which Q-Q plot?** to interpret.
 

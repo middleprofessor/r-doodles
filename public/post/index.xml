@@ -6,10 +6,29 @@
     <description>Recent content in Posts on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 15 Oct 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 23 Oct 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Type 3 ANOVA in R -- an easy way to publish wrong tables</title>
+      <link>/2020/10/type-3-anova-in-r-an-easy-way-to-publish-wrong-tables/</link>
+      <pubDate>Fri, 23 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/10/type-3-anova-in-r-an-easy-way-to-publish-wrong-tables/</guid>
+      <description>In R, so-called “Type I sums of squares” are default. With balanced designs, inferential statistics from Type I, II, and III sums of squares are equal. But you to get the correct Type III statistics, you must set the contrasts in the model matrix to contr.sum. Type III sums of squares are returned using car::Anova instead of base R anova.
+Best practice: many google searches will return code that resets the contrasts globally using options.</description>
+    </item>
+    
+    <item>
+      <title>Linear models with a covariate (&#34;ANCOVA&#34;)</title>
+      <link>/2020/10/linear-models-with-a-covariate-ancova/</link>
+      <pubDate>Wed, 21 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/10/linear-models-with-a-covariate-ancova/</guid>
+      <description> </description>
+    </item>
     
     <item>
       <title>Normal Q-Q plots - what is the robust line and should we prefer it?</title>
