@@ -13,7 +13,7 @@ keywords:
 
 
 
-<p>In R, so-called “Type I sums of squares” are default. With balanced designs, inferential statistics from Type I, II, and III sums of squares are equal. But you to get the correct Type III statistics, you must set the contrasts in the model matrix to <code>contr.sum</code>. Type III sums of squares are returned using <code>car::Anova</code> instead of base R <code>anova</code>.</p>
+<p>In R, so-called “Type I sums of squares” are default. With balanced designs, inferential statistics from Type I, II, and III sums of squares are equal. Type III sums of squares are returned using <code>car::Anova</code> instead of base R <code>anova</code>. But to get the correct Type III statistics, you cannot simply specify <code>car:Anova(m1, type = 3)</code>. You also have to set the contrasts in the model matrix to <code>contr.sum</code> in your linear model fit.</p>
 <p>Best practice: many google searches will return code that resets the contrasts globally using <code>options</code>. I use code that specifies the contrasts only in the linear model that we want to specify <code>contr.sum</code>. This is much safer, at least if you like to interpret model coefficients using default R contrasts – <a href="https://rdoodles.rbind.io/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/">the coefficients are differences relative to a reference and the interactions are relative to what you would have gotten if things were additive</a>. If I reset the contrasts globally using <code>options</code>, and then, in code further down the document, fit a linear model and interpret the coefficients as if the model was fit with R default contrasts, then my interpretation of the effects would be wrong.</p>
 <pre class="r"><code>library(data.table)
 library(car)</code></pre>
@@ -31,14 +31,14 @@ anova(m1)</code></pre>
 ## 
 ## Response: y
 ##                Df  Sum Sq Mean Sq F value  Pr(&gt;F)  
-## fac1            1  0.0531 0.05313  0.0682 0.79568  
-## fac2            1  0.8471 0.84706  1.0869 0.30497  
-## fac3            1  0.5727 0.57271  0.7349 0.39769  
-## fac1:fac2       1  2.9096 2.90962  3.7334 0.06223 .
-## fac1:fac3       1  0.7673 0.76727  0.9845 0.32853  
-## fac2:fac3       1  1.1307 1.13072  1.4509 0.23722  
-## fac1:fac2:fac3  1  1.2357 1.23569  1.5856 0.21707  
-## Residuals      32 24.9390 0.77934                  
+## fac1            1  0.0064 0.00642  0.0066 0.93562  
+## fac2            1  0.1998 0.19978  0.2062 0.65283  
+## fac3            1  0.1578 0.15781  0.1629 0.68921  
+## fac1:fac2       1  0.8592 0.85918  0.8868 0.35341  
+## fac1:fac3       1  1.2276 1.22755  1.2670 0.26871  
+## fac2:fac3       1  0.1080 0.10803  0.1115 0.74062  
+## fac1:fac2:fac3  1  2.9696 2.96960  3.0650 0.08958 .
+## Residuals      32 31.0043 0.96888                  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 </div>
@@ -51,15 +51,15 @@ Anova(m2, type = 3) # correct type 3</code></pre>
 ## 
 ## Response: y
 ##                 Sum Sq Df F value  Pr(&gt;F)  
-## (Intercept)     0.3216  1  0.4126 0.52521  
-## fac1            0.0531  1  0.0682 0.79568  
-## fac2            0.8471  1  1.0869 0.30497  
-## fac3            0.5727  1  0.7349 0.39769  
-## fac1:fac2       2.9096  1  3.7334 0.06223 .
-## fac1:fac3       0.7673  1  0.9845 0.32853  
-## fac2:fac3       1.1307  1  1.4509 0.23722  
-## fac1:fac2:fac3  1.2357  1  1.5856 0.21707  
-## Residuals      24.9390 32                  
+## (Intercept)     0.0420  1  0.0433 0.83643  
+## fac1            0.0064  1  0.0066 0.93562  
+## fac2            0.1998  1  0.2062 0.65283  
+## fac3            0.1578  1  0.1629 0.68921  
+## fac1:fac2       0.8592  1  0.8868 0.35341  
+## fac1:fac3       1.2276  1  1.2670 0.26871  
+## fac2:fac3       0.1080  1  0.1115 0.74062  
+## fac1:fac2:fac3  2.9696  1  3.0650 0.08958 .
+## Residuals      31.0043 32                  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 </div>
@@ -71,16 +71,16 @@ Anova(m1, type = 3) # correct type 3</code></pre>
 <pre><code>## Anova Table (Type III tests)
 ## 
 ## Response: y
-##                 Sum Sq Df F value Pr(&gt;F)  
-## (Intercept)     0.3228  1  0.4142 0.5244  
-## fac1            0.7230  1  0.9277 0.3427  
-## fac2            0.4827  1  0.6194 0.4371  
-## fac3            1.0566  1  1.3557 0.2529  
-## fac1:fac2       0.1765  1  0.2265 0.6374  
-## fac1:fac3       0.0278  1  0.0356 0.8515  
-## fac2:fac3       2.3653  1  3.0349 0.0911 .
-## fac1:fac2:fac3  1.2357  1  1.5856 0.2171  
-## Residuals      24.9390 32                 
+##                 Sum Sq Df F value  Pr(&gt;F)  
+## (Intercept)     0.7616  1  0.7860 0.38192  
+## fac1            0.9845  1  1.0161 0.32101  
+## fac2            0.1149  1  0.1186 0.73278  
+## fac3            3.1633  1  3.2649 0.08019 .
+## fac1:fac2       0.3171  1  0.3273 0.57128  
+## fac1:fac3       4.0078  1  4.1366 0.05033 .
+## fac2:fac3       2.1052  1  2.1728 0.15024  
+## fac1:fac2:fac3  2.9696  1  3.0650 0.08958 .
+## Residuals      31.0043 32                  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 </div>

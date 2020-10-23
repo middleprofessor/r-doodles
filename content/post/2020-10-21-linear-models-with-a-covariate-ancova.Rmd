@@ -260,7 +260,7 @@ gg3 <- ggplot(data = fig4h_animate,
   coord_cartesian(ylim <- c(-3, 62)) +
   NULL
   
-gg3
+# gg3
 ```
 
 ```{r}

@@ -1055,8 +1055,7 @@ plot_grid(gg_a, gg_b, ncol=2)</code></pre>
                   Oct 10, 2020
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">In R, so-called “Type I sums of squares” are default. With balanced designs, inferential statistics from Type I, II, and III sums of squares are equal. But you to get the correct Type III statistics, you must set the contrasts in the model matrix to contr.sum. Type III sums of squares are returned using car::Anova instead of base R anova.
-Best practice: many google searches will return code that resets the contrasts globally using options.</div>
+              <div class="media-content hide-xs font-merryweather">In R, so-called “Type I sums of squares” are default. With balanced designs, inferential statistics from Type I, II, and III sums of squares are equal. Type III sums of squares are returned using car::Anova instead of base R anova. But to get the correct Type III statistics, you cannot simply specify car:Anova(m1, type = 3). You also have to set the contrasts in the model matrix to contr.sum in your linear model fit.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>

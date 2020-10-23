@@ -11,7 +11,7 @@ keywords:
   - tech
 ---
 
-In R, so-called "Type I sums of squares" are default. With balanced designs, inferential statistics from Type I, II, and III sums of squares are equal. But you to get the correct Type III statistics, you must set the contrasts in the model matrix to `contr.sum`. Type III sums of squares are returned using `car::Anova` instead of base R `anova`.
+In R, so-called "Type I sums of squares" are default. With balanced designs, inferential statistics from Type I, II, and III sums of squares are equal. Type III sums of squares are returned using `car::Anova` instead of base R `anova`. But to get the correct Type III statistics, you cannot simply specify `car:Anova(m1, type = 3)`. You also have to set the contrasts in the model matrix to `contr.sum` in your linear model fit. 
 
 Best practice: many google searches will return code that resets the contrasts globally using `options`. I use code that specifies the contrasts only in the linear model that we want to specify `contr.sum`. This is much safer, at least if you like to interpret model coefficients using default R contrasts -- [the coefficients are differences relative to a reference and the interactions are relative to what you would have gotten if things were additive](https://rdoodles.rbind.io/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/). If I reset the contrasts globally using `options`, and then, in code further down the document, fit a linear model and interpret the coefficients as if the model was fit with R default contrasts, then my interpretation of the effects would be wrong. 
 
