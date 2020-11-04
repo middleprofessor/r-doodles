@@ -23,7 +23,7 @@ A factorial experiment is one in which there are two or more factor variables (c
 
 The motivating source article contains an experiment measuring the effect of two defense signals on the defense response in Maize plants. The source data from the experiment is an excellent resource for pumping inuition on interaction effects. In response to herbivory from insects, maize, and other plants, release multiple, chemical signals into the air (chemicals that evaporate into the air are known as volatile compounds). These chemicals signal the plant, and neighboring plants, to secrete anti-herbivory hormones, including abcisic acid and jasmonic acid. The researchers investigated the effects of two volatile compounts, (Z)‐3‐hexenyl acetate (HAC) and Indole, on the defense response both each without the other and in combination.
 
-In a different post ([How to measure synergism or antagonism](https://rdoodles.rbind.io/posts-biocstyle/2020-11-03-what-is-an-interaction.html), I use these data to show why the interaction effect is the measure of syergism that the authors of the motivating article want.
+In a different post ([How to measure synergism or antagonism](https://rdoodles.rbind.io/posts-biocstyle/2020-11-03-how_to_measure_synergism.html), I use these data to show why the interaction effect is the measure of syergism that the authors of the motivating article want.
 
 In this post, I use these data to explain why we should take the time to teach and learn the meaning of the coefficients of linear ("regression") models fit to the data from classical experiments with categorical (treatment) variables.
 
