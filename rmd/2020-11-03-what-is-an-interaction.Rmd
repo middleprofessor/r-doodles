@@ -17,6 +17,8 @@ motivating source: [Integration of two herbivore-induced plant volatiles results
 
 tags: factorial design, interaction, synergism, two-way anova, linear model
 
+tl;dr -- [go right to the picture!][What an interaction *is*]
+
 A factorial experiment is one in which there are two or more factor variables (categorical $X$) that are **crossed**, resulting in a group for each combination of the levels of each factor. Factorial experiments are used to estimate the **interaction** effect between factors. Two factors interact when the effect of one factor depends on the level of the other factors. Interactions are ubiquitous, although sometimes they are small enough to ignore with little to no loss of understanding.
 
 # Maize defense response
@@ -192,7 +194,7 @@ aba = b_0 + b_1 hac_{HAC^+} + b_2 indole_{Indole^+} + b_3 hac_{HAC^+}:indole_{In
 
 An interaction is a **non-additive effect**. Think about this. Adding HAC alone increases ABA concentration by 13.3 ng per g FW. Adding Indole alone increases ABA concentration by 8.8 ng per g FW. If these effects were purely additive, then adding both HAC and Indole to the Control mean should result in a mean of 19.2 + 13.3 + 8.8 = 41.3 ng per g FW in the HAC+Indole group. The modeled mean is 54.1 ng per g FW. The difference observed - additive is 54.1 - 41.3 = 12.8 ng per g FW. Compare this to the interaction coefficient in the coefficient table.
 
-```{r factorial-what-are-coefficients-plot, echo=FALSE, fig.cap="Meaning of coefficients in factorial model. b0 (blue line) is the mean of the reference (Control). b1 (orange line) is the /HAC effect. Numerically, it is the mean of the HAC group minus the mean of the reference. b2 (green line) is the Indole effect. Numerically it is the mean of the Indole group minus the mean of the reference. The expected mean of the HAC+Indole group if HAC and Indole were additive is b0 + b1 + b2 (gray circle). b3 (purple line) is interaction effect. Numerically, it is the observed mean of the HAC+Indole group minus the expected additive mean (gray circle)"}
+```{r factorial-what-are-coefficients-plot, echo=FALSE, fig.cap="Meaning of coefficients in factorial model. b0 (blue line) is the mean of the reference (Control). b1 (orange line) is the /HAC effect. Numerically, it is the mean of the HAC group minus the mean of the reference. b2 (green line) is the Indole effect. Numerically it is the mean of the Indole group minus the mean of the reference. The expected mean of the HAC+Indole group if HAC and Indole were additive is b0 + b1 + b2 (gray circle). b3 (purple line) is the interaction effect. Numerically, it is the observed mean of the HAC+Indole group minus the expected additive mean (gray circle)"}
 m1 <- lm(aba ~ hac * indole, data = fig1)
 m1_emm <- emmeans(m1, specs=c("hac", "indole"))%>%
   summary() %>%
@@ -245,19 +247,16 @@ gg_add <- ggplot(data = m1_emm,
            parse=TRUE,
            x = 1.15,
            y = b0/2) +
-  
   annotate(geom = "text",
            label="b[1]",
            parse=TRUE,
            x = 2.15,
            y = b0 + b1/2) +
-
   annotate(geom = "text",
            label="b[2]",
            parse=TRUE,
            x = 3.15,
            y = b0 + b2/2) +
-
   annotate(geom = "text",
            label="b[3]",
            parse=TRUE,
@@ -265,19 +264,27 @@ gg_add <- ggplot(data = m1_emm,
            y = b0 + b1 + b2 + b2/2) +
 
   annotate(geom = "text",
-           label="HAC+Indole mean if HAC and",
-           x = 2.2,
-           y = 53) +
-  
-  annotate(geom = "text",
-           label="Indole effects were additive",
-           x = 2.2,
-           y = 50) +
-  
+           label="interaction effect",
+           x = 2.55,
+           y = 51.5,
+           size = 4) +
   geom_segment(aes(x = 3.1,
-                   y = 49,
+                   y = 51,
                    xend = 3.9,
-                   yend = b0+b1+b2+1),
+                   yend = b0+b1+b2+b3/2),
+               arrow=arrow(length = unit(0.05, "npc"),
+                           ends="last",type="open"),
+               color="black") +
+
+  annotate(geom = "text",
+           label="additive expectation",
+           x = 2.55,
+           y = 44.5,
+           size = 4) +
+  geom_segment(aes(x = 3.2,
+                   y = 44,
+                   xend = 3.9,
+                   yend = b0+b1+b2+0.3),
                arrow=arrow(length = unit(0.05, "npc"),
                            ends="last",type="open"),
                color="black") +
