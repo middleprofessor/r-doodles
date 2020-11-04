@@ -1,0 +1,303 @@
+---
+title: "What is an interaction?"
+author: "Jeffrey A. Walker"
+date: "11/3/2020"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    fig_caption: yes
+    number_sections: true
+    code_folding: show
+    includes:
+      before_body: copyright.html
+---
+motivating source: [Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance](https://onlinelibrary.wiley.com/doi/abs/10.1111/pce.13443)
+
+tags: factorial design, interaction, synergism, two-way anova, linear model
+
+A factorial experiment is one in which there are two or more factor variables (categorical $X$) that are **crossed**, resulting in a group for each combination of the levels of each factor. Factorial experiments are used to estimate the **interaction** effect between factors. Two factors interact when the effect of one factor depends on the level of the other factors. Interactions are ubiquitous, although sometimes they are small enough to ignore with little to no loss of understanding.
+
+# Maize defense response
+
+The motivating source article contains an experiment measuring the effect of two defense signals on the defense response in Maize plants. The source data from the experiment is an excellent resource for pumping inuition on interaction effects. In response to herbivory from insects, maize, and other plants, release multiple, chemical signals into the air (chemicals that evaporate into the air are known as volatile compounds). These chemicals signal the plant, and neighboring plants, to secrete anti-herbivory hormones, including abcisic acid and jasmonic acid. The researchers investigated the effects of two volatile compounts, (Z)‐3‐hexenyl acetate (HAC) and Indole, on the defense response both each without the other and in combination.
+
+In a different post ([How to measure synergism or antagonism](https://rdoodles.rbind.io/posts-biocstyle/2020-11-03-what-is-an-interaction.html), I use these data to show why the interaction effect is the measure of syergism that the authors of the motivating article want.
+
+In this post, I use these data to explain why we should take the time to teach and learn the meaning of the coefficients of linear ("regression") models fit to the data from classical experiments with categorical (treatment) variables.
+
+Wait what? I thought regression models were for data with continuous $X$ variables and that ANOVA was for experimental data. This is the way statistics is often taught *and* practiced but analyzing experimental data with a linear (regression) model has many advantages over analyzing with ANOVA, some of which are explored here. Wait what? I heard that linear (regression) models and ANOVA are the same thing. No. A linear model is used to compute coefficients and standard errors of the coefficients. ANOVA is a method of computing ratios of variances, generally in order to compute a *p*-value; a linear model can be used to get the numbers to compute these variances but this isn't necessary and is not how ANOVA was originally done (or taught in classical biostatistics books like Zar or Sokal and Rohlf).
+
+```{r setup, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+
+library(here)
+library(janitor)
+library(readxl)
+library(data.table)
+
+# graphics and tables
+library(ggplot2)
+library(ggpubr) # publication ready plots
+library(ggforce) # jitter
+library(ggsci) # color palettes
+library(ggpubfigs) # color palettes
+library(ggthemes) # themes and palettes including colorblind
+library(cowplot) # combine plots
+library(lazyWeave)
+library(kableExtra)
+
+# analysis packages
+library(emmeans)
+library(lmPerm)
+
+here <- here::here
+data_folder <- "content/data"
+
+# Okabe & Ito palette
+pal_ito_seven <- friendly_pal("ito_seven") # ggpubfigs
+pal_okabe_ito <- colorblind_pal()(8)[2:8] # ggthemes
+
+```
+
+```{r factorial-import-ecology, echo=FALSE}
+
+data_from <- "Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance"
+file_name <- "Data for Dryad.xlsx"
+file_path <- here(data_folder, data_from, file_name)
+
+fig1 <- read_excel(file_path,
+                     sheet = "Fig. 1",
+                     range = "A3:K23", # 1 blank column
+                     col_names = TRUE) %>%
+  data.table() %>%
+  clean_names()
+
+fig1[treat == "Control", c("hac", "indole") := list("HAC-", "Indole-")]
+fig1[treat == "HAC", c("hac", "indole") := list("HAC+", "Indole-")]
+fig1[treat == "Indole", c("hac", "indole") := list("HAC-", "Indole+")]
+fig1[treat == "HAC+Indole", c("hac", "indole") := list("HAC+", "Indole+")]
+
+treat_levels <- c("Control", "HAC", "Indole", "HAC+Indole")
+fig1[, treat := factor(treat, levels = treat_levels)]
+fig1[, hac := factor(hac)] # levels in correct order
+fig1[, indole := factor(indole)] # levels in correct order
+# View(fig1)
+```
+
+The example data come from Figure 1a, which is the effect of HAC and Indole on tissue concentrations of the hormone abcisic acid (ABA). The design is fully crossed with two factors, each with two levels: `hac`, with levels "HAC-" and "HAC+", and `indole`, with levels ("Indole-" and "Indole+").
+ 
+```{r import}
+
+df <- data.frame("Indole-" = c("Control", "HAC"),
+                 "Indole+" = c("Indole", "HAC+Indole"))
+row.names(df) <- c("HAC-", "HAC+")
+knitr::kable(df, col.names = c("Indole-", "Indole+"),
+             caption = "2 x 2 table of treatment combinations") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center") %>%
+  column_spec(column = 1,
+              bold = c(T, T))
+
+```
+
+I see many researchers in bench biology analyzing the *flattened* structure, as if the four groups do not have the underlying $2 \times 2$ design.
+
+```{r echo=FALSE, message=FALSE}
+dt <- data.table(group1 = "Control",
+                 group2 ="HAC",
+                 group3 = "Indole",
+                 group4 = "HAC+Indole")
+knitr::kable(dt, col.names = c("Group 1",
+                               "Group 2",
+                               "Group 3",
+                               "Group 4"),
+             caption = "flattened table of treatment combinations") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+```
+
+This isn't wrong -- all inferences (for example, estimates of effects among pairs of groups) are the same, but this analysis doesn't estimate the interaction effect, and the interaction is the *raison d'être* of a factorial design. 
+
+The prevalence of flattened analyes reflects how we teach statistics, using *t*-tests, ANOVA, and chi-squared tests to get a *p*-value, instead of teaching a linear model to get estimates of effects and the uncertainty in the estimate. This lack of understanding is especially conspicuous in studies, like the source article, that fail to report the interaction effect, when it is the interaction that is the exact statistic the researchers want. Yes, a 2-way ANOVA with interaction has a *p*-value for the interaction effect, but the ANOVA fails to communicate what the interaction *is*.
+
+```{r anova}
+# change the contrasts coding for the model matrix
+con3 <- list(hac=contr.sum, indole=contr.sum)
+m2 <- lm(aba ~ hac*indole, data=fig1, contrasts=con3)
+car::Anova(m2, type = 3)
+```
+The researchers in the source article wanted a measure of **synergism** -- a positive, interaction -- but we can't understand what synergism is from an ANOVA table. I'll add that we can't understand what synergism is from the coefficients of the linear model used to compute the ANOVA table (this is a linear model with effects coding for the indicator variables), [because the interaction effect is spread into little bits](https://rdoodles.rbind.io/2019/07/is-the-power-to-test-an-interaction-effect-less-than-that-for-a-main-effect/).
+
+But we can understand synergism, or any interaction, from the coefficients of a linear model using dummy coded indicator variables, which is the default coding in R. We should be teaching what these coefficients are.
+
+# Interaction effects are estimated with a factorial linear model
+
+```{r factoria-fit-model}
+# model fit
+m1 <- lm(aba ~ hac * indole, data = fig1)
+
+```
+
+A factorial design allows a researcher to estimate the interaction between two factors. An interaction is an effect between two variables in a linear model. The verbal model fit to the data in the chunk above is
+
+\begin{equation}
+aba = hac + indole + hac:indole
+\end{equation}
+
+where `hac:indole` is the interaction term. The linear model is
+
+\begin{align}
+aba = \beta_0 + \beta_1 hac_{HAC^+} &+ \beta_2 indole_{Indole^+} + \beta_3 hac_{HAC^+}:indole_{Indole^+} +\varepsilon
+\end{align}
+
+1. $hac_{HAC^+}$ is a dummy-coded **indicator variable**, with a 1 assigned to plants exposed to HAC and 0 assigned to plants not exposed to HAC.
+* The coefficient of $hac_{HAC^+}$ is $\beta_1$, which is the effect of adding HAC.
+2. $indole_{Indole^+}$ is a dummy-coded indicator variable, with a 1 assigned to plants exposed to Indole and 0 assigned to plants not exposed to Indole.
+* The coefficient of $indole_{Indole^+}$ is $\beta_2$, which is the effect of adding Indole.
+3. $hac_{HAC^+} : indole_{Indole^+}$ is the interaction variable. It is the product of the two indicator variables in the interaction ($hac_{HAC^+}$ and $indole_{Indole^+}$).
+* The coefficient of $hac_{HAC^+} : indole_{Indole^+}$ is $\beta_3$, which is the interaction effect. This is the effect of the combined HAC + Indole above (or below) that expected from the sum of their individual effects.
+
+# The meaning of the "Estimates" in the coefficient table
+
+```{r factorial-coef, echo=FALSE}
+# coefficient table
+m1_coef <- cbind(coef(summary(m1)),
+                 confint(m1))
+m1_table <- knitr::kable(m1_coef,
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table")
+m1_table %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+
+```
+
+The values in the column `Estimate` are the estimates of the $\beta$ parameters in the linear model above. These estimates are the values of the $b$ coefficients of the fit model
+
+\begin{equation}
+aba = b_0 + b_1 hac_{HAC^+} + b_2 indole_{Indole^+} + b_3 hac_{HAC^+}:indole_{Indole^+} + e
+\end{equation}
+
+1. The Intercept ($b_0$) is the mean of the reference (HAC-/Indole-) group, and so the mean of the upper left cell ("Control") in Table \@ref(tab:factorial-coef).
+2. The hacHAC+ coefficient ($b_1$) is the estimate of the added HAC effect relative to the reference, and so is the mean of the lower left cell ("HAC") minus the mean of the upper left cell ("Control") in Table \@ref(tab:factorial-coef). Another way of stating this is, it is **the effect of HAC when Indole is at its reference level**.
+3. The indoleIndole+ coefficient ($b_2$) is the estimate of the added Indole effect relative to the reference, and so is the mean of the upper right cell ("Indole") minus the mean of the upper left cell ("Control") in Table \@ref(tab:factorial-coef). Another way of stating this is, **it is the effect of Indole when HAC is at its reference level**.
+4. The hacHAC+:indoleIndole+ coefficient ($b_3$) is the estimate of the **interaction effect**. If we added the HAC effect ($b_1$) and the Indole effect ($b_2$) to the Control mean ($b_0$), we would get the expected mean of the "HAC+Indole" group **if the effects were additive**. The hacHAC+:indoleIndole+ effect ($b_3$) is the additional bit that we need to get from this additive expectation to the modeled HAC+Indole mean (Figure \@ref(factorial-what-are-coefficients-plot)). It is the difference between the mean of the bottom right cell ("HAC+Indole") and the sum of the coefficients of the other three cells ($b0$, $b1$, $b2$) in Table \@ref(tab:factorial-coef).
+
+# What an interaction *is*
+
+An interaction is a **non-additive effect**. Think about this. Adding HAC alone increases ABA concentration by 13.3 ng per g FW. Adding Indole alone increases ABA concentration by 8.8 ng per g FW. If these effects were purely additive, then adding both HAC and Indole to the Control mean should result in a mean of 19.2 + 13.3 + 8.8 = 41.3 ng per g FW in the HAC+Indole group. The modeled mean is 54.1 ng per g FW. The difference observed - additive is 54.1 - 41.3 = 12.8 ng per g FW. Compare this to the interaction coefficient in the coefficient table.
+
+```{r factorial-what-are-coefficients-plot, echo=FALSE, fig.cap="Meaning of coefficients in factorial model. b0 (blue line) is the mean of the reference (Control). b1 (orange line) is the /HAC effect. Numerically, it is the mean of the HAC group minus the mean of the reference. b2 (green line) is the Indole effect. Numerically it is the mean of the Indole group minus the mean of the reference. The expected mean of the HAC+Indole group if HAC and Indole were additive is b0 + b1 + b2 (gray circle). b3 (purple line) is interaction effect. Numerically, it is the observed mean of the HAC+Indole group minus the expected additive mean (gray circle)"}
+m1 <- lm(aba ~ hac * indole, data = fig1)
+m1_emm <- emmeans(m1, specs=c("hac", "indole"))%>%
+  summary() %>%
+  data.table()
+
+treatment_levels <- c("Control", "HAC", "Indole", "HAC+Indole")
+m1_emm[, treatment := factor(treatment_levels, treatment_levels)]
+
+b <- coef(m1)
+b0 <- b[1]
+b1 <- b[2]
+b2 <- b[3]
+b3 <- b[4]
+
+
+gg_add <- ggplot(data = m1_emm,
+                 aes(x = treatment,
+                     y = emmean,
+                     color = treatment)) +
+  geom_point(size = 4, alpha = 0.5) +
+  coord_cartesian(ylim = c(0, 60)) +
+
+  geom_point(aes(x = 4,
+                 y = b0 + b1 + b2),
+             size = 4,
+             alpha = 0.5) +
+  
+  geom_segment(aes(x = c(1, 2, 3, 4),
+                   y = c(0,emmean[1],emmean[1],emmean[1]),
+                   xend = c(1, 2, 3, 4),
+                   yend = emmean),
+               size = 1,
+               show.legend = FALSE) +
+ 
+  geom_segment(aes(x = c(4),
+                   y = c(emmean[1]),
+                   xend = c(4),
+                   yend = c(emmean[2])),
+               size = 1,
+               color = pal_ito_seven[2]) +
+  geom_segment(aes(x = c(4),
+                   y = c(emmean[2]),
+                   xend = c(4),
+                   yend = c(emmean[2] + (emmean[3]-emmean[1]))),
+               size = 1,
+               color = pal_ito_seven[3]) +
+  
+  annotate(geom = "text",
+           label="b[0]",
+           parse=TRUE,
+           x = 1.15,
+           y = b0/2) +
+  
+  annotate(geom = "text",
+           label="b[1]",
+           parse=TRUE,
+           x = 2.15,
+           y = b0 + b1/2) +
+
+  annotate(geom = "text",
+           label="b[2]",
+           parse=TRUE,
+           x = 3.15,
+           y = b0 + b2/2) +
+
+  annotate(geom = "text",
+           label="b[3]",
+           parse=TRUE,
+           x = 4.15,
+           y = b0 + b1 + b2 + b2/2) +
+
+  annotate(geom = "text",
+           label="HAC+Indole mean if HAC and",
+           x = 2.2,
+           y = 53) +
+  
+  annotate(geom = "text",
+           label="Indole effects were additive",
+           x = 2.2,
+           y = 50) +
+  
+  geom_segment(aes(x = 3.1,
+                   y = 49,
+                   xend = 3.9,
+                   yend = b0+b1+b2+1),
+               arrow=arrow(length = unit(0.05, "npc"),
+                           ends="last",type="open"),
+               color="black") +
+  
+  scale_color_manual(values=pal_ito_seven,
+                     name = "Group mean") +
+  
+  ylab("ABA (ng per g FW)") +
+  theme_minimal_hgrid() +
+  
+  theme(axis.title.x=element_blank()) +
+  scale_y_continuous(
+    # don't expand y scale at the lower end
+    expand = expansion(mult = c(0, 0.05)))  +
+
+  NULL
+  
+gg_add
+```
+
+# The biological interpretation of an interaction effect
+
+The biological reasons causing interaction effects are highly variable but lets consider how interactions *might* arise in the context of the ABA defense response to HAC and Indole. Additive effects (no interaction) may occur when combined treatments act independently of each other. This might occur in the Maize ABA response if the signaling path from HAC reception to ABA secretion and Indole reception to ABA secretion occur in different cells or by different signaling pathways and activity in either pathway has no influence on the other. Positive, or **synergistic** interaction effects may occur when combined treatments augment each other's ability to affect the response. This could occur in the Maize ABA response if an active signaling path from one of the volatile compound to ABA secretion makes the signaling path from the other compound to ABA secretion more sensitive to that compound. Negative, or **antagonistic** interaction effects may occur when combined treatments interfere with each other's ability to affect the response. This could occur in the Maize ABA response if an active signaling path from one of the volatile compound to ABA secretion inhibits the signaling path from the other compound to ABA secretion. Negative interaction effects could also occur if there is a simple threshold response and all it takes is either the HAC or the Indole signaling pathway to activate the response.

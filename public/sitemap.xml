@@ -3,6 +3,16 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2020/11/what-is-an-interaction/</loc>
+    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/2020/11/how-to-estimate-synergism-or-antagonism/</loc>
+    <lastmod>2020-11-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2020/10/type-3-anova-in-r-an-easy-way-to-publish-wrong-tables/</loc>
     <lastmod>2020-10-23T00:00:00+00:00</lastmod>
   </url>
@@ -234,7 +244,13 @@
   
   <url>
     <loc>/tags/anova/</loc>
-    <lastmod>2020-10-23T00:00:00+00:00</lastmod>
+    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/antagonism/</loc>
+    <lastmod>2020-11-03T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -257,7 +273,7 @@
   
   <url>
     <loc>/tags/categorical-x/</loc>
-    <lastmod>2020-10-21T00:00:00+00:00</lastmod>
+    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -369,7 +385,7 @@
   
   <url>
     <loc>/tags/interaction/</loc>
-    <lastmod>2019-11-29T00:00:00+00:00</lastmod>
+    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -381,7 +397,7 @@
   
   <url>
     <loc>/tags/linear-model/</loc>
-    <lastmod>2020-10-21T00:00:00+00:00</lastmod>
+    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -453,7 +469,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2020-10-23T00:00:00+00:00</lastmod>
+    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -471,7 +487,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2020-10-23T00:00:00+00:00</lastmod>
+    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -507,7 +523,13 @@
   
   <url>
     <loc>/categories/stats-101/</loc>
-    <lastmod>2020-10-23T00:00:00+00:00</lastmod>
+    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/synergism/</loc>
+    <lastmod>2020-11-03T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

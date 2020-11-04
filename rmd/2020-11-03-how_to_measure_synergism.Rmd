@@ -1,0 +1,313 @@
+---
+title: "How to measure synergism or antagonism"
+author: "Jeffrey A. Walker"
+date: "11/3/2020"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    fig_caption: yes
+    number_sections: true
+    code_folding: show
+    includes:
+      before_body: copyright.html
+---
+motivating source: [Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance](https://onlinelibrary.wiley.com/doi/abs/10.1111/pce.13443)
+
+tags: factorial design, interaction, synergism, two-way anova, linear model
+
+# What is synergism or antagonism?
+
+(this post is a follow up to [What is an interaction?](https://rdoodles.rbind.io/posts-biocstyle/2020-11-03-what-is-an-interaction.html))
+
+In the experiment for Figure 1 of the motivating source article, the authors compared the defense response to exposure to four different combinations of volatile compounds. These four combinations are:
+
+1. Control -- the plants were not exposed to either volatile compound.
+2. HAC -- the plants were exposed to the volatile compound (Z)‐3‐hexenyl acetate (HAC).
+3. Indole -- the plants were exposed to the volatile compound Indole.
+4. HAC+Indole -- the plants were exposed to both HAC and Indole.
+
+The design is a fully crossed, $2 \times 2$ factorial experiment -- there are two factors (categorical $X$ variables) each with two levels.
+
+1. Factor 1: `hac` with levels "HAC-" and "HAC+"
+2. Factor 2: `indole` with levels "Indole-" and "Indole+"
+
+The researchers were explicitly interested in measuring any synergistic effects of `hac` and `indole` on the response. What is a synergistic effect? If `hac` and `indole` act independently, then the response should be **additive** -- the HAC+Indole effect should simply be the sum of the independent HAC and Indole effects. A HAC+Indole effect that is larger than the sum of the two independent effects is evidence of a synergistic (positive) interaction. A HAC+Indole effect that is less than the sum of the two independent effects is evidence of an antagonistic (negative) interaction.
+
+Synergism or antagonism are very easy to estimate given a fully factorial design -- **these are simply the interaction coefficient from the linear model using dummy coding for the indicator variables**. The researchers didn't use this coefficient to infer synergism but instead computed the effect manually and then invented a test to compute a *p*-value. I see something like this pretty regularly in the experimental biology literature, which makes me think that many biology researchers are not familiar with factorial linear models to estimate interaction effects and what an interaction effect *is*. They are probably not familiar with factorial linear models and the meaning of the coefficients because this isn't taught. Instead, 2-way ANOVA is. 
+
+So, let's fit a factorial linear model and show that the coefficient of the interaction is the measure of synergism (or antagonism).
+
+# Setup and Import
+
+```{r setup, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+library(here)
+library(janitor)
+library(readxl)
+library(data.table)
+
+# graphics and tables
+library(ggplot2)
+library(kableExtra)
+
+# analysis packages
+library(lmPerm)
+
+here <- here::here
+data_folder <- "content/data"
+```
+
+```{r, message=FALSE}
+data_from <- "Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance"
+file_name <- "Data for Dryad.xlsx"
+file_path <- here(data_folder, data_from, file_name)
+
+fig1 <- read_excel(file_path,
+                     sheet = "Fig. 1",
+                     range = "A3:K23", # 1 blank column
+                     col_names = TRUE) %>%
+  data.table() %>%
+  clean_names()
+
+# create proper treatment variables for each factor
+fig1[treat == "Control", c("hac", "indole") := list("HAC-", "Indole-")]
+fig1[treat == "HAC", c("hac", "indole") := list("HAC+", "Indole-")]
+fig1[treat == "Indole", c("hac", "indole") := list("HAC-", "Indole+")]
+fig1[treat == "HAC+Indole", c("hac", "indole") := list("HAC+", "Indole+")]
+
+treat_levels <- c("Control", "HAC", "Indole", "HAC+Indole")
+fig1[, treat := factor(treat, levels = treat_levels)]
+fig1[, hac := factor(hac)] # levels in correct order
+fig1[, indole := factor(indole)] # levels in correct order
+# View(fig1)
+```
+
+The archived Excel file contains only a single factor variable (`treat`) with the $2 \times 2$ experimental treatment combinations flattened into a single $4 \times 1$ grouping variable. The script above creates the two experimental treatment factors `hac` and `indole`.
+
+# Analysis
+
+I'll use the data in Figure 1a of the source article as the example. This figure shows the tissue concentration of the defense hormone abcisic acid (aba) in response to the four treatment combinations.
+
+```{r coef-table}
+m1 <- lm(aba ~ hac*indole, data = fig1)
+m1_coef <- cbind(coef(summary(m1)),
+                 confint(m1))
+m1_table <- knitr::kable(m1_coef,
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table")
+m1_table %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+```
+
+The interaction effect on ABA is 12.8 (95% CI: -0.9, 26.5) ng per g FW. I'm not a plant defense expert so I don't know what is a big vs. small effect. Regardless, a synergistic effect as big as the single factor effects (HAC and Indole) is consistent with the data. An additive effect is less consistent. A negative (antagonistic) effect, at least one of any reasonable magnitude, is much less consistent with the data.
+
+## A note on the p-value
+
+The *p*-value for the interaction effect is 0.064. The researchers compare *p*-values to 0.05 throughout. If we are making this comparison to control Type I error rates (and why else would be compare to a bright line?) then the actual *p*-value doesn't really matter. There is no "marginally signficant" or "trending toward significance". We simply accept that we failed to find evidence against the null (and additive model) and move on.
+
+## Another note on the p-value.
+
+The researchers used the FDR to adjust *p*-values. First, for each response, did the researchers include their test for synergism in the family? I suspect not, but also, how would one even properly include it given that the *t*-value for this test is not independent of the post-hoc tests among groups. Second, what is the "family" here? There are multiple (nine) responses for the same experiment -- I would include all of these in the same family (were I to use a multiple testing adjustment, which I probably wouldn't). This is 6 post-hoc tests plus 1 synergism test times 9 responses, or 63 tests.
+
+# The researcher's computation of synergism is the interaction coefficient of the fit linear model
+
+> Potential synergism was evaluated using a previously described approach (Machado et al., 2018). Briefly, we calculated additive effects by randomly pairing replicates of individual volatile treatments (an indole treated plant [$I_n$] and a HAC treated plant [$H_n$]). For each random pair, we calculated theoretical additive values ($A_n$) for the different defence parameters using the following formula: $A_n = I_n + H_n − C_{av}$, where $C_{av}$ corresponds to the average level of nonexposed control plants. The calculated additive values were then compared with the measured treatment values of the double volatile treatment using Student's t tests. Cases in which the measured level of the double volatile treatment was significantly greater than the calculated additive level were classified as synergistic.
+
+I only saw less, not more, detail in Machodo et al. 2018.
+
+The researchers method of computing the additive and synergistic effects is simply the underlying math of the interaction effect if the indicator variables are dummy coded. Using the researchers notation, the expected additive response is $C_{av} + (H_{av} - C_{av}) + (I_{av} - C_{av})$. This reduces to the researcher's equation if we substitute a sampled pair with $H_{av}$ and $I_{av}$ but it is also equal to $b_0 + b_1 + b_2$, since
+
+1. $b_0 = C_{av}$ is the intercept of the fit model (`(Intercept)` in the table)
+2. $b_1 = H_{av} - C_{av}$ is the coefficient of `hac` (`hacHAC+` in the table).
+3. $b_2 = I_{av} - C_{av}$ is the coefficient of `indole` (`indoleIndole+` in the table)
+
+The interaction effect (the coefficient $b_3$) is
+
+4. $b_3 = HI_{av} - (b_0 + b_1 + b_2)$ is the coefficient of the interaction (`hacHAC+:indoleIndole+` in the table)
+
+where $HI_n$ is the mean of the "HAC+Indole" group. This simply shows that the coefficient $b_3$ is the "synergistic effect" computed by the researchers. And, there is no need to do this computation since it is computed for us *if we use dummy (treatment) coding*, which is the default contrast coding in R but not most other software.
+
+The researchers in this paper aren't the first to compute the synergistic (interaction) effect like this. As I said above, I see something like this pretty regularly in the experimental biology literature, which makes me think that many biology researchers are not familiar with factorial linear models to estimate interaction effects and what an interaction effect *is*. They are probably not familiar with factorial linear models and the meaning of the coefficients because this isn't taught. Instead, 2-way ANOVA is. 
+
+# The researcher's test has a weird dependence on randomness
+
+This is my understanding of the test invented by the researchers
+
+```{r echo=TRUE}
+hi_n <- fig1[treat == "HAC+Indole", aba]
+c_av <- mean(fig1[treat == "Control", aba])
+c_n <- sample(fig1[treat == "Control", aba])
+h_n <- sample(fig1[treat == "HAC", aba])
+i_n <- sample(fig1[treat == "Indole", aba])
+a_n <- h_n + i_n - c_av # the author's test
+a_n_2 <- h_n + i_n - c_n # why not also sample control?
+
+# the "synergism test"
+t.test(a_n, hi_n, var.equal = TRUE)$p.value
+# using the sampled control
+t.test(a_n_2, hi_n, var.equal = TRUE)$p.value
+
+```
+
+This is highly dependent on the random sample. The mean of $a_n$ is the same regardless of the random pairing, but the sd differs with each random pairing. This means the *t* and *p*-value are dependent on which pairs are sampled. *all* resampling methods have a stochastic component but not in this sense. If I understand the method, there is no way to minimize the size of the stochastic component as in something like the bootstrap (where the stochastic component is decreaesed by resampling more).
+
+Let's make a function out of this and look at the variation in the *p*-value
+
+```{r}
+n_samples <- 100
+hi_n <- fig1[treat == "HAC+Indole", aba]
+c_av <- mean(fig1[treat == "Control", aba])
+
+t_p <- numeric(n_samples)
+sd_a_n <- numeric(n_samples)
+for(i in 1:n_samples){
+  c_n <- sample(fig1[treat == "Control", aba])
+  h_n <- sample(fig1[treat == "HAC", aba])
+  i_n <- sample(fig1[treat == "Indole", aba])
+  a_n <- h_n + i_n - c_av # the author's test
+  # the "synergism test"
+  t_p[i] <- t.test(a_n, hi_n, var.equal = TRUE)$p.value
+  sd_a_n[i] <- sd(a_n)
+}
+```
+
+```{r, fig.cap="A histogram of the p-values from the different combinations of sampled pairs used to compute the expected additive effect"}
+qplot(t_p)
+```
+
+# Analysis of all responses
+
+Let's make a function to do the same analysis on each response
+
+```{r}
+lm_coef <- function(y = "aba"){
+  form <- formula(paste0(y, " ~ hac*indole"))
+  fit <- lm(form, data = fig1)
+  fit_coef <- cbind(coef(summary(fit)),
+                   confint(fit))
+  return(fit_coef)
+}
+
+```
+
+## opda
+
+```{r}
+y <- "opda"
+knitr::kable(lm_coef(y),
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+
+```
+
+## ja
+
+```{r}
+y <- "ja"
+knitr::kable(lm_coef(y),
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+
+```
+
+## ja_ile
+
+```{r}
+y <- "ja_ile"
+knitr::kable(lm_coef(y),
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+
+```
+
+## sa
+
+```{r}
+y <- "sa"
+knitr::kable(lm_coef(y),
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+
+```
+
+## aba
+
+```{r}
+y <- "aba"
+knitr::kable(lm_coef(y),
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+
+```
+
+## zm_pr1
+
+```{r}
+y <- "zm_pr1"
+knitr::kable(lm_coef(y),
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+
+```
+
+
+## zm_pr5
+
+```{r}
+y <- "zm_pr5"
+knitr::kable(lm_coef(y),
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+
+```
+
+## zm_lox
+
+```{r}
+y <- "zm_lox"
+knitr::kable(lm_coef(y),
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+
+```
+
+## zm_aos
+
+```{r}
+y <- "zm_aos"
+knitr::kable(lm_coef(y),
+             digits = c(1,2,2,3,1,1),
+             caption = "Coefficient table") %>%
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE,
+                position = "center")
+
+```

@@ -1,0 +1,19 @@
+---
+title: What is an interaction?
+author: Jeff Walker
+date: '2020-11-04'
+slug: what-is-an-interaction
+categories:
+  - stats 101
+tags:
+  - anova
+  - categorical X
+  - interaction
+  - linear model
+keywords:
+  - tech
+---
+
+A factorial experiment is one in which there are two or more factor variables (categorical $X$) that are **crossed**, resulting in a group for each combination of the levels of each factor. Factorial experiments are used to estimate the **interaction** effect between factors. Two factors interact when the effect of one factor depends on the level of the other factors. Interactions are ubiquitous, although sometimes they are small enough to ignore with little to no loss of understanding.
+
+Continue with [What is an interaction?](https://rdoodles.rbind.io/posts-biocstyle/2020-11-03-what-is-an-interaction.html)

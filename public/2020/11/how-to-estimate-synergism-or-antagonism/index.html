@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.54.0 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="R doodles. Some ecology. Some physiology. Much fake data.">
+<meta name="keywords" content="tech">
+<meta name="description" content="motivating source: Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance
+What is synergism or antagonism? (this post is a follow up to What is an interaction?)
+In the experiment for Figure 1 of the motivating source article, the researchers were explicitly interested in measuring any synergistic effects of hac and indole on the response. What is a synergistic effect? If hac and indole act independently, then the response should be additive – the HAC&#43;Indole effect should simply be the sum of the independent HAC and Indole effects.">
+
+
+<meta property="og:description" content="motivating source: Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance
+What is synergism or antagonism? (this post is a follow up to What is an interaction?)
+In the experiment for Figure 1 of the motivating source article, the researchers were explicitly interested in measuring any synergistic effects of hac and indole on the response. What is a synergistic effect? If hac and indole act independently, then the response should be additive – the HAC&#43;Indole effect should simply be the sum of the independent HAC and Indole effects.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to estimate synergism or antagonism">
+<meta name="twitter:title" content="How to estimate synergism or antagonism">
+<meta property="og:url" content="/2020/11/how-to-estimate-synergism-or-antagonism/">
+<meta property="twitter:url" content="/2020/11/how-to-estimate-synergism-or-antagonism/">
+<meta property="og:site_name" content="R Doodles">
+<meta property="og:description" content="motivating source: Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance
+What is synergism or antagonism? (this post is a follow up to What is an interaction?)
+In the experiment for Figure 1 of the motivating source article, the researchers were explicitly interested in measuring any synergistic effects of hac and indole on the response. What is a synergistic effect? If hac and indole act independently, then the response should be additive – the HAC&#43;Indole effect should simply be the sum of the independent HAC and Indole effects.">
+<meta name="twitter:description" content="motivating source: Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance
+What is synergism or antagonism? (this post is a follow up to What is an interaction?)
+In the experiment for Figure 1 of the motivating source article, the researchers were explicitly interested in measuring any synergistic effects of hac and indole on the response. What is a synergistic effect? If hac and indole act independently, then the response should be additive – the HAC&#43;Indole effect should simply be the sum of the independent HAC and Indole effects.">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2020-11-03T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2020-11-03T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="stats 101">
+    
+  
+  
+    
+      <meta property="article:tag" content="anova">
+    
+      <meta property="article:tag" content="categorical X">
+    
+      <meta property="article:tag" content="interaction">
+    
+      <meta property="article:tag" content="synergism">
+    
+      <meta property="article:tag" content="antagonism">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@jwalkrunski">
+
+
+  <meta name="twitter:creator" content="@jwalkrunski">
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="/images/fire.png">
+  <meta property="twitter:image" content="/images/fire.png">
+
+
+    <title>How to estimate synergism or antagonism</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2020/11/how-to-estimate-synergism-or-antagonism/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-nnm2spxvve8onlujjlegkkytaehyadd4ksxc1hyzzq9a2wvtrgbljqyulomn.min.css" />
+    
+    
+
+    
+      
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-118821125-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">R Doodles</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="/images/fire.png" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="/images/fire.png" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+        
+          <h5 class="sidebar-profile-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="//github.com/middleprofessor">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://stats.stackexchange.com/users/119435/jwalker">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-stack-exchange"></i>
+      
+      <span class="sidebar-button-desc">CrossValidated</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://scholar.google.com/citations?user=W58TmakAAAAJ&amp;hl">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-google"></i>
+      
+      <span class="sidebar-button-desc">Google Scholar</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.researchgate.net/profile/Jeffrey_Walker4/contributions">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Research Gate</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.middleprofessor.com">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-university"></i>
+      
+      <span class="sidebar-button-desc">Research/Teaching</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      How to estimate synergism or antagonism
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2020-11-03T00:00:00Z">
+        
+  November 3, 2020
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="/categories/stats-101">stats 101</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+
+<p>motivating source: <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/pce.13443">Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance</a></p>
+<div id="what-is-synergism-or-antagonism" class="section level1">
+<h1>What is synergism or antagonism?</h1>
+<p>(this post is a follow up to <a href="https://rdoodles.rbind.io/posts-biocstyle/2020-11-03-what-is-an-interaction.html">What is an interaction?</a>)</p>
+<p>In the experiment for Figure 1 of the motivating source article, the researchers were explicitly interested in measuring any synergistic effects of <code>hac</code> and <code>indole</code> on the response. What is a synergistic effect? If <code>hac</code> and <code>indole</code> act independently, then the response should be <strong>additive</strong> – the HAC+Indole effect should simply be the sum of the independent HAC and Indole effects. A HAC+Indole effect that is larger than the sum of the two independent effects is evidence of a synergistic (positive) interaction. A HAC+Indole effect that is less than the sum of the two independent effects is evidence of an antagonistic (negative) interaction.</p>
+<p>Continue with <a href="https://rdoodles.rbind.io/posts-biocstyle/2020-11-03-how_to_measure_synergism.html">How to estimate synergism or antagonism</a></p>
+</div>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/anova/">anova</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/categorical-x/">categorical X</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/interaction/">interaction</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/synergism/">synergism</a>
+
+  <a class="tag tag--primary tag--small" href="/tags/antagonism/">antagonism</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2020/11/what-is-an-interaction/" data-tooltip="What is an interaction?">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2020/10/type-3-anova-in-r-an-easy-way-to-publish-wrong-tables/" data-tooltip="Type 3 ANOVA in R -- an easy way to publish wrong tables">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2020/11/how-to-estimate-synergism-or-antagonism/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2020/11/how-to-estimate-synergism-or-antagonism/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2020/11/how-to-estimate-synergism-or-antagonism/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2020 <a href="https://github.com/middleprofessor">Jeffrey A. Walker</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2020/11/what-is-an-interaction/" data-tooltip="What is an interaction?">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2020/10/type-3-anova-in-r-an-easy-way-to-publish-wrong-tables/" data-tooltip="Type 3 ANOVA in R -- an easy way to publish wrong tables">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2020/11/how-to-estimate-synergism-or-antagonism/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2020/11/how-to-estimate-synergism-or-antagonism/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2020/11/how-to-estimate-synergism-or-antagonism/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2020%2F11%2Fhow-to-estimate-synergism-or-antagonism%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2020%2F11%2Fhow-to-estimate-synergism-or-antagonism%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2020%2F11%2Fhow-to-estimate-synergism-or-antagonism%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="/images/fire.png" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">R doodles. Some ecology. Some physiology. Much fake data.</h4>
+    
+      <div id="about-card-bio">Thoughts on R, statistical best practices, and teaching applied statistics to Biology majors.</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Jeff Walker, Professor of Biological Sciences
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        University of Southern Maine, Portland, Maine, United States
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/11/what-is-an-interaction/">
+                <h3 class="media-heading">What is an interaction?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Nov 11, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">A factorial experiment is one in which there are two or more factor variables (categorical \(X\)) that are crossed, resulting in a group for each combination of the levels of each factor. Factorial experiments are used to estimate the interaction effect between factors. Two factors interact when the effect of one factor depends on the level of the other factors. Interactions are ubiquitous, although sometimes they are small enough to ignore with little to no loss of understanding.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/11/how-to-estimate-synergism-or-antagonism/">
+                <h3 class="media-heading">How to estimate synergism or antagonism</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Nov 11, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">motivating source: Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance
+What is synergism or antagonism? (this post is a follow up to What is an interaction?)
+In the experiment for Figure 1 of the motivating source article, the researchers were explicitly interested in measuring any synergistic effects of hac and indole on the response. What is a synergistic effect? If hac and indole act independently, then the response should be additive – the HAC+Indole effect should simply be the sum of the independent HAC and Indole effects.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/10/type-3-anova-in-r-an-easy-way-to-publish-wrong-tables/">
+                <h3 class="media-heading">Type 3 ANOVA in R -- an easy way to publish wrong tables</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">In R, so-called “Type I sums of squares” are default. With balanced designs, inferential statistics from Type I, II, and III sums of squares are equal. Type III sums of squares are returned using car::Anova instead of base R anova. But to get the correct Type III statistics, you cannot simply specify car:Anova(m1, type = 3). You also have to set the contrasts in the model matrix to contr.sum in your linear model fit.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/10/linear-models-with-a-covariate-ancova/">
+                <h3 class="media-heading">Linear models with a covariate (&#34;ANCOVA&#34;)</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather"> </div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/10/normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it/">
+                <h3 class="media-heading">Normal Q-Q plots - what is the robust line and should we prefer it?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Oct 10, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE) # import an messaging library(here) library(janitor) library(readxl) library(data.table) # analysis library(car) library(MASS) # rnegbin # graphics and output library(ggpubr) # qq plot functions library(ggpubfigs) # palette library(qqplotr) ## qq plot functions library(ggforce) library(cowplot) here &lt;- here::here data_folder &lt;- &quot;content/data&quot; output_folder &lt;- &quot;content/output&quot; # Okabe &amp; Ito palette ito_seven &lt;- friendly_pal(&quot;ito_seven&quot;) # ggpubfigs pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke #  Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/07/ancova-when-the-covariate-is-a-mediator-affected-by-treatment/">
+                <h3 class="media-heading">ANCOVA when the covariate is a mediator affected by treatment</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">This is fake data that simulates an experiment to measure effect of treatment on fat weight in mice. The treatment is “diet” with two levels: “control” (blue dots) and “treated” (gold dots). Diet has a large effect on total body weight. The simulated data are in the plot above - these look very much like the real data.
+The question is, what are problems with using an “ancova” linear model to estimate the direct effect of treatment on fat weight?</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/06/bootstrap-confidence-intervals-when-sample-size-is-really-small/">
+                <h3 class="media-heading">Bootstrap confidence intervals when sample size is really small</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jun 6, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">TL;DR A sample table from the full results for data that look like this
+ Table 1: Coverage of 95% bca CIs.    parameter  n=5  n=10  n=20  n=40  n=80     means    Control  81.4  87.6  92.2  93.0  93.6    b4GalT1-/-  81.3  90.2  90.8  93.0  93.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/05/what-is-the-consequence-of-normalizing-by-each-case-in-the-control/">
+                <h3 class="media-heading">What is the consequence of normalizing by each case in the control?</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  May 5, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">Motivator: Novel metabolic role for BDNF in pancreatic β-cell insulin secretion
+I’ll finish this some day…
+knitr::opts_chunk$set(echo = TRUE, message=FALSE) library(tidyverse) library(data.table) library(mvtnorm) library(lmerTest) normal response niter &lt;- 2000 n &lt;- 9 treatment_levels &lt;- c(&quot;cn&quot;, &quot;high&quot;, &quot;high_bdnf&quot;) insulin &lt;- data.table(treatment = rep(treatment_levels, each=n)) X &lt;- model.matrix(~ treatment, data=insulin) beta &lt;- c(0,0,0) # no effects # the three responses are taken from the same cluster of cells and so have expected # correlation rho.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/04/melting-a-list-of-columns/">
+                <h3 class="media-heading">Melting a list of columns</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">An answer to this tweet “Are there any #Rstats tidy expeRts who’d be interested in improving the efficiency of this code that gathers multiple variables from wide to long?
+This works but it’s not pretty. There must be a prettier way…&quot;
+Wide data frame has three time points where participants answer two questions on two topics.
+create data from original code #Simmed data Time1.Topic1.Question1 &lt;- rnorm(500) data &lt;- data.frame(Time1.Topic1.Question1) data$Time1.</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="/2020/03/analyzing-longitudinal-data-a-simple-pre-post-design/">
+                <h3 class="media-heading">Analyzing longitudinal data -- a simple pre-post design</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Mar 3, 2020
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather">A skeletal response to a twitter question:
+“ANOVA (time point x group) or ANCOVA (group with time point as a covariate) for intervention designs? Discuss.”
+follow-up “Only 2 time points in this case (pre- and post-intervention), and would wanna basically answer the question of whether out of the 3 intervention groups, some improve on measure X more than others after the intervention”
+Here I compare five methods using fake pre-post data, including</div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         46 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('/images/Jackson%20copy%202.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2020\/11\/how-to-estimate-synergism-or-antagonism\/';
+          
+            this.page.identifier = '\/2020\/11\/how-to-estimate-synergism-or-antagonism\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'r-doodles';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+<script src="//yihui.name/js/math-code.js"></script>
+<script async
+src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    
+  </body>
+</html>
+

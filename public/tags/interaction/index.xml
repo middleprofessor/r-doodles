@@ -6,10 +6,30 @@
     <description>Recent content in Interaction on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 29 Nov 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 04 Nov 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/interaction/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>What is an interaction?</title>
+      <link>/2020/11/what-is-an-interaction/</link>
+      <pubDate>Wed, 04 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/11/what-is-an-interaction/</guid>
+      <description>A factorial experiment is one in which there are two or more factor variables (categorical \(X\)) that are crossed, resulting in a group for each combination of the levels of each factor. Factorial experiments are used to estimate the interaction effect between factors. Two factors interact when the effect of one factor depends on the level of the other factors. Interactions are ubiquitous, although sometimes they are small enough to ignore with little to no loss of understanding.</description>
+    </item>
+    
+    <item>
+      <title>How to estimate synergism or antagonism</title>
+      <link>/2020/11/how-to-estimate-synergism-or-antagonism/</link>
+      <pubDate>Tue, 03 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/11/how-to-estimate-synergism-or-antagonism/</guid>
+      <description>motivating source: Integration of two herbivore-induced plant volatiles results in synergistic effects on plant defense and resistance
+What is synergism or antagonism? (this post is a follow up to What is an interaction?)
+In the experiment for Figure 1 of the motivating source article, the researchers were explicitly interested in measuring any synergistic effects of hac and indole on the response. What is a synergistic effect? If hac and indole act independently, then the response should be additive – the HAC+Indole effect should simply be the sum of the independent HAC and Indole effects.</description>
+    </item>
     
     <item>
       <title>Estimate of marginal (&#34;main&#34;) effects instead of ANOVA for factorial experiments</title>

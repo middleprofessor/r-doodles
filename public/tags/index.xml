@@ -23,9 +23,18 @@
     <item>
       <title>Anova</title>
       <link>/tags/anova/</link>
-      <pubDate>Fri, 23 Oct 2020 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 04 Nov 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/anova/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Antagonism</title>
+      <link>/tags/antagonism/</link>
+      <pubDate>Tue, 03 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/antagonism/</guid>
       <description></description>
     </item>
     
@@ -50,7 +59,7 @@
     <item>
       <title>Categorical X</title>
       <link>/tags/categorical-x/</link>
-      <pubDate>Wed, 21 Oct 2020 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 04 Nov 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/categorical-x/</guid>
       <description></description>
@@ -176,7 +185,7 @@
     <item>
       <title>Interaction</title>
       <link>/tags/interaction/</link>
-      <pubDate>Fri, 29 Nov 2019 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 04 Nov 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/interaction/</guid>
       <description></description>
@@ -194,7 +203,7 @@
     <item>
       <title>Linear Model</title>
       <link>/tags/linear-model/</link>
-      <pubDate>Wed, 21 Oct 2020 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 04 Nov 2020 00:00:00 +0000</pubDate>
       
       <guid>/tags/linear-model/</guid>
       <description></description>
@@ -341,6 +350,15 @@
       <pubDate>Tue, 22 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>/tags/repeated-measures/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Synergism</title>
+      <link>/tags/synergism/</link>
+      <pubDate>Tue, 03 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/synergism/</guid>
       <description></description>
     </item>
     
