@@ -1,0 +1,33 @@
+---
+title: "'Bayesian
+' simulation = frequentist properties"
+author: "Jeffrey A. Walker"
+date: "11/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(data.table)
+```
+
+```{r}
+n_iter <- 1000
+n <- 5
+beta_list <- runif(n_iter, -1,1)
+fd <- data.table(treatment = rep(c("cn","tr"), each=n))
+lower <- numeric(n_iter)
+upper <- numeric(n_iter)
+for(iter in 1:n_iter){
+  beta <- beta_list[iter]
+  mu <- rep(c(0, beta), each=n)
+  sigma <- abs(beta)
+  fd[, y := rnorm(n*2, mean = mu, sd = sigma)]
+  fit <- lm(y ~ treatment, data = fd)
+  lower[iter] <- confint(fit)[2,1]
+  upper[iter] <- confint(fit)[2,2]
+}
+sum(beta_list > lower & beta_list < upper)/n_iter
+```
+

@@ -328,6 +328,7 @@ pal_okabe_ito &lt;- ito_seven[c(6,5,3,7,1,2,4)] # order of Wilke
 <p>Warning - This is a long, exploratory post on Q-Q plots motivated by the specific data set analyzed below and the code follows my stream of thinking this through. I have not gone back through to economize length. So yeh, some repeated code I’ve turned into functions and other repeated code is repeated.</p>
 <p>This post is not about <em>how</em> to interpret a Q-Q plot but about <strong>which Q-Q plot?</strong> to interpret.</p>
 <p>huh?</p>
+<p>Continue with <a href="https://rdoodles.rbind.io/posts-biocstyle/2020-10-15-normal-q-q-plots-what-is-the-robust-line-and-should-we-prefer-it.html">Normal Q-Q plots - what is the robust line and should we prefer it?</a></p>
 <ul>
 <li><p>base R, ggpubr, ggplot2 compute the Q-Q line using the “quartiles” method - the line goes through the .25th and 0.75th quantiles. This line is a function of 2 of the n points.</p></li>
 <li><p>qqPlot from the car package computes a “robust” Q-Q line using a robust regression through all points. At least the default qqPlot using a <code>lm</code> object does this. If a vector of responses or residuals is input, then qqPlot defaults to the quartiles line. Regardless, a user can specify either.</p></li>

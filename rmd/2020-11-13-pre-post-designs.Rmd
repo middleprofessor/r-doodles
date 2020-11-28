@@ -1,0 +1,818 @@
+---
+title: "pre-post designs"
+author: "Jeffrey A. Walker"
+date: "11/13/2020"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    fig_caption: yes
+    number_sections: true
+    code_folding: show
+    includes:
+      before_body: copyright.html
+---
+
+# Setup and Import
+
+```{r setup, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+library(here)
+library(janitor)
+library(readxl)
+library(data.table)
+
+# graphics and tables
+library(ggplot2)
+library(ggpubr)
+library(ggsci)
+library(ggthemes)
+library(cowplot)
+library(kableExtra)
+
+# analysis packages
+library(mvtnorm)
+library(nlme)
+library(lmerTest)
+library(emmeans)
+library(afex)
+
+pal_okabe_ito <- colorblind_pal()(8)[2:8] # ggthemes
+pal_okabe_ito_blue <- pal_okabe_ito[c(5,6,1,2,3,7,4)] 
+pal_okabe_ito_red <- pal_okabe_ito[c(6,5,3,1,2,7,4)] 
+
+here <- here::here
+data_folder <- "content/data"
+output_folder <- "content/output"
+
+```
+
+# simulation functions
+## pre-post fake data generator 
+
+```{r pre-post-FDG}
+
+generate_pre_post <- function(
+  n = 6, # if vector then sample per group
+  sigma_0 = 1, # error at time 0
+  sigma_1 = 1, # error at time 1
+  rho = 0.6, # correlation between time 0 and 1
+  beta_0 = 10, # control mean at time 0
+  beta_1 = 0, # treatment effect at time 0
+  beta_2 = 5, # time effect at time 1
+  beta_3 = 1 # interaction effect -- this is the treatment effect
+){
+  
+  if(length(n) == 1){n <- rep(n,2)} # set n = n for all groups
+  n_list <- n
+  N <- sum(n_list)
+  
+  # correlated error matrix
+  R <- matrix(c(1, rho, rho, 1), nrow=2)
+  L = matrix(c(sigma_0, 0, 0, sigma_1), nrow=2)
+  Sigma <- L%*%R%*%L
+  e <- rmvnorm(N, mean = c(0,0), sigma = Sigma) %>%
+    data.table()
+  e[, id := paste0("id_", 1:N)]
+  e_long <- melt(e,
+                 id.vars = "id")
+    
+  fd <- data.table(
+    treatment = factor(rep(rep(c("cn", "tr"), n_list), 2)),
+    time = factor(rep(c("pre", "post"), each = N),
+                  levels = c("pre", "post"))
+  )
+  
+  # fd is in long format
+  X <- model.matrix(~treatment*time, data=fd)
+  beta <- c(beta_0, beta_1, beta_2, beta_3)
+  fd[, y := (X%*%beta)[,1] + e_long[, value]]
+  fd[, id := e_long[, id]]
+  fd[, id := factor(id)]
+ 
+  return(fd)
+}
+
+```
+
+## test FDG
+
+```{r test-pre-post-FDG, eval=FALSE}
+fd <- generate_pre_post(
+  n = c(10^5, 10^5),
+  sigma_0 = 1,
+  sigma_1 = 2,
+  rho = 0.6, 
+  beta_0 = 10, 
+  beta_1 = 1,
+  beta_2 = 2,
+  beta_3 = 1
+)
+
+m1 <- lm(post ~ treatment, data = fd)
+fd[, post_cond := coef(m1)[1] + residuals(m1)]
+coef(summary(m1))
+cov(fd[, .SD, .SDcols=c("pre", "post_cond")])
+cor(fd[, .SD, .SDcols=c("pre", "post_cond")])
+coef(summary(lm(post ~ pre + treatment, data=fd)))
+
+fd_long <- melt(fd,
+                id.vars = c("treatment", "id"),
+                measure.vars = c("pre", "post"),
+                variable.name = "time",
+                value.name = "y")
+fd_long[, time := factor(time, c("pre", "post"))]
+coef(summary(lm(y ~ treatment*time, data = fd_long)))
+
+```
+
+
+
+# Fit model functions
+## change-score
+
+```{r lm-change}
+lm_change <- function(dt){
+  fit <- lm(change ~ treatment, data = dt)
+  return(fit)
+}
+```
+
+## two-way anova
+
+```{r two-way anova}
+two_way <- function(dt_long){
+  fit <- lm(y ~ treatment*time, data=dt_long)
+  return(fit)
+}
+```
+
+## repeated measures anova
+
+```{r repeated-measures-anova, message=FALSE}
+rmanova <- function(dt_long){
+  fit <- aov_4(y ~ treatment*time + (time|id),
+               data=dt_long)
+  return(fit)
+}
+```
+
+## linear model with baseline as covariate
+
+```{r lm-cov}
+lm_cov <- function(dt){
+  fit <- lm(post ~ pre + treatment, data = dt)
+  return(fit)
+}
+```
+
+## linear model with correlated error
+
+```{r lda}
+lda <- function(dt_long){
+  fit <- gls(y ~ treatment*time,
+             data = dt_long,
+             weights = varIdent(form = ~ 1 | time),
+             correlation= corSymm(form =~ 1 | id))
+  return(fit)
+}
+```
+
+
+```{r lda-random}
+lda_random <- function(dt_long){
+  fit <- lme(y ~ treatment*time,
+             random = ~1|id,
+             data = dt_long,
+             weights = varIdent(form= ~ 1 | time),
+             correlation= corSymm(form=~ 1 | id))
+  return(fit)
+}
+```
+
+```{r lmm}
+lmm <- function(dt_long){
+  fit <- lmer(y ~ treatment*time + (1|id),
+             data = dt_long)
+  return(fit)
+}
+```
+
+note lmm, rmanova, and lda_random are effectively the same, at least for my parameter space
+
+# simulations
+## single post time point ("pre-post")
+
+```{r simulation-single-post-time-point, message=FALSE}
+
+simulate_pre_post <- function(
+  niter = 1000, # number of iterations
+  n = 6, # if vector then sample per group
+  sigma_0 = 1, # error at time 0
+  sigma_1 = 1, # error at time 1
+  rho = 0.6, # correlation between time 0 and 1
+  beta_0 = 10, # control mean at time 0
+  beta_1 = 1,
+  beta_2 = 5, # time effect at time 1
+  beta_3 = 1  # interaction
+){
+  
+  model_list <- c("lm_cov", "lm_change", "lda", "rmanova")
+  model_params <- c("b1", "b3", "lower", "upper", "p")
+  res_cols <- paste(rep(model_list, each = length(model_params)),
+                    model_params,
+                    sep = ".")
+  prob_wide <- data.table(matrix(as.numeric(NA),
+                                 nrow=niter,
+                                 ncol=length(res_cols)))
+  colnames(prob_wide) <- res_cols
+  
+  if(length(n) == 1){n <- rep(n,2)} # set n = n for all groups
+  n_list <- n
+  N <- sum(n_list)
+  
+  # correlated error matrix
+  R <- matrix(c(1, rho, rho, 1), nrow=2)
+  L = matrix(c(sigma_0, 0, 0, sigma_1), nrow=2)
+  Sigma <- L%*%R%*%L
+
+  fd_long <- data.table(
+    treatment = factor(rep(rep(c("cn", "tr"), n_list), 2)),
+    time = factor(rep(c("pre", "post"), each = N),
+                  levels = c("pre", "post"))
+  )
+  
+  # fd is in long format
+  X <- model.matrix(~ treatment*time, data = fd_long)
+  beta <- c(beta_0, beta_1, beta_2, beta_3)
+  
+  for(iter in 1:niter){
+    # fd_long <- generate_pre_post(
+    #   n = n,
+    #   sigma_0 = sigma_0,
+    #   sigma_1 = sigma_1,
+    #   rho = rho, 
+    #   beta_0 = beta_0, 
+    #   beta_1 = beta_1,
+    #   beta_2 = beta_2,
+    #   beta_3 = beta_3
+    # )
+    
+    e <- rmvnorm(N, mean = c(0,0), sigma = Sigma) %>%
+      data.table()
+    e[, id := paste0("id_", 1:N)]
+    e_long <- melt(e,
+                   id.vars = "id")
+    
+    fd_long[, y := (X%*%beta)[,1] + e_long[, value]]
+    fd_long[, id := e_long[, id]]
+    fd_long[, id := factor(id)]
+    
+    
+    # reshape to wide
+    fd_wide <- dcast(fd_long,
+                treatment + id ~ time,
+                value.var = "y")
+    fd_wide[, change := post - pre]
+    
+    if("lm_cov" %in% model_list){
+      m1 <- lm_cov(fd_wide)
+      coef_table <- coef(summary(m1))
+      ci_table <- confint(m1)
+      prob_wide[iter, lm_cov.b3 := coef_table["treatmenttr", "Estimate"]]
+      prob_wide[iter, lm_cov.lower := ci_table["treatmenttr", "2.5 %"]]
+      prob_wide[iter, lm_cov.upper := ci_table["treatmenttr", "97.5 %"]]
+      prob_wide[iter, lm_cov.p := coef_table["treatmenttr", "Pr(>|t|)"]]
+    }
+    
+   if("lm_change" %in% model_list){
+    m1 <- lm_change(fd_wide)
+    coef_table <- coef(summary(m1))
+    ci_table <- confint(m1)
+    prob_wide[iter, lm_change.b3 := coef_table["treatmenttr", "Estimate"]]
+    prob_wide[iter, lm_change.lower := ci_table["treatmenttr", "2.5 %"]]
+    prob_wide[iter, lm_change.upper := ci_table["treatmenttr", "97.5 %"]]
+    prob_wide[iter, lm_change.p := coef_table["treatmenttr", "Pr(>|t|)"]]
+   }
+    
+   if("lda" %in% model_list){
+      #m2 <- lda(fd_long)
+      m2 <- gls(y ~ treatment*time,
+                data = fd_long,
+                weights = varIdent(form = ~ 1 | time),
+                correlation= corSymm(form = ~ 1 | id))
+      coef_table <- coef(summary(m2))
+      # ci_table <- confint(m2)
+      skip_to_next <- FALSE
+      m2_emm <- tryCatch(emmeans(m2,
+                                 specs = c("treatment", "time"),
+                                 data = fd_long,
+                                 mode = "satterthwaite"),
+                         error = function(e) { skip_to_next <- TRUE})
+      if(skip_to_next == TRUE){ next }
+      m2_pairs <- contrast(m2_emm, interaction = c("consec"), by = NULL) %>%
+        summary(infer = TRUE) %>%
+        data.table
+      prob_wide[iter, lda.b1 := coef_table["treatmenttr", "Value"]]
+      prob_wide[iter, lda.b3 := m2_pairs[1, estimate]]
+      prob_wide[iter, lda.lower := m2_pairs[1, lower.CL]]
+      prob_wide[iter, lda.upper := m2_pairs[1, upper.CL]]
+      prob_wide[iter, lda.p := m2_pairs[1, p.value]]
+    }
+    
+    if("lda_r" %in% model_list){
+      m3 <- lda_random(fd_long)
+      prob_wide[iter, lda_r.p := coef(summary(m3))["treatmenttr:timepost", "p-value"]]
+    }
+    
+    if("lmm" %in% model_list){
+      m4 <- lmm(fd_long)
+      prob_wide[iter, lmm.p := coef(summary(m4))["treatmenttr:timepost", "Pr(>|t|)"]]
+    }
+    
+    if("rmanova" %in% model_list){
+      m5 <- rmanova(fd_long)
+      prob_wide[iter, rmanova.p := summary(m5)$univariate.tests["treatment:time", "Pr(>F)"]]
+    }
+  }
+
+  return(prob_wide)
+}
+```
+
+## Summary statistics
+
+```{r summary stats}
+p_summary <- function(prob, niter, by_list){
+  prob_summary <- prob[, .(freq_lt_05 = sum(p_value < 0.05)/max(niter)),
+          by = .(method)]
+  return(prob_summary)
+}
+
+```
+
+## Plot: 
+
+```{r plot-it}
+plot_it <- function(prob){
+  jco_pal <- pal_jco()(6)
+  group_colors <- jco_pal[c(2,5,4,6)]
+  group_shapes <- c(15, 16, 17,  18)
+  
+  pd <- position_dodge(0.8)
+  gg1 <- ggplot(data = prob,
+                aes(x=method, y=freq_lt_05, color=method, shape=method)) +
+    geom_point(position = pd) +
+    scale_color_manual(values = group_colors) +
+    scale_shape_manual(values = group_shapes) +
+    ylab("Frequency p < 0.05") +
+    xlab("") +
+    theme_pubr() +
+    theme(legend.position="none") +
+    guides(col = guide_legend(ncol = 5, byrow = FALSE)) +
+    NULL
+  return(gg1)
+}
+```
+
+## Type I error
+
+```{r type I, message=FALSE, eval=TRUE}
+do_it <- TRUE
+set.seed(1)
+niter <- 1000 # number of iterations
+
+if(do_it == TRUE){
+
+# parameters of simulation
+  n1_list <- c(6, 30) # sample size
+  n2_list <- as.numeric(NA) # fraction more than n1
+  sigma_0 <- 1 # error at time 0
+  sigma_1_list <- c(1, 2) # error at time 1
+  rho_list <- c(0.3, 0.8) # correlation between time 0 and 1
+  beta_0 <- 10 # control mean at time 0
+  beta_1_list <- c(0.5, 1)
+  beta_2 <- 5 # time effect at time 1
+  beta_3_list <- c(0) # time effect at time 1
+ 
+  param_combis <- expand.grid(n1 = n1_list,
+                              n2 = n2_list,
+                              sigma_1 = sigma_1_list,
+                              rho = rho_list,
+                              beta_1 = beta_1_list,
+                              beta_3 = beta_3_list) %>%
+    data.table()
+  prob_type1_table <- data.table(NULL)
+  for(sim_i in 1:nrow(param_combis)){
+    n1_i <- param_combis[sim_i, n1]
+    # n2_i <- n1_i + round(param_combis[sim_i, n2]*n1_i, 0)
+    n2_i <- n1_i
+    sigma_1_i <- param_combis[sim_i, sigma_1]
+    rho_i <- param_combis[sim_i, rho]
+    beta_1_i <- param_combis[sim_i, beta_1]
+    beta_3_i <- param_combis[sim_i, beta_3]
+    prob_type1 <- simulate_pre_post(niter = niter,
+                                    n = c(n1_i, n2_i),
+                                    sigma_0 = sigma_0,
+                                    sigma_1 = sigma_1_i,
+                                    rho = rho_i,
+                                    beta_0 = beta_0,
+                                    beta_1 = beta_1_i,
+                                    beta_2 = beta_2,
+                                    beta_3 = beta_3_i)
+    prob_type1_table <- rbind(prob_type1_table,
+                              data.table(n1 = n1_i,
+                                         n2 = n2_i,
+                                         sigma_1 = sigma_1_i,
+                                         rho = rho_i,
+                                         beta_1 = beta_1_i,
+                                         prob_type1))
+  }
+  outfile_name <- "prob_type1_table.rds"
+  out_path <- here(output_folder, outfile_name)
+  saveRDS(prob_type1_table, out_path)
+}else{
+  outfile_name <- "prob_type1_table.rds"
+  out_path <- here(output_folder, outfile_name)
+  prob_type1_table <- readRDS(out_path)
+}
+
+```
+
+## Power
+
+```{r Power sim, message=FALSE, eval=TRUE}
+do_it <- TRUE
+set.seed(2)
+niter <- 1000 # number of iterations
+
+if(do_it == TRUE){
+  
+# parameters of simulation
+  n1_list <- c(6, 30) # sample size
+  n2_list <- c(0) # fraction more than n1
+  sigma_0 <- 1 # error at time 0
+  sigma_1_list <- c(2) # error at time 1
+  rho_list <- c(0.3, 0.8) # correlation between time 0 and 1
+  beta_0 <- 10 # control mean at time 0
+  beta_1_list <- c(0.5)
+  beta_2 <- 5 # time effect at time 1 
+  beta_3_list <- c(.5, 1) # time effect at time 1
+  
+  param_combis <- expand.grid(n1 = n1_list,
+                              n2 = n2_list,
+                              sigma_1 = sigma_1_list,
+                              rho = rho_list,
+                              beta_1 = beta_1_list,
+                              beta_3 = beta_3_list) %>%
+    data.table()
+  prob_power_table <- data.table(NULL)
+  for(sim_i in 1:nrow(param_combis)){
+    n1_i <- param_combis[sim_i, n1]
+    # n2_i <- n1_i + round(param_combis[sim_i, n2]*n1_i, 0)
+    n2_i <- n1_i
+    sigma_1_i <- param_combis[sim_i, sigma_1]
+    rho_i <- param_combis[sim_i, rho]
+    beta_1_i <- param_combis[sim_i, beta_1]
+    beta_3_i <- param_combis[sim_i, beta_3]
+    prob_power <- simulate_pre_post(niter = niter,
+                                    n = c(n1_i, n2_i),
+                                    sigma_0 = sigma_0,
+                                    sigma_1 = sigma_1_i,
+                                    rho = rho_i,
+                                    beta_0 = beta_0,
+                                    beta_1 = beta_1_i,
+                                    beta_2 = beta_2,
+                                    beta_3 = beta_3_i)
+    prob_power_table <- rbind(prob_power_table,
+                              data.table(n2 = n2_i,
+                                         sigma_1 = sigma_1_i,
+                                         rho = rho_i,
+                                         beta_1 = beta_1_i,
+                                         beta_3 = beta_3_i,
+                                         prob_power))
+  }
+  outfile_name <- "prob_power_table.rds"
+  out_path <- here(output_folder, outfile_name)
+  saveRDS(prob_power_table, out_path)
+}else{
+  outfile_name <- "prob_power_table.rds"
+  out_path <- here(output_folder, outfile_name)
+  prob_power_table <- readRDS(out_path)
+}
+
+```
+
+# Plots
+## Type I
+
+```{r}
+# p-values
+prob_type1_p <- melt(prob_type1_table,
+                     id.vars = c("n2", "sigma_1", "beta_1", "rho"),
+                     measure.vars = c("lm_cov.p", "lm_change.p", "lda.p", "rmanova.p"),
+                     variable.name = "model",
+                     value.name = "p_value")
+prob_type1_table <- prob_type1_p[,
+                               .(freq_lt_05 = sum(p_value < 0.05)/niter),
+                               by = .(model, n2, sigma_1, beta_1, rho)]
+prob_type1_table[, sim := factor(rep(1:16, 4))]
+
+```
+
+```{r prob_type1_table}
+pal_okabe_ito_man <- pal_okabe_ito[c(5,7,3,6,1,2,4)]
+
+pd <- position_dodge(0.2)
+base <- 0.067
+spacer <- 0.002
+row <- 0
+ggplot(data = prob_type1_table[model != "lm_cov.p"],
+       aes(x = sim,
+           y = freq_lt_05,
+           color = model)) +
+  geom_point(size = 3, position = pd) +
+  geom_line(aes(group = model), position = pd) +
+  
+  annotate(geom = "text",
+           label = c("n:"),
+           x = 16.5,
+           y = base + (row+0)*spacer
+  ) +
+  annotate(geom = "text",
+           label = prob_type1_table[1:16, n2],
+           x = 1:16,
+           y = base + (row+0)*spacer
+  ) +
+  
+  annotate(geom = "text",
+           label = c("sigma_1:"),
+           x = 16.5,
+           y = base + (row+1)*spacer
+  ) +
+  annotate(geom = "text",
+           label = prob_type1_table[1:16, sigma_1],
+           x = 1:16,
+           y = base + (row+1)*spacer
+  ) +
+  
+  annotate(geom = "text",
+           label = c("rho:"),
+           x = 16.5,
+           y = base + (row+2)*spacer
+  ) +
+  annotate(geom = "text",
+           label = prob_type1_table[1:16, rho],
+           x = 1:16,
+           y = base + (row+2)*spacer
+  ) +
+ 
+  annotate(geom = "text",
+           label = c("beta_1:"),
+           x = 16.5,
+           y = base + (row+3)*spacer
+  ) +
+  annotate(geom = "text",
+           label = prob_type1_table[1:16, beta_1],
+           x = 1:16,
+           y = base + (row+3)*spacer
+  ) +
+
+ 
+  #coord_cartesian(xlim(c(0, 9))) +
+  scale_color_manual(values = pal_okabe_ito_man,
+                     name = NULL) +
+
+  theme_pubr() +
+  NULL
+
+```
+
+## Estimates
+```{r estimates-table}
+# estimates
+estimate_b3 <- melt(prob_power_table,
+                id.vars = c("n2", "sigma_1", "beta_1", "beta_3", "rho"),
+                measure.vars = list(c("lm_cov.b3", "lm_change.b3", "lda.b3"),
+                                    c("lm_cov.lower", "lm_change.lower", "lda.lower"),
+                                    c("lm_cov.upper", "lm_change.upper", "lda.upper")),
+                variable.name = "model",
+                value.name = c("b3", "lower", "upper"))
+estimate_b3[model == "1", model := "lm_cov"]
+estimate_b3[model == "2", model := "lm_change"]
+estimate_b3[model == "3", model := "lda"]
+
+estimate_table <- estimate_b3[, .(mean = mean(b3),
+                               lower = quantile(b3, 0.025),
+                               upper = quantile(b3, 0.975)),
+                               by = .(n2, sigma_1, rho, beta_1, beta_3, model)]
+estimate_table[, sim := factor(rep(1:8, 3))]
+
+```
+
+```{r estimates-plot}
+pal_okabe_ito_man <- pal_okabe_ito[c(5,7,3,6,1,2,4)]
+
+pd <- position_dodge(0.2)
+base <- 1.3
+spacer <- 0.075
+ggplot(data = estimate_table,
+       aes(x = sim,
+           y = mean,
+           color = model)) +
+  geom_point(size = 3, position = pd) +
+  geom_line(aes(group = model), position = pd) +
+  
+  annotate(geom = "text",
+           label = c("n:"),
+           x = 8.5,
+           y = base + 2*spacer
+  ) +
+  annotate(geom = "text",
+           label = estimate_table[1:8, n2],
+           x = 1:8,
+           y = base + 2*spacer
+  ) +
+  
+  annotate(geom = "text",
+           label = c("rho:"),
+           x = 8.5,
+           y = base + 1*spacer
+  ) +
+  annotate(geom = "text",
+           label = estimate_table[1:8, rho],
+           x = 1:8,
+           y = base + 1*spacer
+  ) +
+ 
+  annotate(geom = "text",
+           label = c("beta_3:"),
+           x = 8.5,
+           y = base + 0*spacer
+  ) +
+  annotate(geom = "text",
+           label = estimate_table[1:8, beta_3],
+           x = 1:8,
+           y = base + 0*spacer
+  ) +
+ 
+  #coord_cartesian(xlim(c(0, 9))) +
+  scale_color_manual(values = pal_okabe_ito_man,
+                     name = NULL) +
+
+  theme_pubr() +
+  NULL
+
+```
+
+## Coverage
+
+```{r}
+# coverage -- need estimate_b3 computed above
+coverage_table <- estimate_b3[, .(freq_covered = sum(beta_3 > lower &
+                                 beta_3 < upper)/niter),
+                            by = .(model, n2, sigma_1, rho, beta_1, beta_3)]
+
+```
+
+```{r coverage-plot}
+coverage_table[, sim := factor(rep(1:8, 3))]
+pal_okabe_ito_man <- pal_okabe_ito[c(5,7,3,6,1,2,4)]
+
+pd <- position_dodge(0)
+base <- 0.98
+spacer <- 0.01
+ggplot(data = coverage_table,
+       aes(x = sim,
+           y = freq_covered,
+           color = model)) +
+  geom_point(size = 3, position = pd) +
+  geom_line(aes(group = model), position = pd) +
+  
+  annotate(geom = "text",
+           label = c("n:"),
+           x = 8.5,
+           y = base + 2*spacer
+  ) +
+  annotate(geom = "text",
+           label = coverage_table[1:8, n2],
+           x = 1:8,
+           y = base + 2*spacer
+  ) +
+  
+  annotate(geom = "text",
+           label = c("rho:"),
+           x = 8.5,
+           y = base + 1*spacer
+  ) +
+  annotate(geom = "text",
+           label = coverage_table[1:8, rho],
+           x = 1:8,
+           y = base + 1*spacer
+  ) +
+ 
+  annotate(geom = "text",
+           label = c("beta_3:"),
+           x = 8.5,
+           y = base + 0*spacer
+  ) +
+  annotate(geom = "text",
+           label = coverage_table[1:8, beta_3],
+           x = 1:8,
+           y = base + 0*spacer
+  ) +
+ 
+  #coord_cartesian(xlim(c(0, 9))) +
+  scale_color_manual(values = pal_okabe_ito_man,
+                     name = NULL) +
+
+  theme_pubr() +
+  NULL
+
+```
+
+## Power
+
+```{r}
+# p-values
+power_p <- melt(prob_power_table,
+                id.vars = c("n2", "sigma_1", "beta_1", "beta_3", "rho"),
+                measure.vars = c("lm_cov.p", "lm_change.p", "lda.p", "rmanova.p"),
+                variable.name = "model",
+                value.name = "p_value")
+# N-P power
+power_table <- power_p[, .(freq_lt_05 = sum(p_value < 0.05)/niter),
+                       by = .(model, n2, sigma_1, rho, beta_1, beta_3)]
+
+# Fisher sensitivity
+quantile_list <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+
+lm_cov_p <- data.table(Model = "lm_cov",
+                     t(quantile(power_p[model == "lm_cov.p", p_value],
+                                quantile_list)))
+lm_change_p <- data.table(Model = "lm_cov",
+                     t(quantile(power_p[model == "lm_change.p", p_value],
+                                quantile_list)))
+lda_p <- data.table(Model = "lda",
+                  t(quantile(power_p[model == "lda.p", p_value],
+                             quantile_list)))
+rmanova_p <- data.table(Model = "rmanova",
+                      t(quantile(power_p[model == "rmanova.p", p_value],
+                                 quantile_list)))
+
+sensitivity_table <- rbind(lm_cov_p, lda_p, rmanova_p)
+```
+
+```{r power-plot}
+power_table[, sim := factor(rep(1:8, 4))]
+pal_okabe_ito_man <- pal_okabe_ito[c(5,7,3,6,1,2,4)]
+ggplot(data = power_table,
+       aes(x = sim,
+           y = freq_lt_05,
+           color = model)) +
+  geom_point(size = 3) +
+  geom_line(aes(group = model)) +
+  
+  annotate(geom = "text",
+           label = c("n:"),
+           x = 8.5,
+           y = 1.1
+  ) +
+  annotate(geom = "text",
+           label = power_table[1:8, n2],
+           x = 1:8,
+           y = 1.1
+  ) +
+  
+  annotate(geom = "text",
+           label = c("rho:"),
+           x = 8.5,
+           y = 1
+  ) +
+  annotate(geom = "text",
+           label = power_table[1:8, rho],
+           x = 1:8,
+           y = 1
+  ) +
+ 
+  annotate(geom = "text",
+           label = c("beta_3:"),
+           x = 8.5,
+           y = 0.9
+  ) +
+  annotate(geom = "text",
+           label = power_table[1:8, beta_3],
+           x = 1:8,
+           y = 0.9
+  ) +
+ 
+  #coord_cartesian(xlim(c(0, 9))) +
+  scale_color_manual(values = pal_okabe_ito_man,
+                     name = NULL) +
+
+  theme_pubr() +
+  NULL
+
+```
+
