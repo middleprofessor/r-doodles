@@ -1,0 +1,255 @@
+---
+title: "How to make plots with factor levels below the x-axis (bench-biology style)"
+author: "Jeffrey A. Walker"
+date: "12/25/2020"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    fig_caption: yes
+    number_sections: true
+    code_folding: show
+    includes:
+      before_body: copyright.html
+---
+
+```{r setup, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message=FALSE,
+                      warning=FALSE)
+library(here)
+library(janitor)
+library(readxl)
+library(data.table)
+
+# graphics and tables
+library(ggplot2)
+library(ggpubr)
+library(ggsci)
+library(ggforce)
+library(ggthemes)
+library(cowplot)
+library(kableExtra)
+library(lazyWeave) #pvalstring
+
+# analysis packages
+library(emmeans)
+
+pal_okabe_ito <- colorblind_pal()(8)[2:8] # ggthemes
+pal_okabe_ito_blue <- pal_okabe_ito[c(5,6,1,2,3,7,4)] 
+pal_okabe_ito_red <- pal_okabe_ito[c(6,5,3,1,2,7,4)] 
+pal_okabe_ito_4 <- pal_okabe_ito[c(5,6,7,2)]
+
+minus <- "\u2013"
+
+here <- here::here
+data_folder <- "content/data"
+output_folder <- "content/output"
+```
+
+# Example 1
+
+[Adipsin preserves beta cells in diabetic mice and associates with protection from type 2 diabetes in humans](https://www.nature.com/articles/s41586-019-0895-y){target="_blank"}
+
+[public source](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7256970/){target="_blank"}
+
+The example is Figure 4b
+
+```{r import}
+data_from <- "Adipsin preserves beta cells in diabetic mice and associates with protection from type 2 diabetes in humans"
+fig_4_file <- "41591_2019_610_MOESM6_ESM.xlsx"
+file_path <- here(data_folder, data_from, fig_4_file)
+
+fig4 <- read_excel(file_path,
+                   range = "A5:S5",
+                   sheet = "Fig 4b",
+                   col_names = FALSE) %>%
+  data.table() %>%
+  transpose()
+colnames(fig4)[1] <- "tunel"
+
+# populate factor columns
+nsc_levels <- c("nsc_neg", "nsc_pos")
+fig4[, nsc := c(rep(nsc_levels, c(5,5)),
+                rep(nsc_levels, c(5,4)))]
+
+pa_levels <- c("pa_neg", "pa_pos")
+fig4[, palmitate := rep(pa_levels, c(10, 9))]
+
+# convert to factor
+fig4[, nsc := factor(nsc,
+                     levels = nsc_levels)]
+fig4[, palmitate := factor(palmitate,
+                           levels = pa_levels)]
+
+
+treatment_levels <- c("vehicle", "nsc87877", "palmitate", "nsc87877+palmitate")
+fig4[, treatment := rep(treatment_levels, c(5,5,5,4))]
+# convert to factor
+fig4[, treatment := factor(treatment,
+                           levels = treatment_levels)]
+
+# View(fig4)
+```
+
+```{r fig4-m1}
+m1 <- lm(tunel ~ nsc * palmitate, data = fig4)
+
+# replicate
+t.test(tunel ~ palmitate,
+       data = fig4[nsc == "nsc_neg"],
+       var.equal = FALSE)
+
+# data for plots
+
+m1_coef <- cbind(coef(summary(m1)),
+                 confint(m1))
+
+m1_emm <- emmeans(m1, specs = c("nsc", "palmitate"))
+m1_simple <- contrast(m1_emm,
+                      method = "revpairwise",
+                      simple = "each",
+                      combine = TRUE,
+                      adjust = "none") %>%
+  summary(infer = TRUE)
+
+```
+
+## Base-plot
+
+```{r fig4-baseplot}
+
+# ggpubr base plot
+fig4_base <- ggplot(data = fig4,
+                    aes(x = treatment,
+                        y = tunel,
+                        color = nsc)) +
+  # show the data
+  geom_sina() + 
+  # geom_dotplot(binaxis='y',
+  #              stackdir='center',
+  #              alpha = 0.5) +
+  
+  # x and y axis labels
+  ylab("Percent TUNEL+ cells") +
+  
+  
+  theme_pubr() +
+  theme(legend.position="none",
+        axis.title.x=element_blank()) +
+  scale_color_manual(values = pal_okabe_ito_blue) +
+  
+  NULL
+
+fig4_base
+```
+
+## Adding modeled means and error intervals
+
+```{r modeled-means}
+# need mean and ci from emmeans table
+m1_emm_dt <- m1_emm %>%
+  summary() %>%
+  data.table()
+# add treatment column for plot
+m1_emm_dt[, treatment := treatment_levels]
+# m1_emm_dt # check
+
+fig4_mean_ci <- fig4_base +
+    # show the model
+  geom_point(data = m1_emm_dt,
+             aes(y = emmean),
+             size = 3) +
+  
+  geom_errorbar(data = m1_emm_dt,
+             aes(y = emmean,
+                 ymin = lower.CL,
+                 ymax = upper.CL),
+             width = 0)
+
+fig4_mean_ci
+```
+
+## Add p-values
+
+```{r add-p}
+# p-values come from contrast table
+
+m1_simple_dt <- m1_simple %>%
+  data.table()
+# m1_emm_dt[, treatment]
+# "vehicle", "nsc87877", "palmitate", "nsc87877+palmitate"
+m1_simple_dt[, group1 := c("nsc87877",
+                          "nsc87877+palmitate",
+                          "palmitate",
+                          "nsc87877+palmitate")]
+m1_simple_dt[, group2 := c("vehicle",
+                          "palmitate",
+                          "vehicle",
+                          "nsc87877")]
+
+m1_simple_dt[, p_pretty := pvalString(p.value)]
+
+rows <- c(2, 3)
+y_start <- 20.5
+y_inc <- 1
+y_position <- c(y_start, y_start + y_inc)
+
+fig4_p <- fig4_mean_ci +
+  stat_pvalue_manual(m1_simple_dt[rows],
+                     label = "p_pretty",
+                     y.position = y_position,
+                     tip.length = 0.01,
+                     bracket.shorten = 0.05)
+fig4_p
+```
+
+## Add factor levels
+
+```{r}
+fig4_plot <- fig4_p +
+  theme(axis.text.x = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "pt")) +
+  NULL
+
+nsc_values <- c(minus, "+", minus, "+")
+pa_values <- c(minus, minus, "+", "+")
+v_base <- 1
+v_sep <- 0.5
+v_breaks <- c(v_base + v_sep, v_base)
+v_lims <- c(v_base, v_base + v_sep) + c(-v_sep/2, v_sep/2)
+txt_size = 5
+fig4_levels <- fig4_base +
+   annotate(geom = "text",
+           label = nsc_values,
+           x = 1:4,
+           y = v_breaks[1],
+           size = txt_size) +
+  annotate(geom = "text",
+           label = pa_values,
+           x = 1:4,
+           y = v_breaks[2],
+           size = txt_size) +
+  coord_cartesian(ylim = v_lims) +
+  theme(axis.title = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        axis.line = element_blank(),
+        panel.background = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "pt")) +
+  scale_y_continuous(breaks = v_breaks,
+                     labels = c("NSC-87877",
+                                "palmitate")) +
+  NULL
+
+plot_grid(fig4_plot,
+          fig4_levels,
+          nrow = 2,
+          rel_heights = c(1, 0.15),
+          align = "v",
+          axis = "lr")
+
+```
+

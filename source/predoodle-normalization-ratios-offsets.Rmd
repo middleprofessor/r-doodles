@@ -1,0 +1,773 @@
+---
+title: "Normalization - ratios and offsets"
+author: "Jeffrey A. Walker"
+date: "12/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(here)
+library(janitor)
+library(readxl)
+library(data.table)
+library(emmeans)
+library(MASS)
+library(glmmTMB)
+library(lmerTest)
+library(lmPerm)
+library(DHARMa)
+library(ggpubr)
+
+
+here <- here::here
+clean_names <- janitor::clean_names
+
+pal_okabe_ito <- c(
+  "#E69F00",
+  "#56B4E9",
+  "#009E73",
+  "#F0E442",
+  "#0072B2",
+  "#D55E00",
+  "#CC79A7"
+)
+ggbarplot(data = data.frame(x = as.character(1:7),
+                               y = 1),
+             x = "x",
+             y = "y",
+             fill = "x",
+             palette = pal_okabe_ito)
+pal_okabe_ito_2 <- pal_okabe_ito[c(5,6)]
+pal_okabe_ito_3 <- pal_okabe_ito[c(5,6,7)]
+pal_okabe_ito_3_light <- pal_okabe_ito[c(1,2,7)]
+pal_okabe_ito_4 <- pal_okabe_ito[c(5,6,7,2)]
+
+
+data_path <- "content/data"
+folder <- "TGF-beta drives immune evasion in genetically reconstituted colon cancer metastasis"
+
+```
+
+# Ratios in linear models
+```{r eval=FALSE}
+n <- 10
+n_iter <- 2000
+
+# parameters for y
+beta_0 <- 10
+beta_1_vec <- c(0.5, 1) # slope
+beta_2 <- 0 # treatment effect
+sigma <- 1
+
+# parameters for x
+beta_x_vec <- c(-0.5, 0, 0.5) # difference in covariate x
+sigma_x_vec <- c(1, 0.5)
+
+param_combos <- expand.grid(beta_1 = beta_1_vec,
+                            beta_x = beta_x_vec,
+                            sigma_x = sigma_x_vec) %>%
+  data.table()
+fake_data <- data.table(
+  treatment = rep(c("cn", "tr"), each = n),
+  x = as.numeric(NA),
+  y = as.numeric(NA)
+)
+ 
+dummy <- rep(c(0, 1), each = n)
+p_cov <- numeric(n_iter)
+p_ratio <- numeric(n_iter)
+p_table <- data.table(NULL)
+for(i in 1:nrow(param_combos)){
+  b_x_vector <- rep(c(0, param_combos[i, beta_x]),
+                    each = n)
+  sigma_x_vector <- rep(c(1, param_combos[i, sigma_x]),
+                    each = n)
+  beta_1 <- param_combos[i, beta_1]
+  
+  for(iter in 1:n_iter){
+    fake_data[, x := 10 +
+                b_x_vector +
+                rnorm(n*2)*sigma_x_vector]
+    fake_data[, y := beta_0 +
+                beta_1*x +
+                beta_2*dummy +
+                rnorm(2*n, sd = sigma)]
+    m1 <- lm(y ~ x + treatment, data = fake_data)
+    m2 <- lm(y/x ~ treatment, data = fake_data)
+    
+    p_cov[iter] <- coef(summary(m1))["treatmenttr", "Pr(>|t|)"]
+    p_ratio[iter] <- coef(summary(m2))["treatmenttr", "Pr(>|t|)"]
+  }
+  p_table <- rbind(p_table,
+                   rbind(data.table(method = "cov",
+                                    slope = beta_1,
+                                    diff_x = param_combos[i, beta_x],
+                                    sigma_x = param_combos[i, sigma_x],
+                                    p = p_cov),
+                         data.table(method = "ratio",
+                                    slope = beta_1,
+                                    diff_x = param_combos[i, beta_x],
+                                    sigma_x = param_combos[i, sigma_x],
+                                    p = p_ratio)))
+}
+p_table[, .(l.t.05 = sum(p < 0.05)/n_iter),
+        by = c("method", "slope", "diff_x", "sigma_x")]
+```
+
+```{r eval=FALSE}
+qplot(x = x, y = y, color = treatment, data = fake_data) +
+  geom_smooth(method = "lm")
+```
+
+
+```{r eval=FALSE}
+ggstripchart(data=fake_data,
+       x = "treatment",
+       y = "y",
+       add = "mean_ci")
+```
+
+# offsets in glm count models
+
+```{r fig4h-import}
+fn <- "41586_2018_BFnature25492_MOESM10_ESM.xlsx"
+file_path <- here(data_path,folder, fn)
+fig4h <- read_excel(file_path, sheet = "Fig. 4h-tumours") %>%
+  clean_names()  %>%
+  data.table()
+fig4h[, name := factor(name)]
+
+treatment_order <- c("Con", "Gal", "aPD-L1", "Gal+aPD-L1")
+fig4h[, treatment := factor(treatment,
+                            levels = treatment_order)]
+
+gal_levels <- c("no Gal", "Gal")
+fig4h[, gal := ifelse(treatment == "Gal" | treatment == "Gal+aPD-L1",
+                      gal_levels[2],
+                      gal_levels[1])]
+
+apd_levels <- c("no aPD-L1", "aPD-L1")
+fig4h[, apdl1 := ifelse(treatment == "aPD-L1" | treatment == "Gal+aPD-L1",
+                      apd_levels[2],
+                      apd_levels[1])]
+
+# re-order factor levels
+fig4h[, gal := factor(gal, gal_levels)]
+fig4h[, apdl1 := factor(apdl1, apd_levels)]
+# fig4h[!is.na(num_positive_per_mm), .(N = .N), by = .(treatment, gal, apdl1)]
+
+fig4h[, id := factor(id)]
+fig4h[, mouse := factor(mouse)]
+
+# integerize num_positive_per_mm
+fig4h[, num_positive_per_mm_I := as.integer(round(num_positive_per_mm*2, 0))]
+
+cd3 <- fig4h[staining == "CD3"]
+# View(cd3)
+```
+
+```{r m5-glmmTMB-nbinom2}
+m1 <- glmmTMB(num_positive ~ log(area_µm_2) + treatment +
+                (1|id),
+              family = "nbinom2",
+              data = cd3)
+m2a <- glmmTMB(num_positive ~ offset(log(area_µm_2)) + treatment +
+                 (1|id),
+              family = "nbinom2",
+              data = cd3)
+m2b <- glmmTMB(num_positive_per_mm_I ~ treatment +
+                 (1|id),
+              family = "nbinom2",
+              data = cd3)
+
+```
+
+```{r coefs}
+coef(summary(m1))$cond[,1:2]
+coef(summary(m2a))$cond[,1:2]
+coef(summary(m2b))$cond[,1:2]
+
+```
+
+```{r model area}
+# parameters for covariate ("area")
+# rgamma(n, shape, rate = 1, scale = 1/rate)
+# parameters shape = a and scale = s
+# The mean and variance are E(X) = a*s and Var(X) = a*s^2.
+n <- 10^4
+mu_area <- mean(cd3[treatment == "Con", area_µm_2])
+sd_area <- sd(cd3[treatment == "Con", area_µm_2])
+m_area <- glm(area_µm_2 ~ 1,
+                  family = Gamma(link = "log"),
+                  data = cd3[treatment == "Con"])
+a <- 1/summary(m_area)$dispersion
+s <- mu_area/a
+area <- rgamma(n, shape = a, scale = s)
+
+m_area <- lm(log(area_µm_2) ~ 1,
+                  data = cd3[treatment == "Con"])
+mu_logarea <- mean(log(cd3[treatment == "Con", area_µm_2]))
+sd_logarea <- sd(log(cd3[treatment == "Con", area_µm_2]))
+
+area <- rlnorm(n,
+               meanlog = mu_logarea,
+               sdlog = sd_logarea
+               )
+qplot(area)
+quantile(log(area), c(0.025, 0.975))
+meanlog_cn <- mu_logarea
+sdlog_cn <- sd_logarea
+
+meanlog_tr <- mean(log(cd3[treatment == "Gal+aPD-L1", area_µm_2]))
+sdlog_tr <- sd(log(cd3[treatment == "Gal+aPD-L1", area_µm_2]))
+
+
+```
+
+```{r model count in control}
+# rnegbin(n, mu, theta)
+# mean mu and variance mu + mu^2/theta
+n <- 10^4
+cd3_con <- cd3[treatment == "Con"]
+mu_count <- mean(cd3_con[, num_positive])
+sd_count <- sd(cd3_con[, num_positive])
+m1 <- glm.nb(num_positive ~ offset(log(area_µm_2)),
+                  data = cd3_con)
+m2 <- glm.nb(num_positive ~ log(area_µm_2),
+                  data = cd3_con)
+
+theta1 <- m1$theta
+theta2 <- m2$theta
+m1_beta_0 <- coef(m1)[1]
+m1_beta_1 <- 1
+m2_beta_0 <- coef(m2)[1]
+m2_beta_1 <- coef(m2)[2]
+
+
+count <- rnegbin(n, mu = mu_count, theta = theta1)
+qplot(count)
+mu_count
+mean(count)
+sd_count
+sd(count)
+```
+
+```{r offset-simulation, eval = FALSE}
+n <- 6
+n_iter <- 2000
+
+xdiff <- c(0,1) # use cn or tr scale/shape params for tr
+slope.eq.1 <- c(TRUE, FALSE)
+
+param_combos <- expand.grid(xdiff = xdiff,
+                            slope.eq.1 = slope.eq.1) %>%
+  data.table()
+fake_data <- data.table(
+  treatment = rep(c("cn", "tr"), each = n),
+  x = as.numeric(NA),
+  y = as.numeric(NA)
+)
+ 
+dummy <- rep(c(0, 1), each = n)
+p_table <- data.table(NULL)
+for(i in 1:nrow(param_combos)){
+  if(param_combos[i, xdiff] == 0){
+    meanlog_vec <- rep(c(meanlog_cn, meanlog_cn), each = n)
+    sdlog_vec <- rep(c(sdlog_cn, sdlog_cn), each = n)
+  }else{
+    meanlog_vec <- rep(c(meanlog_cn, meanlog_tr), each = n)
+    sdlog_vec <- rep(c(sdlog_cn, sdlog_tr), each = n)
+  }
+  if(param_combos[i, slope.eq.1] == TRUE){
+    beta_0 <- m1_beta_0
+    beta_1 <- 1
+  }else{
+    beta_0 <- m2_beta_0
+    beta_1 <- m2_beta_1
+  }
+  
+  p_cov <- rep(as.numeric(NA), n_iter)
+  p_offset <- rep(as.numeric(NA), n_iter)
+  p_ratio <- rep(as.numeric(NA), n_iter)
+  for(iter in 1:n_iter){
+    area <- rlnorm(n*2, meanlog_vec, sdlog_vec)
+    mu_vec <- exp(beta_0 + beta_1*log(area))
+    count <- rnegbin(n*2, mu = mu_vec, theta = theta1)
+
+    fake_data[, x := area]
+    fake_data[, y := count]
+    # qplot(treatment, log(x), data = fake_data)
+
+
+    m0 <- lm(y/x ~ treatment, data = fake_data)
+    
+    m1 <- try(
+      glm.nb(y ~ offset(log(x)) + treatment,
+             data = fake_data),
+      silent = TRUE)
+    skip_m1 <- "if"(inherits(m1, "try-error"), NULL, m1)
+    
+    m2 <- try(
+      glm.nb(y ~ log(x) + treatment,
+             data = fake_data),
+      silent = TRUE)
+    skip_m2 <- "if"(inherits(m2, "try-error"), NULL, m2)
+    
+    p_ratio[iter] <- coef(summary(m0))["treatmenttr", "Pr(>|t|)"]
+    if(!is.null(skip_m1)){
+    p_offset[iter] <- coef(summary(m1))["treatmenttr", "Pr(>|z|)"]
+    }
+    if(!is.null(skip_m2)){
+    p_cov[iter] <- coef(summary(m2))["treatmenttr", "Pr(>|z|)"]
+    }
+  }
+  p_table <- rbind(p_table,
+                   rbind(data.table(method = "ratio",
+                                    slope = beta_1,
+                                    diff_x = param_combos[i, xdiff],
+                                    p = p_ratio),
+                         data.table(method = "offset",
+                                    slope = beta_1,
+                                    diff_x = param_combos[i, xdiff],
+                                    p = p_offset),
+                         data.table(method = "cov",
+                                    slope = beta_1,
+                                    diff_x = param_combos[i, xdiff],
+                                    p = p_cov)))
+}
+p_table[!is.na(p), .(N = .N,
+                     l.t.05 = sum(p < 0.05)/.N),
+        by = c("method", "slope", "diff_x")]
+```
+
+```{r ancova-plot, message=FALSE, eval=FALSE}
+  i <- 29
+  n <- param_combos[i, n]
+  n <- 1000
+  meanlog_cn_i <- meanlog_cn
+  meanlog_tr_i <- meanlog_cn +
+    param_combos[i, cov_diff]*sdlog_cn
+  meanlog_vec <- rep(c(meanlog_cn_i, meanlog_tr_i), each = n)
+  sdlog_cn_i <- sdlog_cn
+  sdlog_tr_i <- param_combos[i, cov_sd]*sdlog_cn
+  sdlog_vec <- rep(c(sdlog_cn, sdlog_cn), each = n)
+
+  beta_0 <- m1_beta_0
+  beta_1 <- param_combos[i, slope]
+
+  fake_data <- data.table(
+    treatment = rep(c("cn", "tr"), each = n)
+  )
+    area <- rlnorm(n*2, meanlog_vec, sdlog_vec)
+    mu_vec <- exp(beta_0 + beta_1*log(area))
+    count <- rnegbin(n*2, mu = mu_vec, theta = theta1)
+
+    fake_data[, area := area]
+    fake_data[, count := count]
+  
+    gg1 <- qplot(data = fake_data,
+                 x = log(area),
+                 y = log(count),
+                 color = treatment) +
+      geom_smooth(method = "lm") +
+      theme(legend.position = "top")
+      
+    gg2 <- qplot(data = fake_data,
+                 x = log(area),
+                 y = count/area,
+                 color = treatment) +
+      geom_smooth(method = "lm") +
+      theme(legend.position = "top")
+
+    cowplot::plot_grid(gg1, gg2, nrow = 1)
+  
+```
+
+```{r}
+offset_simulator <- function(n_iter = 1000,
+                             n_vec = c(20),
+                             cov_diff_params = c(-1), # sd units
+                             cov_sd_params = c(1), # X control sd
+                             slope_params = c(0.25, 0.5, 0.75, 0.9, 1) # times control slope
+){
+  
+  param_combos <- expand.grid(cov_diff = cov_diff_params,
+                              cov_sd = cov_sd_params,
+                              slope = slope_params,
+                              n = n_vec
+  ) %>%
+    data.table()
+  n_combos <- length(cov_diff_params) *
+    length(cov_sd_params) *
+    length(slope_params)
+  param_combos[, combo := rep(1:n_combos, length(n_vec))]
+  
+  meanlog_count_cn <- mean(log(cd3[treatment == "Con", num_positive]))
+  meanlog_area_cn <- mean(log(cd3[treatment == "Con", area_µm_2]))
+  sdlog_area_cn <- sd(log(cd3[treatment == "Con", area_µm_2]))
+  
+  p_table <- data.table(NULL)
+  for(i in 1:nrow(param_combos)){
+    n <- param_combos[i, n]
+    meanlog_area_cn_i <- meanlog_area_cn
+    meanlog_area_tr_i <- meanlog_area_cn +
+      param_combos[i, cov_diff]*sdlog_area_cn
+    meanlog_area_vec <- rep(c(meanlog_area_cn_i, meanlog_area_tr_i), each = n)
+    sdlog_area_cn_i <- sdlog_area_cn
+    sdlog_area_tr_i <- param_combos[i, cov_sd]*sdlog_area_cn
+    sdlog_area_vec <- rep(c(sdlog_area_cn_i, sdlog_area_tr_i), each = n)
+    
+    beta_1 <- param_combos[i, slope]
+    beta_0 <- meanlog_count_cn - beta_1*meanlog_area_cn
+    
+    fake_data <- data.table(
+      treatment = rep(c("cn", "tr"), each = n),
+      x = as.numeric(NA),
+      y = as.numeric(NA)
+    )
+    
+    p_cov <- rep(as.numeric(NA), n_iter)
+    p_offset <- rep(as.numeric(NA), n_iter)
+    p_ratio <- rep(as.numeric(NA), n_iter)
+    
+    inc1 <- 1:n
+    inc2 <- (n+1):(2*n)
+    for(iter in 1:n_iter){
+      area_i <- rlnorm(n*2, meanlog_area_vec, sdlog_area_vec)
+      # recenter so area difference is true area difference
+      logarea <- log(area_i)
+      area <- c(exp(logarea[inc1] - mean(logarea[inc1]) +
+                      meanlog_area_vec[inc1]),
+                exp(logarea[inc2] - mean(logarea[inc2]) +
+                      meanlog_area_vec[inc2]))
+      
+      mu_vec <- exp(beta_0 + beta_1*log(area))
+      count <- rnegbin(n*2, mu = mu_vec, theta = theta1)
+      
+      fake_data[, x := area]
+      fake_data[, y := count]
+      # qplot(treatment, log(x), data = fake_data)
+      
+      
+      m0 <- lm(y/x ~ treatment, data = fake_data)
+      m1 <- try(
+        # glm.nb(y ~ offset(log(x)) + treatment,
+        #        data = fake_data),
+        glmmTMB(y ~ offset(log(x)) + treatment,
+                family = "nbinom2",
+                data = fake_data),
+        silent = TRUE)
+      skip_m1 <- "if"(inherits(m1, "try-error"), NULL, m1)
+      
+      m2 <- try(
+        # glm.nb(y ~ log(x) + treatment,
+        #        data = fake_data),
+        glmmTMB(y ~ log(x) + treatment,
+                family = "nbinom2",
+                data = fake_data),
+        silent = TRUE)
+      skip_m2 <- "if"(inherits(m2, "try-error"), NULL, m2)
+      
+      p_ratio[iter] <- coef(summary(m0))["treatmenttr", "Pr(>|t|)"]
+      # p_offset[iter] <- coef(summary(m1))["treatmenttr", "Pr(>|z|)"]
+      # p_cov[iter] <- coef(summary(m2))["treatmenttr", "Pr(>|z|)"]
+      p_offset[iter] <- coef(summary(m1))$cond["treatmenttr", "Pr(>|z|)"]
+      p_cov[iter] <- coef(summary(m2))$cond["treatmenttr", "Pr(>|z|)"]
+    }
+    p_table <- rbind(p_table,
+                     rbind(data.table(method = "ratio",
+                                      n = n,
+                                      slope = beta_1,
+                                      cov_diff = param_combos[i, cov_diff],
+                                      cov_sd = param_combos[i, cov_sd],
+                                      p = p_ratio),
+                           data.table(method = "offset",
+                                      n = n,
+                                      slope = beta_1,
+                                      cov_diff = param_combos[i, cov_diff],
+                                      cov_sd = param_combos[i, cov_sd],
+                                      p = p_offset),
+                           data.table(method = "cov",
+                                      n = n,
+                                      slope = beta_1,
+                                      cov_diff = param_combos[i, cov_diff],
+                                      cov_sd = param_combos[i, cov_sd],
+                                      p = p_cov)))
+  }
+  
+  return(p_table)
+}
+```
+
+```{r offset-simulation-saveRDS}
+save_offset_simulation <- function(p_table, sim_name = "test"){
+  outfolder <- "content/output"
+  random_id <- paste(sample(c(letters, LETTERS),
+                            6,
+                            replace = TRUE),
+                     collapse ="")
+  outfile <- paste0("offset_simulation-",
+                    sim_name,
+                    "-",
+                    random_id,
+                    ".Rds")
+  outpath <- here(outfolder, outfile)
+  saveRDS(p_table, outpath)
+}
+```
+
+```{r offset-simulation}
+sim1 <- offset_simulator(n_iter = 2000,
+                         n_vec = c(5, 10, 20, 40),
+                         cov_diff_params = c(0),
+                         cov_sd_params = c(1),
+                         slope_params = c(1))
+save_offset_simulation(sim1, "sim1")
+
+
+sim3 <- offset_simulator(n_iter = 2000,
+                         n_vec = c(20),
+                         cov_diff_params = c(-1, -0.5, -0.25, 0),
+                         cov_sd_params = c(1),
+                         slope_params = c(0.75))
+save_offset_simulation(sim3, "sim3")
+
+sim4 <- offset_simulator(n_iter = 2000,
+                         n_vec = c(20),
+                         cov_diff_params = c(-0.5),
+                         cov_sd_params = c(1),
+                         slope_params = c(0.25, 0.5, 0.75, 0.9, 1))
+save_offset_simulation(sim4, "sim4")
+
+sim5 <- offset_simulator(n_iter = 2000,
+                         n_vec = c(20),
+                         cov_diff_params = c(-1),
+                         cov_sd_params = c(0.25, 0.5, 1),
+                         slope_params = c(0.75))
+save_offset_simulation(sim5, "sim5")
+
+sim6 <- offset_simulator(n_iter = 1000,
+                         n_vec = c(20),
+                         cov_diff_params = c(-1, 0, 1),
+                         cov_sd_params = c(1),
+                         slope_params = c(0.75))
+save_offset_simulation(sim6, "sim6")
+
+sim7 <- offset_simulator(n_iter = 1000,
+                         n_vec = c(20),
+                         cov_diff_params = c(-1),
+                         cov_sd_params = c(1),
+                         slope_params = c(0.75, 1, 1.33))
+save_offset_simulation(sim7, "sim7")
+
+```
+
+```{r offset-simulation-general}
+n_vec <- c(20)
+n_iter <- 1000
+
+cov_diff_params <- c(-1) # standard deviation units
+cov_sd_params <- c(1) # times control sd
+slope_params <- c(0.25, 0.5, 0.75, 0.9, 1) # times control slope
+
+param_combos <- expand.grid(cov_diff = cov_diff_params,
+                            cov_sd = cov_sd_params,
+                            slope = slope_params,
+                            n = n_vec
+                            ) %>%
+  data.table()
+n_combos <- length(cov_diff_params) *
+  length(cov_sd_params) *
+  length(slope_params)
+param_combos[, combo := rep(1:n_combos, length(n_vec))]
+ 
+meanlog_count_cn <- mean(log(cd3[treatment == "Con", num_positive]))
+meanlog_area_cn <- mean(log(cd3[treatment == "Con", area_µm_2]))
+
+p_table <- data.table(NULL)
+for(i in 1:nrow(param_combos)){
+  n <- param_combos[i, n]
+  meanlog_cn_i <- meanlog_cn
+  meanlog_tr_i <- meanlog_cn +
+    param_combos[i, cov_diff]*sdlog_cn
+  meanlog_vec <- rep(c(meanlog_cn_i, meanlog_tr_i), each = n)
+  sdlog_cn_i <- sdlog_cn
+  sdlog_tr_i <- param_combos[i, cov_sd]*sdlog_cn
+  sdlog_vec <- rep(c(sdlog_cn_i, sdlog_tr_i), each = n)
+
+  beta_1 <- param_combos[i, slope]
+  beta_0 <- meanlog_count_cn - beta_1*meanlog_area_cn
+
+  fake_data <- data.table(
+    treatment = rep(c("cn", "tr"), each = n),
+    x = as.numeric(NA),
+    y = as.numeric(NA)
+  )
+  
+  p_cov <- rep(as.numeric(NA), n_iter)
+  p_offset <- rep(as.numeric(NA), n_iter)
+  p_ratio <- rep(as.numeric(NA), n_iter)
+  
+  for(iter in 1:n_iter){
+    area <- rlnorm(n*2, meanlog_vec, sdlog_vec)
+    mu_vec <- exp(beta_0 + beta_1*log(area))
+    count <- rnegbin(n*2, mu = mu_vec, theta = theta1)
+
+    fake_data[, x := area]
+    fake_data[, y := count]
+    # qplot(treatment, log(x), data = fake_data)
+
+
+    m0 <- lm(y/x ~ treatment, data = fake_data)
+    m1 <- try(
+      # glm.nb(y ~ offset(log(x)) + treatment,
+      #        data = fake_data),
+      glmmTMB(y ~ offset(log(x)) + treatment,
+              family = "nbinom2",
+              data = fake_data),
+      silent = TRUE)
+    skip_m1 <- "if"(inherits(m1, "try-error"), NULL, m1)
+    
+    m2 <- try(
+      # glm.nb(y ~ log(x) + treatment,
+      #        data = fake_data),
+      glmmTMB(y ~ log(x) + treatment,
+              family = "nbinom2",
+              data = fake_data),
+      silent = TRUE)
+    skip_m2 <- "if"(inherits(m2, "try-error"), NULL, m2)
+    
+    p_ratio[iter] <- coef(summary(m0))["treatmenttr", "Pr(>|t|)"]
+    # p_offset[iter] <- coef(summary(m1))["treatmenttr", "Pr(>|z|)"]
+    # p_cov[iter] <- coef(summary(m2))["treatmenttr", "Pr(>|z|)"]
+    p_offset[iter] <- coef(summary(m1))$cond["treatmenttr", "Pr(>|z|)"]
+    p_cov[iter] <- coef(summary(m2))$cond["treatmenttr", "Pr(>|z|)"]
+  }
+  p_table <- rbind(p_table,
+                   rbind(data.table(method = "ratio",
+                                    n = n,
+                                    slope = beta_1,
+                                    cov_diff = param_combos[i, cov_diff],
+                                    cov_sd = param_combos[i, cov_sd],
+                                    p = p_ratio),
+                         data.table(method = "offset",
+                                    n = n,
+                                    slope = beta_1,
+                                    cov_diff = param_combos[i, cov_diff],
+                                    cov_sd = param_combos[i, cov_sd],
+                                    p = p_offset),
+                         data.table(method = "cov",
+                                    n = n,
+                                    slope = beta_1,
+                                    cov_diff = param_combos[i, cov_diff],
+                                    cov_sd = param_combos[i, cov_sd],
+                                    p = p_cov)))
+}
+
+outfolder <- "content/output"
+random_id <- paste(sample(c(letters, LETTERS),
+                          6,
+                          replace = TRUE),
+                   collapse ="")
+outfile <- paste0("offset_simulation-niter=",
+                  n_iter,
+                  "-",
+                  random_id,
+                  ".Rds")
+outpath <- here(outfolder, outfile)
+saveRDS(p_table, outpath)
+
+```
+
+```{r type1}
+outfolder <- "content/output"
+outfile <- "offset_simulation-sim1-DyoPNp.Rds"
+# outfile <- "offset_simulation-sim3-ZdPflt.Rds"
+# outfile <- "offset_simulation-sim4-QgnPvT.Rds"
+# outfile <- "offset_simulation-sim5-yMGJtD.Rds"
+# outfile <- "offset_simulation-sim6-cArifw.Rds"
+# outfile <- "offset_simulation-sim7-oIZGNd.Rds"
+outpath <- here(outfolder, outfile)
+p_table <- readRDS(outpath)
+type1 <- p_table[!is.na(p), .(N = .N,
+                              l.t.05 = sum(p < 0.05)/.N),
+                 by = c("method", "n", "slope", "cov_diff", "cov_sd")]
+
+type1
+```
+
+```{r simulation-plot}
+cov_diff_params <- unique(type1$cov_diff)
+cov_sd_params <- unique(type1$cov_sd)
+slope_params <- unique(type1$slope)
+n_vec <- unique(type1$n)
+
+gg_combos <- expand.grid(n = n_vec,
+                         cov_diff = cov_diff_params,
+                         cov_sd = cov_sd_params,
+                         slope = slope_params) %>%
+  data.table
+#type1[, combi := rep(1:nrow(gg_combos), each = 3*length(n_vec))]
+type1[, combi := rep(1:nrow(gg_combos), each = 3)]
+gg <- ggplot(data = type1,
+             aes(x = combi,
+                 y = l.t.05,
+                 color = method)) +
+  geom_point() +
+#  facet_grid(n ~ .) +
+  ylab("Type I") +
+  theme_minimal() +
+  theme(axis.title.x=element_blank(),
+        axis.text.x = element_blank()) +
+  scale_color_manual(values = pal_okabe_ito_3) +
+  coord_cartesian(ylim = c(0.0, max(type1$l.t.05)*1.05)) +
+  theme(plot.margin = unit(x=c(0,0,0,0),'cm')) +
+  NULL
+
+gg2 <- ggplot(data = type1,
+             aes(x = combi,
+                 y = l.t.05)) +
+  annotate(geom = "text",
+           label = gg_combos[, n],
+           x = 1:nrow(gg_combos),
+           y = 0.4,
+           size = 2.5) +
+  annotate(geom = "text",
+           label = gg_combos[, cov_diff],
+           x = 1:nrow(gg_combos),
+           y = 0.3,
+           size = 2.5) +
+  annotate(geom = "text",
+           label = gg_combos[, cov_sd],
+           x = 1:nrow(gg_combos),
+           y = 0.2,
+           size = 2.5) +
+  annotate(geom = "text",
+           label = gg_combos[, slope],
+           x = 1:nrow(gg_combos),
+           y = 0.1,
+           size = 2.5) +
+  theme_minimal() +
+  coord_cartesian(ylim = c(0.05,.45)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x = element_blank()) +
+  theme(axis.title.y = element_blank()) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  theme(plot.margin = unit(x=c(0,0,0,0),'cm')) +
+  scale_y_continuous(breaks = c(.1, .2, .3, .4),
+                     labels = c("slope",
+                                "cov sd",
+                                "cov diff",
+                                "n")) +
+  NULL
+
+cowplot::plot_grid(gg,
+                   gg2,
+                   nrow = 2,
+                   rel_heights = c(1, 0.2),
+                   align = "v",
+                   axis = "lr")
+```
+

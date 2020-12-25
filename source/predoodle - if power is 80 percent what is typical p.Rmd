@@ -1,0 +1,58 @@
+---
+title: "If power of a test is 80%, what is typical p-value?"
+author: "Jeffrey A. Walker"
+date: "12/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggpubr)
+```
+
+```{r}
+n <- 3
+sigma <- 1
+power <- 0.8
+(cohen <- power.t.test(n = n,
+             sd = sigma,
+             power = power)$delta)
+```
+
+```{r}
+n_iter <- 5000
+fake_data <- data.table(
+  treatment = factor(rep(c("wt", "ko"), each = n),
+                     levels = c("wt", "ko")),
+  y = rep(as.numeric(NA), 2*n)
+)
+mu <- rep(c(0, cohen), each = n)
+p <- numeric(n_iter)
+max_wt <- numeric(n_iter)
+min_ko <- numeric(n_iter)
+
+for(iter in 1:n_iter){
+  fake_data[ , y := mu + rnorm(n*2,
+                        mean = 0,
+                        sd = sigma)]
+  max_wt[iter] <- max(fake_data[treatment == "wt", y])
+  min_ko[iter] <- min(fake_data[treatment == "ko", y])
+  fit <- lm(y ~ treatment, data = fake_data)
+  p[iter] <- coef(summary(fit))["treatmentko", "Pr(>|t|)"]
+}
+quantile(p, c(0.2, 0.5, 0.75, 0.8, 0.9, 0.95))
+sum(max_wt > min_ko)/n_iter
+```
+
+```{r plot}
+fake_data[ , y := mu + rnorm(n*2,
+                        mean = 0,
+                        sd = sigma)]
+fake_data[, y]
+ggpubr::ggstripchart(data = fake_data,
+                     x = "treatment",
+                     y = "y",
+                     add = "mean_ci")
+```
+

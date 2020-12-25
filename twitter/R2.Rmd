@@ -1,0 +1,100 @@
+---
+title: "Untitled"
+author: "Jeffrey A. Walker"
+date: "12/1/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(cowplot)
+```
+
+```{r plot_it}
+plot_it <- function(x, y, x_lab="x", y_lab="y"){
+  m1 <- lm(y ~ x)
+  R2 <- summary(m1)$r.squared
+  MSE <- sum((fitted(m1) - y)^2)/100
+  if(coef(m1)[2] > 0){
+   x_pos <- min(x) + (max(x) - min(x))/5
+  }else{
+   x_pos <- max(x) - (max(x) - min(x))/5
+  }
+  y_pos <- max(y) - (max(y) - min(y))/20
+  y_inc <- (max(y) - min(y))/20
+  gg <- qplot(x,y) +
+    geom_smooth(method = "lm") +
+    annotate(geom = "text",
+             x = x_pos,
+             y = y_pos,
+             label = paste("R^2 ==", round(R2,2)),
+             parse = TRUE
+    ) +
+    annotate(geom = "text",
+             x = x_pos,
+             y = y_pos - y_inc,
+             label = paste("MSE ==", round(MSE,3)),
+             parse = TRUE
+    ) +
+    xlab(x_lab) +
+    ylab(y_lab) +
+    NULL
+  
+  return(gg)  
+}
+
+```
+
+```{r y-v-x, message=FALSE}
+set.seed(1)
+x <- seq(1,10,length.out = 100)
+y <- 2 + 1.2*x + rnorm(100,0,sd = 0.9)
+gg1 <- plot_it(x,y)
+
+set.seed(1)
+x <- seq(1,2,length.out = 100)       # new range of x
+y <- 2 + 1.2*x + rnorm(100,0,sd = 0.9)
+gg2 <- plot_it(x,y)
+plot_grid(gg1, gg2, nrow=1)
+
+
+```
+
+Re-thinking my comment on R^2 for predictability using a plot of the example (point 3) from https://data.library.virginia.edu/is-r-squared-useless/. The left image sure looks more predictable. Is this an illusion? Imagine two scenarios. 1) The right image is effectively a zoom into the lower left part of the left image. So the full range of y is not shown. In this scenario the values are precisely as predictable. 2) Both images represent the full range of y. Now, the left image is more predicatable. Our error, relative to *what it could be given the range of y* is low. And this is one thing that R^2 tells us, 1 - the relative error, or *relative predictability*. 
+
+```{r weight-v-exercise, message=FALSE}
+set.seed(1)
+minutes_per_day <- rep(c(0,15,30,60,120), each = 5)
+weight <- 30 + -0.1*minutes_per_day + rnorm(25, 0, sd = 1)
+gg1 <- plot_it(minutes_per_day,
+               weight,
+               x_lab = "Minutes per day",
+               y_lab = "Weight")
+
+set.seed(1)
+minutes_per_day <- rep(c(0,1.5,3,6,12), each = 5)
+weight <- 30 + -0.1*minutes_per_day + rnorm(25, 0, sd = 1)
+gg2 <- plot_it(minutes_per_day,
+               weight,
+               x_lab = "Minutes per day",
+               y_lab = "Weight")
+plot_grid(gg1, gg2, nrow=1)
+
+```
+
+```{r}
+set.seed(1)
+x <- seq(1,10,length.out = 100)
+y <- 2 + 1.2*x + rnorm(100,0,sd = 0.9)
+gg1 <- plot_it(x,y)
+
+set.seed(1)
+x <- seq(1,2,length.out = 100)       # new range of x
+y <- 2 + 1.2*x + rnorm(100,0,sd = 0.9)
+gg2 <- plot_it(x,y)
+plot_grid(gg1, gg2, nrow=1)
+
+```
+

@@ -1,0 +1,202 @@
+---
+title: "random intercept mean v effect"
+author: "Jeffrey A. Walker"
+date: "12/13/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(lmerTest)
+library(emmeans)
+library(magrittr)
+```
+
+```{r message=FALSE, warning = FALSE}
+set.seed(2)
+n_iter <- 100
+
+# fixed effects
+b0 <- 10
+b1 <- 1
+sigma = 1
+
+# random effects
+sigma_0_1_levels <- c(0.0001, 0.5)
+
+# sample size
+n <- 5
+n_study_levels <- c(3,6)
+
+param_combos <- expand.grid(sigma_0_1 = sigma_0_1_levels,
+                            n_study = n_study_levels) %>%
+  data.table()
+
+res_table <- data.table(NULL)
+for(combo in 1:nrow(param_combos)){
+  n_study <- param_combos[combo, n_study]
+  sigma_0_1 <- param_combos[combo, sigma_0_1]
+  b0_1 <- rnorm(n_study, mean = 0, sd = sigma_0_1)
+  
+  fake_data <- data.table(
+    study = rep(paste0("study_", 1:n_study), each = n*2),
+    treatment = rep(rep(c("cn", "tr"), each = n), n_study)
+  )
+  
+  
+  old_names <- paste0("V", 1:5)
+  new_names <- paste0("m", 1:5)
+  se_matrix <- matrix(as.numeric(NA), nrow=n_iter, ncol=5) %>%
+    data.table() %>%
+    setnames(old = old_names, new = new_names)
+  df_matrix <- matrix(as.numeric(NA), nrow=n_iter, ncol=5) %>%
+    data.table() %>%
+    setnames(old = old_names, new = new_names)
+  t_matrix <- matrix(as.numeric(NA), nrow=n_iter, ncol=5) %>%
+    data.table() %>%
+    setnames(old = old_names, new = new_names)
+  p_matrix <- matrix(as.numeric(NA), nrow=n_iter, ncol=5) %>%
+    data.table() %>%
+    setnames(old = old_names, new = new_names)
+  
+
+  for(iter in 1:n_iter){
+    fake_data[, y := b0 +
+                rep(b0_1, each = n*2) + 
+                rep(rep(c(0, b1), each = n), n_study) +
+                rnorm(n*2*n_study, mean = 0, sd = sigma)]
+    
+    m5 <- lm(y ~ treatment,
+             data = fake_data[, .(y = mean(y)),
+                              by = .(treatment, study)])
+     
+    m1 <- lm(y ~ treatment, data = fake_data)
+    m1_emm <- emmeans(m1,
+                      specs = "treatment")
+    m1_pairs <- contrast(m1_emm,
+                         method = "revpairwise") %>%
+      summary() %>%
+      data.table
+    se_matrix[iter, m1 := m1_pairs[, SE]]
+    df_matrix[iter, m1 := m1_pairs[, df]]
+    t_matrix[iter, m1 := m1_pairs[, t.ratio]]
+    p_matrix[iter, m1 := m1_pairs[, p.value]]
+    
+    
+    m2 <- lm(y ~ study + treatment, data = fake_data)
+    m2_emm <- emmeans(m2,
+                      specs = c("treatment"))
+    m2_pairs <- contrast(m2_emm,
+                         method = "revpairwise") %>%
+      summary() %>%
+      data.table
+    se_matrix[iter, m2 := m2_pairs[, SE]]
+    df_matrix[iter, m2 := m2_pairs[, df]]
+    t_matrix[iter, m2 := m2_pairs[, t.ratio]]
+    p_matrix[iter, m2 := m2_pairs[, p.value]]
+    
+    m3 <- lmer(y ~ treatment + (1|study), data = fake_data)
+    m3_emm <- emmeans(m3,
+                      specs = "treatment")
+    m3_pairs <- contrast(m3_emm,
+                         method = "revpairwise") %>%
+      summary() %>%
+      data.table
+    se_matrix[iter, m3 := m3_pairs[, SE]]
+    df_matrix[iter, m3 := m3_pairs[, df]]
+    t_matrix[iter, m3 := m3_pairs[, t.ratio]]
+    p_matrix[iter, m3 := m3_pairs[, p.value]]
+    
+    m4 <- lmer(y ~ treatment + (treatment|study), data = fake_data)
+    m4_emm <- emmeans(m4,
+                      specs = "treatment")
+    m4_pairs <- contrast(m4_emm,
+                         method = "revpairwise") %>%
+      summary() %>%
+      data.table
+    se_matrix[iter, m4 := m4_pairs[, SE]]
+    df_matrix[iter, m4 := m4_pairs[, df]]
+    t_matrix[iter, m4 := m4_pairs[, t.ratio]]
+    p_matrix[iter, m4 := m4_pairs[, p.value]]
+    
+    m5_emm <- emmeans(m5,
+                      specs = "treatment")
+    m5_pairs <- contrast(m5_emm,
+                         method = "revpairwise") %>%
+      summary() %>%
+      data.table
+    se_matrix[iter, m5 := m5_pairs[, SE]]
+    df_matrix[iter, m5 := m5_pairs[, df]]
+    t_matrix[iter, m5 := m5_pairs[, t.ratio]]
+    p_matrix[iter, m5 := m5_pairs[, p.value]]
+
+  }
+  
+  se_table <- melt(se_matrix,
+                   measure.vars = new_names,
+                   variable.name = "model",
+                   value.name = "se")
+  df_table <- melt(df_matrix,
+                   measure.vars = new_names,
+                   variable.name = "model",
+                   value.name = "df")
+  t_table <- melt(t_matrix,
+                   measure.vars = new_names,
+                   variable.name = "model",
+                   value.name = "t")
+  p_table <- melt(p_matrix,
+                   measure.vars = new_names,
+                   variable.name = "model",
+                   value.name = "p")
+  res_table <- rbind(res_table,
+                     data.table(n_study = n_study,
+                                sigma_0_1 = sigma_0_1,
+                                se_table,
+                                df_table[, 2],
+                                t_table[, 2],
+                                p_table[, 2])
+                     )
+}
+
+
+```
+
+```{r}
+res_summary <- res_table[, .(se = mean(se),
+                             df = (mean(df)),
+                             t = mean(abs(t)),
+                             p = median(p),
+                             type1 = sum(p < 0.05)/n_iter),
+                         by = .(n_study, sigma_0_1, model)]
+res_summary %>%
+  knitr::kable(digits = c(1, 1, 1, 3, 3, 2, 4, 3)) %>%
+  kableExtra::kable_styling()
+```
+
+as sigma_0_1 goes to 0, df goes up, to n_block*n - 1 (acting more like replicates within same study)
+
+as sigma_0_1 goes up, df goes to n_block - 1. (as if we just analyze means in the group)
+
+```{r}
+(m0_pairs <- contrast(m0_emm,
+                     method = "revpairwise") %>%
+  summary(infer = TRUE))
+(m0.2_pairs <- contrast(m0.2_emm,
+                     method = "revpairwise") %>%
+  summary(infer = TRUE))
+(m0.3_pairs <- contrast(m0.3_emm,
+                     method = "revpairwise") %>%
+  summary(infer = TRUE))
+(m1_pairs <- contrast(m1_emm,
+                     method = "revpairwise") %>%
+  summary(infer = TRUE))
+
+(m2_pairs <- contrast(m2s_emm,
+                     method = "revpairwise") %>%
+  summary(infer = TRUE))
+
+
+```
+
+ 
