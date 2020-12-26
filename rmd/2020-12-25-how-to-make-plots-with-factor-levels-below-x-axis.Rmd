@@ -48,8 +48,6 @@ data_folder <- "content/data"
 output_folder <- "content/output"
 ```
 
-# Example 1
-
 [Adipsin preserves beta cells in diabetic mice and associates with protection from type 2 diabetes in humans](https://www.nature.com/articles/s41586-019-0895-y){target="_blank"}
 
 [public source](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7256970/){target="_blank"}
@@ -116,7 +114,7 @@ m1_simple <- contrast(m1_emm,
 
 ```
 
-## Base-plot
+# Base-plot
 
 ```{r fig4-baseplot}
 
@@ -144,7 +142,7 @@ fig4_base <- ggplot(data = fig4,
 fig4_base
 ```
 
-## Adding modeled means and error intervals
+# Adding modeled means and error intervals
 
 ```{r modeled-means}
 # need mean and ci from emmeans table
@@ -170,7 +168,7 @@ fig4_mean_ci <- fig4_base +
 fig4_mean_ci
 ```
 
-## Add p-values
+# Add p-values
 
 ```{r add-p}
 # p-values come from contrast table
@@ -204,7 +202,7 @@ fig4_p <- fig4_mean_ci +
 fig4_p
 ```
 
-## Add factor levels
+# Add factor levels
 
 ```{r}
 fig4_plot <- fig4_p +
@@ -252,7 +250,7 @@ plot_grid(fig4_plot,
 
 ```
 
-## A variant
+# A variant
 
 ```{r}
 fig4_plot_2 <- fig4_p +
@@ -316,7 +314,7 @@ plot_grid(fig4_plot_2,
           axis = "lr")
 ```
 
-## The standard ggplot way
+# The standard ggplot way
 
 ```{r ggplot}
 
@@ -384,7 +382,7 @@ fig4_gg <- fig4_gg_base +
 fig4_gg
 ```
 
-## Another variant
+# Another variant
 
 ```{r}
 fig4_gg_plot <- fig4_gg +
