@@ -54,7 +54,7 @@ output_folder <- "content/output"
 
 [public source](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7256970/){target="_blank"}
 
-The example is Figure 4b
+The example is Figure 4b. The design is $2 \times 2$ factorial (two experimental factors each with two levels). I probably wouldn't communicate treatments this way but it does have the advantage that treatment combinations are easy to see even if the plot were black-and-white (but why would anyone use black and white in 2020?).
 
 ```{r import}
 data_from <- "Adipsin preserves beta cells in diabetic mice and associates with protection from type 2 diabetes in humans"
@@ -120,7 +120,6 @@ m1_simple <- contrast(m1_emm,
 
 ```{r fig4-baseplot}
 
-# ggpubr base plot
 fig4_base <- ggplot(data = fig4,
                     aes(x = treatment,
                         y = tunel,
@@ -194,14 +193,14 @@ m1_simple_dt[, p_pretty := pvalString(p.value)]
 rows <- c(2, 3)
 y_start <- 20.5
 y_inc <- 1
-y_position <- c(y_start, y_start + y_inc)
+y_position <- c(y_start, y_start)
 
 fig4_p <- fig4_mean_ci +
   stat_pvalue_manual(m1_simple_dt[rows],
                      label = "p_pretty",
                      y.position = y_position,
                      tip.length = 0.01,
-                     bracket.shorten = 0.05)
+                     bracket.shorten = -0.05)
 fig4_p
 ```
 
@@ -252,4 +251,195 @@ plot_grid(fig4_plot,
           axis = "lr")
 
 ```
+
+## A variant
+
+```{r}
+fig4_plot_2 <- fig4_p +
+  theme(axis.text.x = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "pt")) +
+  NULL
+
+nsc_values <- c(paste("NSC-87877", minus),
+                paste("NSC-87877", "+"),
+                paste("NSC-87877", minus),
+                paste("NSC-87877", "+"))
+pa_values <- c(paste("Pa", minus), "Pa +")
+v_base <- 1
+v_sep <- 0.5
+v_breaks <- c(v_base + v_sep, v_base)
+v_lims <- c(v_base, v_base + v_sep) + c(-v_sep/2, v_sep/2)
+txt_size = 4
+fudge <- 0.3
+line_size <- 0.8
+fig4_levels_2 <- fig4_base +
+  annotate(geom = "text",
+           label = nsc_values,
+           x = 1:4,
+           y = v_breaks[1],
+           size = txt_size) +
+  annotate(geom = "text",
+           label = pa_values,
+           x = c(1.5, 3.5),
+           y = v_breaks[2],
+           size = txt_size) +
+  geom_segment(aes(x = 1-fudge,
+              y = sum(v_breaks)/2,
+              xend = 2+fudge,
+              yend = sum(v_breaks)/2),
+              color = "black",
+              size = line_size) +
+  geom_segment(aes(x = 3-fudge,
+              y = sum(v_breaks)/2,
+              xend = 4+fudge,
+              yend = sum(v_breaks)/2),
+              color = "black",
+              size = line_size) +
+  coord_cartesian(ylim = v_lims) +
+  theme(axis.title = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        axis.line = element_blank(),
+        panel.background = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "pt")) +
+  scale_y_continuous(breaks = v_breaks,
+                     labels = c("",
+                                "")) +
+  NULL
+
+plot_grid(fig4_plot_2,
+          fig4_levels_2,
+          nrow = 2,
+          rel_heights = c(1, 0.2),
+          align = "v",
+          axis = "lr")
+```
+
+# A comparison with some other ways to communicate the factorial design
+
+## The standard ggplot way
+
+```{r ggplot}
+
+pd_width <- 0.6
+pd <- position_dodge(pd_width)
+fig4_gg_base <- ggplot(data = fig4,
+                    aes(x = palmitate,
+                        y = tunel,
+                        color = nsc)) +
+  # show the data
+  geom_sina(position = pd) + 
+  # geom_dotplot(binaxis='y',
+  #              stackdir='center',
+  #              alpha = 0.5) +
+  
+  # x and y axis labels
+  ylab("Percent TUNEL+ cells") +
+  
+  # show the model
+  geom_point(data = m1_emm_dt,
+             aes(y = emmean),
+             size = 3,
+             position = pd) +
+  
+  geom_errorbar(data = m1_emm_dt,
+             aes(y = emmean,
+                 ymin = lower.CL,
+                 ymax = upper.CL),
+             width = 0,
+             position = pd) +
+  
+  theme_pubr() +
+  theme(legend.position="top",
+        axis.title.x=element_blank()) +
+  scale_color_manual(values = pal_okabe_ito_blue,
+                     labels = c(paste("NSC-87877", minus),
+                                "NSC-87877 +")) +
+  scale_x_discrete(labels = c(paste("Palmitate", minus),
+                                "Palmitate +")) +
+  
+  NULL
+
+# the treatments are now organized 2 x 2 instead of flattened
+# this complicates the use of stat_pvalue_manual
+
+# "vehicle", "nsc87877", "palmitate", "nsc87877+palmitate"
+m1_simple_dt[, x_max_col := c(1 + pd_width/4,
+                         2 + pd_width/4,
+                         2 - pd_width/4,
+                         2 + pd_width/4)]
+m1_simple_dt[, x_min_col := c(1 - pd_width/4,
+                         2 - pd_width/4,
+                         1 - pd_width/4,
+                         1 + pd_width/4)]
+y_position <- c(y_start, y_start + y_inc)
+
+fig4_gg <- fig4_gg_base +
+  stat_pvalue_manual(m1_simple_dt[rows],
+                     label = "p_pretty",
+                     y.position = y_position,
+                     xmin = "x_min_col",
+                     xmax = "x_max_col",
+                     tip.length = 0.01)
+
+fig4_gg
+```
+
+## Another variant
+
+```{r}
+fig4_gg_plot <- fig4_gg +
+  theme(legend.position="none",
+        axis.text.x = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "pt")) +
+  NULL
+
+nsc_values <- c(minus, "+", minus, "+")
+pa_values <- c(minus, minus, "+", "+")
+v_base <- 1
+v_sep <- 0.5
+v_breaks <- c(v_base + v_sep, v_base)
+v_lims <- c(v_base, v_base + v_sep) + c(-v_sep/2, v_sep/2)
+txt_size = 5
+fig4_gg_levels <- fig4_gg_plot +
+   annotate(geom = "text",
+           label = nsc_values,
+           x = c(1 - pd_width/4,
+                 1 + pd_width/4,
+                 2 - pd_width/4,
+                 2 + pd_width/4),
+           y = v_breaks[1],
+           size = txt_size) +
+  annotate(geom = "text",
+           label = pa_values,
+           x = c(1 - pd_width/4,
+                 1 + pd_width/4,
+                 2 - pd_width/4,
+                 2 + pd_width/4),
+           y = v_breaks[2],
+           size = txt_size) +
+  coord_cartesian(ylim = v_lims) +
+  theme(axis.title = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        axis.line = element_blank(),
+        panel.background = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "pt")) +
+  scale_y_continuous(breaks = v_breaks,
+                     labels = c("NSC-87877",
+                                "palmitate")) +
+  NULL
+
+plot_grid(fig4_gg_plot,
+          fig4_gg_levels,
+          nrow = 2,
+          rel_heights = c(1, 0.15),
+          align = "v",
+          axis = "lr")
+```
+
+
+
 
