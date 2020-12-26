@@ -9,7 +9,7 @@ output:
     toc_float: true
     fig_caption: yes
     number_sections: true
-    code_folding: show
+    code_folding: hide
     includes:
       before_body: copyright.html
 ---
@@ -97,9 +97,9 @@ fig4[, treatment := factor(treatment,
 m1 <- lm(tunel ~ nsc * palmitate, data = fig4)
 
 # replicate
-t.test(tunel ~ palmitate,
-       data = fig4[nsc == "nsc_neg"],
-       var.equal = FALSE)
+# t.test(tunel ~ palmitate,
+#        data = fig4[nsc == "nsc_neg"],
+#        var.equal = FALSE)
 
 # data for plots
 
