@@ -316,8 +316,6 @@ plot_grid(fig4_plot_2,
           axis = "lr")
 ```
 
-# A comparison with some other ways to communicate the factorial design
-
 ## The standard ggplot way
 
 ```{r ggplot}
