@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/2020/12/how-to-make-plots-with-factor-levels-below-the-x-axis-bench-biology-style/</loc>
+    <lastmod>2020-12-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2020/11/what-is-an-interaction/</loc>
     <lastmod>2020-11-04T00:00:00+00:00</lastmod>
   </url>
@@ -273,7 +278,7 @@
   
   <url>
     <loc>/tags/categorical-x/</loc>
-    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
+    <lastmod>2020-12-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -373,7 +378,7 @@
   
   <url>
     <loc>/categories/ggplot/</loc>
-    <lastmod>2019-01-22T00:00:00+00:00</lastmod>
+    <lastmod>2020-12-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -385,7 +390,7 @@
   
   <url>
     <loc>/tags/interaction/</loc>
-    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
+    <lastmod>2020-12-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -463,13 +468,13 @@
   
   <url>
     <loc>/tags/plots/</loc>
-    <lastmod>2018-03-27T00:00:00+00:00</lastmod>
+    <lastmod>2020-12-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
+    <lastmod>2020-12-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -487,7 +492,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2020-11-04T00:00:00+00:00</lastmod>
+    <lastmod>2020-12-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
