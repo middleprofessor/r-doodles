@@ -510,12 +510,12 @@ if(show_the_base_plot == TRUE){fig4_method3_base}
 Add the treatment grid
 
 ```{r method3-plot}
-x_breaks <- rbind(
+x_levels <- rbind(
   c("NSC-87877", minus, "+", minus, "+"),
   c("Pa", minus, minus, "+", "+")
 )
 
-x_breaks_text <- apply(x_breaks, 2, paste0, collapse="\n")
+x_breaks_text <- apply(x_levels, 2, paste0, collapse="\n")
 x_breaks <- c(0.5, 1:4)
 
 fig4_method3 <- fig4_method3_base +
@@ -670,6 +670,8 @@ fig4_factorial_method1
 
 ## Method 3
 
+Add dodged group assignment and jittered x to data
+
 ```{r factorial-method3-prep}
 # need m1_emm_dt and m1_simple_dt from previous chunks
 
@@ -754,14 +756,14 @@ if(show_the_base_plot == TRUE){fig4_factorial_method3_base}
 Add the treatment grid
 
 ```{r factorial-method3-plot}
-x_breaks <- rbind(
+x_levels <- rbind(
   c("NSC-87877", minus, "+", minus, "+"),
   c("Pa", minus, minus, "+", "+")
 )
 
 x_min <- 0.5
 x_max <- 2 + dodge_width
-x_breaks_text <- apply(x_breaks, 2, paste0, collapse="\n")
+x_breaks_text <- apply(x_levels, 2, paste0, collapse="\n")
 x_breaks <- c(x_min, x_pos)
 
 fig4_factorial_method3 <- fig4_factorial_method3_base +
