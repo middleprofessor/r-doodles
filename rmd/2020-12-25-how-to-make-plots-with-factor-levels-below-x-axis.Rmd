@@ -1,5 +1,5 @@
 ---
-title: "How to make plots with factor levels below the x-axis (bench-biology style)"
+title: "How to make plots with a grid of factor levels below the x-axis (bench-biology style)"
 author: "Jeffrey A. Walker"
 date: "12/25/2020"
 output:
@@ -58,7 +58,13 @@ The example data are from Figure 4b of
 
 The design is $2 \times 2$ factorial -- there are two factor variables each with two levels. The goal is to create a $2 \times 4$ grid of the factor levels below the plot. The rows of the grid contain the values (levels) for each of the two factor variables. The columns of the grid contain the values (levels) of each factor for each of the four groups. I probably wouldn't communicate treatments this way but it does have the advantage that treatment combinations are easy to see even if the plot were black-and-white (but why would anyone use black and white in 2020?).
 
-The method is easy -- the plot is generated as two plots that are stacked one on top of the other using `plot_grid()` from the cowplot package. The top plot is the plot of the data and modeled means and 95% CIs. The bottom plot contains only the grid of factor levels.
+# Outline of Methods
+
+1. Method 1 -- the plot is generated as two plots that are stacked one on top of the other using `plot_grid()` from the cowplot package. The top plot is the plot of the data and modeled means and 95% CIs. The bottom plot contains only the grid of factor levels.
+2. Method 2 -- the grid of factor levels is plotted within the plot area (within the axes). This requires hiding the true plot axes and creating new axes, so that the grid appears below the x-axis line.
+3. Method 3 -- Using the x-axis tick labels for the grid. In order to create variable names for these rows, we need a new x-axis tick and in order to do this in a way that looks nice, we need to have a continous and not discrete x-axis. This is actually really easy.
+
+My preference -- Each method has pros and cons. I think method 3 has the most upside and effectively zero downsids, at least if you're comfortable with making the plot with a continuous x-axis. This is easy if you understand the numeric values underneath a ggplot discrete x-axis.
 
 ```{r import}
 data_from <- "Adipsin preserves beta cells in diabetic mice and associates with protection from type 2 diabetes in humans"
@@ -121,6 +127,7 @@ m1_simple <- contrast(m1_emm,
 ```
 
 # Base-plot
+## show the data
 
 ```{r fig4-baseplot}
 
@@ -148,9 +155,9 @@ fig4_base <- ggplot(data = fig4,
 fig4_base
 ```
 
-# Adding modeled means and error intervals
+## Show the model -- Adding modeled means and error intervals
 
-```{r modeled-means}
+```{r baseplot-add-model}
 # need mean and ci from emmeans table
 m1_emm_dt <- m1_emm %>%
   summary() %>%
@@ -159,7 +166,7 @@ m1_emm_dt <- m1_emm %>%
 m1_emm_dt[, treatment := treatment_levels]
 # m1_emm_dt # check
 
-fig4_mean_ci <- fig4_base +
+fig4_response <- fig4_base +
     # show the model
   geom_point(data = m1_emm_dt,
              aes(y = emmean),
@@ -171,12 +178,12 @@ fig4_mean_ci <- fig4_base +
                  ymax = upper.CL),
              width = 0)
 
-fig4_mean_ci
+fig4_response
 ```
 
-# Add p-values
+## Add p-value bracket
 
-```{r add-p}
+```{r baseplot-add-p}
 # p-values come from contrast table
 
 m1_simple_dt <- m1_simple %>%
@@ -199,23 +206,29 @@ y_start <- 20.5
 y_inc <- 1
 y_position <- c(y_start, y_start)
 
-fig4_p <- fig4_mean_ci +
+fig4_response <- fig4_response +
   stat_pvalue_manual(m1_simple_dt[rows],
                      label = "p_pretty",
                      y.position = y_position,
                      tip.length = 0.01,
                      bracket.shorten = -0.05)
-fig4_p
+fig4_response
 ```
 
-# Add factor levels
 
-```{r factor-levels}
-fig4_plot <- fig4_p +
-  theme(axis.text.x = element_blank(),
-        plot.margin = unit(c(0, 0, 0, 0), "pt")) +
-  NULL
+# Method 1: Creating a separate grid of treatments and arranging with cowplot
 
+1. Pros
+* nice control of the treatment grid (as two-way grid or hierarchical)
+2. Cons
+* no longer a ggplot so cannot add ggplot features
+* can create issues of aligning axes with other plots using cowplot
+
+## Variant 1 -- A two-way table of treatments
+
+**create the plot of the grid of treatments**
+
+```{r method1-two-way-table}
 nsc_values <- c(minus, "+", minus, "+")
 pa_values <- c(minus, minus, "+", "+")
 v_base <- 1
@@ -223,7 +236,14 @@ v_sep <- 0.5
 v_breaks <- c(v_base + v_sep, v_base)
 v_lims <- c(v_base, v_base + v_sep) + c(-v_sep/2, v_sep/2)
 txt_size = 5
-fig4_levels <- fig4_base +
+
+# starts with fig4_base to automate position of treatment levels
+# but hides everything in fig_4_base by plotting below all y-values
+# if overlap with y-values, just make v_base above more negative
+# alternative is to get x positions using
+# x_pos <- ggplot_build(gg)$data[[2]][, "x"]
+
+fig4_table_1 <- fig4_base +
    annotate(geom = "text",
            label = nsc_values,
            x = 1:4,
@@ -246,24 +266,28 @@ fig4_levels <- fig4_base +
                      labels = c("NSC-87877",
                                 "palmitate")) +
   NULL
-
-plot_grid(fig4_plot,
-          fig4_levels,
-          nrow = 2,
-          rel_heights = c(1, 0.15),
-          align = "v",
-          axis = "lr")
-
 ```
 
-# A variant
+```{r method1-two-way-plot}
 
-```{r variant-1}
-fig4_plot_2 <- fig4_p +
+# remove stuff from fig4_response
+fig4_response_mod <- fig4_response +
   theme(axis.text.x = element_blank(),
         plot.margin = unit(c(0, 0, 0, 0), "pt")) +
   NULL
 
+fig4_method1_v1 <- plot_grid(fig4_response_mod,
+                             fig4_table_1,
+                             nrow = 2,
+                             rel_heights = c(1, 0.15),
+                             align = "v",
+                             axis = "lr")
+fig4_method1_v1
+```
+
+## Variant 2 -- A hierarchical table of treatments
+
+```{r method1-multilevel-table}
 nsc_values <- c(paste("NSC-87877", minus),
                 paste("NSC-87877", "+"),
                 paste("NSC-87877", minus),
@@ -276,7 +300,8 @@ v_lims <- c(v_base, v_base + v_sep) + c(-v_sep/2, v_sep/2)
 txt_size = 4
 fudge <- 0.3
 line_size <- 0.8
-fig4_levels_2 <- fig4_base +
+
+fig4_table_2 <- fig4_base +
   annotate(geom = "text",
            label = nsc_values,
            x = 1:4,
@@ -312,24 +337,209 @@ fig4_levels_2 <- fig4_base +
                                 "")) +
   NULL
 
-plot_grid(fig4_plot_2,
-          fig4_levels_2,
-          nrow = 2,
-          rel_heights = c(1, 0.2),
-          align = "v",
-          axis = "lr")
 ```
 
-# The standard ggplot way
+```{r method1-multilevel-plot}
+# remove stuff from fig4_response
+fig4_response_mod <- fig4_response +
+  theme(axis.text.x = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "pt")) +
+  NULL
 
-```{r ggplot}
+fig4_method1_v1 <- plot_grid(fig4_response_mod,
+                             fig4_table_2,
+                             nrow = 2,
+                             rel_heights = c(1, 0.2),
+                             align = "v",
+                             axis = "lr")
 
+fig4_method1_v1
+```
+
+# Method 2 -- Plotting the table inside the plot area
+
+1. Pros
+* the final plot is a ggplot and can be modified further.
+2. Cons
+* the actual x-axis is below the table and this can screw up arranging with cowplot.
+* kinda kludgy
+
+
+```{r method2-plot}
+x_levels <- rbind(
+  "NSC-87877" = c(minus, "+", minus, "+"),
+  "Pa" = c(minus, minus, "+", "+")
+)
+
+x_levels_text <- apply(x_levels, 2, paste0, collapse="\n")
+x_levels_title <- paste(row.names(x_levels), collapse="\n")
+
+x_axis_min <- 0.4
+x_axis_max <- 4.5
+y_plot_min <- 0
+y_axis_min <- 1.5
+y_axis_max <- 21
+y_breaks <- seq(5, 20, by = 5)
+y_labels <- as.character(y_breaks)
+
+fig4_method2 <- fig4_response +
+  coord_cartesian(ylim = c(y_plot_min, y_axis_max)) +
+  scale_y_continuous(breaks = y_breaks) +
+  theme(
+    axis.line = element_blank(), # remove both x & y axis lines
+    axis.text.x = element_blank(), # remove x-axis labels
+    axis.ticks.x = element_blank() # remove x-axis ticks
+  ) +
+  
+  # add shortened y-axis line that doesn't extend to treatments
+  geom_segment(aes(x = x_axis_min + 0.01,
+                   y = y_axis_min,
+                   xend = x_axis_min + 0.01,
+                   yend = y_axis_max),
+               size = 0.5,
+               color = "black") +
+  
+  # add x-axis line above treatments
+  geom_segment(aes(x = x_axis_min,
+                   y = y_axis_min,
+                   xend = x_axis_max,
+                   yend = y_axis_min),
+               size = 0.5,
+               color = "black") +
+  
+  # add treatment combinations
+  annotate(geom = "text",
+           x = 1:4,
+           y = y_plot_min,
+           label = x_levels_text) +
+  
+  # add factor names
+  annotate(geom = "text",
+           x = x_axis_min,
+           y = y_plot_min,
+           label = x_levels_title,
+           hjust = 0) +
+  NULL
+  
+fig4_method2
+```
+
+# Method 3 - Modify the x-axis labels
+
+1. Pros
+* total control
+* the final object is a ggplot
+* the axes are where they should be (as opposed to method 2)
+* the position of the factor variable names is the nicest of the three methods
+* should play nice with cowplot
+2. Cons
+* the user has to build the plot using non-standard methods for a categorical x-axis (easy enough if you understand a ggplot)
+* users need to recognize the x-axis is continous and not discrete when additing additional components
+3. Thoughts
+* note that cannot use the discrete x-axis plot as the base because cannot add non-integer breaks (or even expand breaks?) to include the factor variable names
+* can this be solved by starting with the original discrete x-axis and changing to continous using `build`?
+
+## Variant 1 -- rebuild plot from scratch with continuous X axis
+
+Add integer group assignment and jittered x to data
+
+```{r method3-prep}
+# need m1_emm_dt and m1_simple_dt from previous chunks
+
+set.seed(1) # maintain jitter
+N <- nrow(fig4)
+jitter_width <- 0.4
+fig4[, treatment_i := as.integer(treatment)]
+fig4[, treatment_x := treatment_i +
+       runif(N, -jitter_width/2, jitter_width/2)]
+
+# treatment_x needs to be added to m1_emm_dt
+m1_emm_dt[, treatment_x := 1:4]
+
+# m1_simple_dt needs numeric positions for p-value bracket
+m1_simple_dt[, group1_i := c(2,4,3,4)]
+m1_simple_dt[, group2_i := c(1,3,1,2)]
+```
+
+Create the base plot with a continuous x-axis
+
+```{r method3-base-plot}
+# this requires objects created in earlier chunks
+
+fig4_method3_base <- ggplot(data = fig4,
+                            aes(x = treatment_x,
+                                y = tunel,
+                                color = nsc)) +
+  # show the data
+  geom_point() + 
+
+  # add modeled mean
+  geom_point(data = m1_emm_dt,
+             aes(y = emmean),
+             size = 3) +
+  
+  # add modeled CI
+  geom_errorbar(data = m1_emm_dt,
+                aes(y = emmean,
+                    ymin = lower.CL,
+                    ymax = upper.CL),
+                width = 0) +
+
+# x and y axis labels
+  ylab("Percent TUNEL+ cells") +
+
+  stat_pvalue_manual(m1_simple_dt[rows],
+                     label = "p_pretty",
+                     xmax = "group2_i",
+                     xmin = "group1_i",
+                     y.position = y_position,
+                     tip.length = 0.01,
+                     bracket.shorten = -0.05) +
+
+  theme_pubr() +
+  theme(legend.position="none",
+        axis.title.x=element_blank()) +
+  scale_color_manual(values = pal_okabe_ito_blue) +
+  
+NULL
+  
+show_the_base_plot <- FALSE
+if(show_the_base_plot == TRUE){fig4_method3_base}
+```
+
+Add the treatment grid
+
+```{r method3-plot}
+x_breaks <- rbind(
+  c("NSC-87877", minus, "+", minus, "+"),
+  c("Pa", minus, minus, "+", "+")
+)
+
+x_breaks_text <- apply(x_breaks, 2, paste0, collapse="\n")
+x_breaks <- c(0.5, 1:4)
+
+fig4_method3 <- fig4_method3_base +
+  coord_cartesian(xlim = c(0.5, 4)) +
+  scale_x_continuous(breaks = x_breaks,
+                     labels = x_breaks_text) +
+  theme(axis.ticks.x = element_blank()) + # remove x-axis ticks
+  
+  NULL
+        
+fig4_method3
+```
+
+# Combining the treatment grid with a traditional factorial plot
+## Method 1
+### Base factorial plot
+
+```{r method1-factorial-plot-base}
 pd_width <- 0.6
 pd <- position_dodge(pd_width)
-fig4_gg_base <- ggplot(data = fig4,
-                    aes(x = palmitate,
-                        y = tunel,
-                        color = nsc)) +
+fig4_factorial_m1_base <- ggplot(data = fig4,
+                                 aes(x = palmitate,
+                                     y = tunel,
+                                     color = nsc)) +
   # show the data
   geom_sina(position = pd) + 
   # geom_dotplot(binaxis='y',
@@ -363,37 +573,42 @@ fig4_gg_base <- ggplot(data = fig4,
   
   NULL
 
+# needs m1_simple_dt from earlier chunk
+
 # the treatments are now organized 2 x 2 instead of flattened
 # this complicates the use of stat_pvalue_manual
-
 # "vehicle", "nsc87877", "palmitate", "nsc87877+palmitate"
-m1_simple_dt[, x_max_col := c(1 + pd_width/4,
+m1_simple_dt[, x_min_col := c(1 + pd_width/4,
                          2 + pd_width/4,
                          2 - pd_width/4,
                          2 + pd_width/4)]
-m1_simple_dt[, x_min_col := c(1 - pd_width/4,
+m1_simple_dt[, x_max_col := c(1 - pd_width/4,
                          2 - pd_width/4,
                          1 - pd_width/4,
                          1 + pd_width/4)]
-y_position <- c(y_start, y_start + y_inc)
 
-fig4_gg <- fig4_gg_base +
+y_position <- c(y_start, y_start)
+
+fig4_factorial_m1_p <- fig4_factorial_m1_base +
   stat_pvalue_manual(m1_simple_dt[rows],
                      label = "p_pretty",
                      y.position = y_position,
-                     xmin = "x_min_col",
                      xmax = "x_max_col",
-                     tip.length = 0.01)
+                     xmin = "x_min_col",
+                     tip.length = 0.01,
+                     bracket.shorten = -0.05)
 
-fig4_gg
+fig4_factorial_m1_p
 ```
 
-# Another variant
+### Adding the table of treatments using cowplot
 
-```{r ggplot-with-factor levels}
-fig4_gg_plot <- fig4_gg +
+```{r method1-factorial-plot}
+# remove stuff from base plot
+fig4_factorial_m1_p <- fig4_factorial_m1_p +
   theme(legend.position="none",
         axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
         plot.margin = unit(c(0, 0, 0, 0), "pt")) +
   NULL
 
@@ -404,7 +619,15 @@ v_sep <- 0.5
 v_breaks <- c(v_base + v_sep, v_base)
 v_lims <- c(v_base, v_base + v_sep) + c(-v_sep/2, v_sep/2)
 txt_size = 5
-fig4_gg_levels <- fig4_gg_plot +
+
+# Again -- starts with fig4_factorial_m1_base to automate position of
+# treatment levels
+# but hides everything in fig_4_base by plotting below all y-values
+# if overlap with y-values, just make v_base above more negative
+# alternative is to get x positions using
+# x_pos <- ggplot_build(gg)$data[[2]][, "x"]
+
+fig4_factorial_m1_table <- fig4_factorial_m1_base +
    annotate(geom = "text",
            label = nsc_values,
            x = c(1 - pd_width/4,
@@ -422,7 +645,8 @@ fig4_gg_levels <- fig4_gg_plot +
            y = v_breaks[2],
            size = txt_size) +
   coord_cartesian(ylim = v_lims) +
-  theme(axis.title = element_blank(),
+  theme(legend.position="none",
+        axis.title = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
@@ -434,14 +658,120 @@ fig4_gg_levels <- fig4_gg_plot +
                                 "palmitate")) +
   NULL
 
-plot_grid(fig4_gg_plot,
-          fig4_gg_levels,
-          nrow = 2,
-          rel_heights = c(1, 0.15),
-          align = "v",
-          axis = "lr")
+fig4_factorial_method1 <- plot_grid(fig4_factorial_m1_p,
+                                    fig4_factorial_m1_table,
+                                    nrow = 2,
+                                    rel_heights = c(1, 0.15),
+                                    align = "v",
+                                    axis = "lr")
+
+fig4_factorial_method1
 ```
 
+## Method 3
 
+```{r factorial-method3-prep}
+# need m1_emm_dt and m1_simple_dt from previous chunks
 
+set.seed(1) # maintain jitter
+N <- nrow(fig4)
+dodge_width <- 0.3
+jitter_width <- 0.2
+fig4[, treatment_i := as.integer(treatment)]
 
+# x position of group means
+x_pos <- c(1 - dodge_width/2,
+           1 + dodge_width/2,
+           2 - dodge_width/2,
+           2 + dodge_width/2)
+fig4[, treatment_x_mean := x_pos[treatment_i]]
+
+# x position of jittered points
+fig4[, treatment_x := treatment_x_mean + runif(N, -jitter_width/2, jitter_width/2)]
+
+# treatment_x needs to be added to m1_emm_dt
+m1_emm_dt[, treatment_x := x_pos]
+
+# m1_simple_dt needs numeric positions for p-value bracket
+
+# use x positions in m1_emm_dt to set these
+m1_simple_dt[, group1_i := c(x_pos[2],
+                             x_pos[4],
+                             x_pos[3],
+                             x_pos[4])]
+m1_simple_dt[, group2_i := c(x_pos[1],
+                             x_pos[3],
+                             x_pos[1],
+                             x_pos[2])]
+```
+
+Create the base plot with a continuous x-axis
+
+```{r factorial-method3-base-plot}
+# this requires objects created in earlier chunks
+
+fig4_factorial_method3_base <- ggplot(data = fig4,
+                            aes(x = treatment_x,
+                                y = tunel,
+                                color = nsc)) +
+  # show the data
+  geom_point() + 
+
+  # add modeled mean
+  geom_point(data = m1_emm_dt,
+             aes(y = emmean),
+             size = 3) +
+  
+  # add modeled CI
+  geom_errorbar(data = m1_emm_dt,
+                aes(y = emmean,
+                    ymin = lower.CL,
+                    ymax = upper.CL),
+                width = 0) +
+
+# x and y axis labels
+  ylab("Percent TUNEL+ cells") +
+
+  stat_pvalue_manual(m1_simple_dt[rows],
+                     label = "p_pretty",
+                     xmax = "group2_i",
+                     xmin = "group1_i",
+                     y.position = y_position,
+                     tip.length = 0.01,
+                     bracket.shorten = -0.05) +
+
+  theme_pubr() +
+  theme(legend.position="none",
+        axis.title.x=element_blank()) +
+  scale_color_manual(values = pal_okabe_ito_blue) +
+  
+NULL
+  
+show_the_base_plot <- FALSE
+if(show_the_base_plot == TRUE){fig4_factorial_method3_base}
+```
+
+Add the treatment grid
+
+```{r factorial-method3-plot}
+x_breaks <- rbind(
+  c("NSC-87877", minus, "+", minus, "+"),
+  c("Pa", minus, minus, "+", "+")
+)
+
+x_min <- 0.5
+x_max <- 2 + dodge_width
+x_breaks_text <- apply(x_breaks, 2, paste0, collapse="\n")
+x_breaks <- c(x_min, x_pos)
+
+fig4_factorial_method3 <- fig4_factorial_method3_base +
+  coord_cartesian(xlim = c(x_min, x_max)) +
+  scale_x_continuous(breaks = x_breaks,
+                     labels = x_breaks_text) +
+  theme(axis.ticks.x = element_blank()) + # remove x-axis ticks
+  
+  NULL
+        
+fig4_factorial_method3
+
+```

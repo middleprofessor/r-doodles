@@ -6,10 +6,19 @@
     <description>Recent content in Anova on R Doodles</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 04 Nov 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 27 Dec 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/anova/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>How to make plots with factor levels below the x-axis (bench-biology style)</title>
+      <link>/2020/12/how-to-make-plots-with-factor-levels-below-the-x-axis-bench-biology-style/</link>
+      <pubDate>Sun, 27 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/12/how-to-make-plots-with-factor-levels-below-the-x-axis-bench-biology-style/</guid>
+      <description>The motivation for this post was to create a pipeline for generating publication-ready plots entirely within ggplot and avoid post-generation touch-ups in Illustrator or Inkscape. These scripts are a start. The ideal modification would be turning the chunks into functions with personalized detail so that a research team could quickly and efficiently generate multiple plots. I might try to turn the scripts into a very-general-but-not-ready-for-r-package function for my students.</description>
+    </item>
     
     <item>
       <title>What is an interaction?</title>
