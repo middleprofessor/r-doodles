@@ -1,0 +1,85 @@
+---
+title: "fdr"
+author: "Jeffrey A. Walker"
+date: "8/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Total Tests (TT) -- total number of tests
+True Fraction (TF) -- fraction of tests in which effect of certain size exists
+False Fraction (FF) -- fraction of tests in which effect of certain size does not exist
+
+True Positive (TP) -- p < 0.05 when effect is TRUE
+False Positive (FP) -- p < 0.05 when effect is FALSE
+True Negative (TN) -- p > 0.05 when effect is FALSE
+False Negative (FN) -- p > 0.05 when effect is TRUE
+
+What is my rate of being wrong? This depends on what is meant by being wrong?
+
+ways of being wrong:
+
+False Discovery (FD) -- claim an effect when none exists
+
+1. FDR = FP/(FP + TP) --  fraction of all discoveries (p < 0.05) that are false
+2. alpha = FP/(TN + FN) -- fraction of tests with no true effect that are misclassified as a discovery
+3. FDR-total = FP/TT -- fraction of total tests that are misclassified as a discovery
+
+FDR is more useful than alpha -- if we want to pursue a line of inquiry that is conditional on a discovery, the FDR gives us the fraction of times that we move forward when we should have pursued other lines of inquiry (the FDR is a fraction of false starts).
+
+
+```{r}
+total <- 1000
+true_frac_vec <- c(0.1, 0.5, 0.9)
+power_vec <- c(0.8, 0.4)
+alpha <- 0.05
+
+params <- expand.grid(true_frac_param = true_frac_vec,
+                      power_param = power_vec) %>%
+  data.table()
+res_table <- data.table(
+  Stat = c("true fraction", "power", "alpha", "fdr", "fdr-total", "fail-to-discover")
+)
+for(row_i in 1:nrow(params)){
+  true_frac <- params[row_i, true_frac_param]
+  power <- params[row_i, power_param]
+  false_frac <- 1 - true_frac
+  n_true <- true_frac*total
+  n_false <- false_frac*total
+  
+  TP <- power * n_true
+  FP <- alpha * n_false
+  FN <- (1-power) * n_true
+  TN <- (1-alpha) * n_false
+
+  alpha_i <- FP/n_false
+  power_i <- TP/n_true
+  fdr_i <- FP/(FP + TP)
+  fdr_total_i <- FP/total
+  fail_discovery_i <- FN/n_true
+
+  res_table <- cbind(
+    res_table,
+    data.table(c(true_frac,
+                 power_i,
+                 alpha_i,
+                 fdr_i,
+                 fdr_total_i,
+                 fail_discovery_i)))
+}
+
+colnames(res_table) <- c("Stat", paste("World", 1:nrow(params)))
+
+# n_true_positives +
+#   n_true_negatives +
+#   n_false_positives +
+#   n_false_negatives
+
+res_table %>%
+  kable(digits = 3) %>%
+  kable_styling(full_width = FALSE)
+```
+

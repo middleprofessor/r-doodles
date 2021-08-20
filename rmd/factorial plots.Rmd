@@ -1,0 +1,109 @@
+---
+title: "How to jitter, dodge, and connect means in a plot of two crossed factors"
+author: "Jeffrey A. Walker"
+date: "2/2/2021"
+output: html_document
+---
+
+# setup
+
+```{r message = FALSE}
+library(data.table)
+
+library(emmeans)
+
+library(ggplot2)
+library(ggpubr)
+```
+
+# Two factors, one measure per individual
+
+```{r}
+set.seed(1)
+n <- 6
+
+# generate two factors
+genotype_levels <- c("wt", "ko")
+diet_levels <- c("chow", "HFD")
+fake_data <- data.table(
+  genotype = factor(rep(rep(genotype_levels, each = n), 2),
+                    levels = genotype_levels),
+  diet = factor(rep(diet_levels, each = n*2),
+                levels = diet_levels)
+)
+
+# generate fixed response
+X <- model.matrix(~ genotype*diet, data = fake_data)
+beta <- c(10, 1, 1, 1)
+sigma <- 1
+fixed_i <- (X %*% beta)[,1]
+
+# generate correlated response
+sigma_i <- 0.3
+random_i <- rep(rnorm(n*2, sd = sigma_i), 2)
+
+mu_i <- fixed_i + random_i
+
+# error
+e_i <- rnorm(n*4, sd = sigma)
+
+fake_data[, y := mu_i + e_i]
+fake_data[, id := factor(paste0("mouse_", rep(1:(n*2), 2)))]
+
+```
+
+```{r}
+m1 <- lm(y ~ genotype * diet, data = fake_data)
+m1_emm <- emmeans(m1, specs = c("genotype", "diet")) %>%
+  summary()
+```
+
+```{r}
+dodge_width = 0.75
+jitter_width = 0.4
+gg <- ggplot(data = fake_data,
+             aes(x = diet,
+                 y = y,
+                 color = genotype)) +
+  
+  geom_point(position = position_jitterdodge(
+    dodge.width = dodge_width,
+    jitter.width = jitter_width,
+    seed = 1
+  )) +
+
+  geom_point(data = m1_emm,
+             aes(y = emmean),
+             size = 3,
+             position = position_dodge(
+               width = dodge_width)) +
+  
+  geom_line(data = m1_emm,
+            aes(y = emmean,
+                group = genotype),
+            position = position_dodge(
+              width = dodge_width)) +
+  
+  geom_line(data = fake_data,
+            aes(x = diet,
+                color = genotype,
+                group = id),
+            position = position_jitterdodge(
+              dodge.width = 0.4,
+              jitter.width = 0.4,
+              seed = 1)) +
+  
+  # geom_line(data = fake_data,
+  #           aes(group = id),
+  #           color = "gray",
+  #           position = position_dodge(
+  #             width = dodge_width)) +
+  
+  
+  theme_pubr() +
+  
+  NULL
+
+gg
+```
+

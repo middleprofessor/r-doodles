@@ -1,0 +1,77 @@
+---
+title: "Wright's rules applied to change-scores"
+author: "Jeffrey A. Walker"
+date: "2/16/2021"
+output: html_document
+---
+
+```{r}
+n <- 10^5
+
+sigma_wc <- 1.6
+zeta_std_wc <- 0.2 # = rho_wc
+
+sigma_ic0 <- 0.74
+zeta_std_ic0 <- 0.4 # = rho_ic0
+
+sigma_ic1 <- 0.74
+```
+
+
+```{r}
+n <- 10^5
+
+# construct u
+sigma_u <- 1
+u <- rnorm(n, sd = sigma_u)
+
+# construct wc
+zeta_wc <- zeta_std_wc*sigma_wc/sigma_u
+R2_wc <- (zeta_wc*sigma_u)^2/sigma_wc^2
+wc <- zeta_wc*u + sqrt(1 - R2_wc)*rnorm(n, sd = sigma_wc)
+cor(wc,u)
+
+# construct ic using same rules
+zeta_ic0 <- zeta_std_ic0*sigma_ic0/sigma_u
+R2_ic0 <- (zeta_ic0*sigma_u)^2/sigma_ic0^2
+ic0 <- zeta_ic0*u + sqrt(1 - R2_ic0)*rnorm(n, sd = sigma_ic0)
+cor(ic0,u)
+```
+construct ic1
+
+```{r}
+alpha_std <- .433
+zeta_3_std <- 0.04
+rho_std <- .65
+
+alpha <- alpha_std*sigma_ic1/sigma_wc
+zeta_3 <- zeta_3_std*sigma_ic1/sigma_u
+rho <- rho_std*sigma_ic1/sigma_ic0
+
+R2_wc <- (zeta_wc*sigma_u)^2/sigma_wc^2
+R2 <- (alpha*sigma_wc)^2 +
+  (zeta_3*sigma_u)^2 +
+  (rho*sigma_ic0)^2 +
+  (2*alpha*sigma_wc * zeta_3*sigma_u * zeta_std_wc) +
+  (2*alpha*sigma_wc * rho*sigma_ic0 * zeta_std_wc*zeta_std_ic0) +
+  (2*zeta_3*sigma_u * rho*sigma_ic0 * zeta_std_ic0)
+  
+ic1 <- alpha*wc + 
+  zeta_3*u +
+  rho*ic0 +
+  sqrt(1 - R2)*rnorm(n, sd = sigma_ic1)
+
+sigma_ic1
+sd(ic1)
+
+```
+
+standardized and absolute effect of wc if ic0 not in model
+
+```{r}
+gamma_std <- alpha_std + zeta_std_wc*zeta_3_std + zeta_std_wc*zeta_std_ic0*rho_std
+
+gamma <- gamma_std*sigma_ic1/sigma_wc
+gamma
+```
+

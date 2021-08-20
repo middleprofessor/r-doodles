@@ -1,0 +1,430 @@
+---
+title: "What LMM is equivalent to a two-way mixed ANOVA?"
+author: "Jeffrey A. Walker"
+date: "2/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(data.table)
+library(mvtnorm)
+library(magrittr)
+library(doBy)
+
+library(lmerTest)
+library(emmeans)
+library(afex)
+library(car)
+
+library(ggplot2)
+library(ggpubr)
+library(knitr)
+library(kableExtra)
+library(printy)
+```
+
+Generating model 1
+
+$$
+\begin{equation}
+\texttt{y} = \beta_0 + \gamma_{0j} + (\beta_1 + \gamma_{1j}) (\texttt{treatment}) + \varepsilon\\
+\operatorname{var}(\gamma) = \begin{bmatrix}
+\gamma_0&\rho\\
+\rho&\gamma_1\\
+\end{bmatrix}
+\end{equation}
+$$
+
+```{r}
+lmer_check <- function(fit){
+  return(fit@optinfo$conv$lme4$messages)
+}
+```
+
+```{r sample_fake_data}
+sample_fake_data_orig <- function(
+  seed_i = 0,
+  n = 10,
+  n_exp = 5,
+  beta_0 = 10,
+  beta_1 = 0,
+  sigma = 1,
+  gamma_0 = 0.5,
+  gamma_1 = 0.2,
+  rho = 0.5 # correlation between random intercept and slope
+){
+  set.seed(seed_i)
+  n_treat <- 2
+  N <- n*n_treat*n_exp
+  
+  treatment_levels <- c("wt", "ko", "sham", "rescue")[1:n_treat]
+  experiment_levels <- paste0("experiment", 1:n_exp)
+  fake_data[, treatment := rep(rep(treatment_levels, each = n), n_exp)]
+  fake_data[, experiment_id := rep(experiment_levels,
+                                   each = n*n_treat)]
+  
+  # order factor levels
+  fake_data[, treatment := factor(treatment,
+                                  levels = treatment_levels)]
+  fake_data[, experiment_id := factor(experiment_id,
+                                      levels = experiment_levels)]
+  
+  # fixed component
+  beta <- c(beta_0, beta_1)
+  X <- model.matrix(~ treatment,
+                    data = fake_data)
+  # y_fixed <- (X %*% beta)[,1] compute directly in data.table
+
+  # random component
+  # random variance matrix
+  Gamma <-  matrix(c(gamma_0^2,
+                     rho*gamma_0*gamma_1,
+                     rho*gamma_0*gamma_1,
+                     gamma_1^2),
+                   nrow=2)
+  exp1 <- which(fake_data[,experiment_id] == experiment_levels[1])
+  D <- model.matrix(~ treatment,
+                    data = fake_data[exp1,],
+                    contrast = list(treatment = contr.sum))
+  D[, 2] <- D[, 2] * -0.5
+  I <- diag(n_exp) # identity
+  Z <- t(kronecker(I, t(D)))
+      # random coefficients
+  gamma_mat <- rmvnorm(n_exp,
+                   mean = c(0,0),
+                   sigma = Gamma)
+  gamma <- c(t(gamma_mat))
+  # y_rand <- (Z %*% gamma)[,1] # compute directly in data.table
+  
+  fake_data[, y_fixed := (X %*% beta)[,1]]
+  fake_data[, y_rand := (Z %*% gamma)[,1]]
+  fake_data[, y_hat := y_fixed + y_rand]
+  e <- rnorm(N, 0, sigma)
+  fake_data[, y := y_hat + e]
+
+  return(fake_data)
+}
+
+```
+
+
+```{r}
+sample_fake_data <- function(
+  seed_i = 1,
+  n = 10,
+  n_exp = 5,
+  n_treat = 3,
+  beta = c(10,1,1),
+  sigma = 1,
+  gamma = c(0.5, 0.5, 0.5),
+  rho = c(0.6, 0.6, 0.6) # correlation between random intercept and slope
+){
+  set.seed(seed_i)
+  N <- n*n_treat*n_exp
+  
+  treatment_levels <- c("wt", "ko", "treat", "rescue")[1:n_treat]
+  experiment_levels <- paste0("experiment", 1:n_exp)
+  fake_data[, treatment := rep(rep(treatment_levels, each = n), n_exp)]
+  fake_data[, experiment_id := rep(experiment_levels,
+                                   each = n*n_treat)]
+  
+  # order factor levels
+  fake_data[, treatment := factor(treatment,
+                                  levels = treatment_levels)]
+  fake_data[, experiment_id := factor(experiment_id,
+                                      levels = experiment_levels)]
+  
+  # fixed component
+  X <- model.matrix(~ treatment,
+                    data = fake_data)
+  # y_fixed <- (X %*% beta)[,1] compute directly in data.table
+
+  # random component
+  # random variance matrix
+  L <- diag(gamma)
+  Rho <- diag(length(gamma))
+  Rho[lower.tri(Rho, diag = FALSE)] <- rho
+  Rho <- t(Rho)
+  Rho[lower.tri(Rho, diag = FALSE)] <- rho
+  Gamma <- L%*%Rho%*%L
+
+  exp1 <- which(fake_data[,experiment_id] == experiment_levels[1])
+  D <- model.matrix(~ treatment,
+                    data = fake_data[exp1,],
+                    contrast = list(treatment = contr.sum))
+  D[, 2:n_treat] <- D[, 2:n_treat] * -0.5
+  I <- diag(n_exp) # identity
+  Z <- t(kronecker(I, t(D)))
+      # random coefficients
+  gamma_mat <- rmvnorm(n_exp,
+                   sigma = Gamma)
+  gamma <- c(t(gamma_mat))
+  # y_rand <- (Z %*% gamma)[,1] # compute directly in data.table
+  
+  fake_data[, y_fixed := (X %*% beta)[,1]]
+  fake_data[, y_rand := (Z %*% gamma)[,1]]
+  fake_data[, y_hat := y_fixed + y_rand]
+  e <- rnorm(N, 0, sigma)
+  fake_data[, y := y_hat + e]
+
+  return(fake_data)
+}
+
+```
+
+
+```{r two treatments}
+fake_data <- data.table(NULL)
+seed_i <- 1
+n <- 10
+n_exp <- 5
+N <- n*2*n_exp
+beta_0 <- 10
+beta_1 <- 1
+sigma <- 1
+gamma_0_ratio = 1 # variation within an experiment
+gamma_1_ratio = 1
+gamma_0 <- sigma * gamma_0_ratio
+gamma_1 <- beta_1 * gamma_1_ratio
+rho <- 0.8
+
+fake_data <- data.table(NULL)
+fake_data <- sample_fake_data_orig(
+  seed_i = seed_i,
+  n = n,
+  n_exp = n_exp,
+  beta_0 = beta_0,
+  beta_1 = beta_1,
+  sigma = sigma,
+  gamma_0 = gamma_0,
+  gamma_1 = gamma_1,
+  rho = rho
+)
+
+fake_data2 <- sample_fake_data(
+  seed_i = seed_i,
+  n = n,
+  n_exp = n_exp,
+  n_treat = 2,
+  beta = c(beta_0, beta_1),
+  sigma = sigma,
+  gamma = c(gamma_0, gamma_1),
+  rho = c(rho)
+)
+
+
+# ggplot(data = fake_data,
+#        aes(x = treatment,
+#            y = y)) +
+#   geom_point() +
+#   NULL
+
+fake_data[, .(sd = sd(y_rand)),
+           by = .(treatment)]
+
+fake_data_means <- fake_data[, .(y_mean = mean(y)),
+                             by = .(treatment, experiment_id)]
+
+m1_lm <- lm(y ~ treatment * experiment_id,
+           data = fake_data)
+m1_aov <- aov_4(y ~ treatment + (treatment | experiment_id),
+           data = fake_data)
+m1_lmer_means <- lmer(y_mean ~ treatment + (1 | experiment_id),
+           data = fake_data_means)
+m1_lmer <- lmer(y ~ treatment + (treatment | experiment_id),
+           data = fake_data)
+m2_lmer <- lmer(y ~ treatment +
+                  (1 | experiment_id) +
+                  (1 | experiment_id:treatment),
+           data = fake_data)
+
+fake_data[, m1_lm := predict(m1_lm)]
+fake_data[, m1_lmer := predict(m1_lmer)]
+fake_data[, m2_lmer := predict(m2_lmer)]
+fake_data[, id := .I]
+
+fake_data_means[, m1_aov := predict(m1_lmer_means)]
+fake_data <- merge(fake_data,
+                   fake_data_means,
+                   by = c("treatment", "experiment_id"))
+
+fake_data_long <- melt(fake_data,
+     id.vars = c("id", "treatment", "experiment_id"),
+     measure.vars = c("m1_aov","m1_lm", "m1_lmer", "m2_lmer"),
+     variable.name = "model",
+     value.name = "prediction")
+
+treatment_means <- fake_data_long[, .(mean = mean(prediction),
+                                      sd = sd(prediction)),
+                                  by = .(treatment, model)]
+
+wt_mean <- treatment_means[model=="m1_lm" &
+                                 treatment == "wt", mean]
+ko_mean <- treatment_means[model=="m1_lm" &
+                                 treatment == "ko", mean]
+
+ggplot(data = fake_data_long,
+       aes(x = treatment,
+           y = prediction,
+           color = model)) +
+  geom_point(position = position_dodge(width = 0.8))
+
+treatment_means
+
+anova(m1_aov)
+anova(m1_lmer_means, ddf="Kenward-Roger")
+anova(m1_lmer, ddf="Kenward-Roger")
+anova(m2_lmer, ddf="Kenward-Roger")
+```
+
+```{r three treatments}
+fake_data <- data.table(NULL)
+seed_i <- 1
+n <- 10
+n_exp <- 5
+N <- n*2*n_exp
+beta_0 <- 10
+beta_1 <- 1
+beta_2 <- 1
+sigma <- 1
+beta <- c(10, 1, 1)
+gamma <- c(1, 1, 1)
+rho <- c(0.8, 0.6, 0.4)
+
+fake_data <- data.table(NULL)
+fake_data <- sample_fake_data(
+  seed_i = seed_i,
+  n = n,
+  n_exp = n_exp,
+  n_treat = 3,
+  beta = beta,
+  sigma = sigma,
+  gamma = gamma,
+  rho = rho
+)
+
+
+# ggplot(data = fake_data,
+#        aes(x = treatment,
+#            y = y)) +
+#   geom_point() +
+#   NULL
+
+fake_data[, .(sd = sd(y_rand)),
+           by = .(treatment)]
+
+fake_data_means <- fake_data[, .(y_mean = mean(y)),
+                             by = .(treatment, experiment_id)]
+
+m1_lm <- lm(y ~ treatment * experiment_id,
+           data = fake_data)
+m1_aov <- aov_4(y ~ treatment + (treatment | experiment_id),
+           data = fake_data)
+m1_lmer_means <- lmer(y_mean ~ treatment + (1 | experiment_id),
+           data = fake_data_means)
+m1_lmer <- lmer(y ~ treatment + (treatment | experiment_id),
+           data = fake_data)
+m2_lmer <- lmer(y ~ treatment +
+                  (1 | experiment_id) +
+                  (1 | experiment_id:treatment),
+           data = fake_data)
+
+fake_data[, m1_lm := predict(m1_lm)]
+fake_data[, m1_lmer := predict(m1_lmer)]
+fake_data[, m2_lmer := predict(m2_lmer)]
+fake_data[, id := .I]
+
+fake_data_means[, m1_aov := predict(m1_lmer_means)]
+fake_data <- merge(fake_data,
+                   fake_data_means,
+                   by = c("treatment", "experiment_id"))
+
+fake_data_long <- melt(fake_data,
+     id.vars = c("id", "treatment", "experiment_id"),
+     measure.vars = c("m1_aov","m1_lm", "m1_lmer", "m2_lmer"),
+     variable.name = "model",
+     value.name = "prediction")
+
+treatment_means <- fake_data_long[, .(mean = mean(prediction),
+                                      sd = sd(prediction)),
+                                  by = .(treatment, model)]
+
+wt_mean <- treatment_means[model=="m1_lm" &
+                                 treatment == "wt", mean]
+ko_mean <- treatment_means[model=="m1_lm" &
+                                 treatment == "ko", mean]
+
+ggplot(data = fake_data_long,
+       aes(x = treatment,
+           y = prediction,
+           color = model)) +
+  geom_point(position = position_dodge(width = 0.8))
+
+```
+
+## aov table
+
+```{r}
+anova_res <- data.table(NULL)
+aov_table <- anova(m1_aov, correction = "GG")[,-5]
+aov_labels <- colnames(aov_table)
+anova_res <- rbind(anova_res,
+                   data.table(
+                     model = "m1_aov-GG",
+                     aov_table,
+                     error = "none"))
+aov_table <- anova(m1_aov, correction = "none")[,-5]
+anova_res <- rbind(anova_res,
+                   data.table(
+                     model = "m1_aov-none",
+                     aov_table,
+                     error = "none"))
+
+# lmer random intercept model of experiment means
+cols <- c(3,4,2,5,6)
+aov_table <- anova(m1_lmer_means, ddf="Kenward-Roger")[,cols]
+colnames(aov_table) <- aov_labels
+error_message <- ifelse(is.null(lmer_check(m1_lmer_means)),
+                        "none",
+                        "error")
+anova_res <- rbind(anova_res,
+                   data.table(
+                     model = "m1_lmer_means",
+                     aov_table,
+                     error = error_message))
+
+# lmer random intercept and slope
+aov_table <- anova(m1_lmer, ddf="Kenward-Roger")[,cols]
+colnames(aov_table) <- aov_labels
+error_message <- ifelse(is.null(lmer_check(m1_lmer_means)),
+                        "none",
+                        "error")
+anova_res <- rbind(anova_res,
+                   data.table(
+                     model = "m1_lmer_max",
+                     aov_table,
+                     error = error_message))
+
+# lmer random nested
+aov_table <- anova(m2_lmer, ddf="Kenward-Roger")[,cols]
+colnames(aov_table) <- aov_labels
+error_message <- ifelse(is.null(lmer_check(m1_lmer_means)),
+                        "none",
+                        "error")
+anova_res <- rbind(anova_res,
+                   data.table(
+                     model = "m1_lmer_nested",
+                     aov_table,
+                     error = error_message))
+
+anova_res %>%
+  kable() %>%
+  kable_styling()
+```
+
+```{r summary}
+treatment_means
+```
+

@@ -518,6 +518,12 @@ save_offset_simulation <- function(p_table, sim_name = "test"){
 ```
 
 ```{r offset-simulation}
+sim0 <- offset_simulator(n_iter = 1000,
+                         n_vec = c(10),
+                         cov_diff_params = c(0),
+                         cov_sd_params = c(1),
+                         slope_params = c(1))
+
 sim1 <- offset_simulator(n_iter = 2000,
                          n_vec = c(5, 10, 20, 40),
                          cov_diff_params = c(0),
