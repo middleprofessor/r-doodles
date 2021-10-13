@@ -301,20 +301,20 @@ library(kableExtra)</code></pre>
 <p>There are 4 x 2 x 2 x 4 = 64 measures.</p>
 <p>Brain is a block with 2 replicates of each treatment and 4 subsamples per replicate. This is a Generalized RCBD with subsampling. “Generalized” indicates replication within blocks. “Subsampling” indicates multiple measures per replicate.</p>
 <p><strong>linear mixed models</strong></p>
-<p>If there were no subsampling, I would fit a model that includes random intercepts for brain and for the brain by treatment combination (this is a well)</p>
+<p>If there were no subsampling, I would fit a model that includes random intercepts for brain and for the brain by treatment combination (or <span class="math inline">\(\texttt{well}\)</span>)</p>
 <p>lmm1: <code>y ~ treatment + (1 | brain) + (1 | brain:treatment)</code></p>
-<p>Many sources recommend a full random intercept and slope model but in my exploratory simulations (unrelated to the example here), I find that these to have frequent boundary errors (and so reduce to more minimal models) or tend to be very conservative.</p>
+<p>Many sources recommend a full random intercept and slope model but in my exploratory simulations (unrelated to the example here), I find that these have frequent boundary warnings or tend to be very conservative when they do fit. A random slope model fit data without subsampling would be</p>
 <p>lmm2: <code>y ~ treatment + (treatment | brain)</code></p>
-<p>Given that the design has subsampling (well nested within brain:treatment combination), we need to add a factor to account for this. I would use</p>
+<p>Given that the design has subsampling (<span class="math inline">\(\texttt{well}\)</span> nested within brain:treatment combination), we need to add a factor to account for this. I would use</p>
 <p>lmm3: <code>y ~ treatment + (1 | brain) + (1 | brain:treatment) + (1 | brain:treatment:well)</code></p>
-<p>lmm3 is my suggested model. If the design is completely balanced (same number of subsamples per well), then an equivalent model is to average over the subsamples within a well and fit</p>
+<p>lmm3 is my suggested model. The model is very similar to Caldwells <code>mod_1</code>, since <code>(1 | brain:treatment)</code> acts as a random slope – the difference is that lmm3 doesn’t model a correlation between slope and intercept. If the design is completely balanced (same number of subsamples per well), then an equivalent model is to average over the subsamples within a well and fit</p>
 <p>lmm4: <code>y ~ treatment + (1 | brain) + (1 | brain:treatment)</code></p>
-<p>lmm4 is the same model as lmm1 but in lmm4, the single value for a well is a mean of 4 values while in lmm1 the single value is the only measured value.</p>
+<p>lmm4 is the same model as lmm1 but in lmm4, the single value for <span class="math inline">\(\texttt{well}\)</span> is a mean of 4 values while in lmm1 the single value is the only measured value.</p>
 <p><strong>ANOVA models</strong></p>
 <p>If the design is completely balanced, lmm4 is equivalent to a 2-way ANOVA with <span class="math inline">\(\texttt{brain}\)</span> as a random factor. This means in R we can use the afex function <code>aov_4</code> using the model</p>
 <p>aov1: <code>y ~ treatment + (treatment | brain)</code></p>
 <p>with the aggregated data used in lmm4. This <em>looks</em> like a random intercept and slope model but it’s not.</p>
-<p>Senn suggested an ANOVA model of cells nested within well nested within brain. Caldwell used this model to capture this</p>
+<p>Senn suggested an ANOVA model of cells nested within <span class="math inline">\(\texttt{well}\)</span> nested within brain. Caldwell used this model to capture this</p>
 <p>aov1: <code>y ~ treatment + Error(brain / well)</code></p>
 <p>which should be equivalent to</p>
 <p>lmm5: <code>y ~ treatment + (1 | brain) + (1 | brain:treatment:well)</code></p>
