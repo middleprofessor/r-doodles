@@ -322,6 +322,7 @@ library(kableExtra)</code></pre>
 <p>lmm3: <code>y ~ treatment + (1 | brain) + (1 | brain:treatment) + (1 | brain:treatment:well)</code></p>
 <div id="fake-senn-data-generator" class="section level2" number="2.1">
 <h2><span class="header-section-number">2.1</span> Fake Senn data generator</h2>
+<p>This fake data generator is used for the simulation below but I have the chunk here because I use it to create a fake response for Senn’s example and I wanted a fake response with some correlated error at the different levels.</p>
 <pre class="r"><code>simulator &lt;- function(
   seed_i = 1,
   n_sim = 1,
